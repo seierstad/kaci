@@ -38,7 +38,7 @@ drawWaveformParameterized = function(waveFunction, canvas, xOffset, yOffset, wid
 			context.lineTo(coordinates.x, coordinates.y);
 		}
 		localPhase += localPhaseIncrement;
-		localResonantPhase += localPhaseIncrement / resonantPhaseFactor;
+		localResonantPhase += localPhaseIncrement / resonantPhaseFactor.value;
    }
    context.stroke();
 };

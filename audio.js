@@ -36,7 +36,7 @@ function AudioDataDestination(sampleRate, readFn) {
 			written = audio.mozWriteAudio(soundData);
 			if(written < soundData.length) {
 				// Not all the data was written, saving the tail.
-				tail = soundData.slice(written);
+//				tail = soundData.slice(written);
 			}
 			currentWritePosition += written;
 		}
@@ -55,13 +55,9 @@ function start() {
   noteOnTime = new Date();
   setFrequency();
 }
-function setFrequency() {
-  frequency = parseFloat(document.getElementById("freq").value);
-  phase_increment = frequency / sampleRate;
-}
 
 function stop() {
-  frequency = 0;
+  frequency.value = 0;
   noteOnTime = null;
   noteOffTime = new Date();
 }

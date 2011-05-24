@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>JavaScript Audio Write Example</title>
+    <title>JavaScript phase distortion synthesis</title>
     <style>
     	#phase-distortion-plot,
     	#waveform
@@ -26,14 +26,29 @@
   	<br />
   	<!--canvas height="300" width="450" id="phase-distortion-plot"></canvas-->
 	<div id="container"></div>
+	<div id="neio"></div>
     <input type="range" size="4" id="freq" onchange="setFrequency()" value="110"><label for="hz">Hz</label>
     <button onclick="start()">play</button>
     <button onclick="stop()">stop</button>
     <script type="text/javascript">
-      var frequency = 0, currentSoundSample;
+		function ControlledValue(initialValue) {
+			if (!!initialValue) {
+				this.value = initialValue;
+			} else {
+				this.value = 0;
+			}
+			this.controllers = [];
+		}
+		ControlledValue.prototype.addController = function(controller) {
+			this.controllers.push(controller);
+		};
+		var resonantPhaseFactor = new ControlledValue(0.1);
+		var frequency = new ControlledValue(110);
+		
+      var currentSoundSample;
       var sampleRate = 44100;
 		var phase = 0;
-		var phase_increment = frequency / sampleRate;
+		var phase_increment = frequency.value / sampleRate;
       var points = [[0, 0], [0.3, 0.4], [1, 1]];
 		var selectedPointIndex = null;
 
@@ -132,22 +147,22 @@
 		var wrapperFunction = linearWrapper;
 
 		var resonantPhase = 0;
-		var resonantPhaseFactor = 0.1;
+
       function requestSoundData(soundData) {
-        if (!frequency) { 
+        if (!frequency.value) { 
           return; // no sound selected
         }
-
-			
         
         for (var i = 0, size = soundData.length; i < size; i++) {
 //			 resonantPhaseFactor = envelope(noteOnTime, noteOffTime);
           soundData[i] = baseWaveform(phaseDistort(resonantPhase)) * wrapperFunction(phase);
         	 phase += phase_increment;
-/*        	 if (resonantPhaseFactor <= 0) {
+/*
+        	 if (resonantPhaseFactor <= 0) {
         	 	resonantPhaseFactor = 0.00000001;
         	 }
-*/        	 resonantPhase += phase_increment / resonantPhaseFactor; 
+*/
+        	 resonantPhase += phase_increment / resonantPhaseFactor.value; 
         	 while (phase > 1) {
 	        	phase -= 1;
 	        	resonantPhase = 0;

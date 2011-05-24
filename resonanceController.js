@@ -1,75 +1,91 @@
+var Controller = function(parentId, controlledValue, params) {
+	this.container = document.getElementById(parentId);
+	this.controlled = controlledValue;
+	this.minValue = params.minValue;
+	this.maxValue = params.maxValue;
+	this.callback = params.callback;
 
+	var 
+		controller,
+		controllerTouchArea,
+		initcontrollerAsSvg,
+		valueIndicator;
+		
+	controller = document.createElementNS(svgns, "svg");
+	controller.setAttribute("version", "1.2");
+	controller.setAttribute("id", "resonance-controller");
+	controller.setAttribute("width", "50px");
+	controller.setAttribute("height", "300px");
+	controller.setAttribute("baseProfile", "tiny");
+	controllerTouchArea = document.createElementNS(svgns, "rect");
+	controllerTouchArea.setAttribute("x", "0");
+	controllerTouchArea.setAttribute("y", "0");
+	controllerTouchArea.setAttribute("width", "100%");
+	controllerTouchArea.setAttribute("height", "100%");
+	controllerTouchArea.setAttribute("opacity", "0");
+	controller.appendChild(controllerTouchArea);
+	this.container.appendChild(controller);
+	valueIndicator = document.createElementNS(svgns, "circle");
+	valueIndicator.setAttribute("cx", "50%");
+	var position = (this.controlled.value - this.minValue) / this.maxValue;
+	valueIndicator.setAttribute("cy", position * 100 + "%");
+	valueIndicator.setAttribute("r", pointRadius);
+	valueIndicator.setAttribute("fill", "#336699");
+	controller.appendChild(valueIndicator);
 
-var 
-	resonanceController,
-	resonanceControllerTouchArea,
-	initResonanceControllerAsSvg,
-	resonanceIndicator;
-
-initResonanceControllerAsSvg = function() {
-	resonanceController = document.createElementNS(svgns, "svg");
-	resonanceController.setAttribute("version", "1.2");
-	resonanceController.setAttribute("id", "resonance-controller");
-	resonanceController.setAttribute("width", "50px");
-	resonanceController.setAttribute("height", "300px");
-	resonanceController.setAttribute("baseProfile", "tiny");
-	resonanceControllerTouchArea = document.createElementNS(svgns, "rect");
-	resonanceControllerTouchArea.setAttribute("x", "0");
-	resonanceControllerTouchArea.setAttribute("y", "0");
-	resonanceControllerTouchArea.setAttribute("width", "100%");
-	resonanceControllerTouchArea.setAttribute("height", "100%");
-	resonanceControllerTouchArea.setAttribute("opacity", "0");
-	resonanceController.appendChild(resonanceControllerTouchArea);
-	container.appendChild(resonanceController);
-	resonanceIndicator = document.createElementNS(svgns, "circle");
-	resonanceIndicator.setAttribute("cx", "50%");
-	resonanceIndicator.setAttribute("cy", resonantPhaseFactor * 100 + "%");
-	resonanceIndicator.setAttribute("r", pointRadius);
-	resonanceIndicator.setAttribute("fill", "#336699");
-	resonanceController.appendChild(resonanceIndicator);
-};
-
-var resonanceControllerChangeHandler = function(event) {
-	event.stopPropagation();
-	event.preventDefault();
-	var pixelCoordinates = getCursorPositionSVG(event, event.currentTarget);
-	var svgSize = getSVGSizeInPixels(getSvgRoot(event.currentTarget));
-	resonantPhaseFactor = pixelCoordinates.y / svgSize.height;
-	resonanceIndicator.setAttribute("cy", resonantPhaseFactor * 100 + "%");
-	drawWaveform();
-};
-var resonanceIndicatorMouseUpHandler = function(event) {
-	resonanceIndicator.removeEventListener('mousemove', resonanceControllerChangeHandler, false);
-	resonanceIndicator.removeEventListener('mouseup', resonanceIndicatorMouseUpHandler, false);
-};
-var resonanceIndicatorMouseDownHandler = function(event) {
-	resonanceIndicator.addEventListener('mousemove', resonanceControllerChangeHandler, false);
-	resonanceIndicator.addEventListener('mouseup', resonanceIndicatorMouseUpHandler, false);
-};
-var resonanceControllerScrollHandler = function(event) {
-	event.stopPropagation();
-	event.preventDefault();
-	var increase = resonantPhaseFactor * event.detail / 100;
-	if ((resonantPhaseFactor + increase) > 0.0001 && (resonantPhaseFactor + increase) <= 1.0 ) {
-		resonantPhaseFactor += increase;
-		resonanceIndicator.setAttribute("cy", resonantPhaseFactor * 100 + "%");
+	var controllerChangeHandler = function(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		var pixelCoordinates = getCursorPositionSVG(event, event.currentTarget);
+		var svgSize = getSVGSizeInPixels(getSvgRoot(event.currentTarget));
+		this.controlled.value = this.minValue + ((this.maxValue - this.minValue) * (pixelCoordinates.y / svgSize.height));
+		var position = (this.controlled.value - this.minValue) / this.maxValue;
+		valueIndicator.setAttribute("cy", position * 100 + "%");
+		this.callback(this.controlled.value);
 		drawWaveform();
-	}
-};
-var resonanceControllerMouseOverHandler = function(event) {
-	document.addEventListener('DOMMouseScroll', resonanceControllerScrollHandler, false);
-	document.addEventListener('mousewheel', resonanceControllerScrollHandler, false);
-};
-var resonanceControllerMouseOutHandler = function(event) {
-	document.removeEventListener('DOMMouseScroll', resonanceControllerScrollHandler, false);
-	document.removeEventListener('mousewheel', resonanceControllerScrollHandler, false);
-};
+	}.bind(this);
+	var valueIndicatorMouseUpHandler = function(event) {
+		valueIndicator.removeEventListener('mousemove', controllerChangeHandler, false);
+		valueIndicator.removeEventListener('mouseup', valueIndicatorMouseUpHandler, false);
+	};
+	var valueIndicatorMouseDownHandler = function(event) {
+		valueIndicator.addEventListener('mousemove', controllerChangeHandler, false);
+		valueIndicator.addEventListener('mouseup', valueIndicatorMouseUpHandler, false);
+	};
+	var controllerScrollHandler = function(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		var increase = this.controlled.value * event.detail / 100;
+		if ((this.controlled.value + increase) > this.minValue && (this.controlled.value + increase) <= this.maxValue ) {
+			this.controlled.value += increase;
+			var position = (this.controlled.value - this.minValue) / this.maxValue;
+			valueIndicator.setAttribute("cy", position * 100 + "%");
+			this.callback(this.controlled.value);
+			drawWaveform();
+		}
+	}.bind(this);
+	var controllerMouseOverHandler = function(event) {
+		document.addEventListener('DOMMouseScroll', controllerScrollHandler, false);
+		document.addEventListener('mousewheel', controllerScrollHandler, false);
+	};
+	var controllerMouseOutHandler = function(event) {
+		document.removeEventListener('DOMMouseScroll', controllerScrollHandler, false);
+		document.removeEventListener('mousewheel', controllerScrollHandler, false);
+	};
 
-initResonanceControllerAsSvg();
-resonanceIndicator.addEventListener('mousedown', resonanceIndicatorMouseDownHandler, false);
-resonanceController.addEventListener('click', resonanceControllerChangeHandler, false);
-resonanceController.addEventListener('mouseover', resonanceControllerMouseOverHandler, false);
-resonanceController.addEventListener('mouseout', resonanceControllerMouseOutHandler, false);
-resonanceControllerTouchArea.addEventListener('touchstart', touchStartHandler, false);
+
+	valueIndicator.addEventListener('mousedown', valueIndicatorMouseDownHandler, false);
+	controller.addEventListener('click', controllerChangeHandler, false);
+	controller.addEventListener('mouseover', controllerMouseOverHandler, false);
+	controller.addEventListener('mouseout', controllerMouseOutHandler, false);
+	controllerTouchArea.addEventListener('touchstart', touchStartHandler, false);
+
+};
+function setFrequency(value) {
+  phase_increment = value / sampleRate;
+}
+
+var resonanceController = new Controller('container', resonantPhaseFactor, {'minValue': 0, 'maxValue': 1, 'callback': drawWaveform});
+var frequencyController = new Controller('container', frequency, {'minValue': 0, 'maxValue': 1000, 'callback': setFrequency});
 
 
