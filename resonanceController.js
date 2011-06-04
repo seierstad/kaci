@@ -5,6 +5,11 @@ var Controller = function(parentId, controlledValue, params) {
 	this.maxValue = params.maxValue;
 	this.callback = params.callback;
 
+	this.update = function() {
+		var position = (this.controlled.value - this.minValue) / this.maxValue;
+		valueIndicator.setAttribute("cy", position * 100 + "%");
+	};
+	this.controlled.addController(this);
 	var 
 		controller,
 		controllerTouchArea,
@@ -38,36 +43,41 @@ var Controller = function(parentId, controlledValue, params) {
 		event.preventDefault();
 		var pixelCoordinates = getCursorPositionSVG(event, event.currentTarget);
 		var svgSize = getSVGSizeInPixels(getSvgRoot(event.currentTarget));
-		this.controlled.value = this.minValue + ((this.maxValue - this.minValue) * (pixelCoordinates.y / svgSize.height));
-		var position = (this.controlled.value - this.minValue) / this.maxValue;
-		valueIndicator.setAttribute("cy", position * 100 + "%");
-		this.callback(this.controlled.value);
+		this.controlled.setValue(this.minValue + ((this.maxValue - this.minValue) * (pixelCoordinates.y / svgSize.height)));
+		if(typeof this.callback === "function") {
+			this.callback(this.controlled.value);
+		}
 		drawWaveform();
 	}.bind(this);
+	
 	var valueIndicatorMouseUpHandler = function(event) {
 		valueIndicator.removeEventListener('mousemove', controllerChangeHandler, false);
 		valueIndicator.removeEventListener('mouseup', valueIndicatorMouseUpHandler, false);
 	};
+	
 	var valueIndicatorMouseDownHandler = function(event) {
 		valueIndicator.addEventListener('mousemove', controllerChangeHandler, false);
 		valueIndicator.addEventListener('mouseup', valueIndicatorMouseUpHandler, false);
 	};
+	
 	var controllerScrollHandler = function(event) {
 		event.stopPropagation();
 		event.preventDefault();
 		var increase = this.controlled.value * event.detail / 100;
 		if ((this.controlled.value + increase) > this.minValue && (this.controlled.value + increase) <= this.maxValue ) {
-			this.controlled.value += increase;
-			var position = (this.controlled.value - this.minValue) / this.maxValue;
-			valueIndicator.setAttribute("cy", position * 100 + "%");
-			this.callback(this.controlled.value);
+			this.controlled.setValue(this.controlled.value += increase);
+			if(typeof this.callback === "function") {
+				this.callback(this.controlled.value);
+			}
 			drawWaveform();
 		}
 	}.bind(this);
+	
 	var controllerMouseOverHandler = function(event) {
 		document.addEventListener('DOMMouseScroll', controllerScrollHandler, false);
 		document.addEventListener('mousewheel', controllerScrollHandler, false);
 	};
+	
 	var controllerMouseOutHandler = function(event) {
 		document.removeEventListener('DOMMouseScroll', controllerScrollHandler, false);
 		document.removeEventListener('mousewheel', controllerScrollHandler, false);
@@ -81,11 +91,7 @@ var Controller = function(parentId, controlledValue, params) {
 	controllerTouchArea.addEventListener('touchstart', touchStartHandler, false);
 
 };
-function setFrequency(value) {
-  phase_increment = value / sampleRate;
-}
-
+/*
 var resonanceController = new Controller('container', resonantPhaseFactor, {'minValue': 0, 'maxValue': 1, 'callback': drawWaveform});
-var frequencyController = new Controller('container', frequency, {'minValue': 0, 'maxValue': 1000, 'callback': setFrequency});
-
-
+var frequencyController = new Controller('container', frequency, {'minValue': 0, 'maxValue': 1000});
+*/

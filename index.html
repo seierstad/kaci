@@ -19,41 +19,37 @@
     		border: 1px dotted blue;
     		background: rgba(255,255,255,0.1);
     	}
+    	.black {
+    		fill: #000;
+    	}
+    	.white {
+    		fill: #fff;
+    		stroke: #000;
+    	}
     </style>
   </head>
   <body>
   	<canvas height="500" width="500" id="waveform"></canvas>
   	<br />
-  	<!--canvas height="300" width="450" id="phase-distortion-plot"></canvas-->
 	<div id="container"></div>
-	<div id="neio"></div>
-    <input type="range" size="4" id="freq" onchange="setFrequency()" value="110"><label for="hz">Hz</label>
-    <button onclick="start()">play</button>
-    <button onclick="stop()">stop</button>
+    <input type="range" size="4" id="freq" value="110"><label for="hz">Hz</label>
+
+	 <script type="text/javascript" src="ControlledValue.js"></script>
     <script type="text/javascript">
-		function ControlledValue(initialValue) {
-			if (!!initialValue) {
-				this.value = initialValue;
-			} else {
-				this.value = 0;
-			}
-			this.controllers = [];
-		}
-		ControlledValue.prototype.addController = function(controller) {
-			this.controllers.push(controller);
-		};
+    
 		var resonantPhaseFactor = new ControlledValue(0.1);
-		var frequency = new ControlledValue(110);
-		
+		var frequency = new ControlledValue(0);
+		frequency.afterUpdate = function() {
+			phase_increment = this.value / sampleRate;
+		};
       var currentSoundSample;
       var sampleRate = 44100;
 		var phase = 0;
 		var phase_increment = frequency.value / sampleRate;
-      var points = [[0, 0], [0.3, 0.4], [1, 1]];
+      var points = [[0, 0], [1, 1]];
 		var selectedPointIndex = null;
 
 		var pointRadius = 10;
-		var pointSelectTolerance = 10;
 		var lineWidth = 1;
 
       var waveformCanvas = document.getElementById("waveform");
@@ -144,7 +140,7 @@
 			'half_sinus': halfSinusWrapper
 		};
 		var baseWaveform = sinus;
-		var wrapperFunction = linearWrapper;
+		var wrapperFunction = wrapperFunctions.half_sinus;
 
 		var resonantPhase = 0;
 
@@ -174,10 +170,9 @@
 
   </script>
   <script type="text/javascript" src="waveformPlotter.js"></script>
-  <!-- script type="text/javascript" src="canvasEvents.js"></script -->
-  
   <script type="text/javascript" src="svgplot.js"></script>
   <script type="text/javascript" src="resonanceController.js"></script>
+  <script type="text/javascript" src="keyboardController.js"></script>
   <script type="text/javascript" src="envelope.js"></script>
   <script type="text/javascript" src="audio.js"></script>
   </body>

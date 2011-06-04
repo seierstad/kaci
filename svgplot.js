@@ -1,161 +1,94 @@
 var
-	container = document.getElementById("container"),
 	xlinkns = 'http://www.w3.org/1999/xlink',
 	svgns = 'http://www.w3.org/2000/svg',
 	svgPoints = [],
 	svgLines = [],
-	mySvg = document.createElementNS(svgns, "svg"),
 	pdTouchArea,
 	initSvg,
 	unitLookup;
 
-initSvg = function() {	
-	mySvg.setAttribute("version", "1.2");
-	mySvg.setAttribute("id", "pd-plot");
-	mySvg.setAttribute("width", "450px");
-	mySvg.setAttribute("height", "300px");
-	mySvg.setAttribute("baseProfile", "tiny");
-	pdTouchArea = document.createElementNS(svgns, "rect");
-	pdTouchArea.setAttribute("x", "0");
-	pdTouchArea.setAttribute("y", "0");
-	pdTouchArea.setAttribute("width", "100%");
-	pdTouchArea.setAttribute("height", "100%");
-	pdTouchArea.setAttribute("opacity", "0");
-	mySvg.appendChild(pdTouchArea);
-	container.appendChild(mySvg);
+
+var EnvelopeController = function(parentId, controlledValue) {
+	var container = document.getElementById(parentId);
+	this.envelope = document.createElementNS(svgns, "svg");
+	
+	this.controlledData = controlledValue;
+	this.envelopePoints = [];
+	this.envelopeLines = [];
+	
+	this.envelope.setAttribute("version", "1.2");
+	this.envelope.setAttribute("id", "pd-plot");
+	this.envelope.setAttribute("width", "500px");
+	this.envelope.setAttribute("height", "300px");
+	this.envelope.setAttribute("baseProfile", "tiny");
+	var envelopeTouchArea = document.createElementNS(svgns, "rect");
+	envelopeTouchArea.setAttribute("x", "0");
+	envelopeTouchArea.setAttribute("y", "0");
+	envelopeTouchArea.setAttribute("width", "100%");
+	envelopeTouchArea.setAttribute("height", "100%");
+	envelopeTouchArea.setAttribute("opacity", "0");
+	this.envelope.appendChild(envelopeTouchArea);
+	container.appendChild(this.envelope);
+	
+//	envelopeTouchArea.addEventListener('touchstart', touchStartHandler, false);
+	this.envelope.addEventListener('click', this.clickHandler.bind(this), false);
+
+	this.plot();
 };
-initSvg();
-unitLookup = function(unitNumber) {
-	switch (unitNumber) {
-		case 0:
-		case 1:
-			return '';
-		case 2:
-			return '%';
-		case 3:
-			return 'em';
-		case 4:
-			return 'ex';
-		case 5:
-			return 'px';
-		case 6:
-			return 'cm';
-		case 7:
-			return 'mm';
-		case 8:
-			return 'in';
-		case 9:
-			return 'pt';
-		case 10:
-			return 'pc';
-	}
-}
-function getPointCoordinatesFromSize(point, width, height) {
-	var x, y;
-	
-	x = point[0] * width;
-	y = height - point[1] * height;
-	
-	return {'x': x, 'y': y};
-}
-function getSvgCoordinates(point, svgElement) {
-	var width, height, widthUnit, heightUnit, unitless;
-	
-	width = svgElement.width.baseVal.valueInSpecifiedUnits;
-	height = svgElement.height.baseVal.valueInSpecifiedUnits;
-
-	widthUnit = unitLookup(svgElement.width.baseVal.unitType);
-	heightUnit = unitLookup(svgElement.height.baseVal.unitType);
-	unitless = getPointCoordinatesFromSize(point, width, height);
-	
-	return {'x': unitless.x, 'y': unitless.y, 'xUnit': widthUnit, 'yUnit': heightUnit};
-}
-function movePointSVG(pointIndex, coordinates) {
-	svgPoints[pointIndex].setAttribute("cx", coordinates.x + '' + coordinates.xUnit);
-	svgPoints[pointIndex].setAttribute("cy", coordinates.y + '' + coordinates.yUnit);
-	if (pointIndex < svgPoints.length-1) {
-		svgLines[pointIndex].setAttribute("x1", coordinates.x + '' + coordinates.xUnit);
-		svgLines[pointIndex].setAttribute("y1", coordinates.y + '' + coordinates.yUnit);
-	}
-	if (pointIndex > 0) {
-		svgLines[pointIndex-1].setAttribute("x2", coordinates.x + '' + coordinates.xUnit);
-		svgLines[pointIndex-1].setAttribute("y2", coordinates.y + '' + coordinates.yUnit);
-	}
-}
-touchMovePoint = function(event) {
-
+EnvelopeController.prototype.drawPoint = function(pointIndex, coordinates) {
+	this.envelopePoints[pointIndex] = document.createElementNS(svgns, "circle");
+	this.envelopePoints[pointIndex].setAttribute("cx", coordinates.x);
+	this.envelopePoints[pointIndex].setAttribute("cy", coordinates.y);
+	this.envelopePoints[pointIndex].setAttribute("r", pointRadius);
+	this.envelopePoints[pointIndex].setAttribute("fill", "#336699");
+	this.envelope.appendChild(this.envelopePoints[pointIndex]);
+};
+EnvelopeController.prototype.drawLine = function(lineIndex, startCoordinates, endCoordinates) {
+		this.envelopeLines[lineIndex] = document.createElementNS(svgns, "line");
+		this.envelopeLines[lineIndex].setAttribute("x1", startCoordinates.x);
+		this.envelopeLines[lineIndex].setAttribute("y1", startCoordinates.y);
+		this.envelopeLines[lineIndex].setAttribute("x2", endCoordinates.x);
+		this.envelopeLines[lineIndex].setAttribute("y2", endCoordinates.y);
+		this.envelopeLines[lineIndex].setAttribute("stroke-width", 2);
+		this.envelopeLines[lineIndex].setAttribute("stroke", "#336699");
+		this.envelope.appendChild(this.envelopeLines[lineIndex]);
 };
 
-function drawPoint(pointIndex, coordinates, svgElement) {
-	svgPoints[pointIndex] = document.createElementNS(svgns, "circle");
-	svgPoints[pointIndex].setAttribute("cx", coordinates.x + '' + coordinates.xUnit);
-	svgPoints[pointIndex].setAttribute("cy", coordinates.y + '' + coordinates.yUnit);
-	svgPoints[pointIndex].setAttribute("r", pointRadius);
-	svgPoints[pointIndex].setAttribute("fill", "#336699");
-	svgPoints[pointIndex].addEventListener('mousedown', pointFocus, false);
-	svgPoints[pointIndex].addEventListener('mouseup', pointUnfocus, false);
-	svgPoints[pointIndex].addEventListener('touchstart', pointFocus, false);
-	svgPoints[pointIndex].addEventListener('touchend', pointUnfocus, false);
-	svgPoints[pointIndex].addEventListener("touchmove", touchMovePoint, false);
-	svgElement.appendChild(svgPoints[pointIndex]);
+EnvelopeController.prototype.getSvgCoordinates = function(point) {
+	return {'x': (point[0] * 100) + '%', 'y': (100 - (point[1] * 100)) + '%'};
+};
 
-}
-function drawLine(lineIndex, startCoordinates, endCoordinates, svgElement) {
-		svgLines[lineIndex] = document.createElementNS(svgns, "line");
-		svgLines[lineIndex].setAttribute("x1", startCoordinates.x + '' + startCoordinates.xUnit);
-		svgLines[lineIndex].setAttribute("y1", startCoordinates.y + '' + startCoordinates.yUnit);
-		svgLines[lineIndex].setAttribute("x2", endCoordinates.x + '' + endCoordinates.xUnit);
-		svgLines[lineIndex].setAttribute("y2", endCoordinates.y + '' + endCoordinates.yUnit);
-		svgLines[lineIndex].setAttribute("stroke-width", 2);
-		svgLines[lineIndex].setAttribute("stroke", "#336699");
-		svgElement.appendChild(svgLines[lineIndex]);
-}
-
-function drawPointsSVG(points, svgElement) {
+EnvelopeController.prototype.plot = function() {
 	var i, coordinates = [];
 	
-	for (i = 0; i < points.length; i++) {
-		coordinates[i] = getSvgCoordinates(points[i], svgElement);
+	for (i = 0; i < this.controlledData.value.length; i++) {
+		coordinates[i] = this.getSvgCoordinates(this.controlledData.value[i]);
 	}
 	for (i = 0; i < points.length; i++) {
-		drawPoint(i, coordinates[i], svgElement);
+		this.drawPoint(i, coordinates[i]);
 	}
 	for (i = 0; i < points.length-1; i++) {
-		drawLine(i, coordinates[i], coordinates[i+1], svgElement);
+		this.drawLine(i, coordinates[i], coordinates[i+1]);
 	}
-}
-
-var addPointSVG = function(x, y) {
-	var newPointIndex = 0;
-
-	while (newPointIndex < points.length && points[newPointIndex][0] <= x) {
-		newPointIndex++;
-	}
-	points.splice(newPointIndex, 0, [x, y]);
-
-	var coordinates = getSvgCoordinates(points[newPointIndex], mySvg);
-	var coordinatesNext = getSvgCoordinates(points[newPointIndex + 1], mySvg);
-	svgPoints.splice(newPointIndex, 0, null);
-	drawPoint(newPointIndex, coordinates, mySvg);
-	svgLines.splice(newPointIndex, 0, null);
-	drawLine(newPointIndex, coordinates, coordinatesNext, mySvg);
-	redrawPointSVG(newPointIndex);
-	drawWaveform();
 };
 
-var redrawPointSVG = function(pointIndex) {
-	var coordinates = getSvgCoordinates(points[pointIndex], mySvg);
+EnvelopeController.prototype.addPoint = function(x, y) {
+	var newPointIndex = 0;
+
+	while (newPointIndex < this.controlledData.value.length && this.controlledData.value[newPointIndex][0] <= x) {
+		newPointIndex++;
+	}
 	
-	svgPoints[pointIndex].setAttribute("cx", coordinates.x + '' + coordinates.xUnit);
-	svgPoints[pointIndex].setAttribute("cy", coordinates.y + '' + coordinates.yUnit);
-	if(pointIndex < svgLines.length) {
-		svgLines[pointIndex].setAttribute("x1", coordinates.x + '' + coordinates.xUnit);
-		svgLines[pointIndex].setAttribute("y1", coordinates.y + '' + coordinates.yUnit);
-	}
-	if (pointIndex > 0) {
-		svgLines[pointIndex-1].setAttribute("x2", coordinates.x + '' + coordinates.xUnit);
-		svgLines[pointIndex-1].setAttribute("y2", coordinates.y + '' + coordinates.yUnit);
-	}
+	this.controlledData.setValue(this.controlledData.value.splice(newPointIndex, 0, [x, y]));
+
+	var coordinates = this.getSvgCoordinates(this.controlledData.value[newPointIndex]);
+	var coordinatesNext = this.getSvgCoordinates(this.controlledData.value[newPointIndex + 1]);
+	this.envelopePoints.splice(newPointIndex, 0, null);
+	this.drawPoint(newPointIndex, coordinates);
+	this.envelopeLines.splice(newPointIndex, 0, null);
+	this.drawLine(newPointIndex, coordinates, coordinatesNext);
+	redrawPointSVG(newPointIndex);
+	drawWaveform();
 };
 function getCursorPosition(event, element) {
  var x, y;
@@ -172,33 +105,61 @@ function getCursorPosition(event, element) {
  y -= element.offsetTop;
  return {'x': x, 'y': y};
 }
+EnvelopeController.prototype.cursorPosition = function(event) {
+    return getCursorPosition(event, this.envelope.parentNode);
+};
+EnvelopeController.prototype.sizeInPixels = function() {
+	var unit = this.envelope.height.baseVal.SVG_LENGTHTYPE_PX;
+	this.envelope.height.baseVal.convertToSpecifiedUnits(unit);
+	this.envelope.width.baseVal.convertToSpecifiedUnits(unit);
+	var height = this.envelope.height.baseVal.valueInSpecifiedUnits;
+	var width = this.envelope.width.baseVal.valueInSpecifiedUnits;
+	return {'width': width, 'height': height};
+};
+EnvelopeController.prototype.clickHandler = function(event) {
+	event.stopPropagation();
+	event.preventDefault();
+	var pixelCoordinates = this.cursorPosition(event, event.currentTarget);
+	var svgSize = this.sizeInPixels(event.currentTarget);
+	this.addPoint(pixelCoordinates.x / svgSize.width, (svgSize.height - pixelCoordinates.y) / svgSize.height);
+};
+
+/*
+function movePointSVG(pointIndex, coordinates) {
+	svgPoints[pointIndex].setAttribute("cx", coordinates.x );
+	svgPoints[pointIndex].setAttribute("cy", coordinates.y );
+	if (pointIndex < svgPoints.length-1) {
+		svgLines[pointIndex].setAttribute("x1", coordinates.x);
+		svgLines[pointIndex].setAttribute("y1", coordinates.y);
+	}
+	if (pointIndex > 0) {
+		svgLines[pointIndex-1].setAttribute("x2", coordinates.x);
+		svgLines[pointIndex-1].setAttribute("y2", coordinates.y);
+	}
+}
+
+
+var redrawPointSVG = function(pointIndex) {
+	var coordinates = getSvgCoordinates(points[pointIndex]);
+	
+	svgPoints[pointIndex].setAttribute("cx", coordinates.x);
+	svgPoints[pointIndex].setAttribute("cy", coordinates.y);
+	if(pointIndex < svgLines.length) {
+		svgLines[pointIndex].setAttribute("x1", coordinates.x);
+		svgLines[pointIndex].setAttribute("y1", coordinates.y);
+	}
+	if (pointIndex > 0) {
+		svgLines[pointIndex-1].setAttribute("x2", coordinates.x);
+		svgLines[pointIndex-1].setAttribute("y2", coordinates.y);
+	}
+};
+
 function getSvgRoot(svgElement) {
  	return (svgElement.nodeName == 'svg') ? svgElement : svgElement.ownerSVGElement;
 }
 
-getCursorPositionSVG = function(event, svgElement) {
-	 var svgRoot = getSvgRoot(svgElement);
-    return getCursorPosition(event, svgRoot.parentNode);
-};
 
-getSVGSizeInPixels = function(svgElement) {
-	var unit = svgElement.height.baseVal.SVG_LENGTHTYPE_PX;
-	svgElement.height.baseVal.convertToSpecifiedUnits(unit);
-	svgElement.width.baseVal.convertToSpecifiedUnits(unit);
-	var height = svgElement.height.baseVal.valueInSpecifiedUnits;
-	var width = svgElement.width.baseVal.valueInSpecifiedUnits;
-	return {'width': width, 'height': height};
-};
 
-drawPointsSVG(points, mySvg);
-
-function svgClickHandler(event) {
-	event.stopPropagation();
-	event.preventDefault();
-	var pixelCoordinates = getCursorPositionSVG(event, event.currentTarget);
-	var svgSize = getSVGSizeInPixels(event.currentTarget);
-	addPointSVG(pixelCoordinates.x / svgSize.width, (svgSize.height - pixelCoordinates.y) / svgSize.height);
-}
 function svgTouchHandler(event) {
 	alert(event);
 	var pixelCoordinates = getCursorPositionSVG(event.changedTouches[0], event.target);
@@ -222,9 +183,6 @@ function svgPointMoveHandler(event) {
 	redrawPointSVG(pointIndex);
 	drawWaveform();
 }
-dummy = function(event) {
-	alert(event.type);
-};
 
 function touchStartHandler(e) {
 	var coordinates = getCursorPosition(e.changedTouches[0], e.target);
@@ -248,7 +206,7 @@ function pointUnfocus(event) {
 //	event.currentTarget.removeEventListener("touchmove", touchMovePoint, false);
 	event.target.setAttribute("r", pointRadius);
 }
-pdTouchArea.addEventListener('touchstart', touchStartHandler, false);
-mySvg.addEventListener('click', svgClickHandler, false);
-//mySvg.addEventListener('touchstart', svgClickHandler, false);
+*/
+var pdData = new ControlledValue([[0,0], [1,1]]);
+var pdEnvelope = new EnvelopeController('container', pdData);
 

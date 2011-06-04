@@ -49,15 +49,3 @@ function AudioDataDestination(sampleRate, readFn) {
 
 var audioDestination = new AudioDataDestination(sampleRate, requestSoundData);
 
-function start() {
-  currentSoundSample = 0;
-  noteOffTime = null;
-  noteOnTime = new Date();
-  setFrequency();
-}
-
-function stop() {
-  frequency.value = 0;
-  noteOnTime = null;
-  noteOffTime = new Date();
-}
