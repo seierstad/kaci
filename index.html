@@ -3,7 +3,7 @@
   <head>
     <title>JavaScript phase distortion synthesis</title>
     <style>
-    	#phase-distortion-plot,
+    	#envelope,
     	#waveform
     	{
     		border: 1px dotted green;
@@ -35,9 +35,10 @@
     <input type="range" size="4" id="freq" value="110"><label for="hz">Hz</label>
 
 	 <script type="text/javascript" src="ControlledValue.js"></script>
+
     <script type="text/javascript">
     
-		var resonantPhaseFactor = new ControlledValue(0.1);
+		var resonantPhaseFactor = new ControlledValue(0.9);
 		var frequency = new ControlledValue(0);
 		frequency.afterUpdate = function() {
 			phase_increment = this.value / sampleRate;
@@ -72,11 +73,11 @@
       }
 		function phaseDistort(inputPhase) {
 			var phase = limit(inputPhase);
-			if (points.length > 1) {
+			if (pdData.value.length > 1) {
 				var line;
-				for (var i = 1; i < points.length; i++) {
-					if (phase >= points[i-1][0] && phase < points[i][0]) {
-						line = linearFunctionFromPoints([points[i-1], points[i]]);
+				for (var i = 1; i < pdData.value.length; i++) {
+					if (phase >= pdData.value[i-1][0] && phase < pdData.value[i][0]) {
+						line = linearFunctionFromPoints([pdData.value[i-1], pdData.value[i]]);
 						return limitZeroToOne((phase * line.rate) + line.constant);
 					}
 				}
@@ -166,7 +167,8 @@
         }        
       }
 
-      
+ var pdData = new ControlledValue([[0,0], [1,1]]);
+     
 
   </script>
   <script type="text/javascript" src="waveformPlotter.js"></script>

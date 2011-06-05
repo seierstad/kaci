@@ -91,7 +91,7 @@ var Controller = function(parentId, controlledValue, params) {
 	controllerTouchArea.addEventListener('touchstart', touchStartHandler, false);
 
 };
-/*
+
 var resonanceController = new Controller('container', resonantPhaseFactor, {'minValue': 0, 'maxValue': 1, 'callback': drawWaveform});
 var frequencyController = new Controller('container', frequency, {'minValue': 0, 'maxValue': 1000});
-*/
+
