@@ -7,36 +7,35 @@ var
 	initSvg,
 	unitLookup;
 
-
 var EnvelopeController = function(parentId, controlledValue) {
 	this.container = document.getElementById(parentId);
-	this.envelope = document.createElementNS(svgns, "svg");
+	this.controller = document.createElementNS(svgns, "svg");
 	
 	this.data = controlledValue;
 	this.points = [];
 	this.lines = [];
-	this.selectedPointIndex = null;
+	this.selectedPoint = null;
 	
-	this.envelope.setAttribute("version", "1.2");
-	this.envelope.setAttribute("id", "envelope");
-	this.envelope.setAttribute("width", "500px");
-	this.envelope.setAttribute("height", "300px");
-	this.envelope.setAttribute("baseProfile", "tiny");
+	this.controller.setAttribute("version", "1.2");
+	this.controller.setAttribute("id", "envelope");
+	this.controller.setAttribute("width", "500px");
+	this.controller.setAttribute("height", "300px");
+	this.controller.setAttribute("baseProfile", "tiny");
 	this.touchArea = document.createElementNS(svgns, "rect");
 	this.touchArea.setAttribute("x", "2%");
 	this.touchArea.setAttribute("y", "2%");
 	this.touchArea.setAttribute("width", "96%");
 	this.touchArea.setAttribute("height", "96%");
 	this.touchArea.setAttribute("opacity", "0");
-	this.envelope.appendChild(this.touchArea);
-	this.container.appendChild(this.envelope);
+	this.controller.appendChild(this.touchArea);
+	this.container.appendChild(this.controller);
 	
 //	touchArea.addEventListener('touchstart', touchStartHandler, false);
-	this.envelope.addEventListener('click', this.clickHandler.bind(this), false);
-	this.envelope.addEventListener('mousedown', this.mouseDownHandler.bind(this), false);
-	this.envelope.addEventListener('mouseup', this.mouseUpHandler.bind(this), false);
-	this.envelope.addEventListener('mouseout', this.mouseOutHandler.bind(this), false);
-	this.envelope.addEventListener('mousemove', this.mouseMoveHandler.bind(this), false);
+	this.controller.addEventListener('click', this.clickHandler.bind(this), false);
+	this.controller.addEventListener('mousedown', this.mouseDownHandler.bind(this), false);
+	this.controller.addEventListener('mouseup', this.mouseUpHandler.bind(this), false);
+//	this.controller.addEventListener('mouseout', this.mouseOutHandler.bind(this), false);
+	this.controller.addEventListener('mousemove', this.mouseMoveHandler.bind(this), false);
 	
 	this.plot();
 };
@@ -46,7 +45,7 @@ EnvelopeController.prototype.drawPoint = function(pointIndex, coordinates) {
 	this.points[pointIndex].setAttribute("cy", coordinates.y);
 	this.points[pointIndex].setAttribute("r", pointRadius);
 	this.points[pointIndex].setAttribute("fill", "#336699");
-	this.envelope.appendChild(this.points[pointIndex]);
+	this.controller.appendChild(this.points[pointIndex]);
 };
 EnvelopeController.prototype.drawLine = function(lineIndex, startCoordinates, endCoordinates) {
 		this.lines[lineIndex] = document.createElementNS(svgns, "line");
@@ -56,7 +55,7 @@ EnvelopeController.prototype.drawLine = function(lineIndex, startCoordinates, en
 		this.lines[lineIndex].setAttribute("y2", endCoordinates.y);
 		this.lines[lineIndex].setAttribute("stroke-width", 2);
 		this.lines[lineIndex].setAttribute("stroke", "#336699");
-		this.envelope.appendChild(this.lines[lineIndex]);
+		this.controller.appendChild(this.lines[lineIndex]);
 };
 
 EnvelopeController.prototype.getSvgCoordinates = function(point) {
@@ -109,6 +108,7 @@ EnvelopeController.prototype.addPoint = function(x, y) {
 	this.lines.splice(newPointIndex, 0, null);
 	this.drawLine(newPointIndex, coordinates, coordinatesNext);
 	this.redrawPoint(newPointIndex);
+	return newPointIndex;
 };
 EnvelopeController.prototype.deletePoint = function(point) {
 	var pointIndex;
@@ -133,41 +133,33 @@ EnvelopeController.prototype.deletePoint = function(point) {
 	drawWaveform();
 };
 
-function getCursorPosition(event, element) {
- var x, y;
-
- if (event.pageX != undefined && event.pageY != undefined) {
-	x = event.pageX;
-	y = event.pageY;
- } else {
-	x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-	y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
- }
-
- x -= element.offsetLeft;
- y -= element.offsetTop;
- return {'x': x, 'y': y};
-}
 EnvelopeController.prototype.cursorPosition = function(event) {
-    return getCursorPosition(event, this.envelope.parentNode);
+	var x, y;
+
+	if (event.pageX != undefined && event.pageY != undefined) {
+		x = event.pageX;
+		y = event.pageY;
+	} else {
+		x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+		y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	}
+
+	x -= this.controller.parentNode.offsetLeft;
+	y -= this.controller.parentNode.offsetTop;
+	return {'x': x, 'y': y};
 };
 EnvelopeController.prototype.sizeInPixels = function() {
-	var unit = this.envelope.height.baseVal.SVG_LENGTHTYPE_PX;
-	this.envelope.height.baseVal.convertToSpecifiedUnits(unit);
-	this.envelope.width.baseVal.convertToSpecifiedUnits(unit);
-	var height = this.envelope.height.baseVal.valueInSpecifiedUnits;
-	var width = this.envelope.width.baseVal.valueInSpecifiedUnits;
+	var unit = this.controller.height.baseVal.SVG_LENGTHTYPE_PX;
+	this.controller.height.baseVal.convertToSpecifiedUnits(unit);
+	this.controller.width.baseVal.convertToSpecifiedUnits(unit);
+	var height = this.controller.height.baseVal.valueInSpecifiedUnits;
+	var width = this.controller.width.baseVal.valueInSpecifiedUnits;
 	return {'width': width, 'height': height};
 };
 EnvelopeController.prototype.clickHandler = function(event) {
 	event.stopPropagation();
 	event.preventDefault();
-	if (event.target.nodeName === 'rect' || event.target.nodeName === 'line') {
 
-		var pixelCoordinates = this.cursorPosition(event);
-		var svgSize = this.sizeInPixels();
-		this.addPoint(pixelCoordinates.x / svgSize.width, (svgSize.height - pixelCoordinates.y) / svgSize.height);
-	}
 };
 EnvelopeController.prototype.mouseDownHandler = function(event) {
 	event.stopPropagation();
@@ -175,6 +167,12 @@ EnvelopeController.prototype.mouseDownHandler = function(event) {
 	if (event.target.nodeName === 'circle') {
 		this.pointFocus(event);
 		this.selectedPoint = event.target;
+	} else if (event.target.nodeName === 'rect' || event.target.nodeName === 'line') {
+		var pixelCoordinates = this.cursorPosition(event);
+		var svgSize = this.sizeInPixels();
+		var selectedPointIndex = this.addPoint(pixelCoordinates.x / svgSize.width, (svgSize.height - pixelCoordinates.y) / svgSize.height);
+		this.selectedPoint = this.points[selectedPointIndex];
+		
 	}
 };
 EnvelopeController.prototype.mouseUpHandler = function(event) {
