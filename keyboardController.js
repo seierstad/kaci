@@ -1,11 +1,15 @@
-var Keyboard = function (parentId, frequencyValue, velocityValue, baseFrequency, startKey, endKey) {
+var KeyboardController = function (parentId, frequencyValue, velocityValue, baseFrequency, startKey, endKey) {
 	this.container = document.getElementById(parentId);
 	this.controlledFrequency = frequencyValue;
 	this.controlledVelocity = velocityValue;
 	this.baseFrequency = baseFrequency;
 	this.keys = [];
 	this.keysPressed = [];
-    this.keyCodes = [109,65,90,82,88,67,84,86,68,66,72,75,77,69,188,73,190,191,222,81,50,87,51,70,80,53,71,54,74,76,56,85,57,89,48,59,219]; // 
+	this.keyboardCodeLayouts = {
+		colemak: [109,65,90,82,88,67,84,86,68,66,72,75,77,69,188,73,190,191,222,81,50,87,51,70,80,53,71,54,74,76,56,85,57,89,48,59,219],
+		qwerty: [90,83,88,68,67,86,71,66,72,78,74,77,188,76,190]
+	};
+    this.keyCodes =  this.keyboardCodeLayouts.qwerty; 
     this.keyMapping = [];
 	this.update = function(){};
 	var keyboard = document.createElementNS(svgns, "svg");
@@ -88,11 +92,13 @@ var Keyboard = function (parentId, frequencyValue, velocityValue, baseFrequency,
 		event.preventDefault();
 		this.controlledFrequency.setValue(0);
 	}.bind(this);
+	
  	var keyDown = function(event) {
  	    var keyPressed;
  	    if(event.type === 'keydown') {
  	        if (!!this.keyMapping[event.keyCode]) {
  	            keyPressed = this.keyMapping[event.keyCode];
+ 	           console.log(event.keyCode);
  	        } else {
      	        console.log(event.keyCode);
  	            return true;
@@ -104,7 +110,16 @@ var Keyboard = function (parentId, frequencyValue, velocityValue, baseFrequency,
 				    break;
 			    }
 		    }
+        } else if (event.type === 'MozTouchDown') {
+		    for (var i = 0; i < this.keys.length; i++) {
+		    	alert(event.target);
+			    if (this.keys[i].key === event.target) {
+			        keyPressed = this.keys[i];
+				    break;
+			    }
+		    }
         }
+ 	    alert(event.type);
         if (!!keyPressed) {
             this.controlledFrequency.setValue(keyPressed.frequency);
             var originalClass = keyPressed.key.getAttribute("class");
@@ -113,6 +128,8 @@ var Keyboard = function (parentId, frequencyValue, velocityValue, baseFrequency,
 		event.stopPropagation();
 		event.preventDefault();
 	}.bind(this);
+	
+	document.addEventListener('MozTouchDown', keyDown, false);
     document.addEventListener('keydown', keyDown, false);	
 	keyboard.addEventListener('mousedown', keyDown, false);
 	keyboard.addEventListener('mouseup', keyUp, false);
@@ -122,5 +139,6 @@ var Keyboard = function (parentId, frequencyValue, velocityValue, baseFrequency,
 	this.controlledFrequency.addController(this);
 	
 };
-var keyboard = new Keyboard('container', frequency, null, 55, 0, 36);
+
+var keyboard = new KeyboardController('container', frequency, null, 55, 0, 36);
 
