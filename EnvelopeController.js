@@ -34,7 +34,7 @@ var EnvelopeController = function(parentId, controlledValue) {
 	this.controller.addEventListener('click', this.clickHandler.bind(this), false);
 	this.controller.addEventListener('mousedown', this.mouseDownHandler.bind(this), false);
 	this.controller.addEventListener('mouseup', this.mouseUpHandler.bind(this), false);
-//	this.controller.addEventListener('mouseout', this.mouseOutHandler.bind(this), false);
+	this.controller.addEventListener('mouseout', this.mouseOutHandler.bind(this), false);
 	this.controller.addEventListener('mousemove', this.mouseMoveHandler.bind(this), false);
 	
 	this.plot();
@@ -186,7 +186,7 @@ EnvelopeController.prototype.mouseUpHandler = function(event) {
 EnvelopeController.prototype.mouseOutHandler = function(event) {
 	event.stopPropagation();
 	event.preventDefault();
-	if (this.selectedPoint !== null && event.target === this.touchArea) {
+	if (this.selectedPoint !== null && (event.target === this.touchArea || event.target === this.controller)) {
 		this.pointUnfocus(this.selectedPoint);
 		this.deletePoint(this.selectedPoint);
 		this.selectedPoint = null;
