@@ -1,4 +1,4 @@
-var Controller = function(parentId, controlledValue, params) {
+var Controller = function (parentId, controlledValue, params) {
 	this.container = document.getElementById(parentId);
 	this.data = controlledValue;
 	this.data.addController(this);

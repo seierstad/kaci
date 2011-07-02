@@ -5,18 +5,18 @@ function ControlledValue(initialValue) {
 		this.value = 0;
 	}
 	this.controllers = [];
-	this.afterUpdate = function(){};
+	this.afterUpdate = function () {};
 	
 }
 
-ControlledValue.prototype.addController = function(controller) {
+ControlledValue.prototype.addController = function (controller) {
 	this.controllers.push(controller);
 };
 
-ControlledValue.prototype.setValue = function(newValue) {
+ControlledValue.prototype.setValue = function (newValue) {
 	var i;
 	this.value = newValue;
-	for(i = 0; i < this.controllers.length; i++) {
+	for (i = 0; i < this.controllers.length; i += 1) {
 		this.controllers[i].update();
 	}
 	this.afterUpdate();
