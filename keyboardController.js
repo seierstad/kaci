@@ -114,7 +114,6 @@ var KeyboardController = function (parentId, frequencyValue, velocityValue, base
             }
         } else if (event.type === 'touchstart') {
             for (i = 0; i < this.keys.length; i += 1) {
-                alert(event.target);
                 if (this.keys[i].key === event.target) {
                     keyPressed = this.keys[i];
                     break;

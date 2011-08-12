@@ -1,3 +1,4 @@
+var audioDestination = (function () {
 // ------------------------- copied from some tutorial somewhere ... -----------
 function AudioDataDestination(sampleRate, readFn) {
   // Initialize the audio output.
@@ -47,5 +48,5 @@ function AudioDataDestination(sampleRate, readFn) {
 
 // Control and generate the sound.
 
-var audioDestination = new AudioDataDestination(sampleRate, requestSoundData);
-
+return new AudioDataDestination(sampleRate, requestSoundData);
+})();
