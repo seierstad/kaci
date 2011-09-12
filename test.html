@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>JavaScript phase distortion synthesis</title>
+    <style type="text/css">
+        body {
+            background-color: #afa;
+        }
+        section {
+            border: 3px solid rgba(127,127,255,.4);
+            border-radius: .5em;
+            margin: 2em 1em;
+            padding: 1.2em 1em .5em;
+            position: relative;
+        }
+        section h1,
+        fieldset h2
+        {
+            background: #afa;
+            border: 3px solid rgba(127,127,255,.4);
+            border-radius: .5em;
+            color: rgba(127,127,255,.8);
+            font-size: 100%;
+            left: 1em;
+            margin: 0;
+            padding: .1em 2em .1em;
+            position: absolute;
+            text-transform: uppercase;
+            top: -1em;
+        }
+        fieldset {
+            border: 3px solid rgba(127,127,255,.4);
+            border-radius: .5em;
+            display: inline-block;
+            margin: 1.6em 1em .5em 0;
+            padding: 1.2em .2em .2em;
+            position: relative;
+        }
+        fieldset h2 {
+            top: -2.2em;
+        }
+        fieldset canvas {
+            box-shadow: -.6em .6em .7em -.7em #aaa inset, .6em -.6em .7em -.8em #aaa inset;
+            background: rgba(30,229,200, 0.6);
+        }
+        .controller {
+            display: inline-block;
+            position: absolute;
+            right: 1em;
+            bottom: 1em;
+        }
+        .controller svg {
+    		border: 1px dotted yellow;
+    		background: rgba(255,255,255,0.2);
+        }
+        #pdo > canvas {
+            max-width: 100%;
+        }
+        #pdo-waveform-selector label,
+        #pdo-wrapper-selector label,
+        #lfo1-waveform-selector label
+        {
+            border: 1px solid;
+            border-color: grey grey black black;
+            border-radius: .5em;
+            display: inline-block;
+            text-align: center;
+            background-color: white;
+            margin: .3em;
+        }
+        #pdo-waveform-selector canvas,
+        #pdo-wrapper-selector canvas,
+        #lfo1-waveform-selector canvas
+        {
+            margin: .2em;
+            border: 1px dotted rgba(100,100,100, .5);
+        }
+        .frequency-indicator .active {
+            background: red;
+        }
+        .frequency-indicator div {
+            display: inline-block;
+            height: 20px;
+            width: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="kaci/kaci.js"></script>
+    <script type="text/javascript" src="kaci/patch.js"></script>
+    <script type="text/javascript" src="kaci/oscillator.js"></script>
+    <script type="text/javascript" src="kaci/audio_output.js"></script>
+    <script type="text/javascript" src="kaci/test.js"></script>
+    <script type="text/javascript" src="kaci/svgController.js"></script>
+    <script type="text/javascript" src="kaci/voice.js"></script>
+    <script type="text/javascript" src="kaci/envelope.js"></script>
+    <script type="text/javascript" src="kaci/ribbon.js"></script>
+    <button onclick="kaci.audioOutput.enable();">start</button>
+    <button onclick="kaci.audioOutput.disable();">stopp</button>
+    <section id="pdo">
+        <h1 title="oscillator">OSC</h1>
+        <canvas height="300" width="300" id="waveform"></canvas>
+        <br />
+        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');">rett</button>
+        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[0.1,0.5],[0.5,0.5],[0.6,0.2],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');">vrang</button>
+    </section>
+    <section>
+        <h1 title="keyboard">keyboard</h1>
+        <button onclick="kaci.pdo.setFrequency(440);">440Hz</button>
+        <button onclick="kaci.pdo.setFrequency(220);">220Hz</button>
+        <button onclick="kaci.startTone(620);console.log(kaci.voices);">620Hz voice</button>
+        <button onclick="kaci.startTone(100);console.log(kaci.voices);">100Hz voice</button>
+        <button onclick="tone80 = kaci.startTone(40);console.log(kaci.voices);">80Hz voice</button>
+        <button onclick="tone80.end();">80Hz voice end</button>        
+        <button onclick="kaci.dropVoice();console.log(kaci.voices);">drop voice</button>
+    </section>
+    <section id="lfo">
+        <h1 title="low frequency oscillator">LFO</h1>
+        <canvas height="100" width="100" id="lfo1-visualisation"></canvas>
+        <input type="range" name="lfo-frequency" size="20" />
+    </section>
+    <section id="env1">
+        <h1 title="envelope generator 1">ENV 1</h1>
+        <canvas height="100" width="100" id="env1-visualisation"></canvas>
+    </section>
+    
+  </body>
+</html>
