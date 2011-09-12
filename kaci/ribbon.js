@@ -35,7 +35,8 @@ var kaci = kaci || {};
 	    touchMoveHandler,
 	    touchEndHandler,
 	    touchLeaveHandler,
-	    juba,
+	    exponential,
+	    inverseExponential,
 	    
 	    // public functions:
 	    update;
