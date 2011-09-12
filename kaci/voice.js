@@ -87,7 +87,7 @@ var kaci = kaci || {};
     startTone = function(frequency) {
         var newVoice;
             
-        if (voices.length >= maxVoiceCount) {
+        while (voices.length >= maxVoiceCount) {
             dropVoice();
         }
         newVoice = voice({frequency: frequency});
