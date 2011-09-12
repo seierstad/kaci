@@ -83,6 +83,18 @@
             height: 20px;
             width: 20px;
         }
+    	.key {
+        	stroke: #000;
+    	}
+    	.black {
+    		fill: #000;
+    	}
+    	.white {
+    		fill: #fff;
+    	}
+    	.pressed {
+    		fill: #afe;
+    	}
     </style>
   </head>
   <body>
@@ -90,11 +102,12 @@
     <script type="text/javascript" src="kaci/patch.js"></script>
     <script type="text/javascript" src="kaci/oscillator.js"></script>
     <script type="text/javascript" src="kaci/audio_output.js"></script>
-    <script type="text/javascript" src="kaci/test.js"></script>
     <script type="text/javascript" src="kaci/svgController.js"></script>
     <script type="text/javascript" src="kaci/voice.js"></script>
     <script type="text/javascript" src="kaci/envelope.js"></script>
     <script type="text/javascript" src="kaci/ribbon.js"></script>
+    <script type="text/javascript" src="kaci/keyboard.js"></script>
+    <script type="text/javascript" src="kaci/test.js"></script>
     <button onclick="kaci.audioOutput.enable();">start</button>
     <button onclick="kaci.audioOutput.disable();">stopp</button>
     <section id="pdo">
@@ -104,7 +117,7 @@
         <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');">rett</button>
         <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[0.1,0.5],[0.5,0.5],[0.6,0.2],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');">vrang</button>
     </section>
-    <section>
+    <section id="keyboard">
         <h1 title="keyboard">keyboard</h1>
         <button onclick="kaci.pdo.setFrequency(440);">440Hz</button>
         <button onclick="kaci.pdo.setFrequency(220);">220Hz</button>
