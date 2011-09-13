@@ -45,9 +45,6 @@
         }
         .controller {
             display: inline-block;
-            position: absolute;
-            right: 1em;
-            bottom: 1em;
         }
         .controller svg {
     		border: 1px dotted yellow;
@@ -108,7 +105,6 @@
     <script type="text/javascript" src="kaci/ribbon.js"></script>
     <script type="text/javascript" src="kaci/keyboard.js"></script>
     <script type="text/javascript" src="kaci/test.js"></script>
-    <button onclick="kaci.audioOutput.enable();">start</button>
     <button onclick="kaci.audioOutput.disable();">stopp</button>
     <section id="pdo">
         <h1 title="oscillator">OSC</h1>
@@ -119,13 +115,6 @@
     </section>
     <section id="keyboard">
         <h1 title="keyboard">keyboard</h1>
-        <button onclick="kaci.pdo.setFrequency(440);">440Hz</button>
-        <button onclick="kaci.pdo.setFrequency(220);">220Hz</button>
-        <button onclick="kaci.startTone(620);console.log(kaci.voices);">620Hz voice</button>
-        <button onclick="kaci.startTone(100);console.log(kaci.voices);">100Hz voice</button>
-        <button onclick="tone80 = kaci.startTone(40);console.log(kaci.voices);">80Hz voice</button>
-        <button onclick="tone80.end();">80Hz voice end</button>        
-        <button onclick="kaci.dropVoice();console.log(kaci.voices);">drop voice</button>
     </section>
     <section id="lfo">
         <h1 title="low frequency oscillator">LFO</h1>

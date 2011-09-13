@@ -275,22 +275,19 @@ var kaci = kaci || {};
                             post: synth.lfo1.popPhase,
                             factor: 0.2,
                             bias: 0.1
+                        },
+                        {
+                            mod: synth.env1.getValueAtTime,
+                            factor: 0.7
                         }
+                        
                     ],
                 pitch:
                     [
                         {
                             mod: synth.env1.getValueAtTime,
-                            factor: 0.8
+                            factor: 0.01
                         }
-                        ,
-                        {
-                            pre: synth.lfo1.pushPhase,
-                            mod: synth.lfo1.next,
-                            post: synth.lfo1.popPhase,
-                            factor: 0.2
-                        }
-
                     ],
                 amplitude:
                     [

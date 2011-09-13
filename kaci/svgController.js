@@ -5,11 +5,12 @@ var kaci = kaci || {};
     var svgControllerElement = function (params) {
 
         var params = params || {},
-            svgElement, container, wrapper, fillRect,
+            svgElement, container, wrapper, fillRect, className,
             // xlinkns = 'http://www.w3.org/1999/xlink',
             svgns = 'http://www.w3.org/2000/svg';
         wrapper = document.createElement("div");
-        wrapper.setAttribute("class", "controller");
+        className = (params.className) ? params.className + ' controller' : 'controller';
+        wrapper.setAttribute("class", className);
         svgElement = document.createElementNS(svgns, "svg");
         svgElement.setAttribute("version", "1.2");
         svgElement.setAttribute("width", params.width || 500);

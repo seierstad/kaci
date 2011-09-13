@@ -5,7 +5,7 @@ var kaci = kaci || {};
         var params = params || {},
             data = params.dataObject,
             keyboard,
-	        baseFrequency = baseFrequency,
+	        baseFrequency = params.baseFrequency || 440,
 	        keys = [],
 	        keyMapping = [],
 	        keysPressed = [],
@@ -17,8 +17,9 @@ var kaci = kaci || {};
         	
     	    svgns = 'http://www.w3.org/2000/svg',
             init,
-            startKey = 0,
-            endKey = 12,
+            keyDown,
+            startKey = params.startKey || 0,
+            endKey = params.endKey || 13,
             keyCodes = keyboardCodeLayouts.colemak;
 
             keyboard = synth.svgControllerElement(params);
@@ -62,7 +63,71 @@ var kaci = kaci || {};
 	        keyboard.appendChild(whiteKeys);
 	        keyboard.appendChild(blackKeys);
         };
+        keyDown = function (event) {
+            var keyPressed, originalClass, i;
+            if (event.type === 'keydown') {
+                if (!!keyMapping[event.keyCode]) {
+                    keyPressed = keyMapping[event.keyCode];
+                    console.log(event.keyCode);
+                } else {
+                    console.log(event.keyCode);
+                    return true;
+                }
+            } else if (event.type === 'mousedown') {
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].key === event.target) {
+                        keyPressed = keys[i];
+                        break;
+                    }
+                }
+            } else if (event.type === 'touchstart') {
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].key === event.target) {
+                        keyPressed = keys[i];
+                        break;
+                    }
+                }
+            }
+            if (!!keyPressed) {
+                keyPressed.voice = synth.startVoice(keyPressed.frequency);
+                originalClass = keyPressed.key.getAttribute("class");
+                keyPressed.key.setAttribute("class", originalClass + ' pressed');
+            }
+            return false;
+	    };
+        
+        keyUp = function (event) {
+            var keyReleased, originalClass, i;
+            if (event.type === 'keyup') {
+                if (!!keyMapping[event.keyCode]) {
+                    keyReleased = keyMapping[event.keyCode];
+                } else {
+                    console.log(event.keyCode);
+                    return true;
+                }
+            } else if (event.type === 'mouseup' || event.type === 'mouseout') {
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].key === event.target) {
+                        keyReleased = keys[i];
+                        break;
+                    }
+                }
+            }
+            if (!!keyReleased) {
+                if (keyReleased.voice) {
+                    keyReleased.voice.end();
+                }
+                originalClass = keyReleased.key.getAttribute("class");
+                keyReleased.key.setAttribute("class", originalClass.replace(' pressed', '', 'g'));
+            }
+        };
+        
         init();
+        keyboard.addEventListener('mousedown', keyDown, false);
+        keyboard.addEventListener('mouseup', keyUp, false);
+    	document.addEventListener('touchstart', keyDown, false);
+        document.addEventListener('keydown', keyDown, false);
+        document.addEventListener('keyup', keyUp, false);
         return keyboard;
         
     }
@@ -136,12 +201,11 @@ var KeyboardController = function (parentId, frequencyValue, velocityValue, base
 		event.preventDefault();
 	}.bind(this);
 	
-	document.addEventListener('touchstart', keyDown, false);
-    document.addEventListener('keydown', keyDown, false);	
+	
 	keyboard.addEventListener('mousedown', keyDown, false);
 	keyboard.addEventListener('mouseup', keyUp, false);
-	keyboard.addEventListener('mouseout', keyUp, false);
-    document.addEventListener('keyup', keyUp, false);	
+
+    	
     
 	this.controlledFrequency.addController(this);
 	

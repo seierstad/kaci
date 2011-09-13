@@ -6,9 +6,10 @@ var kaci = kaci || {};
         getKeyDownTime,
         getKeyUpTime,
         getSignal,
-        Voice,         // constructor for new voices
-        startTone,      // public method
-        maxVoiceCount = 2, // limit concurrent voices
+        voice,         // constructor for new voices
+        startVoice,      // public method
+        endVoice,
+        maxVoiceCount = 3, // limit concurrent voices
         voices = [];   // the currently active voices
     
     voice = function(params) {
@@ -84,7 +85,7 @@ var kaci = kaci || {};
         }
     };
     
-    startTone = function(frequency) {
+    startVoice = function(frequency) {
         var newVoice;
             
         while (voices.length >= maxVoiceCount) {
@@ -95,7 +96,7 @@ var kaci = kaci || {};
         return newVoice;
     };
     synth.voices = voices; // todo: remove this after debugging
-    synth.startTone = startTone;
+    synth.startVoice = startVoice;
     synth.dropVoice = dropVoice;
     return synth;
 })(kaci);
