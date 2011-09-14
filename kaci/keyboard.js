@@ -67,10 +67,10 @@ var kaci = kaci || {};
             var keyPressed, originalClass, i;
             if (event.type === 'keydown') {
                 if (!!keyMapping[event.keyCode]) {
-                    keyPressed = keyMapping[event.keyCode];
-                    console.log(event.keyCode);
+                    if(!keyMapping[event.keyCode].voice) {
+                        keyPressed = keyMapping[event.keyCode];
+                    }
                 } else {
-                    console.log(event.keyCode);
                     return true;
                 }
             } else if (event.type === 'mousedown') {
@@ -102,7 +102,6 @@ var kaci = kaci || {};
                 if (!!keyMapping[event.keyCode]) {
                     keyReleased = keyMapping[event.keyCode];
                 } else {
-                    console.log(event.keyCode);
                     return true;
                 }
             } else if (event.type === 'mouseup' || event.type === 'mouseout') {
@@ -116,6 +115,7 @@ var kaci = kaci || {};
             if (!!keyReleased) {
                 if (keyReleased.voice) {
                     keyReleased.voice.end();
+                    delete keyReleased.voice;
                 }
                 originalClass = keyReleased.key.getAttribute("class");
                 keyReleased.key.setAttribute("class", originalClass.replace(' pressed', '', 'g'));
@@ -125,6 +125,7 @@ var kaci = kaci || {};
         init();
         keyboard.addEventListener('mousedown', keyDown, false);
         keyboard.addEventListener('mouseup', keyUp, false);
+        keyboard.addEventListener('mouseout', keyUp, false);
     	document.addEventListener('touchstart', keyDown, false);
         document.addEventListener('keydown', keyDown, false);
         document.addEventListener('keyup', keyUp, false);
@@ -136,80 +137,3 @@ var kaci = kaci || {};
     return synth;
 })(kaci);
 
-
-/*
-var KeyboardController = function (parentId, frequencyValue, velocityValue, baseFrequency, startKey, endKey) {
-    var keyboard, keyboardTouchArea, whiteKeys, blackKeys, noteNames, keyWidth, nextKeyX, i, key, k, blackKey, freq, keyCode, keyUp, keyDown;
-
-	keyUp = function (event) {
-        var keyReleased, originalClass, i;
-        if (event.type === 'keyup') {
-            if (!!this.keyMapping[event.keyCode]) {
-                keyReleased = this.keyMapping[event.keyCode];
-            } else {
-                console.log(event.keyCode);
-                return true;
-            }
-        } else if (event.type === 'mouseup' || event.type === 'mouseout') {
-            for (i = 0; i < this.keys.length; i += 1) {
-                if (this.keys[i].key === event.target) {
-                    keyReleased = this.keys[i];
-                    break;
-                }
-            }
-        }
-        if (!!keyReleased) {
-            originalClass = keyReleased.key.getAttribute("class");
-            keyReleased.key.setAttribute("class", originalClass.replace(' pressed', '', 'g'));
-        }
-        event.stopPropagation();
-        event.preventDefault();
-        this.controlledFrequency.setValue(0);
-    }.bind(this);
-	
-    keyDown = function (event) {
-        var keyPressed, originalClass, i;
-        if (event.type === 'keydown') {
-            if (!!this.keyMapping[event.keyCode]) {
-                keyPressed = this.keyMapping[event.keyCode];
-                console.log(event.keyCode);
-            } else {
-                console.log(event.keyCode);
-                return true;
-            }
-        } else if (event.type === 'mousedown') {
-            for (i = 0; i < this.keys.length; i += 1) {
-                if (this.keys[i].key === event.target) {
-                    keyPressed = this.keys[i];
-                    break;
-                }
-            }
-        } else if (event.type === 'touchstart') {
-            for (i = 0; i < this.keys.length; i += 1) {
-                if (this.keys[i].key === event.target) {
-                    keyPressed = this.keys[i];
-                    break;
-                }
-            }
-        }
-        if (!!keyPressed) {
-            this.controlledFrequency.setValue(keyPressed.frequency);
-            originalClass = keyPressed.key.getAttribute("class");
-            keyPressed.key.setAttribute("class", originalClass + ' pressed');
-        }
-		event.stopPropagation();
-		event.preventDefault();
-	}.bind(this);
-	
-	
-	keyboard.addEventListener('mousedown', keyDown, false);
-	keyboard.addEventListener('mouseup', keyUp, false);
-
-    	
-    
-	this.controlledFrequency.addController(this);
-	
-};
-
-var keyboard = new KeyboardController('container', frequency, null, 55, 0, 36);
-*/

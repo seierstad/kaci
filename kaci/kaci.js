@@ -26,19 +26,22 @@ var kaci = kaci || {};
         var signals = [], 
             size = buffer.length, 
             i, j;
-            
         if (synth.voices.length > 0) {
-            // get the voices
-            for (i = 0; i < synth.voices.length; i += 1) {
-                signals[i] = new Float32Array(size);
-                synth.voices[i].getSignal(signals[i]);
-            }
-            // ... and mix
-            for (j = 0; j < size; j += 1) {
+            if (synth.voices.length === 1) {
+                synth.voices[0].getSignal(buffer);
+            } else {
+                // get the voices
                 for (i = 0; i < synth.voices.length; i += 1) {
-                    buffer[j] += signals[i][j];
+                    signals[i] = new Float32Array(size);
+                    synth.voices[i].getSignal(signals[i]);
                 }
-                buffer[j] = buffer[j] / signals.length;
+                // ... and mix
+                for (j = 0; j < size; j += 1) {
+                    for (i = 0; i < synth.voices.length; i += 1) {
+                        buffer[j] += signals[i][j];
+                    }
+                    buffer[j] = buffer[j] / signals.length;
+                }
             }
             synth.lfo1.fastForward(size);
             synth.lfo2.fastForward(size);
