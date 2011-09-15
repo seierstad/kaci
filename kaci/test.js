@@ -73,6 +73,9 @@ var kaci = kaci || {};
         synth.lfo2 = synth.oscillator({patch: synth.patch.lfo2});
         waveformSelector = synth.lfo1.addWaveformSelector({parentId: 'lfo', elementId: 'lfo1-waveform-selector'});
         waveformSelector.addEventListener('click', synth.selectLfoWaveform, false);
+
+        synth.env1 = synth.keyEnvelope({patch: synth.patch.env1});
+        synth.env2 = synth.keyEnvelope({patch: synth.patch.env2});
         
         synth.pdo = synth.phaseDistortionOscillator({patch: synth.patch.osc});
 //        synth.pdo.setWrapper('saw');

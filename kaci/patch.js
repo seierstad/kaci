@@ -8,28 +8,47 @@ var kaci = kaci || {};
         selectWaveform,
         selectWrapper,
         setPatchParameter;
-    patch = {
-        osc: {
-            wrapper: 'saw',
-            waveform: 'sinus',
-            resonanceFactor: 0.7,
-            envelopeData: [[0,0],[0.5,1],[0.6,0],[1,1]]
-        },
-        lfo1: {
-            waveform: 'saw',
-            frequency: 3
-        },
-        lfo2: {
-            waveform: 'sinus',
-            frequency: 3        
-        },
-        env1: {
-        
-        },
-        env2: {
-        
+    if (localStorage) {
+        var patchString = localStorage.getItem('kaciPatch');
+        if (patchString) {
+            patch = JSON.parse(patchString);
         }
-    };
+    }
+//    if (!patch) {    // uncomment to activate loading from localStorage
+        patch = {
+            osc: {
+                wrapper: 'saw',
+                waveform: 'sinus',
+                resonanceFactor: 0.7,
+                envelopeData: [[0,0],[0.5,1],[0.6,0],[1,1]]
+            },
+            lfo1: {
+                waveform: 'saw',
+                frequency: 3
+            },
+            lfo2: {
+                waveform: 'sinus',
+                frequency: 3        
+            },
+            env1: {
+                beforeSustain: {
+                    data: [[0,0],[0.5,1],[1,0.5]],
+                    duration: 3000
+                },
+                sustain: {
+                    value: 0.5,
+                    enabled: true
+                },
+                afterSustain: {
+                    data: [[0,0.5],[0.4,1],[0.6,0.2],[1,0]],
+                    duration: 1000
+                }
+            },
+            env2: {
+            
+            }
+        };
+//    };
 	selectOscWrapper = function(event) {
 	    setPatchParameter(event, 'osc', 'wrapper');
         synth.drawWaveform(synth.pdo, 'waveform');
@@ -61,6 +80,9 @@ var kaci = kaci || {};
 		if (input) {
 		    patch[moduleName][paramName] = input.value;
 		}
+		if (localStorage) {
+    		localStorage.setItem('kaciPatch', JSON.stringify(patch));
+        }
 	};
 	synth.selectLfoWaveform = selectLfoWaveform;	
 	synth.selectOscWaveform = selectOscWaveform;

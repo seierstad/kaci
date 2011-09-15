@@ -5,8 +5,9 @@ var kaci = kaci || {};
     var envelope, keyEnvelope;
     
     envelope = function(params) {
-        var params = params || {}, 
-            data = params.data || params.envelopeData || [[0, 0], [1, 1]],
+        var params = params || {},
+            patch = params.patch || {}, 
+            data = patch.data || params.data || params.envelopeData || [[0, 0], [1, 1]],
             linearFunctionFromPoints,
             getValueAtPhase,
             addPoint, 
@@ -60,16 +61,17 @@ var kaci = kaci || {};
     
     keyEnvelope = function(params) {
         var params = params || {},
-            beforeSustain = params.beforeSustain || {
-                envelope: envelope({data: [[0,0],[0.5,1],[1,0.5]]}),
+            patch = params.patch || {},
+            beforeSustain = patch.beforeSustain || params.beforeSustain || {
+                envelope: envelope({data: [[0,1],[1,0.5]]}),
                 duration: 300,
             },
-            sustain = params.sustain || {
+            sustain = patch.sustain || params.sustain || {
                 value: 0.5,
                 enabled: true
             },
-            afterSustain = params.afterSustain || {
-                envelope: envelope({data: [[0,0.5],[0.4,1],[0.6,0.2],[1,0]]}), 
+            afterSustain = patch.afterSustain || params.afterSustain || {
+                envelope: envelope({data: [[0,0.5],[1,0]]}), 
                 duration: 600
             },
             getValueAtTime,
@@ -77,6 +79,9 @@ var kaci = kaci || {};
             removeSustain,
             setDurationBeforeSustain,
             setDurationAfterSustain;
+
+            beforeSustain.envelope = beforeSustain.envelope || envelope({data: beforeSustain.data});
+            afterSustain.envelope = afterSustain.envelope || envelope({data: afterSustain.data});
 
         getValueAtTime = function(params) {
             var params = params || {},
@@ -190,13 +195,6 @@ var kaci = kaci || {};
     synth.keyEnvelope = keyEnvelope;
     synth.envelope = envelope;
     
-    return synth;
-})(kaci);
-
-(function(synth) {
-    synth.env1 = synth.keyEnvelope();
-    synth.env2 = synth.keyEnvelope();
-
     return synth;
 })(kaci);
 
