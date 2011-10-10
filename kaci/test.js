@@ -53,6 +53,7 @@ var kaci = kaci || {};
     synth.init = function() {
         var waveformName, waveforms, waveformSelector, pdoElement, pdoWaveforms, button, canvas, radio, lfoElement, i;
         synth.pdEnv = synth.envelope(synth.patch.osc);
+        synth.pdEnv.initView({parentId: 'pdo'});
         // init pdo
         synth.ribbon({
             height: '300px', 
@@ -83,7 +84,7 @@ var kaci = kaci || {};
         synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
         synth.audioOutput.setReadFunction(synth.getSignal);
         synth.ribbon({height: '300px', width: '50px', parentId: 'lfo', dataObject: synth.patch.lfo1, controlledValue: 'frequency', minValue: 0.1, maxValue: 10, callback: synth.lfo1.setFrequency, exponent: 4, className: 'ribbon'});
-        synth.keyboardController({parentId: 'keyboard', baseFrequency: 110, endKey: 37, height: '190px', width: '800px', className: 'keyboard'});
+        synth.keyboardController({parentId: 'keyboard', baseFrequency: 55, endKey: 37, height: '190px', width: '1000px', className: 'keyboard'});
         synth.drawWaveform(synth.pdo, 'waveform');
         synth.audioOutput.enable();
     };

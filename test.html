@@ -98,10 +98,20 @@
     	    right: 1em;
     	    display: inline-block;
     	}
+    	.pdDataPoint,
+    	line
+    	{
+    	    fill: #d0af0a;
+    	    stroke: #d0af0a;
+    	}
+    	line {
+    	    stroke-width: 2;
+    	}
     </style>
   </head>
   <body>
     <script type="text/javascript" src="kaci/kaci.js"></script>
+    <script type="text/javascript" src="kaci/eventUtils.js"></script>
     <script type="text/javascript" src="kaci/patch.js"></script>
     <script type="text/javascript" src="kaci/oscillator.js"></script>
     <script type="text/javascript" src="kaci/audio_output.js"></script>
@@ -115,8 +125,8 @@
     <section id="pdo">
         <h1 title="oscillator">OSC</h1>
         <div class="development-code">
-        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');">rett</button>
-        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[0.1,0.5],[0.5,0.5],[0.6,0.2],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');">vrang</button>
+        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');kaci.pdEnv.view.update();">rett</button>
+        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[0.1,0.5],[0.5,0.5],[0.6,0.2],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');kaci.pdEnv.view.update();">vrang</button>
         </div>
         <canvas height="300" width="300" id="waveform"></canvas>
     </section>

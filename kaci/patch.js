@@ -20,7 +20,7 @@ var kaci = kaci || {};
                 wrapper: 'saw',
                 waveform: 'sinus',
                 resonanceFactor: 0.7,
-                envelopeData: [[0,0],[0.5,1],[0.6,0],[1,1]]
+                envelopeData: [[0,0],[0.4,0.9],[1,1]]
             },
             lfo1: {
                 waveform: 'saw',
@@ -32,15 +32,15 @@ var kaci = kaci || {};
             },
             env1: {
                 beforeSustain: {
-                    data: [[0,0],[0.5,1],[1,0.5]],
-                    duration: 3000
+                    data: [[0,0],[0.2,1],[1,0.5]],
+                    duration: 300
                 },
                 sustain: {
                     value: 0.5,
                     enabled: true
                 },
                 afterSustain: {
-                    data: [[0,0.5],[0.4,1],[0.6,0.2],[1,0]],
+                    data: [[0,0.5],[1,0]],
                     duration: 1000
                 }
             },

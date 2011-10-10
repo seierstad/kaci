@@ -51,6 +51,9 @@ var kaci = kaci || {};
             zero: function (phase) {
                 return 0;
             },
+		    sinus: function (phase) {
+			    return Math.sin(phase * phi);
+		    },
 		    square: function (phase) {
 			    if (phase > 0.5) {
 				    return -1;
@@ -58,18 +61,50 @@ var kaci = kaci || {};
 				    return 1;
 			    }
 		    },
-		    sinus: function (phase) {
-			    return Math.sin(phase * phi);
-		    },
-		    cosinus: function (phase) {
-			    return Math.cos(phase * phi);
+		    additiveSquare: function (phase, maxHarmonic) {
+		        var value = 0, i = 1;
+		        maxHarmonic = maxHarmonic || 8;
+		        for (i = 1; i < maxHarmonic; i += 2) {
+		            value += Math.sin(phase * phi * i) / i;
+		        }
+		        return value * (4/Math.PI);
 		    },
 		    saw: function (phase) {
 			    return (phase - 0.5) * 2;
 		    },
+		    additiveSaw: function(phase, maxHarmonic) {
+		        var value = 0, i;
+		        maxHarmonic = maxHarmonic || 8;
+		        for (i = 1; i < maxHarmonic; i += 1) {
+		            value += Math.sin(phase * phi * i) / i;
+		        }
+		        return value * (2 / Math.PI);
+		    },
 		    saw_inverse: function (phase) {
-			    return 1 - ((phase) * 2);
-		    }
+			    return 1 - (phase * 2);
+		    },
+		    triangle: function (phase) {
+		        if (phase < 0.25) {
+		            return phase * 4;
+		        } else if (phase < 0.75) {
+		            return (phase - 0.5) * -4;
+		        } else {
+		            return (phase - 1) * 4;
+		        }
+		    },
+		    additiveTriangle: function (phase, maxHarmonic) {
+		        var value = 0, i = 1, odd = true;
+		        maxHarmonic = maxHarmonic || 5;
+		        for (i = 1; i < maxHarmonic; i += 2) {
+		            if (odd) {
+    		            value += Math.sin(phase * phi * i) / (i * i);
+    		        } else {
+    		            value -= Math.sin(phase * phi * i) / (i * i);
+    		        }
+    		        odd = !odd;
+		        }
+		        return value * (8/Math.pow(Math.PI, 2));
+		    },
         };
         updatePhaseIncrement = function(freq) {
             phaseIncrement = freq / synth.sampleRate;        
@@ -506,6 +541,8 @@ var kaci = kaci || {};
             }
             pdoElement.appendChild(wrapperSelector);            
             wrapperSelector.addEventListener('click', synth.selectOscWrapper, false);
+            
+            
         };
         
         updatePhaseIncrement = function(freq) {
@@ -543,10 +580,4 @@ var kaci = kaci || {};
     
     return synth;
 })(kaci);
-/*
-(function(synth){
-    return synth;
 
-})(kaci);
-
-*/

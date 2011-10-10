@@ -41,54 +41,27 @@ var kaci = kaci || {};
 	    // public functions:
 	    update;
 
-        exponential = function(inValue) {
-            return Math.pow(inValue, exponent);
-        };
-        inverseExponential = function(inValue) {
-            return Math.pow(inValue, 1 / exponent);
-        };
-
 	    params.width = params.width || '50px';
 	    params.height = params.height || '300px';
         controller = synth.svgControllerElement(params);
+
+        exponential = function(inValue) {
+            return Math.pow(inValue, exponent);
+        };
+
+        inverseExponential = function(inValue) {
+            return Math.pow(inValue, 1 / exponent);
+        };
 
         update = function () {
 	        var position = inverseExponential((data[controlledValue] - minValue) / maxValue);
 	        valueIndicator.setAttribute("cy", position * 100 + "%");
         };
-        cursorPosition = function (event) {
-	        var x, y, offsetAnchestor;
 
-	        if (event.pageX && event.pageY) {
-		        x = event.pageX;
-		        y = event.pageY;
-	        } else {
-		        x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-		        y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-	        }
-	        offsetAnchestor = controller.parentNode;
-
-            while(offsetAnchestor) {
-	            x -= offsetAnchestor.offsetLeft;
-	            y -= offsetAnchestor.offsetTop;
-	            offsetAnchestor = offsetAnchestor.offsetParent;
-            }
-	        return {'x': x, 'y': y};
-        };
-
-        sizeInPixels = function () {
-	        var unit, height, width;
-	        unit = controller.height.baseVal.SVG_LENGTHTYPE_PX;
-	        controller.height.baseVal.convertToSpecifiedUnits(unit);
-	        controller.width.baseVal.convertToSpecifiedUnits(unit);
-	        height = controller.height.baseVal.valueInSpecifiedUnits;
-	        width = controller.width.baseVal.valueInSpecifiedUnits;
-	        return {'width': width, 'height': height};
-        };
         changeHandler = function (event) {
             var pixelCoordinates, svgSize, factor;
-	        pixelCoordinates = cursorPosition(event);
-	        svgSize = sizeInPixels();
+	        pixelCoordinates = synth.cursorPosition(event);
+	        svgSize = synth.sizeInPixels(controller);
 	        factor = exponential(pixelCoordinates.y / svgSize.height);
 	        data[controlledValue] = minValue + ((maxValue - minValue) * factor);
 	        if (typeof callback === "function") {
@@ -190,11 +163,11 @@ var kaci = kaci || {};
     	controller.addEventListener('touchleave', touchLeaveHandler, false);
 
 
-	    controller.addEventListener('mousedown', mouseDownHandler.bind(this), false);
-	    controller.addEventListener('mouseup', mouseUpHandler.bind(this), false);
-	    controller.addEventListener('mouseover', mouseOverHandler.bind(this), false);
-	    controller.addEventListener('mouseout', mouseOutHandler.bind(this), false);
-	    controller.addEventListener('mousemove', mouseMoveHandler.bind(this), false);
+	    controller.addEventListener('mousedown', mouseDownHandler, false);
+	    controller.addEventListener('mouseup', mouseUpHandler, false);
+	    controller.addEventListener('mouseover', mouseOverHandler, false);
+	    controller.addEventListener('mouseout', mouseOutHandler, false);
+	    controller.addEventListener('mousemove', mouseMoveHandler, false);
 	
 	    window.addEventListener('DOMMouseScroll', scrollHandler, false);
 	    window.addEventListener('mousewheel', scrollHandler, false);

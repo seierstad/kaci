@@ -5,7 +5,7 @@ var kaci = kaci || {};
         var params = params || {},
             data = params.dataObject,
             keyboard,
-	        baseFrequency = params.baseFrequency || 440,
+	        baseFrequency = params.baseFrequency || 110,
 	        keys = [],
 	        keyMapping = [],
 	        keysPressed = [],
