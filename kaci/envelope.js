@@ -164,16 +164,24 @@ var kaci = kaci || {};
                 };
 
                 changeHandler = function (event) {
-                    var pixelCoordinates, svgSize, factor;
+                    var pixelCoordinates, svgSize, newData, i = 0;
 	                pixelCoordinates = synth.cursorPosition(event);
 	                svgSize = synth.sizeInPixels(controller);
+	                newData = {
+	                    x: pixelCoordinates.x / svgSize.width, 
+	                    y: 1 - pixelCoordinates.y / svgSize.height 
+	                };
 	                //factor = exponential(pixelCoordinates.y / svgSize.height);
-	                alert("y: " + pixelCoordinates.y / svgSize.height + " x: " + pixelCoordinates.x / svgSize.width);
-	                data[controlledValue] = minValue + ((maxValue - minValue) * factor);
-	                if (typeof callback === "function") {
-		                callback(data[controlledValue]);
+	                if (event.target.tagName === "rect") {
+                        for (i = 0; newData.x > data[i][0] && i < data.length; i += 1);
+                        data.splice(i, 0, [newData.x, newData.y]);
+    	                update();
+		                if (typeof callback === "function") {
+			                callback();
+		                }
+                    } else {
+	                alert("TODO: flytte punkter\ny: " + pixelCoordinates.y / svgSize.height + " x: " + pixelCoordinates.x / svgSize.width);
 	                }
-	                update();
 	                return false;
                 };
 

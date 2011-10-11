@@ -53,7 +53,13 @@ var kaci = kaci || {};
     synth.init = function() {
         var waveformName, waveforms, waveformSelector, pdoElement, pdoWaveforms, button, canvas, radio, lfoElement, i;
         synth.pdEnv = synth.envelope(synth.patch.osc);
-        synth.pdEnv.initView({parentId: 'pdo'});
+        synth.pdEnv.initView({
+            parentId: 'pdo', 
+            callback: 
+                (function(){return function() {
+                    synth.drawWaveform(synth.pdo, 'waveform');
+                }})()
+        });
         // init pdo
         synth.ribbon({
             height: '300px', 
