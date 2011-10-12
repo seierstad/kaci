@@ -19,7 +19,7 @@ var kaci = kaci || {};
             osc: {
                 wrapper: 'saw',
                 waveform: 'sinus',
-                resonanceFactor: 0.7,
+                resonanceFactor: 1,
                 envelopeData: [[0,0],[0.4,0.9],[1,1]]
             },
             lfo1: {

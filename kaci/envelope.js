@@ -83,6 +83,7 @@ var kaci = kaci || {};
                     mouseDownHandler,
                     mouseUpHandler,
                     mouseMoveHandler,
+                    doubleClickHandler,
             
                     // public functions:
                     update;
@@ -156,7 +157,7 @@ var kaci = kaci || {};
                             lineGroup.removeChild(points[i].line);
                         }
                         
-                        points.splice(data.length, points.length);
+                        points.splice(data.length, points.length - data.length);
                     }
                     controller.appendChild(svgLineGroup);
                     controller.appendChild(svgCircleGroup);
@@ -164,7 +165,7 @@ var kaci = kaci || {};
                 };
 
                 changeHandler = function (event) {
-                    var pixelCoordinates, svgSize, newData, i = 0;
+                    var pixelCoordinates, svgSize, svgCircleGroup, newData, i = 0;
 	                pixelCoordinates = synth.cursorPosition(event);
 	                svgSize = synth.sizeInPixels(controller);
 	                newData = {
@@ -179,14 +180,22 @@ var kaci = kaci || {};
 		                if (typeof callback === "function") {
 			                callback();
 		                }
-                    } else {
-	                alert("TODO: flytte punkter\ny: " + pixelCoordinates.y / svgSize.height + " x: " + pixelCoordinates.x / svgSize.width);
+                    } else if (event.target.tagName === "circle") {
+                        if (event.ctrlKey) {
+                            for (i = 0; event.target !== points[i].circle && i + 2 < points.length; i += 1);
+                            if (i > 0 && event.target === points[i].circle) {
+                                data.splice(i, 1);
+                                update();
+                                if (typeof callback === "function") {
+			                        callback();
+		                        }
+                            }
+                        }
 	                }
 	                return false;
                 };
 
                 mouseDownHandler = function (event) {
-	                draggable = true;
 	                changeHandler(event);
                 };
 
@@ -199,6 +208,9 @@ var kaci = kaci || {};
 		                changeHandler(event);
 	                }
                 };
+                doubleClickHandler = function (event) {
+                    alert(event.target);
+                };
                 
                 update();
                 
@@ -207,6 +219,7 @@ var kaci = kaci || {};
                 };
 	            controller.addEventListener('mousedown', mouseDownHandler, false);
         	    controller.addEventListener('mouseup', mouseUpHandler, false);
+        	    controller.addEventListener('dblclick', doubleClickHandler, false);
             };        
             
             
