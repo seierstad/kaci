@@ -27,6 +27,7 @@ var kaci = kaci || {};
             // private functions 
             limit,
             updatePhaseIncrement,
+            sampleAndHoldBuffer = {value: 0},
             
             // public functions
             setFrequency,
@@ -105,6 +106,16 @@ var kaci = kaci || {};
 		        }
 		        return value * (8/Math.pow(Math.PI, 2));
 		    },
+		    sampleAndHold: function (phase, steps) {
+		        var steps, fraction;
+		        steps = steps || 4;
+		        fraction = 1/steps;
+	            if (phase % fraction < sampleAndHoldBuffer.phase % fraction) {
+	                sampleAndHoldBuffer.value = Math.random();
+	            }
+	            sampleAndHoldBuffer.phase = phase;
+	            return (sampleAndHoldBuffer.value - 0.5) * 2;
+		    }
         };
         updatePhaseIncrement = function(freq) {
             phaseIncrement = freq / synth.sampleRate;        
