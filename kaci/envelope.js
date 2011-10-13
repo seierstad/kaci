@@ -17,223 +17,272 @@ var kaci = kaci || {};
             init,
             view;
 
-            linearFunctionFromPoints = function (points) {
-			    var rate, constant;
-			    rate = (points[1][1] - points[0][1]) / (points[1][0] - points[0][0]);
-			    constant = points[0][1] - ( rate * points[0][0] );
-			    return {rate: rate, constant: constant};
-		    };
-		
-            getValueAtPhase = function (phase) {
-			    var line, i;
-			    if (data.length > 1) {
-				    for (i = 1; i < data.length; i++) {
-					    if (phase >= data[i-1][0] && phase < data[i][0]) {
-						    line = linearFunctionFromPoints([data[i-1], data[i]]);
-						    return (phase * line.rate) + line.constant;
-					    }
+        linearFunctionFromPoints = function (points) {
+		    var rate, constant;
+		    rate = (points[1][1] - points[0][1]) / (points[1][0] - points[0][0]);
+		    constant = points[0][1] - ( rate * points[0][0] );
+		    return {rate: rate, constant: constant};
+	    };
+	
+        getValueAtPhase = function (phase) {
+		    var line, i;
+		    if (data.length > 1) {
+			    for (i = 1; i < data.length; i++) {
+				    if (phase >= data[i-1][0] && phase < data[i][0]) {
+					    line = linearFunctionFromPoints([data[i-1], data[i]]);
+					    return (phase * line.rate) + line.constant;
 				    }
-			    } 
-		    };
+			    }
+		    } 
+	    };
+        
+        addPoint = function(point) {
+        
+        };
+        removePoint = function(index) {
+        
+        };
+        
+        setData = function(points) {
+            data = points;
+            return this;
+        };
+        
+        getData = function() {
+            return data;
+        };
+        
+        
+        initView = function (params) {
+            var params = params || {},
+                minValue = params.minValue || 0,
+                maxValue = params.maxValue || 1,
+                callback = params.callback,
+                draggable = false,
+                touched = false,
+
+                controller,
+                valueIndicator,
             
-            addPoint = function(point) {
+                points = [],
+                svgns = 'http://www.w3.org/2000/svg',
+                pointRadius = '10',
+                lineWidth = 2,
+                position,
+                line,
+                circle,
+                svgCircle,
+                svgCircleGroup,
+                svgLine,
+                svgLineGroup,
+                i,
             
+                // private functions: (to be refactored to a common svg functions class)
+                sizeInPixels,
+                changeHandler,
+                mouseDownHandler,
+                mouseUpHandler,
+                mouseMoveHandler,
+                dragHandler,
+        
+                // public functions:
+                update;
+
+            params.width = params.width || '300px';
+            params.height = params.height || '300px';
+            controller = synth.svgControllerElement(params);
+            svgCircleGroup = document.createElementNS(svgns, "g");
+            svgLineGroup = document.createElementNS(svgns, "g");
+            
+            circle = function(position, params) {
+                var radius = params.radius || pointRadius,
+                    className = params.className,
+                    svgCircle = params.svgCircle || document.createElementNS(svgns, "circle");
+                    
+                svgCircle.setAttribute("cx", (position.x * 100).toString() + "%");
+                svgCircle.setAttribute("cy", (position.y * 100).toString() + "%");
+                svgCircle.setAttribute("r", radius + "px");
+                if (className) {
+                    svgCircle.setAttribute("class", className);
+                }
+                return svgCircle;
+                svgCircle.addEventListener("dragstart", dragHandler, false);
             };
-            removePoint = function(index) {
             
+            line = function(startPosition, endPosition, params) {
+                var params = params || {},
+                    className = params.className,
+                    svgLine = params.svgLine || document.createElementNS(svgns, "line");
+                    
+                svgLine.setAttribute("x1", (startPosition.x * 100).toString() + "%");
+                svgLine.setAttribute("y1", (startPosition.y * 100).toString() + "%");
+                svgLine.setAttribute("x2", (endPosition.x * 100).toString() + "%");
+                svgLine.setAttribute("y2", (endPosition.y * 100).toString() + "%");
+                if (className) {
+                    svgLine.setAttribute("class", className);
+                }
+                return svgLine;
             };
+
             
-            setData = function(points) {
-                data = points;
+            update = function () {
+                var previousPosition, i, circleGroup, lineGroup;
+                
+                for (i = 0; i < data.length; i += 1) {
+                    position = {x: data[i][0], y: 1 - (data[i][1] - minValue) / maxValue};
+
+                    if (i < points.length && points[i].circle) {
+                        circle(position, {svgCircle: points[i].circle});
+                        if (points[i].line) {
+                            line(previousPosition, position, {svgLine: points[i].line});
+                        }
+                        points[i].data = data[i];
+                    } else {
+                        svgCircle = circle(position, {className: 'pdDataPoint'});
+                        svgCircleGroup.appendChild(svgCircle);
+                        points[i] = {circle: svgCircle, data: data[i]};
+                        if (i > 0) {
+                            svgLine = line(previousPosition, position);
+                            svgLineGroup.appendChild(svgLine);
+                            points[i].line = svgLine;
+                        }
+                    }
+                    previousPosition = position;
+                }
+                if (data.length < points.length) {
+                    circleGroup = points[0].circle.parentNode;
+                    lineGroup = points[1].line.parentNode;
+                    
+                    for (i = data.length; i < points.length; i += 1) {
+                        circleGroup.removeChild(points[i].circle);
+                        lineGroup.removeChild(points[i].line);
+                    }
+                    
+                    points.splice(data.length, points.length - data.length);
+                }
+                controller.appendChild(svgLineGroup);
+                controller.appendChild(svgCircleGroup);
                 return this;
             };
-            
-            getData = function() {
-                return data;
-            };
-            
-            
-            initView = function (params) {
-                var params = params || {},
-	                minValue = params.minValue || 0,
-	                maxValue = params.maxValue || 1,
-	                callback = params.callback,
-	                draggable = false,
-                    touched = false,
-
-                    controller,
-                    valueIndicator,
-	            
-	                points = [],
-                    svgns = 'http://www.w3.org/2000/svg',
-                    pointRadius = '10px',
-                    lineWidth = 2,
-                    position,
-                    line,
-                    circle,
-                    svgCircle,
-                    svgCircleGroup,
-                    svgLine,
-                    svgLineGroup,
-                    i,
-	            
-                    // private functions: (to be refactored to a common svg functions class)
-                    sizeInPixels,
-                    changeHandler,
-                    mouseDownHandler,
-                    mouseUpHandler,
-                    mouseMoveHandler,
-                    doubleClickHandler,
-            
-                    // public functions:
-                    update;
-
-	            params.width = params.width || '300px';
-	            params.height = params.height || '300px';
-                controller = synth.svgControllerElement(params);
-                svgCircleGroup = document.createElementNS(svgns, "g");
-                svgLineGroup = document.createElementNS(svgns, "g");
-                
-                circle = function(position, params) {
-                    var radius = params.radius || pointRadius,
-                        className = params.className,
-                        svgCircle = params.svgCircle || document.createElementNS(svgns, "circle");
-                        
-                    svgCircle.setAttribute("cx", (position.x * 100).toString() + "%");
-                    svgCircle.setAttribute("cy", (position.y * 100).toString() + "%");
-                    svgCircle.setAttribute("r", radius);
-                    if (className) {
-                        svgCircle.setAttribute("class", className);
-                    }
-                    return svgCircle;
+            changeHandler = function (event) {
+                var pixelCoordinates, svgSize, svgCircleGroup, newData, viewUpdate, circleIndex, index, i = 0;
+                pixelCoordinates = synth.cursorPosition(event);
+                svgSize = synth.sizeInPixels(controller);
+                newData = {
+                    x: pixelCoordinates.x / svgSize.width, 
+                    y: 1 - pixelCoordinates.y / svgSize.height 
                 };
                 
-                line = function(startPosition, endPosition, params) {
-                    var params = params || {},
-                        className = params.className,
-                        svgLine = params.svgLine || document.createElementNS(svgns, "line");
-                        
-                    svgLine.setAttribute("x1", (startPosition.x * 100).toString() + "%");
-                    svgLine.setAttribute("y1", (startPosition.y * 100).toString() + "%");
-                    svgLine.setAttribute("x2", (endPosition.x * 100).toString() + "%");
-                    svgLine.setAttribute("y2", (endPosition.y * 100).toString() + "%");
-                    if (className) {
-                        svgLine.setAttribute("class", className);
+                circleIndex = function(event) {
+                    for (i = 0; event.target !== points[i].circle && i + 1 < points.length; i += 1);
+                    if (event.target === points[i].circle) {
+                        return i;
                     }
-                    return svgLine;
+                    return -1;
+                };
+                
+                viewUpdate = function() {
+                    update();
+                    if (typeof callback === "function") {
+                        callback();
+                    }
                 };
 
-                
-                update = function () {
-                    var previousPosition, i, circleGroup, lineGroup;
-                    
-                    for (i = 0; i < data.length; i += 1) {
-                        position = {x: data[i][0], y: 1 - (data[i][1] - minValue) / maxValue};
 
-                        if (i < points.length && points[i].circle) {
-                            circle(position, {svgCircle: points[i].circle});
-                            if (points[i].line) {
-                                line(previousPosition, position, {svgLine: points[i].line});
-                            }
-                            points[i].data = data[i];
-                        } else {
-                            svgCircle = circle(position, {className: 'pdDataPoint'});
-                            svgCircleGroup.appendChild(svgCircle);
-                            points[i] = {circle: svgCircle, data: data[i]};
-                            if (i > 0) {
-                                svgLine = line(previousPosition, position);
-                                svgLineGroup.appendChild(svgLine);
-                                points[i].line = svgLine;
+                switch (event.type) {
+                    case "mousedown":
+                        if (event.target.tagName === "rect") {
+                            for (i = 0; newData.x > data[i][0] && i < data.length; i += 1);
+                            data.splice(i, 0, [newData.x, newData.y]);
+                            viewUpdate();
+                        } else if (event.target.tagName === "circle") {
+                            index = circleIndex(event);
+                            if (event.ctrlKey) {
+                                if (index > 0 && index + 1 < points.length) {
+                                    data.splice(index, 1);
+                                    viewUpdate();
+                                }
+                            } else {
+                                points[index].draggable = true;
+                                points[index].circle.setAttribute("r", pointRadius*3 + "px");
                             }
                         }
-                        previousPosition = position;
-                    }
-                    if (data.length < points.length) {
-                        circleGroup = points[0].circle.parentNode;
-                        lineGroup = points[1].line.parentNode;
-                        
-                        for (i = data.length; i < points.length; i += 1) {
-                            circleGroup.removeChild(points[i].circle);
-                            lineGroup.removeChild(points[i].line);
+                        break;
+                    case "mouseup":
+                        index = circleIndex(event);
+                        if (points[index] && points[index].draggable) {
+                            points[index].draggable = false;
+                            points[index].circle.setAttribute("r", pointRadius + "px");
                         }
-                        
-                        points.splice(data.length, points.length - data.length);
-                    }
-                    controller.appendChild(svgLineGroup);
-                    controller.appendChild(svgCircleGroup);
-                    return this;
-                };
+                        break;
+                    case "mousemove":
+                        if (event.target.tagName === "circle") {
+                            index = circleIndex(event);
 
-                changeHandler = function (event) {
-                    var pixelCoordinates, svgSize, svgCircleGroup, newData, i = 0;
-	                pixelCoordinates = synth.cursorPosition(event);
-	                svgSize = synth.sizeInPixels(controller);
-	                newData = {
-	                    x: pixelCoordinates.x / svgSize.width, 
-	                    y: 1 - pixelCoordinates.y / svgSize.height 
-	                };
-	                //factor = exponential(pixelCoordinates.y / svgSize.height);
-	                if (event.target.tagName === "rect") {
-                        for (i = 0; newData.x > data[i][0] && i < data.length; i += 1);
-                        data.splice(i, 0, [newData.x, newData.y]);
-    	                update();
-		                if (typeof callback === "function") {
-			                callback();
-		                }
-                    } else if (event.target.tagName === "circle") {
-                        if (event.ctrlKey) {
-                            for (i = 0; event.target !== points[i].circle && i + 2 < points.length; i += 1);
-                            if (i > 0 && event.target === points[i].circle) {
-                                data.splice(i, 1);
-                                update();
+                            if (points[index] && points[index].draggable) {
+                                points[index].data[1] = newData.y;
+                                points[index].circle.setAttribute("cy", ((1 - newData.y) * 100).toString() + "%");
+                                if (points[index].line) {
+                                    points[index].line.setAttribute("y2", ((1 - newData.y) * 100).toString() + "%");
+                                }
+                                if (index + 1 < points.length && points[index + 1].line) {
+                                    points[index + 1].line.setAttribute("y1", ((1 - newData.y) * 100).toString() + "%");
+                                }
+
+                                if(index > 0 && index + 1 < points.length) {
+                                    points[index].data[0] = newData.x;
+                                    points[index].circle.setAttribute("cx", (newData.x * 100).toString() + "%"); 
+                                    if (points[index].line) {
+                                        points[index].line.setAttribute("x2", (newData.x * 100).toString() + "%");
+                                    }
+                                    if (index + 1 < points.length && points[index + 1].line) {
+                                        points[index + 1].line.setAttribute("x1", (newData.x * 100).toString() + "%");
+                                    }
+                                }
                                 if (typeof callback === "function") {
-			                        callback();
-		                        }
+                                    callback();
+                                }
                             }
                         }
-	                }
-	                return false;
-                };
-
-                mouseDownHandler = function (event) {
-	                changeHandler(event);
-                };
-
-                mouseUpHandler = function (event) {
-	                draggable = false;
-                };
-
-                mouseMoveHandler = function (event) {
-	                if (draggable === true) {
-		                changeHandler(event);
-	                }
-                };
-                doubleClickHandler = function (event) {
-                    alert(event.target);
-                };
-                
-                update();
-                
-                this.view = {
-                    update: update
-                };
-	            controller.addEventListener('mousedown', mouseDownHandler, false);
-        	    controller.addEventListener('mouseup', mouseUpHandler, false);
-        	    controller.addEventListener('dblclick', doubleClickHandler, false);
-            };        
-            
-            
-            
-            return {
-                getValueAtPhase: getValueAtPhase,
-                addPoint: addPoint, 
-                removePoint: removePoint,
-                setData: setData,
-                getData: getData,
-                initView: initView,
-                view: view
+                        break;
+                }
+                return false;
             };
 
+            mouseDownHandler = function (event) {
+               changeHandler(event);
+            };
+
+            mouseUpHandler = function (event) {
+                changeHandler(event);
+            };
+
+            mouseMoveHandler = function (event) {
+                changeHandler(event);
+            };
+            doubleClickHandler = function (event) {
+                alert(event.target);
+            };
+            
+            update();
+            
+            this.view = {
+                update: update
+            };
+            controller.addEventListener('mousedown', mouseDownHandler, false);
+    	    controller.addEventListener('mouseup', mouseUpHandler, false);
+    	    controller.addEventListener('mousemove', mouseMoveHandler, false);
+        };        
+        
+        return {
+            getValueAtPhase: getValueAtPhase,
+            addPoint: addPoint, 
+            removePoint: removePoint,
+            setData: setData,
+            getData: getData,
+            initView: initView,
+            view: view
+        };
     };
     
     keyEnvelope = function(params) {
