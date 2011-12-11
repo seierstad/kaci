@@ -195,6 +195,8 @@ var kaci = kaci || {};
                             for (i = 0; newData.x > data[i][0] && i < data.length; i += 1);
                             data.splice(i, 0, [newData.x, newData.y]);
                             viewUpdate();
+                            points[i].draggable = true;
+                            points[i].circle.setAttribute("r", pointRadius*3 + "px");                            
                         } else if (event.target.tagName === "circle") {
                             index = circleIndex(event);
                             if (event.ctrlKey) {
