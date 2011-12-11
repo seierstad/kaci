@@ -80,10 +80,8 @@ var kaci = kaci || {};
                 // private functions: (to be refactored to a common svg functions class)
                 sizeInPixels,
                 changeHandler,
-                mouseDownHandler,
-                mouseUpHandler,
-                mouseMoveHandler,
-                dragHandler,
+                mouseHandler,
+                touchHandler,
         
                 // public functions:
                 update;
@@ -164,18 +162,19 @@ var kaci = kaci || {};
                 controller.appendChild(svgCircleGroup);
                 return this;
             };
-            changeHandler = function (event) {
+            changeHandler = function (event, touch) {
                 var pixelCoordinates, svgSize, svgCircleGroup, newData, viewUpdate, circleIndex, index, i = 0;
-                pixelCoordinates = synth.cursorPosition(event);
+                pixelCoordinates = synth.cursorPosition(event, touch);
                 svgSize = synth.sizeInPixels(controller);
                 newData = {
                     x: pixelCoordinates.x / svgSize.width, 
                     y: 1 - pixelCoordinates.y / svgSize.height 
                 };
-                
-                circleIndex = function(event) {
-                    for (i = 0; event.target !== points[i].circle && i + 1 < points.length; i += 1);
-                    if (event.target === points[i].circle) {
+
+                circleIndex = function(event, touch) {
+                    var p = touch || event;
+                    for (i = 0; p.target !== points[i].circle && i + 1 < points.length; i += 1);
+                    if (p.target === points[i].circle) {
                         return i;
                     }
                     return -1;
@@ -190,6 +189,7 @@ var kaci = kaci || {};
 
 
                 switch (event.type) {
+                    case "touchstart":
                     case "mousedown":
                         if (event.target.tagName === "rect") {
                             for (i = 0; newData.x > data[i][0] && i < data.length; i += 1);
@@ -208,6 +208,8 @@ var kaci = kaci || {};
                             }
                         }
                         break;
+                    case "touchend":
+                    case "touchcancel":    
                     case "mouseup":
                         index = circleIndex(event);
                         if (points[index] && points[index].draggable) {
@@ -215,8 +217,19 @@ var kaci = kaci || {};
                             points[index].circle.setAttribute("r", pointRadius + "px");
                         }
                         break;
+                    case "touchmove":
+                        if (pixelCoordinates.x < 0 
+                                || pixelCoordinates.y < 0 
+                                || pixelCoordinates.x >= svgSize.width 
+                                || pixelCoordinates.y >= svgSize.height) {
+                                
+                            return touchLeaveHandler(event);
+                        }
+                    case "touchmove":
                     case "mousemove":
                         if (event.target.tagName === "circle") {
+                            event.preventDefault();
+                            event.stopPropagation();
                             index = circleIndex(event);
 
                             if (points[index] && points[index].draggable) {
@@ -249,29 +262,30 @@ var kaci = kaci || {};
                 return false;
             };
 
-            mouseDownHandler = function (event) {
+            mouseHandler = function (event) {
                changeHandler(event);
             };
 
-            mouseUpHandler = function (event) {
-                changeHandler(event);
+            touchHandler = function (event) {
+                changeHandler(event, event.changedTouches[0]);
+                return false;
             };
 
-            mouseMoveHandler = function (event) {
-                changeHandler(event);
-            };
-            doubleClickHandler = function (event) {
-                alert(event.target);
-            };
-            
             update();
             
             this.view = {
                 update: update
             };
-            controller.addEventListener('mousedown', mouseDownHandler, false);
-    	    controller.addEventListener('mouseup', mouseUpHandler, false);
-    	    controller.addEventListener('mousemove', mouseMoveHandler, false);
+            controller.addEventListener('mousedown', mouseHandler, false);
+    	    controller.addEventListener('mouseup', mouseHandler, false);
+    	    controller.addEventListener('mousemove', mouseHandler, false);
+            controller.addEventListener('touchstart', touchHandler, false);
+    	    controller.addEventListener('touchend', touchHandler, false);
+    	    controller.addEventListener('touchcancel', touchHandler, false);
+    	    controller.addEventListener('touchmove', touchHandler, false);
+    	    
+    	    
+
         };        
         
         return {

@@ -3,15 +3,17 @@ var kaci = kaci || {};
 (function(synth){
     var cursorPosition, sizeInPixels;
     
-    cursorPosition = function (event) {
-        var x, y, offsetAnchestor;
+    cursorPosition = function (event, touch) {
+        var x, y, offsetAnchestor, p;
+        
+        p = touch || event;
 
-        if (event.pageX && event.pageY) {
-	        x = event.pageX;
-	        y = event.pageY;
+        if (p.pageX && p.pageY) {
+	        x = p.pageX;
+	        y = p.pageY;
         } else {
-	        x = event.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-	        y = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	        x = p.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+	        y = p.clientY + document.body.scrollTop + document.documentElement.scrollTop;
         }
         offsetAnchestor = event.currentTarget.parentNode;
 

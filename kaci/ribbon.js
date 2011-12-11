@@ -22,8 +22,6 @@ var kaci = kaci || {};
 	    pointRadius = '10px',
 	    
 	    // private functions:
-	    cursorPosition,
-	    sizeInPixels,
 	    changeHandler,
 	    mouseDownHandler,
 	    mouseUpHandler, 
@@ -58,9 +56,9 @@ var kaci = kaci || {};
 	        valueIndicator.setAttribute("cy", position * 100 + "%");
         };
 
-        changeHandler = function (event) {
+        changeHandler = function (event, touch) {
             var pixelCoordinates, svgSize, factor;
-	        pixelCoordinates = synth.cursorPosition(event);
+	        pixelCoordinates = synth.cursorPosition(event, touch);
 	        svgSize = synth.sizeInPixels(controller);
 	        factor = exponential(pixelCoordinates.y / svgSize.height);
 	        data[controlledValue] = minValue + ((maxValue - minValue) * factor);
@@ -117,7 +115,7 @@ var kaci = kaci || {};
 
         touchStartHandler = function (event) {
             touched = true;
-            changeHandler(event.changedTouches[0]);
+            changeHandler(event, event.changedTouches[0]);
             return false;
         };
 
@@ -126,14 +124,14 @@ var kaci = kaci || {};
             if (touched) {
                 event.preventDefault();
                 event.stopPropagation();
-                position = cursorPosition(event.changedTouches[0]);
-                size = sizeInPixels();
+                position = synth.cursorPosition(event, event.changedTouches[0]);
+                size = synth.sizeInPixels(controller);
                 
                 if (position.x < 0 || position.y < 0 || position.x >= size.width || position.y >= size.height) {
                     return touchLeaveHandler(event);
                 }
                 
-                changeHandler(event.changedTouches[0]);
+                changeHandler(event, event.changedTouches[0]);
             }
             return false;
         };
