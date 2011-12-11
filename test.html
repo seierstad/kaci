@@ -124,10 +124,6 @@
     <button onclick="kaci.audioOutput.disable();">stopp</button>
     <section id="pdo">
         <h1 title="oscillator">OSC</h1>
-        <div class="development-code">
-        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');kaci.pdEnv.view.update();">rett</button>
-        <button onclick="kaci.patch.osc.envelopeData.splice(0, kaci.patch.osc.envelopeData.length,[0,0],[0.1,0.5],[0.5,0.5],[0.6,0.2],[1,1]);kaci.drawWaveform(kaci.pdo, 'waveform');kaci.pdEnv.view.update();">vrang</button>
-        </div>
         <canvas height="300" width="300" id="waveform"></canvas>
     </section>
     <section id="keyboard">
