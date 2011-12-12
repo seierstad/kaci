@@ -32,7 +32,7 @@ var kaci = kaci || {};
             },
             env1: {
                 beforeSustain: {
-                    data: [[0,0],[0.2,1],[1,0.5]],
+                    data: [[0,0],[0.2,1],[0.3,0.2],[1,0.5]],
                     duration: 300
                 },
                 sustain: {
@@ -45,7 +45,18 @@ var kaci = kaci || {};
                 }
             },
             env2: {
-            
+                beforeSustain: {
+                    data: [[0,0],[0.2,1],[0.3,0.2],[1,0.5]],
+                    duration: 300
+                },
+                sustain: {
+                    value: 0.5,
+                    enabled: true
+                },
+                afterSustain: {
+                    data: [[0,0.5],[1,0]],
+                    duration: 1000
+                }            
             }
         };
 //    };

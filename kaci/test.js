@@ -49,6 +49,7 @@ var kaci = kaci || {};
         context.stroke();
         return this;
     };
+    
     synth.drawWaveform = drawWaveform;
     synth.init = function() {
         var waveformName, waveforms, waveformSelector, pdoElement, pdoWaveforms, button, canvas, radio, lfoElement, i;
@@ -82,10 +83,12 @@ var kaci = kaci || {};
         waveformSelector.addEventListener('click', synth.selectLfoWaveform, false);
 
         synth.env1 = synth.keyEnvelope({patch: synth.patch.env1});
+        synth.env1.initView({
+            parentId: 'env1'
+        });        
         synth.env2 = synth.keyEnvelope({patch: synth.patch.env2});
         
         synth.pdo = synth.phaseDistortionOscillator({patch: synth.patch.osc});
-//        synth.pdo.setWrapper('saw');
         synth.pdo.addGui();
         synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
         synth.audioOutput.setReadFunction(synth.getSignal);
@@ -98,6 +101,4 @@ var kaci = kaci || {};
     return synth;
 })(kaci);
 document.addEventListener('DOMContentLoaded', kaci.init, false)
-
-var tone80;
 

@@ -14,6 +14,9 @@ var kaci = kaci || {};
             removePoint,
             setData,
             getData,
+			setValueAtIndex,
+			setLastValue,
+            
             init,
             view;
 
@@ -51,7 +54,14 @@ var kaci = kaci || {};
         getData = function() {
             return data;
         };
-        
+		setValueAtIndex = function(value, index) {
+			if (index < data.length) {
+				data[index][1] = value;
+			}
+		};
+		setLastValue = function(value) {
+			setValueAtIndex(value, data.length - 1);
+		};
         
         initView = function (params) {
             var params = params || {},
@@ -163,7 +173,7 @@ var kaci = kaci || {};
                 return this;
             };
             changeHandler = function (event, touch) {
-                var pixelCoordinates, svgSize, svgCircleGroup, newData, viewUpdate, circleIndex, index, i = 0;
+                var pixelCoordinates, svgSize, svgCircleGroup, newData, viewUpdate, circleIndex, circleDraggable, index, i = 0;
                 pixelCoordinates = synth.cursorPosition(event, touch);
                 svgSize = synth.sizeInPixels(controller);
                 newData = {
@@ -178,6 +188,11 @@ var kaci = kaci || {};
                         return i;
                     }
                     return -1;
+                };
+                
+                circleDraggable = function(index) {
+                    points[index].draggable = true;
+                    points[index].circle.setAttribute("r", pointRadius*3 + "px");                            
                 };
                 
                 viewUpdate = function() {
@@ -195,8 +210,7 @@ var kaci = kaci || {};
                             for (i = 0; newData.x > data[i][0] && i < data.length; i += 1);
                             data.splice(i, 0, [newData.x, newData.y]);
                             viewUpdate();
-                            points[i].draggable = true;
-                            points[i].circle.setAttribute("r", pointRadius*3 + "px");                            
+                            circleDraggable(i);
                         } else if (event.target.tagName === "circle") {
                             index = circleIndex(event);
                             if (event.ctrlKey) {
@@ -205,8 +219,7 @@ var kaci = kaci || {};
                                     viewUpdate();
                                 }
                             } else {
-                                points[index].draggable = true;
-                                points[index].circle.setAttribute("r", pointRadius*3 + "px");
+	                            circleDraggable(index);
                             }
                         }
                         break;
@@ -296,6 +309,8 @@ var kaci = kaci || {};
             removePoint: removePoint,
             setData: setData,
             getData: getData,
+			setValueAtIndex: setValueAtIndex,
+			setLastValue: setLastValue,
             initView: initView,
             view: view
         };
@@ -321,11 +336,24 @@ var kaci = kaci || {};
             removeSustain,
             setDurationBeforeSustain,
             setDurationAfterSustain,
+            setSustainValue,
+            test,
             view,
-            init;
+            initView;
 
             beforeSustain.envelope = beforeSustain.envelope || envelope({data: beforeSustain.data});
             afterSustain.envelope = afterSustain.envelope || envelope({data: afterSustain.data});
+		
+		setSustainValue = function(value) {
+			if (sustain.enabled) {
+				sustain.value = value;
+				beforeSustain.envelope.setLastValue(value);
+				afterSustain.envelope.setValueAtIndex(value, 0);
+
+				beforeSustain.envelope.view.update();
+				afterSustain.envelope.view.update();
+			}
+		};
 
         getValueAtTime = function(params) {
             var params = params || {},
@@ -367,9 +395,6 @@ var kaci = kaci || {};
         };
         
         addSustain = function(index) {
-            if (sustain.enabled) {
-                removeSustain();
-            }
             var duration = beforeSustain.duration,
                 data = beforeSustain.envelope.getData(),
                 beforeData,
@@ -379,6 +404,10 @@ var kaci = kaci || {};
                 i;
                 
             if (index < data.length) {
+		        if (sustain.enabled) {
+		            removeSustain();
+		        }
+
                 afterData = data.slice(index);
                 beforeData = data.slice(0, index);
                 beforeData.push(afterData[0].slice());
@@ -398,6 +427,7 @@ var kaci = kaci || {};
                 afterSustain.duration = duration - beforeSustain.duration; // equals duration * afterPart
                 sustain.enabled = true;
                 sustain.value = data[index][1];
+	            view.update();
             }
             return this;
         };
@@ -424,28 +454,38 @@ var kaci = kaci || {};
                 beforeSustain.envelope.setData(data);
                 beforeSustain.duration = duration;
                 sustain.enabled = false;
+                view.update();
             }
 
             return this;
         };
         
-        initView = function () {
-            beforeSustain.envelope.initView();
-            afterSustain.envelope.initView();
-            this.view = {
+        initView = function (params) {
+            beforeSustain.envelope.initView(params);
+            afterSustain.envelope.initView(params);
+            view = {
                 beforeSustain: beforeSustain.envelope.view,
                 afterSustain: afterSustain.envelope.view,
-                update: function(){alert('todo')}
+                update: function(){
+                	if (sustain.enabled) {
+                		console.log('enabled');
+                	} else {
+                		console.log('disabled');
+                	}
+                }
             }
         };
-
+		test = function(value){
+			setSustainValue(value);
+		};
+		
         return {
             addSustain: addSustain,
             removeSustain: removeSustain,
             getValueAtTime: getValueAtTime,
             isFinishedAtTime: isFinishedAtTime,
             initView: initView,
-            view: view
+            test: test
         };
     };
     synth.keyEnvelope = keyEnvelope;
