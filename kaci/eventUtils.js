@@ -1,10 +1,18 @@
 var kaci = kaci || {};
 
 (function(synth){
-    var cursorPosition, sizeInPixels;
+    var getOffsetElement, cursorPosition, sizeInPixels;
+    
+    getOffsetElement = function(svgElement) {
+    	// returns the fillRect rectangle.
+		for (offsetElement = svgElement; 
+			offsetElement && offsetElement.tagName !== "g" && !offsetElement.classList.contains('controller'); 
+			offsetElement = offsetElement.parentNode);
+	    return offsetElement.firstChild;
+    };
     
     cursorPosition = function (event, touch) {
-        var x, y, offsetAnchestor, p;
+        var x, y, offsetElement, bcr, p;
         
         p = touch || event;
 
@@ -15,23 +23,32 @@ var kaci = kaci || {};
 	        x = p.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
 	        y = p.clientY + document.body.scrollTop + document.documentElement.scrollTop;
         }
-        offsetAnchestor = event.currentTarget.parentNode;
+       
+		if (event.currentTarget.getBoundingClientRect) {
 
-        while(offsetAnchestor) {
-            x -= offsetAnchestor.offsetLeft;
-            y -= offsetAnchestor.offsetTop;
-            offsetAnchestor = offsetAnchestor.offsetParent;
-        }
+			bcr = getOffsetElement(event.currentTarget).getBoundingClientRect(); 
+			x -= bcr.left + (document.body.scrollLeft + document.documentElement.scrollLeft);
+			y -= bcr.top + (document.body.scrollTop + document.documentElement.scrollTop);
+
+		} else {
+	        offsetElement = event.currentTarget.parentNode;
+		    while(offsetElement) {
+		        x -= offsetElement.offsetLeft;
+		        y -= offsetElement.offsetTop;
+		        offsetElement = offsetElement.offsetParent;
+		    }
+		}
         return {'x': x, 'y': y};
     };
     
     sizeInPixels = function (svgElement) {
-        var unit, height, width;
-        unit = svgElement.height.baseVal.SVG_LENGTHTYPE_PX;
-        svgElement.height.baseVal.convertToSpecifiedUnits(unit);
-        svgElement.width.baseVal.convertToSpecifiedUnits(unit);
-        height = svgElement.height.baseVal.valueInSpecifiedUnits;
-        width = svgElement.width.baseVal.valueInSpecifiedUnits;
+        var unit, height, width, e;
+        e = getOffsetElement(svgElement);
+        unit = e.height.baseVal.SVG_LENGTHTYPE_PX;
+        e.height.baseVal.convertToSpecifiedUnits(unit);
+        e.width.baseVal.convertToSpecifiedUnits(unit);
+        height = e.height.baseVal.valueInSpecifiedUnits;
+        width = e.width.baseVal.valueInSpecifiedUnits;
         return {'width': width, 'height': height};
     };
     

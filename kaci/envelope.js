@@ -96,7 +96,7 @@ var kaci = kaci || {};
                 // public functions:
                 update;
 
-            params.width = params.width || '300px';
+            params.width = params.width || '400px';
             params.height = params.height || '300px';
             controller = synth.svgControllerElement(params);
             svgCircleGroup = document.createElementNS(svgns, "g");
