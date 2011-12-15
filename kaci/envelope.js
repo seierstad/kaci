@@ -96,14 +96,15 @@ var kaci = kaci || {};
                 // public functions:
                 update;
 
-            params.width = params.width || '400px';
+            params.width = params.width || '300px';
             params.height = params.height || '300px';
             controller = synth.svgControllerElement(params);
-            svgCircleGroup = document.createElementNS(svgns, "g");
-            svgLineGroup = document.createElementNS(svgns, "g");
-            
+            svgCircleGroup = synth.svg('g', {'class': 'circles'});
+            svgLineGroup = synth.svg('g', {'class': 'lines'});      
+
             circle = function(position, params) {
-                var radius = params.radius || pointRadius,
+                var params = params || {},
+                	radius = params.radius || pointRadius,
                     className = params.className,
                     svgCircle = params.svgCircle || document.createElementNS(svgns, "circle");
                     
@@ -146,7 +147,7 @@ var kaci = kaci || {};
                         }
                         points[i].data = data[i];
                     } else {
-                        svgCircle = circle(position, {className: 'pdDataPoint'});
+                        svgCircle = circle(position);
                         svgCircleGroup.appendChild(svgCircle);
                         points[i] = {circle: svgCircle, data: data[i]};
                         if (i > 0) {
@@ -349,7 +350,7 @@ var kaci = kaci || {};
 				sustain.value = value;
 				beforeSustain.envelope.setLastValue(value);
 				afterSustain.envelope.setValueAtIndex(value, 0);
-
+				
 				beforeSustain.envelope.view.update();
 				afterSustain.envelope.view.update();
 			}
@@ -461,9 +462,78 @@ var kaci = kaci || {};
         };
         
         initView = function (params) {
+
+	        var controller, 
+	        	sustainController, 
+	        	defs,
+	        	mask, 
+	        	maskbg, 
+	        	maskText, 
+	        	bar, 
+	        	sustainOff, 
+	        	svgns = 'http://www.w3.org/2000/svg', 
+	        	xlinkns = 'http://www.w3.org/1999/xlink';
+	        	
+	        controller = synth.svgControllerElement(params);
+
+	        params.container = controller;
+	        params.width = "40%";
+	        params.height = "90%";
             beforeSustain.envelope.initView(params);
+
+            params.offsetX = "60%";
             afterSustain.envelope.initView(params);
+
+	        params.width = "20%";
+            params.offsetX = "40%";
+            params.className = "sustain";
+   	        sustainController = synth.svgControllerElement(params);
+   	        sustain.value = (afterSustain.envelope.getData())[0][1];
+ 
+			mask = synth.svg('mask', {id: 'mask', x: 0, y: 0, width: "100%", height: 20});
+			maskbg = synth.svg('rect', {width: '100%', height: '100%', fill: 'white'});
+   	        mask.appendChild(maskbg);
+			maskText = synth.svg('text', {x: 0, y: 0, transform: 'translate(0 15)', fill: 'black'});
+   	        maskText.textContent = "SUSTAIN";
+   	        mask.appendChild(maskText);
+			var offBg = synth.svg("circle", {cx: "100%", cy: 10, r: 7.5, transform: "translate(-7.5 0)"});
+   	        mask.appendChild(offBg);
+   	        sustainController.appendChild(mask);
+   	        
+			defs = document.createElementNS(svgns, "defs");
+			bar = synth.svg('g', {id: 'sustainBar'});
+			rect = synth.svg('rect', {width: '100%', height: 20, x: 0, y: 0, mask: 'url(#mask)', 'class': 'bar'});
+			bar.appendChild(rect);
+			
+			off = synth.svg('g', {id: 'off'});
+			offTarget = synth.svg('circle', {id: 'target', cx: 7.5, cy: 7.5, r: 7.5, opacity: 0});
+			off.appendChild(offTarget);
+			var crossline1 = synth.svg('line', {x1: 3.5, y1: 3, x2: 11.5, y2: 12});
+			off.appendChild(crossline1);
+			var crossline2 = synth.svg('line', {x1: 3.5, y1: 12, x2: 11.5, y2: 3, fill: 'blue'});
+			off.appendChild(crossline2);
+			defs.appendChild(off);
+			
+			var useOff = synth.svg('use', {x: '100%', y: 2.5, transform: 'translate(-15 0)'});
+			useOff.setAttributeNS(xlinkns,"xlink:href","#off");
+			bar.appendChild(useOff);
+			
+			defs.appendChild(bar);
+			sustainController.appendChild(defs);
+			
+			var sustainPercent = (sustain.value * 100).toString() + "%";
+
+			var useBar = synth.svg('use', {x: 0, y: sustainPercent, transform: 'translate(0 -10)'});
+			useBar.setAttributeNS(xlinkns,"xlink:href","#sustainBar");	
+
+   	        sustainController.appendChild(useBar);
+   	        
+
+			
+			
+			
             view = {
+            	sustain: sustain,
                 beforeSustain: beforeSustain.envelope.view,
                 afterSustain: afterSustain.envelope.view,
                 update: function(){

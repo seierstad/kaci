@@ -1,12 +1,23 @@
 var kaci = kaci || {};
 
 (function(synth){
-    var getOffsetElement, cursorPosition, sizeInPixels;
+    var svg, getOffsetElement, cursorPosition, sizeInPixels;
+
+    svg = function(elementType, attributes) {
+    	var element, i, svgns = 'http://www.w3.org/2000/svg';
+    	element = document.createElementNS(svgns, elementType);
+    	for (attribute in attributes) {
+    		if (attributes.hasOwnProperty(attribute)) {
+    			element.setAttributeNS(null, attribute, attributes[attribute]);
+    		}
+    	}
+    	return element;
+    };
     
     getOffsetElement = function(svgElement) {
     	// returns the fillRect rectangle.
 		for (offsetElement = svgElement; 
-			offsetElement && offsetElement.tagName !== "g" && !offsetElement.classList.contains('controller'); 
+			offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains('controller'); 
 			offsetElement = offsetElement.parentNode);
 	    return offsetElement.firstChild;
     };
@@ -51,7 +62,7 @@ var kaci = kaci || {};
         width = e.width.baseVal.valueInSpecifiedUnits;
         return {'width': width, 'height': height};
     };
-    
+    synth.svg = svg;
     synth.cursorPosition = cursorPosition;
     synth.sizeInPixels = sizeInPixels;
     

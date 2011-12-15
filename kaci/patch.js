@@ -36,7 +36,6 @@ var kaci = kaci || {};
                     duration: 300
                 },
                 sustain: {
-                    value: 0.5,
                     enabled: true
                 },
                 afterSustain: {

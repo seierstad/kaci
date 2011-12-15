@@ -84,7 +84,9 @@ var kaci = kaci || {};
 
         synth.env1 = synth.keyEnvelope({patch: synth.patch.env1});
         synth.env1.initView({
-            parentId: 'env1'
+            parentId: 'env1',
+            width: '600px',
+            height: '300px'
         });        
         synth.env2 = synth.keyEnvelope({patch: synth.patch.env2});
         
