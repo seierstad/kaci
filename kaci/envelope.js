@@ -484,11 +484,27 @@ var kaci = kaci || {};
             params.offsetX = "60%";
             afterSustain.envelope.initView(params);
 
+   	        sustain.value = (afterSustain.envelope.getData())[0][1];
+
 	        params.width = "20%";
             params.offsetX = "40%";
             params.className = "sustain";
+// tester ribbon
+			params.dataObject = sustain;
+            params.controlledValue = "value";
+            params.minValue = 0; 
+            params.maxValue = 1;
+            params.callback = (function(){return function() { 
+            
+	            beforeSustain.envelope.setLastValue(sustain.value);
+				afterSustain.envelope.setValueAtIndex(sustain.value, 0);
+				beforeSustain.envelope.view.update();
+				afterSustain.envelope.view.update(); 
+			}})();
+            
+        synth.ribbon(params);
+            
    	        sustainController = synth.svgControllerElement(params);
-   	        sustain.value = (afterSustain.envelope.getData())[0][1];
  
 			mask = synth.svg('mask', {id: 'mask', x: 0, y: 0, width: "100%", height: 20});
 			maskbg = synth.svg('rect', {width: '100%', height: '100%', fill: 'white'});

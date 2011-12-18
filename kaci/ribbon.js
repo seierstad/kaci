@@ -12,7 +12,7 @@ var kaci = kaci || {};
 	    draggable = false,
 	    scrollable = false,
 	    touched = false,
-	    exponent = params.exponent || 1,
+	    exponent = params.exponent || 1, // linear default
 
 	    controller,
 	    position,
@@ -147,10 +147,7 @@ var kaci = kaci || {};
         };
 
 	    position = (data[controlledValue] - minValue) / maxValue;
-	    valueIndicator = document.createElementNS(svgns, "circle");
-	    valueIndicator.setAttribute("cx", "50%");
-	    valueIndicator.setAttribute("r", pointRadius);
-	    valueIndicator.setAttribute("fill", "#336699");
+	    valueIndicator = synth.svg("circle", {cx: "50%", r: pointRadius, fill: "#336699"});
 	    update();
 	    controller.appendChild(valueIndicator);
         
