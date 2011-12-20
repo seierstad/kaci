@@ -18,17 +18,18 @@ var kaci = kaci || {};
 
 	    svgElement = document.createElementNS(svgns, "svg");
 	    svgElement.setAttribute("xmlns:xlink", xlinkns);
-	    svgElement.setAttribute("version", "1.2");
-		svgElement.setAttribute("x", params.offsetX || 0);
-		svgElement.setAttribute("y", params.offsetY || 0);
-	    svgElement.setAttribute("width", params.width || 500);
-	    svgElement.setAttribute("height", params.height || 500);
-		svgElement.setAttribute("class", className);
+	    svgElement.setAttribute("xmlns", svgns);
+	    svgElement.setAttributeNS(null, "version", "1.2");
+		svgElement.setAttributeNS(null, "x", params.offsetX || 0);
+		svgElement.setAttributeNS(null, "y", params.offsetY || 0);
+	    svgElement.setAttributeNS(null, "width", params.width || 500);
+	    svgElement.setAttributeNS(null, "height", params.height || 500);
+		svgElement.setAttributeNS(null, "class", className);
 
 		fillRect = document.createElementNS(svgns, "rect");
-		fillRect.setAttribute("width", "100%");
-		fillRect.setAttribute("height", "100%");
-		fillRect.setAttribute("opacity", "0");
+		fillRect.setAttributeNS(null, "width", "100%");
+		fillRect.setAttributeNS(null, "height", "100%");
+		fillRect.setAttributeNS(null, "opacity", "0");
 
 		svgElement.appendChild(fillRect);
 
@@ -36,7 +37,7 @@ var kaci = kaci || {};
 			container.appendChild(svgElement);
 		} else {
 		    wrapper = params.wrapper || document.createElement("div");
-		    wrapper.setAttribute("class", className);
+		    wrapper.setAttributeNS(null, "class", className);
 		    wrapper.appendChild(svgElement);
 
 		    if (params.parentId) {

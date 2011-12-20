@@ -67,7 +67,7 @@ var kaci = kaci || {};
             width: '50px', 
             parentId: 'pdo', 
             dataObject: synth.patch.osc, 
-            controlledValue: 'resonanceFactor', 
+            controlledValue: 'resonanceFactor',
             minValue: 0.01, 
             maxValue: 1,
             exponent: 2,

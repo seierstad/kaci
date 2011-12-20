@@ -463,17 +463,7 @@ var kaci = kaci || {};
         
         initView = function (params) {
 
-	        var controller, 
-	        	sustainController, 
-	        	defs,
-	        	mask, 
-	        	maskbg, 
-	        	maskText, 
-	        	bar, 
-	        	sustainOff, 
-	        	svgns = 'http://www.w3.org/2000/svg', 
-	        	xlinkns = 'http://www.w3.org/1999/xlink';
-	        	
+	        var controller, sustainBarElement;	        	
 	        controller = synth.svgControllerElement(params);
 
 	        params.container = controller;
@@ -502,9 +492,25 @@ var kaci = kaci || {};
 				afterSustain.envelope.view.update(); 
 			}})();
             
-        synth.ribbon(params);
+		sustainBarElement = function() {
+        	var sustainController, 
+	        	defs,
+    	    	mask, 
+    	    	maskbg, 
+    	    	maskText, 
+    	    	bar,
+    	    	rect,
+    	    	off, 
+    	    	offTarget, 
+    	    	sustainOff, 
+    	    	crossline1,
+    	    	crossline2,
+    	    	useOff, 
+    	    	useBar,
+    	    	svgns = 'http://www.w3.org/2000/svg', 
+    	    	xlinkns = 'http://www.w3.org/1999/xlink';
             
-   	        sustainController = synth.svgControllerElement(params);
+   	        sustainController = synth.svg("g");
  
 			mask = synth.svg('mask', {id: 'mask', x: 0, y: 0, width: "100%", height: 20});
 			maskbg = synth.svg('rect', {width: '100%', height: '100%', fill: 'white'});
@@ -524,13 +530,13 @@ var kaci = kaci || {};
 			off = synth.svg('g', {id: 'off'});
 			offTarget = synth.svg('circle', {id: 'target', cx: 7.5, cy: 7.5, r: 7.5, opacity: 0});
 			off.appendChild(offTarget);
-			var crossline1 = synth.svg('line', {x1: 3.5, y1: 3, x2: 11.5, y2: 12});
+			crossline1 = synth.svg('line', {x1: 3.5, y1: 3, x2: 11.5, y2: 12});
 			off.appendChild(crossline1);
-			var crossline2 = synth.svg('line', {x1: 3.5, y1: 12, x2: 11.5, y2: 3, fill: 'blue'});
+			crossline2 = synth.svg('line', {x1: 3.5, y1: 12, x2: 11.5, y2: 3, fill: 'blue'});
 			off.appendChild(crossline2);
 			defs.appendChild(off);
 			
-			var useOff = synth.svg('use', {x: '100%', y: 2.5, transform: 'translate(-15 0)'});
+			useOff = synth.svg('use', {x: '100%', y: 2.5, transform: 'translate(-15 0)'});
 			useOff.setAttributeNS(xlinkns,"xlink:href","#off");
 			bar.appendChild(useOff);
 			
@@ -539,13 +545,19 @@ var kaci = kaci || {};
 			
 			var sustainPercent = (sustain.value * 100).toString() + "%";
 
-			var useBar = synth.svg('use', {x: 0, y: sustainPercent, transform: 'translate(0 -10)'});
+			useBar = synth.svg('use', {x: 0, y: sustainPercent, transform: 'translate(0 -10)'});
+			useBar.setAttributeNS(svgns, "svg:transform", "scale(1 -1)");
 			useBar.setAttributeNS(xlinkns,"xlink:href","#sustainBar");	
 
    	        sustainController.appendChild(useBar);
-   	        
-
-			
+   	        sustainController.updatePosition = function(position) {
+   	        	useBar.setAttribute("y", (position * 100) + "%");
+   	        };
+			return sustainController;
+		};
+		params.valueIndicator = sustainBarElement();
+		params.invertedView = false;
+		synth.ribbon(params);			
 			
 			
             view = {

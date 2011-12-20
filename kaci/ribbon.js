@@ -15,8 +15,8 @@ var kaci = kaci || {};
 	    exponent = params.exponent || 1, // linear default
 
 	    controller,
-	    position,
 	    valueIndicator,
+	    invertedView,
 	    
 	    svgns = 'http://www.w3.org/2000/svg',
 	    pointRadius = '10px',
@@ -35,32 +35,43 @@ var kaci = kaci || {};
 	    touchLeaveHandler,
 	    exponential,
 	    inverseExponential,
+	    updateIndicatorPosition,
 	    
 	    // public functions:
 	    update;
 
+		invertedView = !!(params.invertedView);
 	    params.width = params.width || '50px';
 	    params.height = params.height || '300px';
         controller = synth.svgControllerElement(params);
+		valueIndicator = params.valueIndicator || (function () {
+			var element = synth.svg("circle", {cx: "50%", r: pointRadius, fill: "#336699"});
+			element.updatePosition = function (position) {
+			    element.setAttribute("cy", position * 100 + "%");			
+			};
+			return element;
+		})();
 
         exponential = function(inValue) {
             return Math.pow(inValue, exponent);
         };
 
-        inverseExponential = function(inValue) {
+        inverseExponential = function (inValue) {
             return Math.pow(inValue, 1 / exponent);
         };
-
         update = function () {
-	        var position = inverseExponential((data[controlledValue] - minValue) / maxValue);
-	        valueIndicator.setAttribute("cy", position * 100 + "%");
+	        var position = inverseExponential((data[controlledValue] - minValue) / (maxValue - minValue));
+	        if (!invertedView) {
+	        	position = 1 - position;
+	        }
+	        valueIndicator.updatePosition(position);
         };
 
         changeHandler = function (event, touch) {
             var pixelCoordinates, svgSize, factor;
 	        pixelCoordinates = synth.cursorPosition(event, touch);
 	        svgSize = synth.sizeInPixels(controller);
-	        factor = exponential(pixelCoordinates.y / svgSize.height);
+	        factor = exponential((svgSize.height - pixelCoordinates.y) / svgSize.height);
 	        data[controlledValue] = minValue + ((maxValue - minValue) * factor);
 	        if (typeof callback === "function") {
 		        callback(data[controlledValue]);
@@ -86,16 +97,24 @@ var kaci = kaci || {};
 
         scrollHandler = function (event) {
 	        if (scrollable) {
+		        var change, range, newValue, fromCenter, fromMin;
 		        event.stopPropagation();
 		        event.preventDefault();
-	            var increase = data[controlledValue] * event.detail / 100;
-		        if ((data[controlledValue] + increase) > minValue && (data[controlledValue] + increase) <= maxValue) {
-			        data[controlledValue] = data[controlledValue] += increase;
-			        if (typeof callback === "function") {
-				        callback(data[controlledValue]);
-			        }
-			        update();
+		        range = maxValue - minValue;
+		        scaledValue = (data[controlledValue] - minValue) / range;
+				inverseScaledValue = inverseExponential(scaledValue) + event.detail / -100;				
+				if (inverseScaledValue < 0) {
+					inverseScaledValue = 0;
+				} else if (inverseScaledValue > 1) {
+					inverseScaledValue = 1;
+				}
+	            newValue = minValue + exponential(inverseScaledValue) * range;
+
+		        data[controlledValue] = newValue;
+		        if (typeof callback === "function") {
+			        callback(data[controlledValue]);
 		        }
+		        update();
 	        }
         };
         mouseOverHandler = function (event) {
@@ -146,8 +165,7 @@ var kaci = kaci || {};
             return false;
         };
 
-	    position = (data[controlledValue] - minValue) / maxValue;
-	    valueIndicator = synth.svg("circle", {cx: "50%", r: pointRadius, fill: "#336699"});
+    
 	    update();
 	    controller.appendChild(valueIndicator);
         
