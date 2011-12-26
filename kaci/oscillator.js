@@ -4,11 +4,11 @@ if (!Object.keys) {
 
 var kaci = kaci || {};
 
-// add oscillator 
+// add oscillator
 // (a superclass for phaseDistortionOscillator and lfo, providing base waveforms)
-(function(synth){
-    var oscillator = function(params) {
-        
+(function (synth) {
+    var oscillator = function (params) {
+
         // private variables
         var params = params || {},
             phase = params.phase || 0,
@@ -18,23 +18,23 @@ var kaci = kaci || {};
             frequency = params.frequency || 0,
             waveforms,
             phaseIncrement,
-            phi = Math.PI * 2, 
+            phi = Math.PI * 2,
             frequencyIndicatorTimer,
 
             bias = params.bias || 0,
             scale = params.scale || 1,
-            
-            // private functions 
-            limit,
+
+            // private functions
             updatePhaseIncrement,
             sampleAndHoldBuffer = {value: 0},
-            
+            addFrequencyIndicator,
+
             // public functions
             setFrequency,
             getFrequency,
-            setWaveform, 
-            getWaveformNames, 
-            getWaveformName, 
+            setWaveform,
+            getWaveformNames,
+            getWaveformName,
             getSignal,
             getValue,
             getValueAtPhase,
@@ -49,80 +49,82 @@ var kaci = kaci || {};
         patch.waveform = patch.waveform || params.waveform || 'sinus';
 
         waveforms = {
-            zero: function (phase) {
+            zero: function () {
                 return 0;
             },
-		    sinus: function (phase) {
-			    return Math.sin(phase * phi);
-		    },
-		    square: function (phase) {
-			    if (phase > 0.5) {
-				    return -1;
-			    } else {
-				    return 1;
-			    }
-		    },
-		    additiveSquare: function (phase, maxHarmonic) {
-		        var value = 0, i = 1;
-		        maxHarmonic = maxHarmonic || 8;
-		        for (i = 1; i < maxHarmonic; i += 2) {
-		            value += Math.sin(phase * phi * i) / i;
-		        }
-		        return value * (4/Math.PI);
-		    },
-		    saw: function (phase) {
-			    return (phase - 0.5) * 2;
-		    },
-		    additiveSaw: function(phase, maxHarmonic) {
-		        var value = 0, i;
-		        maxHarmonic = maxHarmonic || 8;
-		        for (i = 1; i < maxHarmonic; i += 1) {
-		            value += Math.sin(phase * phi * i) / i;
-		        }
-		        return value * (2 / Math.PI);
-		    },
-		    saw_inverse: function (phase) {
-			    return 1 - (phase * 2);
-		    },
-		    triangle: function (phase) {
-		        if (phase < 0.25) {
-		            return phase * 4;
-		        } else if (phase < 0.75) {
-		            return (phase - 0.5) * -4;
-		        } else {
-		            return (phase - 1) * 4;
-		        }
-		    },
-		    additiveTriangle: function (phase, maxHarmonic) {
-		        var value = 0, i = 1, odd = true;
-		        maxHarmonic = maxHarmonic || 5;
-		        for (i = 1; i < maxHarmonic; i += 2) {
-		            if (odd) {
-    		            value += Math.sin(phase * phi * i) / (i * i);
-    		        } else {
-    		            value -= Math.sin(phase * phi * i) / (i * i);
-    		        }
-    		        odd = !odd;
-		        }
-		        return value * (8/Math.pow(Math.PI, 2));
-		    },
-		    sampleAndHold: function (phase, steps) {
-		        var steps, fraction;
-		        steps = steps || 4;
-		        fraction = 1/steps;
-	            if (phase % fraction < sampleAndHoldBuffer.phase % fraction) {
-	                sampleAndHoldBuffer.value = Math.random();
-	            }
-	            sampleAndHoldBuffer.phase = phase;
-	            return (sampleAndHoldBuffer.value - 0.5) * 2;
-		    }
+            sinus: function (phase) {
+                return Math.sin(phase * phi);
+            },
+            square: function (phase) {
+                if (phase > 0.5) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            },
+            additiveSquare: function (phase, maxHarmonic) {
+                var value = 0, i = 1;
+                maxHarmonic = maxHarmonic || 8;
+                for (i = 1; i < maxHarmonic; i += 2) {
+                    value += Math.sin(phase * phi * i) / i;
+                }
+                return value * (4 / Math.PI);
+            },
+            saw: function (phase) {
+                return (phase - 0.5) * 2;
+            },
+            additiveSaw: function (phase, maxHarmonic) {
+                var value = 0, i;
+                maxHarmonic = maxHarmonic || 8;
+                for (i = 1; i < maxHarmonic; i += 1) {
+                    value += Math.sin(phase * phi * i) / i;
+                }
+                return value * (2 / Math.PI);
+            },
+            saw_inverse: function (phase) {
+                return 1 - (phase * 2);
+            },
+            triangle: function (phase) {
+                if (phase < 0.25) {
+                    return phase * 4;
+                } else if (phase < 0.75) {
+                    return (phase - 0.5) * -4;
+                } else {
+                    return (phase - 1) * 4;
+                }
+            },
+            additiveTriangle: function (phase, maxHarmonic) {
+                var value = 0, i = 1, odd = true;
+                maxHarmonic = maxHarmonic || 5;
+                for (i = 1; i < maxHarmonic; i += 2) {
+                    if (odd) {
+                        value += Math.sin(phase * phi * i) / (i * i);
+                    } else {
+                        value -= Math.sin(phase * phi * i) / (i * i);
+                    }
+                    odd = !odd;
+                }
+                return value * (8 / Math.pow(Math.PI, 2));
+            },
+            sampleAndHold: function (phase, steps) {
+                var fraction;
+                steps = steps || 4;
+                fraction = 1 / steps;
+                if (phase % fraction < sampleAndHoldBuffer.phase % fraction) {
+                    sampleAndHoldBuffer.value = Math.random();
+                }
+                sampleAndHoldBuffer.phase = phase;
+                return (sampleAndHoldBuffer.value - 0.5) * 2;
+            }
         };
-        updatePhaseIncrement = function(freq) {
-            phaseIncrement = freq / synth.sampleRate;        
+
+        updatePhaseIncrement = function (freq) {
+            phaseIncrement = freq / synth.sampleRate;
         };
-        setFrequency = function(freq) {
+
+        setFrequency = function (freq) {
             if (freq && typeof freq === 'number') {
-                if (patch.frequency) {            
+                if (patch.frequency) {
                     patch.frequency = freq;
                 } else if (voice.frequency) {
                     voice.frequency = freq;
@@ -135,74 +137,80 @@ var kaci = kaci || {};
             updatePhaseIncrement(freq);
             return this;
         };
-        
-        getFrequency = function() {
+
+        getFrequency = function () {
             return patch.frequency || frequency;
         };
-	    setWaveform = function(waveName) {
-	        if (waveforms[waveName]) {
-    	        patch.waveform = waveName;
-	        }
-	        return this;
-	    };
-	    getWaveformName = function() {
+
+        setWaveform = function (waveName) {
+            if (waveforms[waveName]) {
+                patch.waveform = waveName;
+            }
+            return this;
+        };
+
+        getWaveformName = function () {
             return patch.waveform;
-	    };
-	    getWaveformNames = function() {
+        };
+
+        getWaveformNames = function () {
             return Object.keys(waveforms);
-	    };
-	    getSignal = function(buffer) {
-	    
-	        var i, size = buffer.length;
-	        for (i = 0; i < size; i += 1) {
-    	        buffer[i] = next();    
-	        }
-	        return buffer;
-	    };
-	    getValue = function() {
-	        return getValueAtPhase(phase);
-	    };
-	    getValueAtPhase = function(phase, functionParams) {
-	        var functionParams = functionParams || {},
-	            result;
-	        if (functionParams.waveform && waveforms[functionParams.waveform]) {
-	            result = waveforms[functionParams.waveform](phase);
-	        } else {
-    	        result = waveforms[patch.waveform](phase);
-    	    }
-	        return (result * scale) + bias;
-	    };
-	    fastForward = function(steps) {
-	        phase += phaseIncrement * steps;
-	        phase = phase % 1;
-	        return this;
-	    };
-	    next = function() {
+        };
+
+        getSignal = function (buffer) {
+            var i, size = buffer.length;
+            for (i = 0; i < size; i += 1) {
+                buffer[i] = next();
+            }
+            return buffer;
+        };
+
+        getValue = function () {
+            return getValueAtPhase(phase);
+        };
+
+        getValueAtPhase = function (phase, functionParams) {
+            var result;
+
+            functionParams = functionParams || {};
+            if (functionParams.waveform && waveforms[functionParams.waveform]) {
+                result = waveforms[functionParams.waveform](phase);
+            } else {
+                result = waveforms[patch.waveform](phase);
+            }
+            return (result * scale) + bias;
+        };
+        fastForward = function (steps) {
+            phase += phaseIncrement * steps;
+            phase = phase % 1;
+            return this;
+        };
+        next = function () {
             var value = getValueAtPhase(phase);
             phase += phaseIncrement;
             while (phase > 1) {
                 phase -= 1;
             }
             return value;
-	    };
-	    pushPhase = function() {
-	        phaseStack.push(phase);
-	        return this;
-	    };
-	    popPhase = function() {
-	        if (phaseStack.length > 0) {
-	            phase = phaseStack.pop();
-	        }
-	        return this;
-	    };
-	    getPhase = function() {
-	        return phase;
-	    };
-        reset = function() {
+        };
+        pushPhase = function () {
+            phaseStack.push(phase);
+            return this;
+        };
+        popPhase = function () {
+            if (phaseStack.length > 0) {
+                phase = phaseStack.pop();
+            }
+            return this;
+        };
+        getPhase = function () {
+            return phase;
+        };
+        reset = function () {
             phase = 0;
             return this;
         };
-        addWaveformSelector = function(params) {
+        addWaveformSelector = function (params) {
             var parentElement, names, waveformSelector, heading, button, canvas, radio, i;
             names = getWaveformNames();
             parentElement = document.getElementById(params.parentId);
@@ -234,34 +242,33 @@ var kaci = kaci || {};
             return waveformSelector;
         };
 
-        addFrequencyIndicator = function(params) {
+        addFrequencyIndicator = function (params) {
             var params = params || {},
                 wrapper,
                 indicator,
                 parent,
                 activeClass = params.activeClass || 'active',
-                toggleIndicator
-                ;
-                
+                toggleIndicator;
+
             wrapper = document.createElement("div");
             wrapper.setAttribute('class', 'frequency-indicator');
             indicator = document.createElement("div");
             parent = document.getElementById(params.parentId);
-            
+
             indicator.setAttribute('class', activeClass);
 
-            toggleIndicator = function() {
+            toggleIndicator = function () {
                 if (indicator.getAttribute('class') === activeClass) {
                     indicator.removeAttribute('class');
                 } else {
                     indicator.setAttribute('class', activeClass);
                 }
             };
-            
+
             wrapper.appendChild(indicator);
             parent.appendChild(wrapper);
             frequencyIndicatorTimer = setInterval(toggleIndicator, (500 / patch.frequency));
-            
+
         };
 
         if (patch.frequency) {
@@ -271,7 +278,7 @@ var kaci = kaci || {};
         } else {
             updatePhaseIncrement(frequency);
         }
-	    
+
         return {
             setFrequency: setFrequency,
             getFrequency: getFrequency,
@@ -295,10 +302,10 @@ var kaci = kaci || {};
     return synth;
 })(kaci);
 
-(function(synth){
-    var baseOscillator, phaseDistortionOscillator;
+(function (synth) {
+    var phaseDistortionOscillator;
 
-    phaseDistortionOscillator = function(params) {
+    phaseDistortionOscillator = function (params) {
 
             // private variables
         var params = params || {},
@@ -309,11 +316,13 @@ var kaci = kaci || {};
             resonantPhase = 0,
             wrapperPhase = 0,
             phaseIncrement = 0,
+            pdData,
             msIncrement = 1000 / synth.sampleRate,  // milliseconds between each sample
             voice = params.voice || {},
             frequency = params.frequency || 0,
+            modulate,
             modulators = params.modulators || {
-                resonance: 
+                resonance:
                     [
                         {
                             pre: synth.lfo1.pushPhase,
@@ -326,7 +335,7 @@ var kaci = kaci || {};
                             mod: synth.env1.getValueAtTime,
                             factor: 0.7
                         }
-                        
+
                     ],
                 pitch:
                     [
@@ -341,10 +350,7 @@ var kaci = kaci || {};
                             mod: synth.env1.getValueAtTime
                         }
                     ],
-                phase:
-                        {
-                            mod: synth.pdEnv.getValueAtPhase
-                        }
+                phase:  { mod: synth.pdEnv.getValueAtPhase }
             },
 
             // private functions
@@ -354,7 +360,7 @@ var kaci = kaci || {};
             prepareModulators,
             resetModulators,
             updatePhaseIncrement,
-            
+
             // public functions
             setFrequency,
             setWrapper,
@@ -366,32 +372,32 @@ var kaci = kaci || {};
             getResonanceFactor,
             setPhaseModulator,
             addGui;
-            
+
         voice = params.voice || {};
         wrappers = {
-            constant: function(phase) {
+            constant: function () {
                 return 1;
             },
-		    saw: function (phase) {
-			    return 1 - phase;
-		    },
-		    halfSinus: function (phase) {
-			    return Math.sin(phase * Math.PI);
-		    }
+            saw: function (phase) {
+                return 1 - phase;
+            },
+            halfSinus: function (phase) {
+                return Math.sin(phase * Math.PI);
+            }
         };
-        prepareModulators = function() {
-            var modulationTarget;
+        prepareModulators = function () {
+            var modulationTarget, i;
             for (modulationTarget in modulators) {
-                if(modulators.hasOwnProperty(modulationTarget)) {
+                if (modulators.hasOwnProperty(modulationTarget)) {
                     for (i = 0; i < modulators[modulationTarget].length; i += 1) {
                         if (modulators[modulationTarget][i].pre) {
                             modulators[modulationTarget][i].pre();
                         }
                     }
                 }
-            }        
+            }
         };
-        modulate = function(modulators, context) {
+        modulate = function (modulators, context) {
             var i, factor, bias, result = 1;
             for (i = 0; i < modulators.length; i += 1) {
                 factor = modulators[i].factor || 1;
@@ -400,34 +406,34 @@ var kaci = kaci || {};
             }
             return result;
         };
-        resetModulators = function() {
-            var modulationTarget;
+        resetModulators = function () {
+            var modulationTarget, i;
             for (modulationTarget in modulators) {
-                if(modulators.hasOwnProperty(modulationTarget)) {
+                if (modulators.hasOwnProperty(modulationTarget)) {
                     for (i = 0; i < modulators[modulationTarget].length; i += 1) {
                         if (modulators[modulationTarget][i].post) {
                             modulators[modulationTarget][i].post();
                         }
                     }
                 }
-            }        
+            }
         };
-        getWrappedSignal = function(buffer) {
-            var i, 
+        getWrappedSignal = function (buffer) {
+            var i,
                 size = buffer.length,
                 now = (new Date()).getTime(),
                 times = getTimes(),
                 context = {},
                 oscValue;
-                
+
             context.start = now - times.start;
             if (times.end) {
                 context.end = now - times.end;
             }
 
             prepareModulators();
-                            
-            for (i = 0; i < size; i++) {
+
+            for (i = 0; i < size; i += 1) {
                 oscValue = oscillator.getValueAtPhase(modulators.phase.mod(resonantPhase)) * wrappers[patch.wrapper](wrapperPhase);
                 buffer[i] = oscValue * modulate(modulators.amplitude, context);
                 context.start += msIncrement;
@@ -435,7 +441,7 @@ var kaci = kaci || {};
                     context.end += msIncrement;
                 }
                 wrapperPhase += phaseIncrement + (phaseIncrement * modulate(modulators.pitch, context));
-                resonantPhase += phaseIncrement / (patch.resonanceFactor  + patch.resonanceFactor * modulate(modulators.resonance, context)); 
+                resonantPhase += phaseIncrement / (patch.resonanceFactor  + patch.resonanceFactor * modulate(modulators.resonance, context));
                 while (wrapperPhase > 1) {
                     wrapperPhase -= 1;
                     resonantPhase = 0;
@@ -446,13 +452,13 @@ var kaci = kaci || {};
             }
             resetModulators();
         };
-        getSignal = function(buffer) {
+        getSignal = function (buffer) {
             if (wrappers[patch.wrapper]) {
                 return getWrappedSignal(buffer);
             }
             return oscillator.getSignal(buffer);
         };
-        getWrappedValueAtPhase = function(phase, params) {
+        getWrappedValueAtPhase = function (phase, params) {
             var resonanceFactor = params.resonanceFactor || patch.resonanceFactor,
                 resonantPhase = (phase / resonanceFactor) % 1,
                 wrapValue;
@@ -466,7 +472,7 @@ var kaci = kaci || {};
             }
             return oscillator.getValueAtPhase(resonantPhase, params) * wrapValue;
         };
-        getValueAtPhase = function(phase, params) {
+        getValueAtPhase = function (phase, params) {
             var params = params || {};
             if ((wrappers[patch.wrapper] || params.wrapper) && !params.noWrap) {
                 return getWrappedValueAtPhase(phase, params);
@@ -475,51 +481,51 @@ var kaci = kaci || {};
             }
             return oscillator.getValueAtPhase(phase, params);
         };
-        setFrequency = function(freq) {
+        setFrequency = function (freq) {
             oscillator.setFrequency(freq);
             phaseIncrement = oscillator.getFrequency() / synth.sampleRate;
             return this;
         };
-        setWrapper = function(wrapperName) {
-            if(typeof wrappers[wrapperName] === 'function') {
+        setWrapper = function (wrapperName) {
+            if (typeof wrappers[wrapperName] === 'function') {
                 wrapper = wrappers[wrapperName];
             }
             return this;
         };
-	    getWrapperName = function() {
-	        var wrapperName;
+        getWrapperName = function () {
+            var wrapperName;
             for (wrapperName in wrappers) {
                 if (wrappers.hasOwnProperty(wrapperName) && wrapper === wrappers[wrapperName]) {
                     return wrapperName;
                 }
             }
             throw {message: 'selected wrapper does not exist'};
-	    };
-        getWrapperNames = function() {
+        };
+        getWrapperNames = function () {
             return Object.keys(wrappers);
         };
-        setResonanceFactor = function(factor) {
+        setResonanceFactor = function (factor) {
             if (typeof factor === 'number' && factor > 0 && factor <= 1) {
                 patch.resonanceFactor = factor;
             }
             return this;
         };
-        getResonanceFactor = function() {
+        getResonanceFactor = function () {
             return patch.resonanceFactor;
         };
 
-        getTimes = function() {
+        getTimes = function () {
             var start = voice.getKeyDownTime(), end = voice.getKeyUpTime();
             return {
-                    start: start, 
-                    end: end
+                start: start,
+                end: end
             };
         };
-		setPdData = function(dataset) {
-		    pdData = dataset;
-		    return this;
-		};
-        addGui = function(params) {
+        setPdData = function (dataset) {
+            pdData = dataset;
+            return this;
+        };
+        addGui = function () {
             var waveformSelector, names, wrapperSelector, heading, button, canvas, radio, pdoElement, i;
             waveformSelector = oscillator.addWaveformSelector({parentId: 'pdo', elementId: 'pdo-waveform-selector'});
             waveformSelector.addEventListener('click', synth.selectOscWaveform, false);
@@ -543,23 +549,23 @@ var kaci = kaci || {};
                 radio.setAttribute('type', 'radio');
                 radio.setAttribute('name', 'pdo-wrapper');
                 radio.setAttribute('value', names[i]);
-                if(names[i] === patch.wrapper) {
+                if (names[i] === patch.wrapper) {
                     radio.setAttribute('checked', 'checked');
                 }
                 button.appendChild(radio);
 
                 wrapperSelector.appendChild(button);
             }
-            pdoElement.appendChild(wrapperSelector);            
+            pdoElement.appendChild(wrapperSelector);
             wrapperSelector.addEventListener('click', synth.selectOscWrapper, false);
-            
-            
+
+
         };
-        
-        updatePhaseIncrement = function(freq) {
-            phaseIncrement = freq / synth.sampleRate;        
+
+        updatePhaseIncrement = function (freq) {
+            phaseIncrement = freq / synth.sampleRate;
         };
-        
+
         if (patch.frequency) {
             updatePhaseIncrement(patch.frequency);
         } else if (voice.frequency) {
@@ -576,7 +582,7 @@ var kaci = kaci || {};
             getWaveformNames: oscillator.getWaveformNames,
             getSignal: getSignal,
             getValueAtPhase: getValueAtPhase,
-            
+
             setPhaseModulator: setPhaseModulator,
             setWrapper: setWrapper,
             getWrapperName: getWrapperName,
@@ -586,9 +592,9 @@ var kaci = kaci || {};
             addGui: addGui
         };
     };
-    
+
     synth.phaseDistortionOscillator = phaseDistortionOscillator;
-    
+
     return synth;
 })(kaci);
 

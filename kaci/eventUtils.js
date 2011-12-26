@@ -1,57 +1,57 @@
 var kaci = kaci || {};
 
-(function(synth){
+(function (synth) {
     var svg, getOffsetElement, cursorPosition, sizeInPixels;
 
     svg = function(elementType, attributes) {
-    	var element, i, svgns = 'http://www.w3.org/2000/svg';
-    	element = document.createElementNS(svgns, elementType);
-    	for (attribute in attributes) {
-    		if (attributes.hasOwnProperty(attribute)) {
-    			element.setAttributeNS(null, attribute, attributes[attribute]);
-    		}
-    	}
-    	return element;
+        var element, svgns = 'http://www.w3.org/2000/svg';
+        element = document.createElementNS(svgns, elementType);
+        for (attribute in attributes) {
+            if (attributes.hasOwnProperty(attribute)) {
+                element.setAttributeNS(null, attribute, attributes[attribute]);
+            }
+        }
+        return element;
     };
-    
-    getOffsetElement = function(svgElement) {
-    	// returns the fillRect rectangle.
-		for (offsetElement = svgElement; 
-			offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains('controller'); 
-			offsetElement = offsetElement.parentNode);
-	    return offsetElement.firstChild;
+
+    getOffsetElement = function (svgElement) {
+        // returns the fillRect rectangle.
+        for (offsetElement = svgElement;
+            offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains('controller');
+            offsetElement = offsetElement.parentNode);
+        return offsetElement.firstChild;
     };
-    
+
     cursorPosition = function (event, touch) {
         var x, y, offsetElement, bcr, p;
-        
+
         p = touch || event;
 
         if (p.pageX && p.pageY) {
-	        x = p.pageX;
-	        y = p.pageY;
+            x = p.pageX;
+            y = p.pageY;
         } else {
-	        x = p.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-	        y = p.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+            x = p.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+            y = p.clientY + document.body.scrollTop + document.documentElement.scrollTop;
         }
-       
-		if (event.currentTarget.getBoundingClientRect) {
 
-			bcr = getOffsetElement(event.currentTarget).getBoundingClientRect(); 
-			x -= bcr.left + (document.body.scrollLeft + document.documentElement.scrollLeft);
-			y -= bcr.top + (document.body.scrollTop + document.documentElement.scrollTop);
+        if (event.currentTarget.getBoundingClientRect) {
 
-		} else {
-	        offsetElement = event.currentTarget.parentNode;
-		    while(offsetElement) {
-		        x -= offsetElement.offsetLeft;
-		        y -= offsetElement.offsetTop;
-		        offsetElement = offsetElement.offsetParent;
-		    }
-		}
+            bcr = getOffsetElement(event.currentTarget).getBoundingClientRect(); 
+            x -= bcr.left + (document.body.scrollLeft + document.documentElement.scrollLeft);
+            y -= bcr.top + (document.body.scrollTop + document.documentElement.scrollTop);
+
+        } else {
+            offsetElement = event.currentTarget.parentNode;
+            while(offsetElement) {
+                x -= offsetElement.offsetLeft;
+                y -= offsetElement.offsetTop;
+                offsetElement = offsetElement.offsetParent;
+            }
+        }
         return {'x': x, 'y': y};
     };
-    
+
     sizeInPixels = function (svgElement) {
         var unit, height, width, e;
         e = getOffsetElement(svgElement);
@@ -65,6 +65,7 @@ var kaci = kaci || {};
     synth.svg = svg;
     synth.cursorPosition = cursorPosition;
     synth.sizeInPixels = sizeInPixels;
-    
+
     return synth;
 })(kaci);
+

@@ -1,6 +1,6 @@
 var kaci = kaci || {};
 
-(function(synth) {
+(function (synth) {
     var getDroppableVoiceIndex,
         dropVoice,
         getKeyDownTime,
@@ -11,8 +11,8 @@ var kaci = kaci || {};
         endVoice,
         maxVoiceCount = 1, // limit concurrent voices
         voices = [];   // the currently active voices
-    
-    voice = function(params) {
+
+    voice = function (params) {
         var params = params || {},
             newObject = {},
             active = params.active || false,
@@ -21,39 +21,39 @@ var kaci = kaci || {};
             keyDownTime = (new Date()).getTime(),
             keyUpTime = null,
             oscillator;
-            
+
         newObject.frequency = params.frequency || 440;
-        
+
         oscillator = synth.phaseDistortionOscillator({voice: newObject, patch: synth.patch.osc});
 //        oscillator.setFrequency(frequency);
-        
-        isActive = function() {
+
+        isActive = function () {
             return active === true;
         };
-        newObject.mute = function() {
+        newObject.mute = function () {
             active = false;
             // kill oscillators...
         };
-        newObject.getKeyDownTime = function() {
+        newObject.getKeyDownTime = function () {
             return keyDownTime;
         };
-        newObject.getKeyUpTime = function() {
+        newObject.getKeyUpTime = function () {
             return keyUpTime;
         };
-        newObject.getSignal = function(buffer) {
+        newObject.getSignal = function (buffer) {
             return oscillator.getSignal(buffer);
         };
-        newObject.end = function() {
+        newObject.end = function () {
             keyUpTime = (new Date()).getTime();
         };
 
-        return newObject;        
+        return newObject;
     };
-    
-    getDroppableVoiceIndex = function() {
+
+    getDroppableVoiceIndex = function () {
         // voices triggered by keys that have been released are dropped first
         // if there are no such voices, drop the voice triggered by the key first pressed
-        
+
         var firstDown = Number.MAX_VALUE,
             firstUp = Number.MAX_VALUE,
             i,
@@ -71,23 +71,23 @@ var kaci = kaci || {};
             }
         }
     };
-    
-    dropVoice = function() {
+
+    dropVoice = function () {
         // drop the least important voice
         if (voices.length > 0) {
-            var dropped = voices.splice(getDroppableVoiceIndex(),1);
+            var dropped = voices.splice(getDroppableVoiceIndex(), 1);
             dropped[0].mute();
-            delete(dropped[0]);
+            delete dropped[0];
             if (voices.length === 0) {
                 synth.lfo1.reset();
                 synth.lfo2.reset();
             }
         }
     };
-    
-    startVoice = function(frequency) {
+
+    startVoice = function (frequency) {
         var newVoice;
-            
+
         while (voices.length >= maxVoiceCount) {
             dropVoice();
         }

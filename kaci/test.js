@@ -1,21 +1,26 @@
 var kaci = kaci || {};
 
-// add oscillator 
+// add oscillator
 // (a superclass for phaseDistortionOscillator and lfo, providing base waveforms)
-(function(synth){
+(function (synth) {
     var drawWaveform = function (waveGenerator, canvas, params) {
-        var params = params || {}, context, phaseIncrement, coordinates, yValue, i,
-        phase = 0,
-        xOffset = params.xOffset || 0,
-        yOffset = params.yOffset || 0,
-        width,
-        height,
-        halfHeight;
+        var params = params || {},
+            context,
+            phaseIncrement,
+            coordinates,
+            yValue,
+            i,
+            phase = 0,
+            xOffset = params.xOffset || 0,
+            yOffset = params.yOffset || 0,
+            width,
+            height,
+            halfHeight;
 
         if (typeof canvas === 'string') {
             canvas = document.getElementById(canvas);
         }
-        
+
         height = params.height || canvas.height || 100;
         width = params.width || canvas.width || 100;
         halfHeight = height / 2;
@@ -32,10 +37,10 @@ var kaci = kaci || {};
             context.lineTo(xOffset + width, halfHeight + yOffset);
             context.stroke();
         }
-        
+
         context.beginPath();
 
-        phaseIncrement = 1.0 / width; 
+        phaseIncrement = 1.0 / width;
         for (i = 0; i < width; i += 1) {
             yValue = waveGenerator.getValueAtPhase(phase, params);
             coordinates = {'x': i + xOffset, 'y': yValue * (halfHeight) + halfHeight + yOffset};
@@ -49,34 +54,34 @@ var kaci = kaci || {};
         context.stroke();
         return this;
     };
-    
+
     synth.drawWaveform = drawWaveform;
-    synth.init = function() {
+    synth.init = function () {
         var waveformName, waveforms, waveformSelector, pdoElement, pdoWaveforms, button, canvas, radio, lfoElement, i;
         synth.pdEnv = synth.envelope(synth.patch.osc);
         synth.pdEnv.initView({
-            parentId: 'pdo', 
-            callback: 
-                (function(){return function() {
+            parentId: 'pdo',
+            callback:
+                (function () {return function () {
                     synth.drawWaveform(synth.pdo, 'waveform');
                 }})()
         });
         // init pdo
         synth.ribbon({
-            height: '300px', 
-            width: '50px', 
-            parentId: 'pdo', 
-            dataObject: synth.patch.osc, 
+            height: '300px',
+            width: '50px',
+            parentId: 'pdo',
+            dataObject: synth.patch.osc,
             controlledValue: 'resonanceFactor',
-            minValue: 0.01, 
+            minValue: 0.01,
             maxValue: 1,
             exponent: 2,
-            callback: 
-                (function(){return function() {
+            callback:
+                (function () {return function () {
                     synth.drawWaveform(synth.pdo, 'waveform');
                 }})()
         });
-        
+
         synth.lfo1 = synth.oscillator({patch: synth.patch.lfo1});
         synth.lfo2 = synth.oscillator({patch: synth.patch.lfo2});
         waveformSelector = synth.lfo1.addWaveformSelector({parentId: 'lfo', elementId: 'lfo1-waveform-selector'});
@@ -87,9 +92,9 @@ var kaci = kaci || {};
             parentId: 'env1',
             width: '600px',
             height: '300px'
-        });        
+        });
         synth.env2 = synth.keyEnvelope({patch: synth.patch.env2});
-        
+
         synth.pdo = synth.phaseDistortionOscillator({patch: synth.patch.osc});
         synth.pdo.addGui();
         synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
@@ -99,8 +104,8 @@ var kaci = kaci || {};
         synth.drawWaveform(synth.pdo, 'waveform');
         synth.audioOutput.enable();
     };
-    
+
     return synth;
 })(kaci);
-document.addEventListener('DOMContentLoaded', kaci.init, false)
+document.addEventListener('DOMContentLoaded', kaci.init, false);
 

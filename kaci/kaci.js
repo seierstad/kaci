@@ -1,13 +1,13 @@
 var kaci = kaci || {};
 
 // add synth constants
-(function(synth){
+(function (synth) {
     synth.sampleRate = 44100;
 
 /*
     // first implementation of voices...
     synth.oscillators = [];
-    
+
     var mixer = function(buffer) {
         var signals = [], i, j, size = buffer.length;
         for (i = 0; i < synth.oscillators.length; i += 1) {
@@ -21,11 +21,12 @@ var kaci = kaci || {};
         }
     };
     synth.mix = mixer;
-*/    
-    var getSignal = function(buffer) {
-        var signals = [], 
-            size = buffer.length, 
-            i, j;
+*/
+    var getSignal = function (buffer) {
+        var signals = [],
+            size = buffer.length,
+            i,
+            j;
         if (synth.voices.length > 0) {
             if (synth.voices.length === 1) {
                 synth.voices[0].getSignal(buffer);
@@ -48,11 +49,10 @@ var kaci = kaci || {};
         }
 
         return buffer;
-    };    
-    
+    };
+
     synth.getSignal = getSignal;
-    
+
     return synth;
 })(kaci);
-
 
