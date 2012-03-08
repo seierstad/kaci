@@ -225,8 +225,6 @@ var kaci = kaci || {};
                 canvas.setAttribute('width', '50px');
                 canvas.setAttribute('height', '50px');
                 synth.drawWaveform(this, canvas, {waveform: names[i], noWrap: true, noPd: true});
-                button.appendChild(canvas);
-                button.appendChild(document.createElement('br'));
                 radio = document.createElement('input');
                 radio.setAttribute('type', 'radio');
                 radio.setAttribute('name', params.parentId + '-waveform');
@@ -235,6 +233,8 @@ var kaci = kaci || {};
                     radio.setAttribute('checked', 'checked');
                 }
                 button.appendChild(radio);
+                button.appendChild(document.createElement('br'));
+                button.appendChild(canvas);
 
                 waveformSelector.appendChild(button);
             }
@@ -543,8 +543,6 @@ var kaci = kaci || {};
                 canvas.setAttribute('width', '50px');
                 canvas.setAttribute('height', '50px');
                 synth.drawWaveform(this, canvas, {waveform: 'sinus', wrapper: names[i], resonanceFactor: 0.2, noPd: true});
-                button.appendChild(canvas);
-                button.appendChild(document.createElement('br'));
                 radio = document.createElement('input');
                 radio.setAttribute('type', 'radio');
                 radio.setAttribute('name', 'pdo-wrapper');
@@ -553,6 +551,8 @@ var kaci = kaci || {};
                     radio.setAttribute('checked', 'checked');
                 }
                 button.appendChild(radio);
+                button.appendChild(document.createElement('br'));
+                button.appendChild(canvas);
 
                 wrapperSelector.appendChild(button);
             }

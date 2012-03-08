@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>JavaScript phase distortion synthesis</title>
+    <title>JavaScript phase distortion synthesizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, height=device-height" />
+
     <style type="text/css">
-        body {
+        body,
+        section h1,
+        fieldset h2	
+		{
             background-color: #afa;
         }
         section {
@@ -16,7 +21,6 @@
         section h1,
         fieldset h2
         {
-            background: #afa;
             border: 3px solid rgba(127,127,255,.4);
             border-radius: .5em;
             color: rgba(127,127,255,.8);
@@ -91,12 +95,6 @@
     	.pressed {
     		fill: #afe;
     	}
-    	.development-code {
-    	    position: absolute;
-    	    top: 1em;
-    	    right: 1em;
-    	    display: inline-block;
-    	}
     	.circles,
     	line,
     	.sustain .bar
@@ -109,8 +107,154 @@
     	}
     	.transparentBg {
     		fill: #000;
-    		x: 100%;
     	}
+    	.development-code {
+    	    position: absolute;
+    	    top: 1em;
+    	    right: 1em;
+    	    display: inline-block;
+    	}
+		nav {
+			display: none;
+		}
+	@media screen and (max-width: 480px) {
+		body,
+	        section h1,
+        	fieldset h2
+		{
+			background-color: orange;
+			-moz-transition-property: background-color;
+			-moz-transition-duration: 1s;
+		}
+		nav {
+			display: block;
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+		.section-navigation a {
+			display: block;
+			height: 20px;
+			width: 20px;
+			background-color: pink;
+			border-radius: 5px;
+		}
+		section {
+			display: none;
+			margin: 5px;
+			overflow: hidden;
+		}
+		section:target {
+			display: block;
+		}
+		[id^='pdo']:target ~ section[id^='pdo'] {
+			display: block;
+		}
+		section > fieldset {
+			display: none;
+		}
+		section > fieldset:target {
+			display: block;
+		}
+/*		.controller {
+			display: none;
+		}
+*/		:target .controller {
+			display: block;
+		}
+		#pdo {
+			padding-bottom: 70px;	
+		}
+		#pdo-waveform-selector,
+		#waveform + .controller
+		{
+			position: absolute;
+			top: 1em;
+			left: 1em;
+		}
+		#waveform + .controller + .controller {
+			position: absolute;
+			top: 380px;
+			left: 1em;
+			-moz-transform: rotate(-90deg);
+			-moz-transform-origin: top left;
+			-webkit-transform: rotate(-90deg);
+			-webkit-transform-origin: top left;
+			-o-transform: rotate(-90deg);
+			-o-transform-origin: top left;
+/*
+			transform: rotate(-90deg);
+			transform-origin: top left;
+*/
+		}
+		a[id|='pdo-waveforms']:target ~ section [id|='pdo-waveform'],
+		a[id|='pdo-waveforms']:target ~ section [id|='pdo-wrapper'] {
+			display: block;
+		}
+		[id|='pdo-phase']:target ~ section  a[href^='#pdo-phase'],
+		[id|='pdo-waveforms']:target ~ section a[href^='#pdo-waveforms'],
+		[id|='pdo-modulation']:target ~ section a[href^='#pdo-modulation']
+		{
+			display: none;
+		}
+		section[id^='pdo'] .controller {
+		    display: none;
+		}
+		[id|='pdo-phase']:target ~ section .controller {
+		    display: block;
+		}
+		/* waveform selectors */
+		
+		#pdo-waveform-selector
+		{
+			border: none;
+			padding: 10px 0 0;
+			margin: 10px 0 0;
+			max-width: 300px;
+			text-align: center;
+/*			background-image: -moz-linear-gradient(rgba(255,255,255,0), rgba(255,255,255,.7), rgba(255,255,255,0));
+*/		}
+        #pdo-wrapper-selector {
+            border: none;
+            max-width: 315px;
+            top: 300px;
+            background: transparent;
+            height: auto;
+            position: absolute;
+            padding: 0;
+        }
+		#pdo-wrapper-selector h2,
+		#pdo-waveform-selector h2
+		{
+			display: none;
+		}
+		#pdo-wrapper-selector label,
+		#pdo-waveform-selector label
+		{
+			background: transparent;
+			border: none;
+			margin: 0;
+		}
+		#pdo-wrapper-selector canvas,
+		#pdo-waveform-selector canvas
+		{
+			border-radius: 5px;
+			border-width: 2px;
+		}
+		#pdo-wrapper-selector br,
+		#pdo-wrapper-selector input,
+		#pdo-waveform-selector br,
+		#pdo-waveform-selector input
+		{
+			display: none;
+		}
+		#pdo-wrapper-selector :checked ~ canvas,
+		#pdo-waveform-selector :checked ~ canvas
+		{
+			box-shadow: -0.6em 1em 0.7em -0.7em #fff inset, 1em -0.6em 0.7em -0.8em #fff inset;
+			background: rgba(30,249,256, 0.9);
+		}
+	}
     </style>
   </head>
   <body>
@@ -126,8 +270,22 @@
     <script type="text/javascript" src="kaci/keyboard.js"></script>
     <script type="text/javascript" src="kaci/test.js"></script>
     <button onclick="kaci.audioOutput.disable();">stopp</button>
+    <nav>
+    <a href="#pdo">Oscillator</a>
+    <a href="#keyboard">Keyboard</a>
+    <a href="#lfo">LFO</a>
+    <a href="#env1">Envelope</a>
+    </nav>
+	<a id="pdo-phase"></a>
+    <a id="pdo-waveforms"></a>
+    <a id="pdo-modulation"></a>
     <section id="pdo">
         <h1 title="oscillator">OSC</h1>
+        <nav class="section-navigation">
+        <a href="#pdo-phase">phase</a>
+        <a href="#pdo-waveforms">waveforms</a>
+        <a href="#pdo-modulation">modulation</a>
+        </nav>
         <canvas height="300" width="300" id="waveform"></canvas>
     </section>
     <section id="keyboard">
