@@ -76,7 +76,7 @@ var kaci = kaci || {};
             console.log('web audio api supported');
             
             context = new webkitAudioContext();
-            audioNode = context.createJavaScriptNode(128, 1, 1);
+            audioNode = context.createJavaScriptNode(1024, 1, 2);
 
             enable = function () {
                 audioNode.connect(context.destination);
