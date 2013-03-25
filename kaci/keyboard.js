@@ -113,7 +113,7 @@ var kaci = kaci || {};
                 originalClass, 
                 i;
 
-            switch (event.type)
+            switch (event.type) {
                 case 'keyup':
                     if (!!keyMapping[event.keyCode]) {
                         keyReleased = keyMapping[event.keyCode];
