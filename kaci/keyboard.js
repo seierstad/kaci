@@ -69,29 +69,36 @@ var kaci = kaci || {};
             keyboard.appendChild(blackKeys);
         };
         keyDown = function (event) {
-            var keyPressed, originalClass, i;
-            if (event.type === 'keydown') {
-                if (!!keyMapping[event.keyCode]) {
-                    if (!keyMapping[event.keyCode].voice) {
-                        keyPressed = keyMapping[event.keyCode];
+            var keyPressed, 
+                originalClass, 
+                i;
+
+            switch (event.type) {
+                case 'keydown':
+                    if (!!keyMapping[event.keyCode]) {
+                        if (!keyMapping[event.keyCode].voice) {
+                            keyPressed = keyMapping[event.keyCode];
+                        }
+                    } else {
+                        return true;
                     }
-                } else {
-                    return true;
-                }
-            } else if (event.type === 'mousedown') {
-                for (i = 0; i < keys.length; i += 1) {
-                    if (keys[i].key === event.target) {
-                        keyPressed = keys[i];
-                        break;
+                    break;
+                case 'mousedown':
+                    for (i = 0; i < keys.length; i += 1) {
+                        if (keys[i].key === event.target) {
+                            keyPressed = keys[i];
+                            break;
+                        }
                     }
-                }
-            } else if (event.type === 'touchstart') {
-                for (i = 0; i < keys.length; i += 1) {
-                    if (keys[i].key === event.target) {
-                        keyPressed = keys[i];
-                        break;
+                    break;
+                case 'touchstart':
+                    for (i = 0; i < keys.length; i += 1) {
+                        if (keys[i].key === event.target) {
+                            keyPressed = keys[i];
+                            break;
+                        }
                     }
-                }
+                    break;
             }
             if (!!keyPressed) {
                 keyPressed.voice = synth.startVoice(keyPressed.frequency);
@@ -102,20 +109,27 @@ var kaci = kaci || {};
         };
 
         keyUp = function (event) {
-            var keyReleased, originalClass, i;
-            if (event.type === 'keyup') {
-                if (!!keyMapping[event.keyCode]) {
-                    keyReleased = keyMapping[event.keyCode];
-                } else {
-                    return true;
-                }
-            } else if (event.type === 'mouseup' || event.type === 'mouseout') {
-                for (i = 0; i < keys.length; i += 1) {
-                    if (keys[i].key === event.target) {
-                        keyReleased = keys[i];
-                        break;
+            var keyReleased, 
+                originalClass, 
+                i;
+
+            switch (event.type)
+                case 'keyup':
+                    if (!!keyMapping[event.keyCode]) {
+                        keyReleased = keyMapping[event.keyCode];
+                    } else {
+                        return true;
                     }
-                }
+                    break;
+                case 'mouseup':
+                case 'mouseout':
+                    for (i = 0; i < keys.length; i += 1) {
+                        if (keys[i].key === event.target) {
+                            keyReleased = keys[i];
+                            break;
+                        }
+                    }
+                    break;
             }
             if (!!keyReleased) {
                 if (keyReleased.voice) {

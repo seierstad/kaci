@@ -8,6 +8,7 @@ var kaci = kaci || {};
             controlledValue = params.controlledValue,
             minValue = params.minValue || 0,
             maxValue = params.maxValue || 1,
+            range,
             callback = params.callback,
             draggable = false,
             scrollable = false,
@@ -40,6 +41,7 @@ var kaci = kaci || {};
             // public functions:
             update;
 
+        range = maxValue - minValue;
         invertedView = !!(params.invertedView);
         params.width = params.width || '50px';
         params.height = params.height || '300px';
@@ -60,7 +62,7 @@ var kaci = kaci || {};
             return Math.pow(inValue, 1 / exponent);
         };
         update = function () {
-            var position = inverseExponential((data[controlledValue] - minValue) / (maxValue - minValue));
+            var position = inverseExponential((data[controlledValue] - minValue) / range);
             if (!invertedView) {
                 position = 1 - position;
             }
@@ -72,7 +74,7 @@ var kaci = kaci || {};
             pixelCoordinates = synth.cursorPosition(event, touch);
             svgSize = synth.sizeInPixels(controller);
             factor = exponential((svgSize.height - pixelCoordinates.y) / svgSize.height);
-            data[controlledValue] = minValue + ((maxValue - minValue) * factor);
+            data[controlledValue] = minValue + (range * factor);
             if (typeof callback === "function") {
                 callback(data[controlledValue]);
             }
@@ -100,7 +102,6 @@ var kaci = kaci || {};
                 var change, range, newValue, fromCenter, fromMin;
                 event.stopPropagation();
                 event.preventDefault();
-                range = maxValue - minValue;
                 scaledValue = (data[controlledValue] - minValue) / range;
                 inverseScaledValue = inverseExponential(scaledValue) + event.detail / -100;
                 if (inverseScaledValue < 0) {
