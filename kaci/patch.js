@@ -69,10 +69,15 @@ var kaci = kaci || {};
         setPatchParameter(event, 'osc', 'waveform');
         synth.drawWaveform(synth.pdo, 'waveform');
     };
-    selectLfoWaveform = function (event) {
+    selectLfo1Waveform = function (event) {
         setPatchParameter(event, 'lfo1', 'waveform');
         synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
     };
+    selectLfo2Waveform = function (event) {
+        setPatchParameter(event, 'lfo2', 'waveform');
+        synth.drawWaveform(synth.lfo2, 'lfo2-visualisation');
+    };
+
     setPatchParameter = function (event, moduleName, paramName) {
         var label, input, i;
         if (event.target.nodeName === 'CANVAS' || event.target.nodeName === 'LABEL') {
@@ -96,7 +101,8 @@ var kaci = kaci || {};
             localStorage.setItem('kaciPatch', JSON.stringify(patch));
         }
     };
-    synth.selectLfoWaveform = selectLfoWaveform;
+    synth.selectLfo1Waveform = selectLfo1Waveform;
+    synth.selectLfo2Waveform = selectLfo2Waveform;
     synth.selectOscWaveform = selectOscWaveform;
     synth.selectOscWrapper = selectOscWrapper;
     synth.patch = patch;

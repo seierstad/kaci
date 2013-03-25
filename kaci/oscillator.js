@@ -340,6 +340,13 @@ var kaci = kaci || {};
                 pitch:
                     [
                         {
+                            pre: synth.lfo2.pushPhase,
+                            mod: synth.lfo2.next,
+                            post: synth.lfo2.popPhase,
+                            factor: 20,
+                            bias: 0
+                        },
+                        {
                             mod: synth.env1.getValueAtTime,
                             factor: 0.01
                         }

@@ -57,7 +57,17 @@ var kaci = kaci || {};
 
     synth.drawWaveform = drawWaveform;
     synth.init = function () {
-        var waveformName, waveforms, waveformSelector, pdoElement, pdoWaveforms, button, canvas, radio, lfoElement, i;
+        var waveformName, 
+            waveforms, 
+            waveformSelector, 
+            pdoElement, 
+            pdoWaveforms, 
+            button, 
+            canvas, 
+            radio, 
+            lfoElement, 
+            i;
+
         synth.pdEnv = synth.envelope(synth.patch.osc);
         synth.pdEnv.initView({
             parentId: 'pdo',
@@ -83,9 +93,45 @@ var kaci = kaci || {};
         });
 
         synth.lfo1 = synth.oscillator({patch: synth.patch.lfo1});
+        waveformSelector = synth.lfo1.addWaveformSelector({
+            parentId: 'lfo', 
+            elementId: 'lfo1-waveform-selector'
+        });
+        synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
+        waveformSelector.addEventListener('click', synth.selectLfo1Waveform, false);
+        synth.ribbon({
+            height: '300px', 
+            width: '50px', 
+            parentId: 'lfo', 
+            dataObject: synth.patch.lfo1, 
+            controlledValue: 'frequency', 
+            minValue: 0.1, 
+            maxValue: 10, 
+            callback: synth.lfo1.setFrequency, 
+            exponent: 4, 
+            className: 'ribbon'
+        });
+
+
         synth.lfo2 = synth.oscillator({patch: synth.patch.lfo2});
-        waveformSelector = synth.lfo1.addWaveformSelector({parentId: 'lfo', elementId: 'lfo1-waveform-selector'});
-        waveformSelector.addEventListener('click', synth.selectLfoWaveform, false);
+        waveformSelector = synth.lfo2.addWaveformSelector({
+            parentId: 'lfo2', 
+            elementId: 'lfo2-waveform-selector'
+        });
+        synth.drawWaveform(synth.lfo2, 'lfo2-visualisation');
+        waveformSelector.addEventListener('click', synth.selectLfo2Waveform, false);
+        synth.ribbon({
+            height: '150px', 
+            width: '50px', 
+            parentId: 'lfo2', 
+            dataObject: synth.patch.lfo2, 
+            controlledValue: 'frequency', 
+            minValue: 0.1, 
+            maxValue: 10, 
+            callback: synth.lfo2.setFrequency, 
+            exponent: 4, 
+            className: 'ribbon'
+        });
 
         synth.env1 = synth.keyEnvelope({patch: synth.patch.env1});
         synth.env1.initView({
@@ -97,15 +143,21 @@ var kaci = kaci || {};
 
         synth.pdo = synth.phaseDistortionOscillator({patch: synth.patch.osc});
         synth.pdo.addGui();
-        synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
+
         synth.audioOutput.setReadFunction(synth.getSignal);
-        synth.ribbon({height: '300px', width: '50px', parentId: 'lfo', dataObject: synth.patch.lfo1, controlledValue: 'frequency', minValue: 0.1, maxValue: 10, callback: synth.lfo1.setFrequency, exponent: 4, className: 'ribbon'});
-        synth.keyboardController({parentId: 'keyboard', baseFrequency: 55, endKey: 37, height: '190px', width: '1000px', className: 'keyboard'});
+        synth.keyboardController({
+            parentId: 'keyboard', 
+            baseFrequency: 55, 
+            endKey: 37, 
+            height: '190px', 
+            width: '1000px', 
+            className: 'keyboard'
+        });
         synth.drawWaveform(synth.pdo, 'waveform');
         synth.audioOutput.enable();
     };
 
     return synth;
-})(kaci);
+}(kaci));
 document.addEventListener('DOMContentLoaded', kaci.init, false);
 

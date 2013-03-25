@@ -51,4 +51,4 @@ var kaci = kaci || {};
     };
     synth.svgControllerElement = svgControllerElement;
     return synth;
-})(kaci);
+}(kaci));

@@ -3,7 +3,6 @@
   <head>
     <title>JavaScript phase distortion synthesizer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, height=device-height" />
-
     <link rel="stylesheet" type="text/css" href="kaci.css" />
   </head>
   <body>
@@ -22,7 +21,8 @@
     <nav>
     <a href="#pdo">Oscillator</a>
     <a href="#keyboard">Keyboard</a>
-    <a href="#lfo">LFO</a>
+    <a href="#lfo1">LFO</a>
+    <a href="#lfo2">LFO 2</a>    
     <a href="#env1">Envelope</a>
     </nav>
 	<a id="pdo-phase"></a>
@@ -44,6 +44,11 @@
         <h1 title="low frequency oscillator">LFO</h1>
         <canvas height="100" width="100" id="lfo1-visualisation"></canvas>
         <input type="range" name="lfo-frequency" size="20" />
+    </section>
+    <section id="lfo2">
+        <h1 title="low frequency oscillator 2">LFO 2</h1>
+        <canvas height="100" width="100" id="lfo2-visualisation"></canvas>
+        <input type="range" name="lfo2-frequency" size="20" />
     </section>
     <section id="env1">
         <h1 title="envelope generator 1">ENV 1</h1>
