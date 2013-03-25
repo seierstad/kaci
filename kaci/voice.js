@@ -9,7 +9,7 @@ var kaci = kaci || {};
         voice,         // constructor for new voices
         startVoice,      // public method
         endVoice,
-        maxVoiceCount = 1, // limit concurrent voices
+        maxVoiceCount = 3, // limit concurrent voices
         voices = [];   // the currently active voices
 
     voice = function (params) {
@@ -24,7 +24,10 @@ var kaci = kaci || {};
 
         newObject.frequency = params.frequency || 440;
 
-        oscillator = synth.phaseDistortionOscillator({voice: newObject, patch: synth.patch.osc});
+        oscillator = synth.phaseDistortionOscillator({
+            voice: newObject, 
+            patch: synth.patch.osc
+        });
 //        oscillator.setFrequency(frequency);
 
         isActive = function () {
