@@ -1,0 +1,3 @@
+[submodule "lib/PubSub"]
+	path = lib/PubSub
+	url = http://www.github.com/mroderick/PubSubJS
