@@ -16,6 +16,7 @@ var kaci = kaci || {};
             patch = params.patch || {},
             voice = params.voice || {},
             frequency = params.frequency || 0,
+            eventBase = params.eventBase || "",
             waveforms,
             phaseIncrement,
             phi = Math.PI * 2,
@@ -32,6 +33,7 @@ var kaci = kaci || {};
             // public functions
             setFrequency,
             getFrequency,
+            setFrequencyFromEvent,
             setWaveform,
             getWaveformNames,
             getWaveformName,
@@ -47,6 +49,14 @@ var kaci = kaci || {};
             addWaveformSelector;
 
         patch.waveform = patch.waveform || params.waveform || 'sinus';
+
+        setFrequencyFromEvent = function (event, data) {
+            setFrequency(data.value);
+        };
+
+        if (PubSub && eventBase) {
+            PubSub.subscribe('model.change.' + eventBase + '.frequency', setFrequencyFromEvent);
+        }
 
         waveforms = {
             zero: function () {

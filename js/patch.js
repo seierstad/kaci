@@ -8,7 +8,10 @@ var kaci = kaci || {};
         selectWaveform,
         selectWrapper,
         setPatchParameter,
-        patchString;
+        patchString,
+        updateValue,
+        subscribe,
+        initPatch;
 
     if (localStorage) {
         patchString = localStorage.getItem('kaciPatch');
@@ -47,7 +50,7 @@ var kaci = kaci || {};
         },
         env2: {
             beforeSustain: {
-                data: [[0, 0], [0.2, 1], [0.3, 0.2], [1, 0.5]],
+                data: [[0, 0], [0.1, 1], [0.7, 0.9], [1, 0.5]],
                 duration: 300
             },
             sustain: {
@@ -101,11 +104,65 @@ var kaci = kaci || {};
             localStorage.setItem('kaciPatch', JSON.stringify(patch));
         }
     };
+    updateValue = function (event, data) {
+        console.log(event);
+        console.log(data);
+        var path = event.split('.');
+        var controlledValue = patch;
+        var i, j;
+        for (var i = 2, j = path.length - 1; i < j; i += 1) {
+            controlledValue = controlledValue[path[i]];
+        }
+        if (controlledValue[path[i]] !== data.value) {
+            controlledValue[path[i]] = data.value;
+            path[0] = 'model';
+            path[1] = 'change';
+            PubSub.publish(path.join('.'), {value: data.value});
+        }
+    };
+    subscribe = function (obj, context) {
+        var key, 
+            path = context || '';
+
+        if (typeof obj === 'object') {
+            for (key in obj) {
+                if (obj.hasOwnProperty(key) && typeof obj[key] !== 'function') {
+                    if (typeof obj[key] !== 'object') {
+                        PubSub.subscribe(path + '.' + key, updateValue);
+                    } else {
+                        subscribe(obj[key], path + '.' + key);
+                    }
+                }
+            }
+        }
+    };
+    initPatch = function (obj, context) {
+        var key, 
+            path = context || 'model.change';
+
+        if (typeof obj === 'object') {
+            for (key in obj) {
+                if (obj.hasOwnProperty(key) && typeof obj[key] !== 'function') {
+                    if (typeof obj[key] !== 'object') {
+                        PubSub.publish(path + '.' + key, {value: obj[key]});
+                    } else {
+                        initPatch(obj[key], path + '.' + key);
+                    }
+                }
+            }
+        }
+    };
+    subscribe(patch, 'control.change');
+
+
     synth.selectLfo1Waveform = selectLfo1Waveform;
     synth.selectLfo2Waveform = selectLfo2Waveform;
     synth.selectOscWaveform = selectOscWaveform;
     synth.selectOscWrapper = selectOscWrapper;
+    synth.initPatch = initPatch;
     synth.patch = patch;
+
+
     return synth;
 })(kaci);
 

@@ -83,6 +83,8 @@ var kaci = kaci || {};
             parentId: 'pdo',
             dataObject: synth.patch.osc,
             controlledValue: 'resonanceFactor',
+            changeEvent: 'control.change.pdo.resonance',
+            updateEvent: 'model.change.pdo.resonance',
             minValue: 0.01,
             maxValue: 1,
             exponent: 2,
@@ -92,7 +94,7 @@ var kaci = kaci || {};
                 }})()
         });
 
-        synth.lfo1 = synth.oscillator({patch: synth.patch.lfo1});
+        synth.lfo1 = synth.oscillator({patch: synth.patch.lfo1, eventBase: 'lfo1'});
         waveformSelector = synth.lfo1.addWaveformSelector({
             parentId: 'lfo', 
             elementId: 'lfo1-waveform-selector'
@@ -103,17 +105,16 @@ var kaci = kaci || {};
             height: '300px', 
             width: '50px', 
             parentId: 'lfo', 
-            dataObject: synth.patch.lfo1, 
-            controlledValue: 'frequency', 
+            changeEvent: 'control.change.lfo1.frequency',
+            updateEvent: 'model.change.lfo1.frequency',
             minValue: 0.1, 
             maxValue: 10, 
-            callback: synth.lfo1.setFrequency, 
             exponent: 4, 
             className: 'ribbon'
         });
 
 
-        synth.lfo2 = synth.oscillator({patch: synth.patch.lfo2});
+        synth.lfo2 = synth.oscillator({patch: synth.patch.lfo2, eventBase: 'lfo2'});
         waveformSelector = synth.lfo2.addWaveformSelector({
             parentId: 'lfo2', 
             elementId: 'lfo2-waveform-selector'
@@ -124,11 +125,10 @@ var kaci = kaci || {};
             height: '150px', 
             width: '50px', 
             parentId: 'lfo2', 
-            dataObject: synth.patch.lfo2, 
-            controlledValue: 'frequency', 
+            changeEvent: 'control.change.lfo2.frequency',
+            updateEvent: 'model.change.lfo2.frequency', 
             minValue: 0.1, 
             maxValue: 10, 
-            callback: synth.lfo2.setFrequency, 
             exponent: 4, 
             className: 'ribbon'
         });
@@ -140,7 +140,11 @@ var kaci = kaci || {};
             height: '300px'
         });
         synth.env2 = synth.keyEnvelope({patch: synth.patch.env2});
-
+        synth.env2.initView({
+            parentId: 'env1',
+            width: '600px',
+            height: '300px'
+        });
         synth.pdo = synth.phaseDistortionOscillator({patch: synth.patch.osc});
         synth.pdo.addGui();
 

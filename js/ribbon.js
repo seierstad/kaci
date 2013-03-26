@@ -14,7 +14,9 @@ var kaci = kaci || {};
             scrollable = false,
             touched = false,
             exponent = params.exponent || 1, // linear default
-
+            changeEvent = params.changeEvent || '',
+            updateEvent = params.updateEvent || '',
+            currentValue,
             controller,
             valueIndicator,
             invertedView,
@@ -61,24 +63,47 @@ var kaci = kaci || {};
         inverseExponential = function (inValue) {
             return Math.pow(inValue, 1 / exponent);
         };
-        update = function () {
-            var position = inverseExponential((data[controlledValue] - minValue) / range);
+        update = function (event, eventData) {
+            var updateValue;
+            if (event) {
+                currentValue = eventData.value; 
+                updateValue = eventData.value;
+            } else if (data) {
+                currentValue = data[controlledValue]; 
+                updateValue = data[controlledValue];
+            } else {
+                console.log('ribbon.update() called without event data / bound data object');
+            }
+            var position = inverseExponential((updateValue - minValue) / range);
             if (!invertedView) {
                 position = 1 - position;
             }
             valueIndicator.updatePosition(position);
+            console.log('updated ' + event + ' with value: ' + updateValue);
         };
 
         changeHandler = function (event, touch) {
-            var pixelCoordinates, svgSize, factor;
+            var pixelCoordinates, 
+                svgSize, 
+                factor,
+                newValue;
+
             pixelCoordinates = synth.cursorPosition(event, touch);
             svgSize = synth.sizeInPixels(controller);
             factor = exponential((svgSize.height - pixelCoordinates.y) / svgSize.height);
-            data[controlledValue] = minValue + (range * factor);
-            if (typeof callback === "function") {
-                callback(data[controlledValue]);
+            newValue = minValue + (range * factor);
+
+            if (!!data && !!controlledValue) {
+                data[controlledValue] = newValue;
+
+                if (typeof callback === "function") {
+                    callback(data[controlledValue]);
+                }
+                update();
+
+            } else if (changeEvent && PubSub) {
+                PubSub.publish(changeEvent, {value: newValue});
             }
-            update();
             return false;
         };
 
@@ -99,10 +124,15 @@ var kaci = kaci || {};
 
         scrollHandler = function (event) {
             if (scrollable) {
-                var change, range, newValue, fromCenter, fromMin;
+                var change,
+                    scaledValue,
+                    newValue,
+                    fromCenter,
+                    fromMin;
+
                 event.stopPropagation();
                 event.preventDefault();
-                scaledValue = (data[controlledValue] - minValue) / range;
+                scaledValue = (currentValue - minValue) / range;
                 inverseScaledValue = inverseExponential(scaledValue) + event.detail / -100;
                 if (inverseScaledValue < 0) {
                     inverseScaledValue = 0;
@@ -110,12 +140,14 @@ var kaci = kaci || {};
                     inverseScaledValue = 1;
                 }
                 newValue = minValue + exponential(inverseScaledValue) * range;
-
-                data[controlledValue] = newValue;
-                if (typeof callback === "function") {
-                    callback(data[controlledValue]);
+                if (data) {
+                    data[controlledValue] = newValue;
+                    if (typeof callback === "function") {
+                        callback(data[controlledValue]);
+                    }
+                    update();
                 }
-                update();
+                PubSub.publish('control.change.lfo1.frequency', {value: newValue});
             }
         };
         mouseOverHandler = function (event) {
@@ -185,8 +217,9 @@ var kaci = kaci || {};
 
         window.addEventListener('DOMMouseScroll', scrollHandler, false);
         window.addEventListener('mousewheel', scrollHandler, false);
-
-
+        if (updateEvent) {
+            PubSub.subscribe(updateEvent, update);
+        }
         return {
             update: update
         }
