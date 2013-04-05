@@ -19,6 +19,8 @@ var kaci = kaci || {};
             init,
             keyDown,
             keyUp,
+            keyDownEventId = 0,
+            keyUpEventId = 0,
             startKey = params.startKey || 0,
             endKey = params.endKey || 13,
             keyCodes = keyboardCodeLayouts.colemak;
@@ -60,7 +62,7 @@ var kaci = kaci || {};
                     nextKeyX += keyWidth;
                     whiteKeys.appendChild(key);
                 }
-                keys.push({'key': key, 'frequency': freq});
+                keys.push({'DOMElement': key, 'frequency': freq});
                 if (i < keyCodes.length) {
                     keyMapping[keyCodes[i]] = keys[keys.length - 1];
                 }
@@ -68,6 +70,7 @@ var kaci = kaci || {};
             keyboard.appendChild(whiteKeys);
             keyboard.appendChild(blackKeys);
         };
+
         keyDown = function (event) {
             var keyPressed, 
                 originalClass, 
@@ -85,7 +88,7 @@ var kaci = kaci || {};
                     break;
                 case 'mousedown':
                     for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].key === event.target) {
+                        if (keys[i].DOMElement === event.target) {
                             keyPressed = keys[i];
                             break;
                         }
@@ -93,17 +96,23 @@ var kaci = kaci || {};
                     break;
                 case 'touchstart':
                     for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].key === event.target) {
+                        if (keys[i].DOMElement === event.target) {
                             keyPressed = keys[i];
                             break;
                         }
                     }
                     break;
             }
-            if (!!keyPressed) {
-                keyPressed.voice = synth.startVoice(keyPressed.frequency);
-                originalClass = keyPressed.key.getAttribute("class");
-                keyPressed.key.setAttribute("class", originalClass + ' pressed');
+            if (!!keyPressed && !keyPressed.keyDownSent && !keyPressed.voiceId) {
+
+                keyDownEventId += 1;
+                keyPressed.keyDownSent = true;
+                keyPressed.keyDownEventId = keyDownEventId;
+
+                PubSub.publish('control.change.keyboard.keyDown', {
+                    frequency: keyPressed.frequency,
+                    eventId: keyDownEventId
+                });
             }
             return false;
         };
@@ -124,23 +133,62 @@ var kaci = kaci || {};
                 case 'mouseup':
                 case 'mouseout':
                     for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].key === event.target) {
+                        if (keys[i].DOMElement === event.target) {
                             keyReleased = keys[i];
                             break;
                         }
                     }
                     break;
             }
-            if (!!keyReleased) {
-                if (keyReleased.voice) {
-                    keyReleased.voice.end();
-                    delete keyReleased.voice;
-                }
-                originalClass = keyReleased.key.getAttribute("class");
-                keyReleased.key.setAttribute("class", originalClass.replace(' pressed', '', 'g'));
+            if (!!keyReleased && keyReleased.voiceId) {
+
+                keyUpEventId += 1;
+                keyReleased.keyUpSent = true;
+                keyReleased.keyUpEventId = keyUpEventId;
+
+                PubSub.publish('control.change.keyboard.keyUp', {
+                    frequency: keyReleased.frequency,
+                    eventId: keyUpEventId,
+                    voiceId: keyReleased.voiceId
+                });
             }
         };
 
+        var voiceStartedHandler = function (event, data) {
+            var i, j, key;
+            if (data.causedBy === 'control.change.keyboard.keyDown') {
+                for (i = 0, j = keys.length; i < j; i += 1) {
+                    key = keys[i];
+                    if (key.keyDownSent && key.keyDownEventId === data.causedById) {
+                        originalClass = key.DOMElement.getAttribute("class");
+                        key.DOMElement.setAttribute("class", originalClass + ' pressed');
+                        key.voiceId = data.voiceId;
+                        delete key.keyDownSent;
+                        delete key.keyDownEventId;
+                    }
+                }
+            }
+        };
+        var voiceEndedHandler = function (event, data) {
+            var i, j, key, originalClass;
+            for (i = 0, j = keys.length; i < j; i += 1) {
+                key = keys[i];
+                if (data.causedBy === 'control.change.keyboard.keyUp') {
+
+                    if (key.keyUpSent && key.voiceId === data.voiceId) {
+                        originalClass = key.DOMElement.getAttribute("class");
+                        key.DOMElement.setAttribute("class", originalClass.replace(' pressed', '', 'g').replace(' dropped', '', 'g'));
+                        delete key.voiceId;
+                        break;
+                    }
+                } else if (event === 'voice.dropped') {
+                    if (key.voiceId === data.voiceId) {
+                        originalClass = key.DOMElement.getAttribute("class");
+                        key.DOMElement.setAttribute("class", originalClass + ' dropped');                        
+                    }
+                }
+            }
+        };
         init();
         keyboard.addEventListener('mousedown', keyDown, false);
         keyboard.addEventListener('mouseup', keyUp, false);
@@ -148,6 +196,9 @@ var kaci = kaci || {};
         document.addEventListener('touchstart', keyDown, false);
         document.addEventListener('keydown', keyDown, false);
         document.addEventListener('keyup', keyUp, false);
+        PubSub.subscribe('voice.started', voiceStartedHandler);
+        PubSub.subscribe('voice.ended', voiceEndedHandler);
+        PubSub.subscribe('voice.dropped', voiceEndedHandler);
         return keyboard;
     }
 

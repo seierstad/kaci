@@ -10,7 +10,8 @@ var kaci = kaci || {};
         startVoice,      // public method
         endVoice,
         maxVoiceCount = 3, // limit concurrent voices
-        voices = [];   // the currently active voices
+        voices = [],   // the currently active voices
+        voiceId = 0;
 
     voice = function (params) {
         var params = params || {},
@@ -49,7 +50,7 @@ var kaci = kaci || {};
         newObject.end = function () {
             keyUpTime = (new Date()).getTime();
         };
-
+        newObject.voiceId = ++voiceId;
         return newObject;
     };
 
@@ -73,6 +74,7 @@ var kaci = kaci || {};
                 droppable = i;
             }
         }
+        return droppable;
     };
 
     dropVoice = function () {
@@ -80,6 +82,7 @@ var kaci = kaci || {};
         if (voices.length > 0) {
             var dropped = voices.splice(getDroppableVoiceIndex(), 1);
             dropped[0].mute();
+            PubSub.publish('voice.dropped', {voiceId: dropped[0].voiceId});
             delete dropped[0];
             if (voices.length === 0) {
                 synth.lfo1.reset();
@@ -101,5 +104,29 @@ var kaci = kaci || {};
     synth.voices = voices; // todo: remove this after debugging
     synth.startVoice = startVoice;
     synth.dropVoice = dropVoice;
+
+    var eventLogger = function (event, data) {
+            console.log('captured event: ' + event);
+            console.log(data);
+    };
+    var keyDownHandler = function (event, data) {
+        var v = startVoice(data.frequency);
+        PubSub.publish('voice.started', {causedById: data.eventId, causedBy: event, voiceId: v.voiceId});
+    };
+    var keyUpHandler = function (event, data) {
+        var i, j, v;
+        for (i = 0, j = voices.length; i < j; i += 1) {
+            v = voices[i];
+            if (data.voiceId === v.voiceId) {
+                v.end();
+                PubSub.publish('voice.ended', {causedById: data.eventId, causedBy: event, voiceId: v.voiceId});
+                return;
+            }
+        }
+        PubSub.publish('voice.ended', {causedById: data.eventId, causedBy: event, voiceId: data.voiceId});
+    };
+
+    PubSub.subscribe('control.change.keyboard.keyDown', keyDownHandler);
+    PubSub.subscribe('control.change.keyboard.keyUp', keyUpHandler);
     return synth;
 })(kaci);

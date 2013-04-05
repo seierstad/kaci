@@ -85,6 +85,9 @@ fieldset canvas {
 .pressed {
 	fill: #afe;
 }
+.dropped {
+	fill: #888;
+}
 .circles,
 line,
 .sustain .bar {
