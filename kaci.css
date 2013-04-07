@@ -1,7 +1,5 @@
-body,
-section h1,
-fieldset h2	{
-    background-color: #afa;
+body {
+    background-color: #aff;
 }
 section {
     border: 3px solid rgba(127,127,255,.4);
@@ -9,9 +7,14 @@ section {
     margin: 2em 1em;
     padding: 1.2em 1em .5em;
     position: relative;
+	background-image: -webkit-linear-gradient(left bottom, rgba(0,0,0,.1), rgba(0,0,0,0));
+	background-color: rgba(2,0,127,.3);
+	display: inline-block;
 }
+
 section h1,
 fieldset h2 {
+	background-color: #aff;
     border: 3px solid rgba(127,127,255,.4);
     border-radius: .5em;
     color: rgba(127,127,255,.8);
@@ -31,12 +34,19 @@ fieldset {
     padding: 1.2em .2em .2em;
     position: relative;
 }
+.lfo .waveform-selector {
+	max-width: 21em;
+}
+/*
 fieldset h2 {
     top: -2.2em;
 }
+*/
 fieldset canvas {
+/*
     box-shadow: -.6em .6em .7em -.7em #aaa inset, .6em -.6em .7em -.8em #aaa inset;
     background: rgba(30,229,200, 0.6);
+*/
 }
 .controller {
     display: inline-block;
@@ -48,22 +58,16 @@ fieldset canvas {
     max-width: 100%;
 }
 
-#pdo-waveform-selector label,
-#pdo-wrapper-selector label,
-#lfo1-waveform-selector label {
-    border: 1px solid;
-    border-color: grey grey black black;
+.waveform-selector label {
     border-radius: .5em;
     display: inline-block;
     text-align: center;
-    background-color: white;
+    background-color: #eef;
     margin: .3em;
+    box-shadow: 4px 4px 12px 1px rgba(255,255,255,1) inset, 0 0 9px 1px rgba(0,0,0,0.5) inset, 2px 2px 8px rgba(0,0,0,.4);
 }
-#pdo-waveform-selector canvas,
-#pdo-wrapper-selector canvas,
-#lfo1-waveform-selector canvas {
+.waveform-selector canvas {
     margin: .2em;
-    border: 1px dotted rgba(100,100,100, .5);
 }
 .frequency-indicator .active {
     background: red;
