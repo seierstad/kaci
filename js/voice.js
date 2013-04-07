@@ -3,13 +3,13 @@ var kaci = kaci || {};
 (function (synth) {
     var getDroppableVoiceIndex,
         dropVoice,
-        getKeyDownTime,
-        getKeyUpTime,
+        getKeyDownTime = null,
+        getKeyUpTime = null,
         getSignal,
         voice,         // constructor for new voices
         startVoice,      // public method
         endVoice,
-        maxVoiceCount = 3, // limit concurrent voices
+        maxVoiceCount = 6, // limit concurrent voices
         voices = [],   // the currently active voices
         voiceId = 0;
 
@@ -64,13 +64,13 @@ var kaci = kaci || {};
             droppable;
 
         for (i = 0; i < voices.length; i += 1) {
-            if (voices[i].keyUpTime && voices[i].keyUpTime < firstUp) {
+            if (voices[i].getKeyUpTime() && voices[i].getKeyUpTime() < firstUp) {
                 // the voice was triggered by a key that has been released
-                firstUp = voices[i].keyUpTime;
+                firstUp = voices[i].getKeyUpTime();
                 droppable = i;
-            } else if (firstUp === Number.MAX_VALUE && voices[i].keyDownTime < firstDown) {
+            } else if (firstUp === Number.MAX_VALUE && voices[i].getKeyDownTime() < firstDown) {
                 // no released keys' voices found so far: comparing keyDown times
-                firstDown = voices[i].keyDownTime;
+                firstDown = voices[i].getKeyDownTime();
                 droppable = i;
             }
         }
