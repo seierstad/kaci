@@ -107,8 +107,8 @@ var kaci = kaci || {};
             parentId: 'lfo', 
             changeEvent: 'control.change.lfo1.frequency',
             updateEvent: 'model.change.lfo1.frequency',
-            minValue: 0.1, 
-            maxValue: 10, 
+            minValue: 0.01, 
+            maxValue: 100, 
             exponent: 4, 
             className: 'ribbon'
         });
