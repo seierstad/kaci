@@ -1,3 +1,6 @@
 [submodule "lib/PubSub"]
 	path = lib/PubSub
 	url = http://www.github.com/mroderick/PubSubJS
+[submodule "lib/wavy-jones"]
+	path = lib/wavy-jones
+	url = https://github.com/stuartmemo/wavy-jones
