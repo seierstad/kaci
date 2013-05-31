@@ -72,10 +72,14 @@ var kaci = kaci || {};
                 setReadFunction: setReadFunction,
                 readFunction: readFunction
             };
-        } else if (typeof webkitAudioContext === 'function') {
+        } else if (typeof audioContext === 'function' || typeof webkitAudioContext === 'function') {
             console.log('web audio api supported');
             
-            context = new webkitAudioContext();
+            if (typeof audioContext === 'function') {
+                context = new audioContext();
+            } else {
+                context = new webkitAudioContext();                
+            }
             audioNode = context.createJavaScriptNode(1024, 1, 2);
 
             enable = function () {
@@ -89,12 +93,19 @@ var kaci = kaci || {};
             audioNode.onaudioprocess = function(event) {
                 var right, left, bufferLength, i;
                 right = event.outputBuffer.getChannelData(0);
-                readFunction(right);                
+/* test signal
+                for (i = 0, bufferLength = right.length; i < bufferLength; i++) {
+                    right[i] = (bufferLength - i) / bufferLength;
+                }
+*/
+                readFunction(right);
             }; 
             return {
                 enable: enable,
                 disable: disable,
-                setReadFunction: setReadFunction
+                setReadFunction: setReadFunction,
+                context: context,
+                node: audioNode
             }
         }
     })();
