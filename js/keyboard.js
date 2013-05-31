@@ -5,13 +5,15 @@ var kaci = kaci || {};
         var params = params || {},
             data = params.dataObject,
             keyboard,
+            layoutSelector,
+            layout,
             baseFrequency = params.baseFrequency || 110,
             keys = [],
             keyMapping = [],
             keysPressed = [],
-            keyboardCodeLayouts = {
-                colemak: [109, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 59, 219],
-                qwerty: [90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190]
+            keyboardLayouts = {
+                'qwerty (norsk)': [90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190],
+                'colemak': [189, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 186, 219]
             },
             noteNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'],
 
@@ -22,8 +24,7 @@ var kaci = kaci || {};
             keyDownEventId = 0,
             keyUpEventId = 0,
             startKey = params.startKey || 0,
-            endKey = params.endKey || 13,
-            keyCodes = keyboardCodeLayouts.colemak;
+            endKey = params.endKey || 13;
 
         keyboard = synth.svgControllerElement(params);
         params.width = params.width || '100%';
@@ -38,7 +39,11 @@ var kaci = kaci || {};
                 k,
                 key,
                 blackKey,
-                freq;
+                freq,
+                l,
+                option;
+
+            layout = keyboardLayouts.qwerty;
 
             whiteKeys.setAttribute("class", "white");
             blackKeys.setAttribute("class", "black");
@@ -63,26 +68,50 @@ var kaci = kaci || {};
                     whiteKeys.appendChild(key);
                 }
                 keys.push({'DOMElement': key, 'frequency': freq});
-                if (i < keyCodes.length) {
-                    keyMapping[keyCodes[i]] = keys[keys.length - 1];
-                }
             }
             keyboard.appendChild(whiteKeys);
             keyboard.appendChild(blackKeys);
+
+            layoutSelector = document.createElement('select');
+            layoutSelector.setAttribute('id', 'layout-selector');
+
+            for (l in keyboardLayouts) {
+                if (keyboardLayouts.hasOwnProperty(l)) {
+                    if (!!!layout) {
+                        layout = keyboardLayouts[l];
+                    }
+                    option = document.createElement('option');
+                    option.innerHTML = l;
+                    option.setAttribute('value', l);
+                    layoutSelector.appendChild(option);
+                }
+            }
+            layoutSelector.addEventListener('change', function (evt) {
+                if (evt.target.value && keyboardLayouts[evt.target.value]) {
+                    layout = keyboardLayouts[evt.target.value];
+                }
+            });
+            keyboard.parentNode.appendChild(layoutSelector);
+
         };
 
         keyDown = function (event) {
             var keyPressed, 
                 originalClass, 
-                i;
+                i,
+                keyIndex;
 
             switch (event.type) {
                 case 'keydown':
-                    if (!!keyMapping[event.keyCode]) {
-                        if (!keyMapping[event.keyCode].voice) {
-                            keyPressed = keyMapping[event.keyCode];
+                    keyIndex = layout.indexOf(event.keyCode);
+                    if (keyIndex !== -1) {
+                        if (!keys[keyIndex].voice) {
+                            keyPressed = keys[keyIndex];
                         }
                     } else {
+                        PubSub.publish('control.change.keyboard.unmappedKey', {
+                            keyCode: event.keyCode
+                        });
                         return true;
                     }
                     break;
@@ -103,8 +132,7 @@ var kaci = kaci || {};
                     }
                     break;
             }
-            if (!!keyPressed && !keyPressed.keyDownSent && !keyPressed.voiceId) {
-
+            if (!!keyPressed && !keyPressed.keyDownSent && !keyPressed.noteId) {
                 keyDownEventId += 1;
                 keyPressed.keyDownSent = true;
                 keyPressed.keyDownEventId = keyDownEventId;
@@ -120,12 +148,14 @@ var kaci = kaci || {};
         keyUp = function (event) {
             var keyReleased, 
                 originalClass, 
-                i;
+                i,
+                keyIndex;
 
             switch (event.type) {
                 case 'keyup':
-                    if (!!keyMapping[event.keyCode]) {
-                        keyReleased = keyMapping[event.keyCode];
+                    keyIndex = layout.indexOf(event.keyCode);
+                    if (keyIndex !== -1) {
+                        keyReleased = keys[keyIndex];
                     } else {
                         return true;
                     }
@@ -140,30 +170,37 @@ var kaci = kaci || {};
                     }
                     break;
             }
-            if (!!keyReleased && keyReleased.voiceId) {
+            if (!!keyReleased) {
+                if (keyReleased.noteId) {
+                    keyUpEventId += 1;
+                    keyReleased.keyUpSent = true;
+                    keyReleased.keyUpEventId = keyUpEventId;
 
-                keyUpEventId += 1;
-                keyReleased.keyUpSent = true;
-                keyReleased.keyUpEventId = keyUpEventId;
-
-                PubSub.publish('control.change.keyboard.keyUp', {
-                    frequency: keyReleased.frequency,
-                    eventId: keyUpEventId,
-                    voiceId: keyReleased.voiceId
-                });
+                    PubSub.publish('control.change.keyboard.keyUp', {
+                        frequency: keyReleased.frequency,
+                        eventId: keyReleased.keyUpEventId,
+                        voiceId: keyReleased.voiceId,
+                        noteId: keyReleased.noteId
+                    });
+                } else if (keyReleased.dropped) {
+                    unmarkDropped(keyReleased);
+                }
             }
         };
-
+        var unmarkDropped = function (key) {
+            var originalClass = key.DOMElement.getAttribute("class");
+            key.DOMElement.setAttribute("class", originalClass.replace(' pressed', '', 'g').replace(' dropped', '', 'g'));
+            key.dropped = false;
+        };
         var voiceStartedHandler = function (event, data) {
             var i, j, key;
             if (data.causedBy === 'control.change.keyboard.keyDown') {
                 for (i = 0, j = keys.length; i < j; i += 1) {
                     key = keys[i];
-                    if (key.keyDownSent && key.keyDownEventId === data.causedById) {
+                    if (key.keyDownEventId === data.causedById) {
                         originalClass = key.DOMElement.getAttribute("class");
                         key.DOMElement.setAttribute("class", originalClass + ' pressed');
-                        key.voiceId = data.voiceId;
-                        delete key.keyDownSent;
+                        key.noteId = data.noteId;
                         delete key.keyDownEventId;
                     }
                 }
@@ -173,18 +210,30 @@ var kaci = kaci || {};
             var i, j, key, originalClass;
             for (i = 0, j = keys.length; i < j; i += 1) {
                 key = keys[i];
+
                 if (data.causedBy === 'control.change.keyboard.keyUp') {
 
-                    if (key.keyUpSent && key.voiceId === data.voiceId) {
+                    if (key.keyUpEventId === data.causedById) {
                         originalClass = key.DOMElement.getAttribute("class");
                         key.DOMElement.setAttribute("class", originalClass.replace(' pressed', '', 'g').replace(' dropped', '', 'g'));
+                        key.keyDownSent = false;
+                        key.keyUpSent = false;
+                        key.keyUpEventId = null;
                         delete key.voiceId;
+                        delete key.noteId;
                         break;
                     }
                 } else if (event === 'voice.dropped') {
-                    if (key.voiceId === data.voiceId) {
+                    if (key.noteId === data.noteId) {
                         originalClass = key.DOMElement.getAttribute("class");
-                        key.DOMElement.setAttribute("class", originalClass + ' dropped');                        
+                        key.DOMElement.setAttribute("class", originalClass + ' dropped');
+                        key.dropped = true;
+                        key.keyDownSent = false;
+                        key.keyUpSent = false;
+                        key.keyUpEventId = null;
+                        delete key.voiceId;
+                        delete key.noteId;
+                        break;                       
                     }
                 }
             }

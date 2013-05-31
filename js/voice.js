@@ -3,15 +3,18 @@ var kaci = kaci || {};
 (function (synth) {
     var getDroppableVoiceIndex,
         dropVoice,
-        getKeyDownTime = null,
-        getKeyUpTime = null,
+        getKeyDownTime,
+        getKeyUpTime,
         getSignal,
         voice,         // constructor for new voices
+        setupVoices,
         startVoice,      // public method
         endVoice,
-        maxVoiceCount = 6, // limit concurrent voices
+        maxVoiceCount = 5, // limit concurrent voices
         voices = [],   // the currently active voices
-        voiceId = 0;
+        voiceId = 0,
+        noteId = 0,
+        bufferSize = 1024;
 
     voice = function (params) {
         var params = params || {},
@@ -19,24 +22,56 @@ var kaci = kaci || {};
             active = params.active || false,
             isActive,
             mute,
-            keyDownTime = (new Date()).getTime(),
+            keyDownTime,
             keyUpTime = null,
-            oscillator;
+            oscillator,
+            voiceBuffer = new Float32Array(bufferSize);
 
-        newObject.frequency = params.frequency || 440;
-
-        oscillator = synth.phaseDistortionOscillator({
+/*        oscillator = synth.phaseDistortionOscillator({
             voice: newObject, 
             patch: synth.patch.osc
         });
+*/
+        oscillator = new Worker('js/workerOscillator.js');
 //        oscillator.setFrequency(frequency);
-
-        isActive = function () {
-            return active === true;
+        oscillator.active = false;
+        oscillator.voice = newObject;
+        oscillator.postMessage({
+            cmd: 'setup', 
+            sampleFreq: params.sampleFreq, 
+            bufferSize: 1024
+        });
+        oscillator.addEventListener('message', function(e) {
+            if (e.data.cmd) {
+                switch (e.data.cmd) {
+                    case 'setStatus':
+                        if (e.data.msg === 'inactive') {
+                            this.active = false;
+                        } else if (e.data.msg === 'active') {
+                            this.postMessage({cmd: 'fillBuffer', size: bufferSize});
+                            this.active = true;
+                        }
+                        break;
+                    default: 
+//                        console.log('voice ' + this.voice.voiceId + ': unsupported command');
+//                        console.log(e.data);
+                }
+            } else if (e.data.msg) {
+//                console.log('voice ' + this.voice.voiceId + ':');
+//                console.log(e.data.msg);
+            } else if (e.data.d) {
+                voiceBuffer = e.data.d;
+//                console.log('data');
+//                console.log(e.data.d);
+            }
+        }, false);
+        newObject.isActive = function () {
+            return oscillator.active;
         };
         newObject.mute = function () {
-            active = false;
-            // kill oscillators...
+            oscillator.active = false;
+            keyDownTime = null;
+            keyUpTime = null;
         };
         newObject.getKeyDownTime = function () {
             return keyDownTime;
@@ -44,14 +79,41 @@ var kaci = kaci || {};
         newObject.getKeyUpTime = function () {
             return keyUpTime;
         };
-        newObject.getSignal = function (buffer) {
-            return oscillator.getSignal(buffer);
+        newObject.getSignal = function (size) {
+            var i, j, buffer = new Float32Array(size);
+            if (this.isActive()) {
+                
+                for (i = 0, j = size; i < j; i += 1) {
+                    buffer[i] = voiceBuffer[i];
+                }
+                oscillator.postMessage({cmd: 'fillBuffer', size: size});
+                
+                return buffer;
+            }
+        };
+        newObject.start = function (frequency) {
+            keyUpTime = null;         
+            keyDownTime = (new Date()).getTime();
+            oscillator.postMessage({cmd: 'keydown', frequency: frequency});
+            this.noteId = ++noteId;
+
+// test setFrequency
+// var newFreq = frequency;
+// setTimeout(function () {oscillator.postMessage({cmd: 'setFrequency', frequency: newFreq + 200})}, 350);
+
         };
         newObject.end = function () {
+            oscillator.postMessage({cmd: 'keyup'});
             keyUpTime = (new Date()).getTime();
         };
         newObject.voiceId = ++voiceId;
         return newObject;
+    };
+    setupVoices = function () {
+        var i;
+        for (i = 0; i < maxVoiceCount; i += 1) {
+            voices.push(voice({sampleFreq: 44100}));
+        }
     };
 
     getDroppableVoiceIndex = function () {
@@ -76,56 +138,69 @@ var kaci = kaci || {};
         }
         return droppable;
     };
-
-    dropVoice = function () {
-        // drop the least important voice
-        if (voices.length > 0) {
-            var dropped = voices.splice(getDroppableVoiceIndex(), 1);
-            dropped[0].mute();
-            PubSub.publish('voice.dropped', {voiceId: dropped[0].voiceId});
-            delete dropped[0];
-            if (voices.length === 0) {
-                synth.lfo1.reset();
-                synth.lfo2.reset();
+    noActiveVoices = function () {
+        var i;
+        for (i = 0; i < voices.length; i += 1) {
+            if (voices[i].isActive()) {
+                return false;
             }
         }
+        return true;
+    },
+    dropVoice = function () {
+        var voice = voices[getDroppableVoiceIndex()];
+
+        voice.mute();
+        PubSub.publish('voice.dropped', {voiceId: voice.voiceId, noteId: voice.noteId});
+        if (noActiveVoices()) {
+            synth.lfo1.reset();
+            synth.lfo2.reset();
+        }
+        return voice;
     };
 
     startVoice = function (frequency) {
-        var newVoice;
+        var i = 0, 
+            availableVoice;
 
-        while (voices.length >= maxVoiceCount) {
+/*        while (voices.length >= maxVoiceCount) {
             dropVoice();
         }
-        newVoice = voice({frequency: frequency});
-        voices.push(newVoice);
-        return newVoice;
+*/
+        for (i = 0; i < voices.length; i += 1) {
+            if (!voices[i].isActive()) {
+                availableVoice = voices[i];
+                break;
+            } 
+        }
+        if (!!!availableVoice) {
+            availableVoice = dropVoice();
+        }
+        availableVoice.start(frequency);
+
+        return availableVoice;
     };
     synth.voices = voices; // todo: remove this after debugging
     synth.startVoice = startVoice;
     synth.dropVoice = dropVoice;
 
-    var eventLogger = function (event, data) {
-            console.log('captured event: ' + event);
-            console.log(data);
-    };
     var keyDownHandler = function (event, data) {
         var v = startVoice(data.frequency);
-        PubSub.publish('voice.started', {causedById: data.eventId, causedBy: event, voiceId: v.voiceId});
+        PubSub.publish('voice.started', {causedById: data.eventId, causedBy: event, voiceId: v.voiceId, noteId: v.noteId});
     };
     var keyUpHandler = function (event, data) {
         var i, j, v;
         for (i = 0, j = voices.length; i < j; i += 1) {
             v = voices[i];
-            if (data.voiceId === v.voiceId) {
+            if (data.noteId === v.noteId) {
                 v.end();
-                PubSub.publish('voice.ended', {causedById: data.eventId, causedBy: event, voiceId: v.voiceId});
+                PubSub.publish('voice.ended', {causedById: data.eventId, causedBy: event, voiceId: v.voiceId, noteId: v.noteId});
                 return;
             }
         }
-        PubSub.publish('voice.ended', {causedById: data.eventId, causedBy: event, voiceId: data.voiceId});
+        PubSub.publish('voice.ended', {causedById: data.eventId, causedBy: event, voiceId: data.voiceId, noteId: v.noteId});
     };
-
+    setupVoices();
     PubSub.subscribe('control.change.keyboard.keyDown', keyDownHandler);
     PubSub.subscribe('control.change.keyboard.keyUp', keyUpHandler);
     return synth;
