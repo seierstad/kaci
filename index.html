@@ -18,7 +18,19 @@
     <script type="text/javascript" src="js/ribbon.js"></script>
     <script type="text/javascript" src="js/keyboard.js"></script>
     <script type="text/javascript" src="js/test.js"></script>
+    <script type="text/javascript" src="js/logger.js"></script>
+
     <button onclick="kaci.audioOutput.disable();">stopp</button>
+<style>
+#oscilloscope {
+    width: 600px;
+    height: 300px;
+    background-color: black;
+}
+</style>
+
+    <script type="text/javascript" src="lib/wavy-jones/wavy-jones.js"></script>    
+    <button onclick="var oscilloscope = document.createElement('div'); oscilloscope.setAttribute('id', 'oscilloscope'); var o = document.getElementById('pdo'); o.appendChild(oscilloscope); var a = kaci.audioOutput; var ctx = a.context; var n = a.node; var wj = new WavyJones(ctx, 'oscilloscope'); n.connect(wj);">oscilloscope</button>
     <nav>
     <a href="#pdo">Oscillator</a>
     <a href="#keyboard">Keyboard</a>
