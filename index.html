@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>JavaScript phase distortion synthesizer</title>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, height=device-height" />
     <link rel="stylesheet" type="text/css" href="kaci.css" />
   </head>
@@ -30,7 +31,7 @@
 </style>
 
     <script type="text/javascript" src="lib/wavy-jones/wavy-jones.js"></script>    
-    <button onclick="var oscilloscope = document.createElement('div'); oscilloscope.setAttribute('id', 'oscilloscope'); var o = document.getElementById('pdo'); o.appendChild(oscilloscope); var a = kaci.audioOutput; var ctx = a.context; var n = a.node; var wj = new WavyJones(ctx, 'oscilloscope'); n.connect(wj);">oscilloscope</button>
+    <button id="btn-activate-scope">oscilloscope</button>
     <nav>
     <a href="#pdo">Oscillator</a>
     <a href="#keyboard">Keyboard</a>

@@ -7,7 +7,10 @@ var kaci = kaci || {};
     envelope = function (params) {
         var params = params || {},
             patch = params.patch || {},
-            data = patch.data || params.data || params.envelopeData || [[0, 0], [1, 1]],
+            data = patch.data || params.data || params.envelopeData || [
+                [0, 0],
+                [1, 1]
+            ],
             linearFunctionFromPoints,
             getValueAtPhase,
             addPoint,
@@ -16,16 +19,20 @@ var kaci = kaci || {};
             getData,
             setValueAtIndex,
             setLastValue,
+            initView,
             view;
 
         linearFunctionFromPoints = function (points) {
             var rate, constant;
             rate = (points[1][1] - points[0][1]) / (points[1][0] - points[0][0]);
             constant = points[0][1] - (rate * points[0][0]);
-            return {rate: rate, constant: constant};
+            return {
+                rate: rate,
+                constant: constant
+            };
         };
 
-        getValueAtPhase = function (phase) {
+        getValueAtPhase = function getValueAtPhase(phase) {
             var line, i;
             if (data.length > 1) {
                 for (i = 1; i < data.length; i += 1) {
@@ -35,6 +42,7 @@ var kaci = kaci || {};
                     }
                 }
             }
+            return 0;
         };
 
         addPoint = function (point) {
@@ -93,8 +101,12 @@ var kaci = kaci || {};
             params.width = params.width || '300px';
             params.height = params.height || '300px';
             controller = synth.svgControllerElement(params);
-            svgCircleGroup = synth.svg('g', {'class': 'circles'});
-            svgLineGroup = synth.svg('g', {'class': 'lines'});
+            svgCircleGroup = synth.svg('g', {
+                'class': 'circles'
+            });
+            svgLineGroup = synth.svg('g', {
+                'class': 'lines'
+            });
 
             circle = function (position, params) {
                 var params = params || {},
@@ -130,18 +142,28 @@ var kaci = kaci || {};
                 var previousPosition, i, circleGroup, lineGroup;
 
                 for (i = 0; i < data.length; i += 1) {
-                    position = {x: data[i][0], y: 1 - (data[i][1] - minValue) / maxValue};
+                    position = {
+                        x: data[i][0],
+                        y: 1 - (data[i][1] - minValue) / maxValue
+                    };
 
                     if (i < points.length && points[i].circle) {
-                        circle(position, {svgCircle: points[i].circle});
+                        circle(position, {
+                            svgCircle: points[i].circle
+                        });
                         if (points[i].line) {
-                            line(previousPosition, position, {svgLine: points[i].line});
+                            line(previousPosition, position, {
+                                svgLine: points[i].line
+                            });
                         }
                         points[i].data = data[i];
                     } else {
                         svgCircle = circle(position);
                         svgCircleGroup.appendChild(svgCircle);
-                        points[i] = {circle: svgCircle, data: data[i]};
+                        points[i] = {
+                            circle: svgCircle,
+                            data: data[i]
+                        };
                         if (i > 0) {
                             svgLine = line(previousPosition, position);
                             svgLineGroup.appendChild(svgLine);
@@ -200,7 +222,7 @@ var kaci = kaci || {};
                 case "touchstart":
                 case "mousedown":
                     if (event.target.tagName === "rect") {
-                        for (i = 0; newData.x > data[i][0] && i < data.length; i += 1) {} ;
+                        for (i = 0; newData.x > data[i][0] && i < data.length; i += 1) {};
                         data.splice(i, 0, [newData.x, newData.y]);
                         viewUpdate();
                         circleDraggable(i);
@@ -226,10 +248,7 @@ var kaci = kaci || {};
                     }
                     break;
                 case "touchmove":
-                    if (pixelCoordinates.x < 0
-                            || pixelCoordinates.y < 0
-                            || pixelCoordinates.x >= svgSize.width
-                            || pixelCoordinates.y >= svgSize.height) {
+                    if (pixelCoordinates.x < 0 || pixelCoordinates.y < 0 || pixelCoordinates.x >= svgSize.width || pixelCoordinates.y >= svgSize.height) {
 
                         return touchLeaveHandler(event);
                     }
@@ -309,7 +328,12 @@ var kaci = kaci || {};
         var params = params || {},
             patch = params.patch || {},
             beforeSustain = patch.beforeSustain || params.beforeSustain || {
-                envelope: envelope({data: [[0, 1], [1, 0.5]]}),
+                envelope: envelope({
+                    data: [
+                        [0, 1],
+                        [1, 0.5]
+                    ]
+                }),
                 duration: 300
             },
             sustain = patch.sustain || params.sustain || {
@@ -317,7 +341,12 @@ var kaci = kaci || {};
                 enabled: true
             },
             afterSustain = patch.afterSustain || params.afterSustain || {
-                envelope: envelope({data: [[0, 0.5], [1, 0]]}),
+                envelope: envelope({
+                    data: [
+                        [0, 0.5],
+                        [1, 0]
+                    ]
+                }),
                 duration: 600
             },
             getValueAtTime,
@@ -328,10 +357,15 @@ var kaci = kaci || {};
             setSustainValue,
             test,
             view,
-            initView;
+            initView,
+            isFinishedAtTime;
 
-        beforeSustain.envelope = beforeSustain.envelope || envelope({data: beforeSustain.data});
-        afterSustain.envelope = afterSustain.envelope || envelope({data: afterSustain.data});
+        beforeSustain.envelope = beforeSustain.envelope || envelope({
+            data: beforeSustain.data
+        });
+        afterSustain.envelope = afterSustain.envelope || envelope({
+            data: afterSustain.data
+        });
 
         setSustainValue = function (value) {
             if (sustain.enabled) {
@@ -467,7 +501,7 @@ var kaci = kaci || {};
             params.width = "20%";
             params.offsetX = "40%";
             params.className = "sustain";
-// tester ribbon
+            // tester ribbon
             params.dataObject = sustain;
             params.controlledValue = "value";
             params.minValue = 0;
@@ -501,33 +535,85 @@ var kaci = kaci || {};
                     svgns = 'http://www.w3.org/2000/svg',
                     xlinkns = 'http://www.w3.org/1999/xlink';
 
-                   sustainController = synth.svg("g");
+                sustainController = synth.svg("g");
 
-                mask = synth.svg('mask', {id: 'mask', x: 0, y: 0, width: "100%", height: 20});
-                maskbg = synth.svg('rect', {width: '100%', height: '100%', fill: 'white'});
+                mask = synth.svg('mask', {
+                    id: 'mask',
+                    x: 0,
+                    y: 0,
+                    width: "100%",
+                    height: 20
+                });
+                maskbg = synth.svg('rect', {
+                    width: '100%',
+                    height: '100%',
+                    fill: 'white'
+                });
                 mask.appendChild(maskbg);
-                maskText = synth.svg('text', {x: 0, y: 0, transform: 'translate(0 15)', fill: 'black'});
+                maskText = synth.svg('text', {
+                    x: 0,
+                    y: 0,
+                    transform: 'translate(0 15)',
+                    fill: 'black'
+                });
                 maskText.textContent = "SUSTAIN";
                 mask.appendChild(maskText);
-                offBg = synth.svg("circle", {cx: "100%", cy: 10, r: 7.5, transform: "translate(-7.5 0)"});
+                offBg = synth.svg("circle", {
+                    cx: "100%",
+                    cy: 10,
+                    r: 7.5,
+                    transform: "translate(-7.5 0)"
+                });
                 mask.appendChild(offBg);
                 sustainController.appendChild(mask);
 
                 defs = document.createElementNS(svgns, "defs");
-                bar = synth.svg('g', {id: 'sustainBar'});
-                rect = synth.svg('rect', {width: '100%', height: 20, x: 0, y: 0, mask: 'url(#mask)', 'class': 'bar'});
+                bar = synth.svg('g', {
+                    id: 'sustainBar'
+                });
+                rect = synth.svg('rect', {
+                    width: '100%',
+                    height: 20,
+                    x: 0,
+                    y: 0,
+                    mask: 'url(#mask)',
+                    'class': 'bar'
+                });
                 bar.appendChild(rect);
 
-                off = synth.svg('g', {id: 'off'});
-                offTarget = synth.svg('circle', {id: 'target', cx: 7.5, cy: 7.5, r: 7.5, opacity: 0});
+                off = synth.svg('g', {
+                    id: 'off'
+                });
+                offTarget = synth.svg('circle', {
+                    id: 'target',
+                    cx: 7.5,
+                    cy: 7.5,
+                    r: 7.5,
+                    opacity: 0
+                });
                 off.appendChild(offTarget);
-                crossline1 = synth.svg('line', {x1: 3.5, y1: 3, x2: 11.5, y2: 12});
+                crossline1 = synth.svg('line', {
+                    x1: 3.5,
+                    y1: 3,
+                    x2: 11.5,
+                    y2: 12
+                });
                 off.appendChild(crossline1);
-                crossline2 = synth.svg('line', {x1: 3.5, y1: 12, x2: 11.5, y2: 3, fill: 'blue'});
+                crossline2 = synth.svg('line', {
+                    x1: 3.5,
+                    y1: 12,
+                    x2: 11.5,
+                    y2: 3,
+                    fill: 'blue'
+                });
                 off.appendChild(crossline2);
                 defs.appendChild(off);
 
-                useOff = synth.svg('use', {x: '100%', y: 2.5, transform: 'translate(-15 0)'});
+                useOff = synth.svg('use', {
+                    x: '100%',
+                    y: 2.5,
+                    transform: 'translate(-15 0)'
+                });
                 useOff.setAttributeNS(xlinkns, "xlink:href", "#off");
                 bar.appendChild(useOff);
 
@@ -536,7 +622,11 @@ var kaci = kaci || {};
 
                 sustainPercent = (sustain.value * 100).toString() + "%";
 
-                useBar = synth.svg('use', {x: 0, y: sustainPercent, transform: 'translate(0 -10)'});
+                useBar = synth.svg('use', {
+                    x: 0,
+                    y: sustainPercent,
+                    transform: 'translate(0 -10)'
+                });
                 useBar.setAttributeNS(svgns, "svg:transform", "scale(1 -1)");
                 useBar.setAttributeNS(xlinkns, "xlink:href", "#sustainBar");
 
@@ -581,4 +671,3 @@ var kaci = kaci || {};
 
     return synth;
 })(kaci);
-

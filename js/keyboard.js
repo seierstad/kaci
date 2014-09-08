@@ -14,7 +14,7 @@ var kaci = kaci || {};
             keyboardLayouts = {
                 //                colemak: [109, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 59, 219],
                 colemak: [189, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 186, 219],
-                qwerty: [90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190]
+                qwerty: [90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190, 186, 189, 81, 50, 87, 51, 69, 52, 82, 84, 54, 89, 55, 85, 73, 57, 79, 48, 80, 187, 219, 221]
             },
             noteNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'],
 
@@ -44,7 +44,7 @@ var kaci = kaci || {};
                 l,
                 option;
 
-            layout = keyboardLayouts.qwerty;
+            layout = keyboardLayouts.colemak;
 
             whiteKeys.setAttribute("class", "white");
             blackKeys.setAttribute("class", "black");
@@ -231,6 +231,7 @@ var kaci = kaci || {};
                     if (key.noteId === data.noteId) {
                         originalClass = key.DOMElement.getAttribute("class");
                         key.DOMElement.setAttribute("class", originalClass + ' dropped');
+
                         key.dropped = true;
                         key.keyDownSent = false;
                         key.keyUpSent = false;

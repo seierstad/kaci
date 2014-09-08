@@ -43,7 +43,10 @@ var kaci = kaci || {};
         phaseIncrement = 1.0 / width;
         for (i = 0; i < width; i += 1) {
             yValue = waveGenerator.getValueAtPhase(phase, params);
-            coordinates = {'x': i + xOffset, 'y': yValue * (halfHeight) + halfHeight + yOffset};
+            coordinates = {
+                'x': i + xOffset,
+                'y': yValue * (halfHeight) + halfHeight + yOffset
+            };
             if (i === 0) {
                 context.moveTo(coordinates.x, coordinates.y);
             } else {
@@ -57,24 +60,25 @@ var kaci = kaci || {};
 
     synth.drawWaveform = drawWaveform;
     synth.init = function () {
-        var waveformName, 
-            waveforms, 
-            waveformSelector, 
-            pdoElement, 
-            pdoWaveforms, 
-            button, 
-            canvas, 
-            radio, 
-            lfoElement, 
+        var waveformName,
+            waveforms,
+            waveformSelector,
+            pdoElement,
+            pdoWaveforms,
+            button,
+            canvas,
+            radio,
+            lfoElement,
             i;
 
         synth.pdEnv = synth.envelope(synth.patch.osc);
         synth.pdEnv.initView({
             parentId: 'pdo',
-            callback:
-                (function () {return function () {
+            callback: (function () {
+                return function () {
                     synth.drawWaveform(synth.pdo, 'waveform');
-                }})()
+                }
+            })()
         });
         // init pdo
         synth.ribbon({
@@ -88,73 +92,86 @@ var kaci = kaci || {};
             minValue: 0.01,
             maxValue: 1,
             exponent: 2,
-            callback:
-                (function () {return function () {
+            callback: (function () {
+                return function () {
                     synth.drawWaveform(synth.pdo, 'waveform');
-                }})()
+                }
+            })()
         });
 
-        synth.lfo1 = synth.oscillator({patch: synth.patch.lfo1, eventBase: 'lfo1'});
+        synth.lfo1 = synth.oscillator({
+            patch: synth.patch.lfo1,
+            eventBase: 'lfo1'
+        });
         waveformSelector = synth.lfo1.addWaveformSelector({
-            parentId: 'lfo', 
+            parentId: 'lfo',
             elementId: 'lfo1-waveform-selector'
         });
         synth.drawWaveform(synth.lfo1, 'lfo1-visualisation');
         waveformSelector.addEventListener('click', synth.selectLfo1Waveform, false);
         synth.ribbon({
-            height: '300px', 
-            width: '50px', 
-            parentId: 'lfo', 
+            height: '300px',
+            width: '50px',
+            parentId: 'lfo',
             changeEvent: 'control.change.lfo1.frequency',
             updateEvent: 'model.change.lfo1.frequency',
-            minValue: 0.01, 
-            maxValue: 100, 
-            exponent: 4, 
+            minValue: 0.01,
+            maxValue: 100,
+            exponent: 4,
             className: 'ribbon'
         });
 
 
-        synth.lfo2 = synth.oscillator({patch: synth.patch.lfo2, eventBase: 'lfo2'});
+        synth.lfo2 = synth.oscillator({
+            patch: synth.patch.lfo2,
+            eventBase: 'lfo2'
+        });
         waveformSelector = synth.lfo2.addWaveformSelector({
-            parentId: 'lfo2', 
+            parentId: 'lfo2',
             elementId: 'lfo2-waveform-selector'
         });
         synth.drawWaveform(synth.lfo2, 'lfo2-visualisation');
         waveformSelector.addEventListener('click', synth.selectLfo2Waveform, false);
         synth.ribbon({
-            height: '150px', 
-            width: '50px', 
-            parentId: 'lfo2', 
+            height: '150px',
+            width: '50px',
+            parentId: 'lfo2',
             changeEvent: 'control.change.lfo2.frequency',
-            updateEvent: 'model.change.lfo2.frequency', 
-            minValue: 0.1, 
-            maxValue: 10, 
-            exponent: 4, 
+            updateEvent: 'model.change.lfo2.frequency',
+            minValue: 0.1,
+            maxValue: 10,
+            exponent: 4,
             className: 'ribbon'
         });
 
-        synth.env1 = synth.keyEnvelope({patch: synth.patch.env1});
+        synth.env1 = synth.keyEnvelope({
+            patch: synth.patch.env1
+        });
         synth.env1.initView({
             parentId: 'env1',
             width: '600px',
             height: '300px'
         });
-        synth.env2 = synth.keyEnvelope({patch: synth.patch.env2});
+        synth.env2 = synth.keyEnvelope({
+            patch: synth.patch.env2
+        });
         synth.env2.initView({
             parentId: 'env1',
             width: '600px',
             height: '300px'
         });
-        synth.pdo = synth.phaseDistortionOscillator({patch: synth.patch.osc});
+        synth.pdo = synth.phaseDistortionOscillator({
+            patch: synth.patch.osc
+        });
         synth.pdo.addGui();
 
         synth.audioOutput.setReadFunction(synth.getSignal);
         synth.keyboardController({
-            parentId: 'keyboard', 
-            baseFrequency: 55, 
-            endKey: 37, 
-            height: '190px', 
-            width: '1000px', 
+            parentId: 'keyboard',
+            baseFrequency: 55,
+            endKey: 37,
+            height: '190px',
+            width: '1000px',
             className: 'keyboard'
         });
         synth.drawWaveform(synth.pdo, 'waveform');
@@ -165,3 +182,17 @@ var kaci = kaci || {};
 }(kaci));
 document.addEventListener('DOMContentLoaded', kaci.init, false);
 
+document.addEventListener('DOMContentLoaded', function () {
+    var oscButton = document.getElementById('btn-activate-scope');
+    oscButton.addEventListener('click', function () {
+        var oscilloscope = document.createElement('div');
+        oscilloscope.setAttribute('id', 'oscilloscope');
+        var o = document.getElementById('pdo');
+        o.appendChild(oscilloscope);
+        var a = kaci.audioOutput;
+        var ctx = a.context;
+        var n = a.node;
+        var wj = new WavyJones(ctx, 'oscilloscope');
+        n.connect(wj);
+    });
+});

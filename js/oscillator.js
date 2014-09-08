@@ -1,18 +1,15 @@
-if (!Object.keys) {
-    alert('Your browser is not supported.');
-}
-
 var kaci = kaci || {};
 
 // add oscillator
 // (a superclass for phaseDistortionOscillator and lfo, providing base waveforms)
 (function (synth) {
+    "use strict";
     var oscillator = function (params) {
 
         // private variables
         var params = params || {},
             phase = params.phase || 0,
-            phaseStack = [],   // to enable saving/retrieving of phase (for multi voice setups)
+            phaseStack = [], // to enable saving/retrieving of phase (for multi voice setups)
             patch = params.patch || {},
             voice = params.voice || {},
             frequency = params.frequency || 0,
@@ -21,13 +18,16 @@ var kaci = kaci || {};
             phaseIncrement,
             phi = Math.PI * 2,
             frequencyIndicatorTimer,
+            osc = this,
 
             bias = params.bias || 0,
             scale = params.scale || 1,
 
             // private functions
             updatePhaseIncrement,
-            sampleAndHoldBuffer = {value: 0},
+            sampleAndHoldBuffer = {
+                value: 0
+            },
             addFrequencyIndicator,
 
             // public functions
@@ -73,7 +73,8 @@ var kaci = kaci || {};
                 }
             },
             additiveSquare: function (phase, maxHarmonic) {
-                var value = 0, i = 1;
+                var value = 0,
+                    i = 1;
                 maxHarmonic = maxHarmonic || 8;
                 for (i = 1; i < maxHarmonic; i += 2) {
                     value += Math.sin(phase * phi * i) / i;
@@ -84,7 +85,8 @@ var kaci = kaci || {};
                 return (phase - 0.5) * 2;
             },
             additiveSaw: function (phase, maxHarmonic) {
-                var value = 0, i;
+                var value = 0,
+                    i;
                 maxHarmonic = maxHarmonic || 8;
                 for (i = 1; i < maxHarmonic; i += 1) {
                     value += Math.sin(phase * phi * i) / i;
@@ -104,7 +106,9 @@ var kaci = kaci || {};
                 }
             },
             additiveTriangle: function (phase, maxHarmonic) {
-                var value = 0, i = 1, odd = true;
+                var value = 0,
+                    i = 1,
+                    odd = true;
                 maxHarmonic = maxHarmonic || 5;
                 for (i = 1; i < maxHarmonic; i += 2) {
                     if (odd) {
@@ -116,9 +120,9 @@ var kaci = kaci || {};
                 }
                 return value * (8 / Math.pow(Math.PI, 2));
             },
-            sampleAndHold: function (phase, steps) {
+            sampleAndHold: function (phase, sampleAndHoldBuffer, steps) {
                 var fraction;
-                steps = steps || 4;
+                steps = steps || 2;
                 fraction = 1 / steps;
                 if (phase % fraction < sampleAndHoldBuffer.phase % fraction) {
                     sampleAndHoldBuffer.value = Math.random();
@@ -180,14 +184,22 @@ var kaci = kaci || {};
         };
 
         getValueAtPhase = function (phase, functionParams) {
-            var result;
+            var result,
+                wf = (functionParams && functionParams.waveform && waveforms[functionParams.waveform]) ? functionParams.waveform : patch.waveform;
 
-            functionParams = functionParams || {};
-            if (functionParams.waveform && waveforms[functionParams.waveform]) {
-                result = waveforms[functionParams.waveform](phase);
-            } else {
-                result = waveforms[patch.waveform](phase);
+            switch (wf) {
+            case "sampleAndHold":
+                result = waveforms[wf](phase, sampleAndHoldBuffer);
+                break;
+            case "additiveSquare":
+            case "additiveTriangle":
+            case "additiveSaw":
+                result = waveforms[wf](phase, 3);
+                break;
+            default:
+                result = waveforms[wf](phase);
             }
+
             return (result * scale) + bias;
         };
         fastForward = function (steps) {
@@ -235,7 +247,11 @@ var kaci = kaci || {};
                 canvas = document.createElement("canvas");
                 canvas.setAttribute('width', '50px');
                 canvas.setAttribute('height', '50px');
-                synth.drawWaveform(this, canvas, {waveform: names[i], noWrap: true, noPd: true});
+                synth.drawWaveform(this, canvas, {
+                    waveform: names[i],
+                    noWrap: true,
+                    noPd: true
+                });
                 radio = document.createElement('input');
                 radio.setAttribute('type', 'radio');
                 radio.setAttribute('name', params.parentId + '-waveform');
@@ -254,8 +270,7 @@ var kaci = kaci || {};
         };
 
         addFrequencyIndicator = function (params) {
-            var params = params || {},
-                wrapper,
+            var wrapper,
                 indicator,
                 parent,
                 activeClass = params.activeClass || 'active',
@@ -318,57 +333,53 @@ var kaci = kaci || {};
 
     phaseDistortionOscillator = function (params) {
 
-            // private variables
+        // private variables
         var params = params || {},
-            oscillator = synth.oscillator(params),      // a base oscillator, used internally
-            wrappers,        // available wrapper functions (for resonance)
+            oscillator = synth.oscillator(params), // a base oscillator, used internally
+            wrappers, // available wrapper functions (for resonance)
             wrapper,
-            patch = params.patch || {resonanceFactor: 1, waveform: 'sinus', wrapper: 'saw'},
+            patch = params.patch || {
+                resonanceFactor: 1,
+                waveform: 'sinus',
+                wrapper: 'saw'
+            },
             resonantPhase = 0,
             wrapperPhase = 0,
             phaseIncrement = 0,
             pdData,
-            msIncrement = 1000 / synth.sampleRate,  // milliseconds between each sample
+            msIncrement = 1000 / synth.sampleRate, // milliseconds between each sample
             voice = params.voice || {},
             frequency = params.frequency || 0,
             modulate,
             modulators = params.modulators || {
-                resonance:
-                    [
-                        {
-                            pre: synth.lfo1.pushPhase,
-                            mod: synth.lfo1.next,
-                            post: synth.lfo1.popPhase,
-                            factor: 0.2,
-                            bias: 0.1
-                        },
-                        {
-                            mod: synth.env1.getValueAtTime,
-                            factor: 0.7
-                        }
+                resonance: [{
+                        pre: synth.lfo1.pushPhase,
+                        mod: synth.lfo1.next,
+                        post: synth.lfo1.popPhase,
+                        factor: 0.2,
+                        bias: 0.1
+                    }, {
+                        mod: synth.env1.getValueAtTime,
+                        factor: 0.7
+                    }
 
-                    ],
-                pitch:
-                    [
-                        {
-                            pre: synth.lfo2.pushPhase,
-                            mod: synth.lfo2.next,
-                            post: synth.lfo2.popPhase,
-                            factor: 20,
-                            bias: 0
-                        },
-                        {
-                            mod: synth.env1.getValueAtTime,
-                            factor: 0.01
-                        }
-                    ],
-                amplitude:
-                    [
-                        {
-                            mod: synth.env1.getValueAtTime
-                        }
-                    ],
-                phase:  { mod: synth.pdEnv.getValueAtPhase }
+                ],
+                pitch: [{
+                    pre: synth.lfo2.pushPhase,
+                    mod: synth.lfo2.next,
+                    post: synth.lfo2.popPhase,
+                    factor: 20,
+                    bias: 0
+                }, {
+                    mod: synth.env1.getValueAtTime,
+                    factor: 0.01
+                }],
+                amplitude: [{
+                    mod: synth.env1.getValueAtTime
+                }],
+                phase: {
+                    mod: synth.pdEnv.getValueAtPhase
+                }
             },
 
             // private functions
@@ -382,6 +393,7 @@ var kaci = kaci || {};
             // public functions
             setFrequency,
             setWrapper,
+            setPdData,
             getWrapperName,
             getWrapperNames,
             getSignal,
@@ -459,7 +471,7 @@ var kaci = kaci || {};
                     context.end += msIncrement;
                 }
                 wrapperPhase += phaseIncrement + (phaseIncrement * modulate(modulators.pitch, context));
-                resonantPhase += phaseIncrement / (patch.resonanceFactor  + patch.resonanceFactor * modulate(modulators.resonance, context));
+                resonantPhase += phaseIncrement / (patch.resonanceFactor + patch.resonanceFactor * modulate(modulators.resonance, context));
                 while (wrapperPhase > 1) {
                     wrapperPhase -= 1;
                     resonantPhase = 0;
@@ -517,7 +529,9 @@ var kaci = kaci || {};
                     return wrapperName;
                 }
             }
-            throw {message: 'selected wrapper does not exist'};
+            throw {
+                message: 'selected wrapper does not exist'
+            };
         };
         getWrapperNames = function () {
             return Object.keys(wrappers);
@@ -533,7 +547,8 @@ var kaci = kaci || {};
         };
 
         getTimes = function () {
-            var start = voice.getKeyDownTime(), end = voice.getKeyUpTime();
+            var start = voice.getKeyDownTime(),
+                end = voice.getKeyUpTime();
             return {
                 start: start,
                 end: end
@@ -545,7 +560,10 @@ var kaci = kaci || {};
         };
         addGui = function () {
             var waveformSelector, names, wrapperSelector, heading, button, canvas, radio, pdoElement, i;
-            waveformSelector = oscillator.addWaveformSelector({parentId: 'pdo', elementId: 'pdo-waveform-selector'});
+            waveformSelector = oscillator.addWaveformSelector({
+                parentId: 'pdo',
+                elementId: 'pdo-waveform-selector'
+            });
             waveformSelector.addEventListener('click', synth.selectOscWaveform, false);
 
             pdoElement = document.getElementById('pdo');
@@ -561,7 +579,12 @@ var kaci = kaci || {};
                 canvas = document.createElement("canvas");
                 canvas.setAttribute('width', '50px');
                 canvas.setAttribute('height', '50px');
-                synth.drawWaveform(this, canvas, {waveform: 'sinus', wrapper: names[i], resonanceFactor: 0.2, noPd: true});
+                synth.drawWaveform(this, canvas, {
+                    waveform: 'sinus',
+                    wrapper: names[i],
+                    resonanceFactor: 0.2,
+                    noPd: true
+                });
                 radio = document.createElement('input');
                 radio.setAttribute('type', 'radio');
                 radio.setAttribute('name', 'pdo-wrapper');
@@ -616,4 +639,3 @@ var kaci = kaci || {};
 
     return synth;
 })(kaci);
-
