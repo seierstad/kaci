@@ -7,7 +7,12 @@ var kaci = kaci || {};
         removeListener,
         selectWaveform,
         selectWrapper,
+        selectOscWaveform,
+        selectOscWrapper,
+        selectLfo1Waveform,
+        selectLfo2Waveform,
         setPatchParameter,
+
         patchString,
         updateValue,
         subscribe,
@@ -19,13 +24,17 @@ var kaci = kaci || {};
             patch = JSON.parse(patchString);
         }
     }
-//    if (!patch) {    // uncomment to activate loading from localStorage
+
     patch = {
         osc: {
             wrapper: 'saw',
             waveform: 'sinus',
             resonanceFactor: 1,
-            envelopeData: [[0, 0], [0.4, 0.9], [1, 1]]
+            envelopeData: [
+                [0, 0],
+                [0.4, 0.9],
+                [1, 1]
+            ]
         },
         lfo1: {
             waveform: 'saw',
@@ -37,20 +46,33 @@ var kaci = kaci || {};
         },
         env1: {
             beforeSustain: {
-                data: [[0, 0], [0.2, 1], [0.3, 0.2], [1, 0.5]],
+                data: [
+                    [0, 0],
+                    [0.2, 1],
+                    [0.3, 0.2],
+                    [1, 0.5]
+                ],
                 duration: 300
             },
             sustain: {
                 enabled: true
             },
             afterSustain: {
-                data: [[0, 0.5], [1, 0]],
+                data: [
+                    [0, 0.5],
+                    [1, 0]
+                ],
                 duration: 1000
             }
         },
         env2: {
             beforeSustain: {
-                data: [[0, 0], [0.1, 1], [0.7, 0.9], [1, 0.5]],
+                data: [
+                    [0, 0],
+                    [0.1, 1],
+                    [0.7, 0.9],
+                    [1, 0.5]
+                ],
                 duration: 300
             },
             sustain: {
@@ -58,12 +80,15 @@ var kaci = kaci || {};
                 enabled: true
             },
             afterSustain: {
-                data: [[0, 0.5], [1, 0]],
+                data: [
+                    [0, 0.5],
+                    [1, 0]
+                ],
                 duration: 1000
             }
         }
     };
-//    };
+
     selectOscWrapper = function (event) {
         setPatchParameter(event, 'osc', 'wrapper');
         synth.drawWaveform(synth.pdo, 'waveform');
@@ -117,11 +142,13 @@ var kaci = kaci || {};
             controlledValue[path[i]] = data.value;
             path[0] = 'model';
             path[1] = 'change';
-            PubSub.publish(path.join('.'), {value: data.value});
+            PubSub.publish(path.join('.'), {
+                value: data.value
+            });
         }
     };
     subscribe = function (obj, context) {
-        var key, 
+        var key,
             path = context || '';
 
         if (typeof obj === 'object') {
@@ -137,14 +164,16 @@ var kaci = kaci || {};
         }
     };
     initPatch = function (obj, context) {
-        var key, 
+        var key,
             path = context || 'model.change';
 
         if (typeof obj === 'object') {
             for (key in obj) {
                 if (obj.hasOwnProperty(key) && typeof obj[key] !== 'function') {
                     if (typeof obj[key] !== 'object') {
-                        PubSub.publish(path + '.' + key, {value: obj[key]});
+                        PubSub.publish(path + '.' + key, {
+                            value: obj[key]
+                        });
                     } else {
                         initPatch(obj[key], path + '.' + key);
                     }
@@ -165,4 +194,3 @@ var kaci = kaci || {};
 
     return synth;
 })(kaci);
-

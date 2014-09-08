@@ -62,7 +62,10 @@ var kaci = kaci || {};
                     nextKeyX += keyWidth;
                     whiteKeys.appendChild(key);
                 }
-                keys.push({'DOMElement': key, 'frequency': freq});
+                keys.push({
+                    'DOMElement': key,
+                    'frequency': freq
+                });
                 if (i < keyCodes.length) {
                     keyMapping[keyCodes[i]] = keys[keys.length - 1];
                 }
@@ -72,36 +75,36 @@ var kaci = kaci || {};
         };
 
         keyDown = function (event) {
-            var keyPressed, 
-                originalClass, 
+            var keyPressed,
+                originalClass,
                 i;
 
             switch (event.type) {
-                case 'keydown':
-                    if (!!keyMapping[event.keyCode]) {
-                        if (!keyMapping[event.keyCode].voice) {
-                            keyPressed = keyMapping[event.keyCode];
-                        }
-                    } else {
-                        return true;
+            case 'keydown':
+                if (!!keyMapping[event.keyCode]) {
+                    if (!keyMapping[event.keyCode].voice) {
+                        keyPressed = keyMapping[event.keyCode];
                     }
-                    break;
-                case 'mousedown':
-                    for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].DOMElement === event.target) {
-                            keyPressed = keys[i];
-                            break;
-                        }
+                } else {
+                    return true;
+                }
+                break;
+            case 'mousedown':
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].DOMElement === event.target) {
+                        keyPressed = keys[i];
+                        break;
                     }
-                    break;
-                case 'touchstart':
-                    for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].DOMElement === event.target) {
-                            keyPressed = keys[i];
-                            break;
-                        }
+                }
+                break;
+            case 'touchstart':
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].DOMElement === event.target) {
+                        keyPressed = keys[i];
+                        break;
                     }
-                    break;
+                }
+                break;
             }
             if (!!keyPressed && !keyPressed.keyDownSent && !keyPressed.voiceId) {
 
@@ -117,28 +120,28 @@ var kaci = kaci || {};
             return false;
         };
 
-        keyUp = function (event) {
-            var keyReleased, 
-                originalClass, 
+        keyUp = function keyUp(event) {
+            var keyReleased,
+                originalClass,
                 i;
 
             switch (event.type) {
-                case 'keyup':
-                    if (!!keyMapping[event.keyCode]) {
-                        keyReleased = keyMapping[event.keyCode];
-                    } else {
-                        return true;
+            case 'keyup':
+                if (!!keyMapping[event.keyCode]) {
+                    keyReleased = keyMapping[event.keyCode];
+                } else {
+                    return true;
+                }
+                break;
+            case 'mouseup':
+            case 'mouseout':
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].DOMElement === event.target) {
+                        keyReleased = keys[i];
+                        break;
                     }
-                    break;
-                case 'mouseup':
-                case 'mouseout':
-                    for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].DOMElement === event.target) {
-                            keyReleased = keys[i];
-                            break;
-                        }
-                    }
-                    break;
+                }
+                break;
             }
             if (!!keyReleased && keyReleased.voiceId) {
 
@@ -184,7 +187,7 @@ var kaci = kaci || {};
                 } else if (event === 'voice.dropped') {
                     if (key.voiceId === data.voiceId) {
                         originalClass = key.DOMElement.getAttribute("class");
-                        key.DOMElement.setAttribute("class", originalClass + ' dropped');                        
+                        key.DOMElement.setAttribute("class", originalClass + ' dropped');
                     }
                 }
             }
@@ -205,4 +208,3 @@ var kaci = kaci || {};
     synth.keyboardController = keyboardController;
     return synth;
 })(kaci);
-
