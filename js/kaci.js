@@ -4,7 +4,7 @@ var kaci = kaci || {};
 (function (synth) {
     synth.sampleRate = 44100;
 
-/*
+    /*
     // first implementation of voices...
     synth.oscillators = [];
 
@@ -53,4 +53,3 @@ var kaci = kaci || {};
 
     return synth;
 })(kaci);
-

@@ -49,7 +49,11 @@ var kaci = kaci || {};
         params.height = params.height || '300px';
         controller = synth.svgControllerElement(params);
         valueIndicator = params.valueIndicator || (function () {
-            var element = synth.svg("circle", {cx: "50%", r: pointRadius, fill: "#336699"});
+            var element = synth.svg("circle", {
+                cx: "50%",
+                r: pointRadius,
+                fill: "#336699"
+            });
             element.updatePosition = function (position) {
                 element.setAttribute("cy", position * 100 + "%");
             };
@@ -66,10 +70,10 @@ var kaci = kaci || {};
         update = function (event, eventData) {
             var updateValue;
             if (event) {
-                currentValue = eventData.value; 
+                currentValue = eventData.value;
                 updateValue = eventData.value;
             } else if (data) {
-                currentValue = data[controlledValue]; 
+                currentValue = data[controlledValue];
                 updateValue = data[controlledValue];
             } else {
                 console.log('ribbon.update() called without event data / bound data object');
@@ -83,8 +87,8 @@ var kaci = kaci || {};
         };
 
         changeHandler = function (event, touch) {
-            var pixelCoordinates, 
-                svgSize, 
+            var pixelCoordinates,
+                svgSize,
                 factor,
                 newValue;
 
@@ -102,7 +106,9 @@ var kaci = kaci || {};
                 update();
 
             } else if (changeEvent && PubSub) {
-                PubSub.publish(changeEvent, {value: newValue});
+                PubSub.publish(changeEvent, {
+                    value: newValue
+                });
             }
             return false;
         };
@@ -147,7 +153,9 @@ var kaci = kaci || {};
                     }
                     update();
                 }
-                PubSub.publish('control.change.lfo1.frequency', {value: newValue});
+                PubSub.publish('control.change.lfo1.frequency', {
+                    value: newValue
+                });
             }
         };
         mouseOverHandler = function (event) {
@@ -224,9 +232,9 @@ var kaci = kaci || {};
             update: update
         }
     }
-/*
-
-    */
+    /*
+     
+     */
     synth.ribbon = ribbonController;
     return synth;
 })(kaci);
