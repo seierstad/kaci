@@ -12,8 +12,9 @@ var kaci = kaci || {};
             keyMapping = [],
             keysPressed = [],
             keyboardLayouts = {
-                'qwerty (norsk)': [90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190],
-                'colemak': [189, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 186, 219]
+                //                colemak: [109, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 59, 219],
+                colemak: [189, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 186, 219],
+                qwerty: [90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190]
             },
             noteNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'],
 
@@ -67,7 +68,10 @@ var kaci = kaci || {};
                     nextKeyX += keyWidth;
                     whiteKeys.appendChild(key);
                 }
-                keys.push({'DOMElement': key, 'frequency': freq});
+                keys.push({
+                    'DOMElement': key,
+                    'frequency': freq
+                });
             }
             keyboard.appendChild(whiteKeys);
             keyboard.appendChild(blackKeys);
@@ -96,41 +100,41 @@ var kaci = kaci || {};
         };
 
         keyDown = function (event) {
-            var keyPressed, 
-                originalClass, 
+            var keyPressed,
+                originalClass,
                 i,
                 keyIndex;
 
             switch (event.type) {
-                case 'keydown':
-                    keyIndex = layout.indexOf(event.keyCode);
-                    if (keyIndex !== -1) {
-                        if (!keys[keyIndex].voice) {
-                            keyPressed = keys[keyIndex];
-                        }
-                    } else {
-                        PubSub.publish('control.change.keyboard.unmappedKey', {
-                            keyCode: event.keyCode
-                        });
-                        return true;
+            case 'keydown':
+                keyIndex = layout.indexOf(event.keyCode);
+                if (keyIndex !== -1) {
+                    if (!keys[keyIndex].voice) {
+                        keyPressed = keys[keyIndex];
                     }
-                    break;
-                case 'mousedown':
-                    for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].DOMElement === event.target) {
-                            keyPressed = keys[i];
-                            break;
-                        }
+                } else {
+                    PubSub.publish('control.change.keyboard.unmappedKey', {
+                        keyCode: event.keyCode
+                    });
+                    return true;
+                }
+                break;
+            case 'mousedown':
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].DOMElement === event.target) {
+                        keyPressed = keys[i];
+                        break;
                     }
-                    break;
-                case 'touchstart':
-                    for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].DOMElement === event.target) {
-                            keyPressed = keys[i];
-                            break;
-                        }
+                }
+                break;
+            case 'touchstart':
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].DOMElement === event.target) {
+                        keyPressed = keys[i];
+                        break;
                     }
-                    break;
+                }
+                break;
             }
             if (!!keyPressed && !keyPressed.keyDownSent && !keyPressed.noteId) {
                 keyDownEventId += 1;
@@ -146,29 +150,29 @@ var kaci = kaci || {};
         };
 
         keyUp = function (event) {
-            var keyReleased, 
-                originalClass, 
+            var keyReleased,
+                originalClass,
                 i,
                 keyIndex;
 
             switch (event.type) {
-                case 'keyup':
-                    keyIndex = layout.indexOf(event.keyCode);
-                    if (keyIndex !== -1) {
-                        keyReleased = keys[keyIndex];
-                    } else {
-                        return true;
+            case 'keyup':
+                keyIndex = layout.indexOf(event.keyCode);
+                if (keyIndex !== -1) {
+                    keyReleased = keys[keyIndex];
+                } else {
+                    return true;
+                }
+                break;
+            case 'mouseup':
+            case 'mouseout':
+                for (i = 0; i < keys.length; i += 1) {
+                    if (keys[i].DOMElement === event.target) {
+                        keyReleased = keys[i];
+                        break;
                     }
-                    break;
-                case 'mouseup':
-                case 'mouseout':
-                    for (i = 0; i < keys.length; i += 1) {
-                        if (keys[i].DOMElement === event.target) {
-                            keyReleased = keys[i];
-                            break;
-                        }
-                    }
-                    break;
+                }
+                break;
             }
             if (!!keyReleased) {
                 if (keyReleased.noteId) {
@@ -233,7 +237,7 @@ var kaci = kaci || {};
                         key.keyUpEventId = null;
                         delete key.voiceId;
                         delete key.noteId;
-                        break;                       
+                        break;
                     }
                 }
             }
@@ -249,9 +253,8 @@ var kaci = kaci || {};
         PubSub.subscribe('voice.ended', voiceEndedHandler);
         PubSub.subscribe('voice.dropped', voiceEndedHandler);
         return keyboard;
-    }
+    };
 
     synth.keyboardController = keyboardController;
     return synth;
 })(kaci);
-
