@@ -1,0 +1,74 @@
+button {
+    min-height: 3em;
+}
+#oscilloscope {
+    width: 100vw;
+    height: 50vh;
+}
+label {
+    display: inline-block;
+}
+fieldset {
+    display: inline-block;
+}
+.blink {
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+}
+.controller .lines {
+    stroke-width: 3;
+    stroke: black;
+}
+.keyboard.controller {
+    width: 100%;
+}
+.key {
+    stroke: #000;
+}
+.black {
+    fill: #000;
+}
+.white {
+    fill: #fff;
+}
+.pressed {
+    fill: #afe;
+}
+.dropped {
+    fill: #888;
+}
+.oscillator-pd-view {
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+    canvas {
+        z-index: -1;
+        position: absolute;
+    }
+}
+.oscillator-mix-view,
+.oscillator-resonance-view {
+    position: relative;
+    display: inline-block;
+    padding-top: 2rem;
+    [type='range'] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+    [type='range'] + label {
+        position: absolute;
+        top: 1.3rem;
+    }
+    fieldset {
+        display: block;
+    }
+}
+.keyboard.controller {
+    border-right: 1px solid black;
+}
+body {
+    padding: 2rem;
+}

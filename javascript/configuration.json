@@ -1,0 +1,9 @@
+{
+    "keyboard": {
+        "layout": "qwerty"
+    },
+    "midi": {
+        "portId": "",
+        "channel": "omni"
+    }
+}
