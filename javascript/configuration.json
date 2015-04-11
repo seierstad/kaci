@@ -4,6 +4,6 @@
     },
     "midi": {
         "portId": "",
-        "channel": "omni"
+        "channel": "all"
     }
 }

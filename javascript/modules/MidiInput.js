@@ -1,5 +1,5 @@
-/* global require, document */
-var c = require('./midiConstants');
+/* global require, document, navigator, CustomEvent */
+var c = require("./midiConstants");
 
 var MidiInput = function (context, settings) {
     "use strict";
@@ -12,7 +12,7 @@ var MidiInput = function (context, settings) {
     this.outputs = {};
     this.activeInputId = settings.portId || null;
     this.activeInput = null;
-    this.activeChannel = (typeof settings.channel === "number") ? settings.channel : null;
+    this.activeChannel = (typeof settings.channel === "number" || (typeof settings.channel === "string" && settings.channel === "all")) ? settings.channel : null;
     this.runningStatusBuffer = null;
     this.valuePairs = {
         "BANK_SELECT": {
@@ -66,12 +66,11 @@ var MidiInput = function (context, settings) {
     };
 
 
-
     midiAccessFailure = function (exception) {
-        console.log('MIDI failure');
+        console.log("MIDI failure: " + exception);
     };
-    midiAccessSuccess = function (access, options) {
-        console.log('MIDI success');
+    midiAccessSuccess = function (access) {
+        console.log("MIDI success");
         var input,
             inputIterator;
 
@@ -81,10 +80,10 @@ var MidiInput = function (context, settings) {
             that.inputs[input.value[0]] = input.value[1];
             input = inputIterator.next();
         }
-        context.dispatchEvent(new CustomEvent('midi.ports.added', {
-            'detail': {
-                'ports': that.inputs,
-                'source': 'midi'
+        context.dispatchEvent(new CustomEvent("midi.ports.added", {
+            "detail": {
+                "ports": that.inputs,
+                "source": "midi"
             }
         }));
         selectInputPortHandler.call(this, {
@@ -94,15 +93,15 @@ var MidiInput = function (context, settings) {
     var controlChangeHandler = function controlChangeHandler(event) {
 
     };
-    var sendControlChangeEvent = function sendControlChangeEvent(controlName, value) {
-        context.dispatchEvent(new CustomEvent('midi.control.change.' + controlName, {
-            'detail': {
-                'value': value
+    var sendControlChangeEvent = function (controlName, value) {
+        context.dispatchEvent(new CustomEvent("midi.control.change." + controlName, {
+            "detail": {
+                "value": value
             }
         }));
     };
     var isActiveChannel = function isActiveChannel(firstByte) {
-        return (firstByte & 0x0F === this.activeChannel) || (typeof this.activeChannel === 'string' && this.activeChannel === 'all');
+        return (that.activeChannel === firstByte & 0x0F) || (typeof that.activeChannel === "string" && that.activeChannel === "all");
     };
     var activeChannelMessageHandler = function activeChannelMessageHandler(data, overrideType) {
         var type = data[0],
@@ -114,48 +113,48 @@ var MidiInput = function (context, settings) {
         }
         switch (type & 0xF0) {
         case c.MESSAGE_TYPE.NOTE_OFF: // note off
-            this.runningStatusBuffer = type;
-            context.dispatchEvent(new CustomEvent('keyboard.keyup', {
-                'detail': {
-                    'keyNumber': data[index + 1],
-                    'velocity': data[index + 2],
-                    'source': 'midi'
+            that.runningStatusBuffer = type;
+            context.dispatchEvent(new CustomEvent("keyboard.keyup", {
+                "detail": {
+                    "keyNumber": data[index + 1],
+                    "velocity": data[index + 2],
+                    "source": "midi"
                 }
             }));
             break;
         case c.MESSAGE_TYPE.NOTE_ON: // note on
-            this.runningStatusBuffer = type;
-            context.dispatchEvent(new CustomEvent('keyboard.keydown', {
-                'detail': {
-                    'keyNumber': data[index + 1],
-                    'velocity': data[index + 2],
-                    'source': 'midi'
+            that.runningStatusBuffer = type;
+            context.dispatchEvent(new CustomEvent("keyboard.keydown", {
+                "detail": {
+                    "keyNumber": data[index + 1],
+                    "velocity": data[index + 2],
+                    "source": "midi"
                 }
             }));
             break;
         case c.MESSAGE_TYPE.POLY_PRESSURE: // poly pressure
-            this.runningStatusBuffer = type;
+            that.runningStatusBuffer = type;
             break;
         case c.MESSAGE_TYPE.CONTROL_CHANGE: // control change
-            this.runningStatusBuffer = type;
+            that.runningStatusBuffer = type;
             controlChangeHandler(type, data);
             break;
         case c.MESSAGE_TYPE.PROGRAM_CHANGE: // program change
-            this.runningStatusBuffer = type;
+            that.runningStatusBuffer = type;
             break;
         case c.MESSAGE_TYPE.CHANNEL_PRESSURE: // channel pressure
-            this.runningStatusBuffer = type;
+            that.runningStatusBuffer = type;
             break;
         case c.MESSAGE_TYPE.PITCH_BEND: // pitch bend
-            this.runningStatusBuffer = type;
+            that.runningStatusBuffer = type;
             break;
         case c.MESSAGE_TYPE.SYSTEM_EXCLUSIVE: // system exclusive
             if (type < 0xF8) {
-                this.runningStatusBuffer = null;
+                that.runningStatusBuffer = null;
             }
             break;
         default: // same as last message (running status)
-            if (this.runningStatusBuffer) {
+            if (that.runningStatusBuffer) {
                 activeChannelMessageHandler(data, type);
             }
         }
@@ -168,10 +167,10 @@ var MidiInput = function (context, settings) {
     };
     var midiHandler = midiMessageHandler.bind(this);
     var removeInputListeners = function (port) {
-        port.removeEventListener('midimessage', midiHandler);
+        port.removeEventListener("midimessage", midiHandler);
     };
     var addInputListeners = function (port) {
-        port.addEventListener('midimessage', midiHandler, false);
+        port.addEventListener("midimessage", midiHandler, false);
     };
     var selectInputPortHandler = function (event) {
         var portId = event.detail;
@@ -182,20 +181,19 @@ var MidiInput = function (context, settings) {
             that.activeInputId = portId;
             that.activeInput = that.inputs[portId];
             addInputListeners(that.activeInput);
-            context.dispatchEvent(new CustomEvent('system.midi.port.selected', {
+            context.dispatchEvent(new CustomEvent("system.midi.port.selected", {
                 "detail": that.activeInputId
             }));
         }
     };
-    context.addEventListener('midi.select.input.port', selectInputPortHandler.bind(this));
+    context.addEventListener("midi.select.input.port", selectInputPortHandler.bind(this));
 
     if (navigator && navigator.requestMIDIAccess) {
         navigator.requestMIDIAccess({
-            'sysex': true
+            "sysex": true
         }).then(midiAccessSuccess, midiAccessFailure);
     } else {
-        console.log('no midi');
-        context.dispatchEvent(new CustomEvent('system.feature.missing.midi', {}));
+        context.dispatchEvent(new CustomEvent("system.feature.missing.midi", {}));
     }
 };
 

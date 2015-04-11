@@ -102,3 +102,4 @@ var midiConstants = {
         "POLY_OPERATION": 0x7F
     }
 };
+module.exports = midiConstants;
