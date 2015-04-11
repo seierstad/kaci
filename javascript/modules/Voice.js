@@ -1,13 +1,13 @@
-/*global require, module */
+/*global require, module, setTimeout */
 "use strict";
-var EnvelopeGenerator = require('./EnvelopeGenerator');
-var PDOscillator = require('./PDOscillator');
+var EnvelopeGenerator = require("./EnvelopeGenerator");
+var PDOscillator = require("./PDOscillator");
+var NoiseGenerator = require("./NoiseGenerator");
+var SubOscillator = require("./SubOscillator");
 
 var Voice = function (context, patch, frequency, options) {
     var key,
         i, j,
-        env1patch,
-        newEnvelope,
         that = this;
 
     if (options) {
@@ -17,58 +17,84 @@ var Voice = function (context, patch, frequency, options) {
             }
         }
     }
+    this.context = context;
     this.vcaNode = context.createGain();
     this.vca = this.vcaNode.gain;
     this.vca.value = 1;
     this.envelope = [];
 
     for (i = 0, j = patch.envelope.length; i < j; i += 1) {
-        this.envelope[i] = new EnvelopeGenerator(context, patch.envelope[i], 'envelope' + i);
+        this.envelope[i] = new EnvelopeGenerator(context, patch.envelope[i], "envelope" + i);
     }
 
+
+    this.noise = new NoiseGenerator(context, patch.noise);
+    this.sub = new SubOscillator(context, patch.sub, frequency);
     this.oscillator = new PDOscillator(context, patch.oscillator, frequency, options);
-    this.oscillator.connect(this.vcaNode);
+
+    if (typeof context.createStereoPanner === "function") {
+        this.subPanner = context.createStereoPanner();
+        this.sub.connect(this.subPanner);
+        this.subPanner.connect(this.vcaNode);
+        this.sub.pan = this.subPanner.pan;
+
+        this.noisePanner = context.createStereoPanner();
+        this.noise.connect(this.noisePanner);
+        this.noisePanner.connect(this.vcaNode);
+        this.noise.pan = this.noisePanner.pan;
+
+        this.oscPanner = context.createStereoPanner();
+        this.oscillator.connect(this.oscPanner);
+        this.oscPanner.connect(this.vcaNode);
+        this.oscillator.pan = this.oscPanner.pan;
+
+    } else {
+        this.sub.connect(this.vcaNode);
+        this.oscillator.connect(this.vcaNode);
+        this.noise.connect(this.vcaNode);
+    }
+
     this.envelope[0].connect(this.vca);
     //    this.envelope[1].connect(this.oscillator.detune);
 
-    var getHandler = function (parameter) {
+    var getHandler = function (module, parameter) {
         var result;
         switch (parameter) {
-        case 'waveform':
+        case "waveform":
             result = function (evt) {
-                that.oscillator.setWaveform(evt.detail);
+                that[module].setWaveform(evt.detail);
             };
             break;
-        case 'wrapper':
+        case "wrapper":
             result = function (evt) {
-                that.oscillator.setWrapper(evt.detail);
+                that[module].setWrapper(evt.detail);
             };
             break;
-        case 'resonanceActive':
+        case "resonanceActive":
             result = function (evt) {
-                that.oscillator.resonanceActive = evt.detail;
+                that[module].resonanceActive = evt.detail;
             };
             break;
-        case 'env0data':
-        case 'env1data':
+        case "env0data":
+        case "env1data":
             result = function (evt) {
                 var d = evt.detail;
                 switch (d.type) {
-                case 'add':
-                    that.oscillator.addPDEnvelopePoint(parameter === 'env0data' ? 0 : 1, d.index, [d.data.x, d.data.y]);
+                case "add":
+                    that[module].addPDEnvelopePoint(parameter === "env0data" ? 0 : 1, d.index, [d.data.x, d.data.y]);
                     break;
-                case 'move':
-                    that.oscillator.movePDEnvelopePoint(parameter === 'env0data' ? 0 : 1, d.index, [d.data.x, d.data.y]);
+                case "move":
+                    that[module].movePDEnvelopePoint(parameter === "env0data" ? 0 : 1, d.index, [d.data.x, d.data.y]);
                     break;
-                case 'delete':
-                    that.oscillator.deletePDEnvelopePoint(parameter === 'env0data' ? 0 : 1, d.index);
+                case "delete":
+                    that[module].deletePDEnvelopePoint(parameter === "env0data" ? 0 : 1, d.index);
                     break;
                 }
             };
             break;
         default:
             result = function (evt) {
-                that.oscillator[parameter].setValueAtTime(evt.detail, that.oscillator.context.currentTime);
+                that[module][parameter].setValueAtTime(evt.detail, that.context.currentTime);
             };
             break;
         }
@@ -76,26 +102,41 @@ var Voice = function (context, patch, frequency, options) {
     };
 
     var eventHandlers = [{
-        eventName: 'oscillator.change.waveform',
-        handler: getHandler('waveform')
+        eventName: "oscillator.change.waveform",
+        handler: getHandler("oscillator", "waveform")
     }, {
-        eventName: 'oscillator.change.wrapper',
-        handler: getHandler('wrapper')
+        eventName: "oscillator.change.wrapper",
+        handler: getHandler("oscillator", "wrapper")
     }, {
-        eventName: 'oscillator.change.resonance',
-        handler: getHandler('resonance')
+        eventName: "oscillator.change.resonance",
+        handler: getHandler("oscillator", "resonance")
     }, {
-        eventName: 'oscillator.change.mix',
-        handler: getHandler('mix')
+        eventName: "oscillator.change.mix",
+        handler: getHandler("oscillator", "mix")
     }, {
-        eventName: 'oscillator.resonance.toggle',
-        handler: getHandler('resonanceActive')
+        eventName: "oscillator.resonance.toggle",
+        handler: getHandler("oscillator", "resonanceActive")
     }, {
-        eventName: 'oscillator.env0.change.data',
-        handler: getHandler('env0data')
+        eventName: "oscillator.env0.change.data",
+        handler: getHandler("oscillator", "env0data")
     }, {
-        eventName: 'oscillator.env1.change.data',
-        handler: getHandler('env1data')
+        eventName: "oscillator.env1.change.data",
+        handler: getHandler("oscillator", "env1data")
+    }, {
+        eventName: "noise.change.amount",
+        handler: getHandler("noise", "gain")
+    }, {
+        eventName: "noise.toggle",
+        handler: getHandler("noise", "active")
+    }, {
+        eventName: "sub.change.ratio",
+        handler: getHandler("sub", "ratio")
+    }, {
+        eventName: "sub.change.amount",
+        handler: getHandler("sub", "gain")
+    }, {
+        eventName: "sub.toggle",
+        handler: getHandler("sub", "active")
     }];
 
     var addVoiceEventListeners = function () {
@@ -118,7 +159,7 @@ var Voice = function (context, patch, frequency, options) {
 };
 
 Voice.prototype.connect = function (node) {
-    if (node.hasOwnProperty('input')) {
+    if (node.hasOwnProperty("input")) {
         this.vcaNode.connect(node.input);
     } else {
         this.vcaNode.connect(node);
@@ -128,6 +169,8 @@ Voice.prototype.disconnect = function () {
     this.vcaNode.disconnect();
 };
 Voice.prototype.destroy = function () {
+    this.sub.stop(this.stopTime);
+
     this.removeVoiceEventListeners();
     this.envelope.forEach(function (envelope) {
         envelope.disconnect();
@@ -140,13 +183,13 @@ Voice.prototype.destroy = function () {
 };
 Voice.prototype.start = function (time) {
     this.startTime = time;
+    this.sub.start(time);
     this.envelope.forEach(function (envelope) {
         envelope.trigger(time);
     });
 };
 Voice.prototype.stop = function (time, callback) {
     this.stopTime = time;
-
     this.envelope.forEach(function (envelope) {
         envelope.release(time);
     });
@@ -156,5 +199,39 @@ Voice.prototype.stop = function (time, callback) {
             osc.destroy();
         };
     }(this)), this.envelope[0].getReleaseDuration() * 1000 + 30);
+};
+Voice.getModulationInputDescriptors = function (context) {
+    var inputs = {
+        "vca": {
+            "min": 0,
+            "max": 1
+        },
+        "submodules": {
+            "sub": SubOscillator.getModulationInputDescriptors(),
+            "noise": NoiseGenerator.getModulationInputDescriptors(),
+            "oscillator": PDOscillator.getModulationInputDescriptors()
+        }
+    };
+    if (typeof context.createStereoPanner === "function") {
+        inputs.submodules.sub.pan = {
+            "min": -1,
+            "max": 1,
+            "flipWhenNegative": true,
+            "midValue": "center"
+        };
+        inputs.submodules.noise.pan = {
+            "min": -1,
+            "max": 1,
+            "flipWhenNegative": true,
+            "midValue": "center"
+        };
+        inputs.submodules.oscillator.pan = {
+            "min": -1,
+            "max": 1,
+            "flipWhenNegative": true,
+            "midValue": "center"
+        };
+    }
+    return inputs;
 };
 module.exports = Voice;
