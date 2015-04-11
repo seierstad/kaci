@@ -1,14 +1,12 @@
-/*global module, require */
+/*global document, module, require, CustomEvent */
 
-var Utils = require('./Utils'),
-    OscillatorView = require('./OscillatorView'),
-    IdealOscillator = require('./IdealOscillator'),
-    WaveformSelector = require('./WaveformSelector');
+var Utils = require("./Utils"),
+    IdealOscillator = require("./IdealOscillator"),
+    WaveformSelector = require("./WaveformSelector");
 
 var LFOView = function (ctx, lfo, patch, params) {
     "use strict";
-    var container,
-        lfoToggle,
+    var lfoToggle,
         lfoReset,
         lfoView,
         lfoAmount,
@@ -17,34 +15,27 @@ var LFOView = function (ctx, lfo, patch, params) {
         viewOscillator = new IdealOscillator(ctx),
         that = this;
 
-    this.lfoId = params.lfoId || 'lfo';
+    this.lfoId = params.lfoId || "lfo";
 
-    container = params.container || document.body;
-
-
-    lfoView = document.createElement('section');
+    lfoView = document.createElement("section");
     lfoView.id = this.lfoId + "-view";
 
 
-    lfoToggle = document.createElement('button');
-    lfoToggle.innerHTML = 'toggle';
-    lfoToggle.addEventListener('click', function (evt) {
+    lfoToggle = document.createElement("button");
+    lfoToggle.innerHTML = "toggle";
+    lfoToggle.addEventListener("click", function () {
         lfo.postGain.gain.setValueAtTime(lfoActive ? 0 : 1, ctx.currentTime);
         lfoActive = !lfoActive;
     });
     lfoView.appendChild(lfoToggle);
 
-    lfoReset = document.createElement('button');
-    lfoReset.innerHTML = 'reset';
-    lfoReset.addEventListener('click', function (evt) {
-        var event = new CustomEvent(that.lfoId + '.reset', {});
-        startAnimation();
-        ctx.dispatchEvent(event);
-    });
+    lfoReset = document.createElement("button");
+    lfoReset.innerHTML = "reset";
+
     lfoView.appendChild(lfoReset);
 
 
-    lfoView.appendChild(new WaveformSelector(viewOscillator, lfo.getWaveforms(), this.lfoId + '.change.waveform', ctx, this.lfoId + '-waveform', patch.waveform));
+    lfoView.appendChild(new WaveformSelector(viewOscillator, lfo.getWaveforms(), this.lfoId + ".change.waveform", ctx, this.lfoId + "-waveform", patch.waveform));
     lfoAmount = Utils.createRangeInput({
         label: params.labelAmount || "LFO amount",
         container: lfoView,
@@ -53,8 +44,8 @@ var LFOView = function (ctx, lfo, patch, params) {
         step: 1 / 12,
         value: patch.amount
     });
-    lfoAmount.input.addEventListener('input', function (evt) {
-        var event = new CustomEvent(that.lfoId + '.change.amount', {
+    lfoAmount.input.addEventListener("input", function (evt) {
+        var event = new CustomEvent(that.lfoId + ".change.amount", {
             detail: evt.target.value
         });
         ctx.dispatchEvent(event);
@@ -70,51 +61,52 @@ var LFOView = function (ctx, lfo, patch, params) {
         value: patch.frequency
     });
     var rateInputChangeListener = function rateInputChangeListener(evt) {
-        var event = new CustomEvent(that.lfoId + '.change.frequency', {
+        var event = new CustomEvent(that.lfoId + ".change.frequency", {
             detail: evt.target.value
         });
         ctx.dispatchEvent(event);
     };
-    lfoRate.input.addEventListener('input', rateInputChangeListener);
+    lfoRate.input.addEventListener("input", rateInputChangeListener);
     if (params.syncControls && patch.syncEnabled) {
         lfoRate.input.disabled = true;
     }
 
     var blinkAnimation = function blinkAnimation(element, frequency, states, easing) {
         var animation = element.animate(states || [{
-            backgroundColor: 'blue'
+            backgroundColor: "blue"
         }, {
-            backgroundColor: 'red'
+            backgroundColor: "red"
         }], {
             duration: 1000 / frequency,
             iterations: Infinity,
             delay: 0,
-            easing: easing || 'step-middle'
+            easing: easing || "step-middle"
         });
-        element.addEventListener('animationiteration', function (event) {
+        element.addEventListener("animationiteration", function (event) {
             console.dir(event);
         });
         return animation;
     };
 
-    var synchronizeAnimation = function synchronizeAnimation(freq) {
-        lfo.oscillator.requestZeroPhaseEvent(that.lfoId + '.zeroPhase');
-        ctx.addEventListener(that.lfoId + '.zeroPhase', function (event) {
-            ctx.removeEventListener(that.lfoId + '.zeroPhase');
-            lfoRateAnimation = blinkAnimation(lfoRateMonitor, freq || lfoRate.input.value);
-        });
-    };
-    var lfoRateMonitor = document.createElement('div');
-    lfoRateMonitor.setAttribute('class', 'blink');
+    var lfoRateMonitor = document.createElement("div");
+    lfoRateMonitor.setAttribute("class", "blink");
     lfoView.appendChild(lfoRateMonitor);
 
     var lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
+
+    var synchronizeAnimation = function synchronizeAnimation(freq) {
+        lfo.oscillator.requestZeroPhaseEvent(that.lfoId + ".zeroPhase");
+        ctx.addEventListener(that.lfoId + ".zeroPhase", function () {
+            ctx.removeEventListener(that.lfoId + ".zeroPhase");
+            lfoRateAnimation = blinkAnimation(lfoRateMonitor, freq || lfoRate.input.value);
+        });
+    };
 
     var startAnimation = function startAnimation() {
         if (lfoRateAnimation) {
             lfoRateAnimation.cancel();
             lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
-            lfoRateAnimation.addEventListener('finish', function () {
+            lfoRateAnimation.addEventListener("finish", function () {
                 synchronizeAnimation();
             });
         } else {
@@ -122,21 +114,25 @@ var LFOView = function (ctx, lfo, patch, params) {
         }
     };
 
-    lfoRate.input.addEventListener('input', function (evt) {
+    lfoRate.input.addEventListener("input", function () {
         startAnimation();
     });
-
+    lfoReset.addEventListener("click", function () {
+        var event = new CustomEvent(that.lfoId + ".reset", {});
+        startAnimation();
+        ctx.dispatchEvent(event);
+    });
     synchronizeAnimation();
 
     var frequencyChangeHandler = function frequencyChangeHandler(event) {
         synchronizeAnimation(event.detail);
     };
-    ctx.addEventListener(this.lfoId + '.changed.frequency', frequencyChangeHandler);
+    ctx.addEventListener(this.lfoId + ".changed.frequency", frequencyChangeHandler);
 
     var syncRateNumerator, syncRateDenominator, syncRateToggle;
 
-    var changeSyncRatio = function changeSyncRatio(event) {
-        ctx.dispatchEvent(new CustomEvent(that.lfoId + '.change.sync.ratio', {
+    var changeSyncRatio = function changeSyncRatio() {
+        ctx.dispatchEvent(new CustomEvent(that.lfoId + ".change.sync.ratio", {
             detail: {
                 numerator: parseInt(syncRateNumerator.value, 10),
                 denominator: parseInt(syncRateDenominator.value, 10)
@@ -151,34 +147,34 @@ var LFOView = function (ctx, lfo, patch, params) {
         syncRateDenominator.disabled = !enabled;
 
         if (enabled) {
-            ctx.dispatchEvent(new CustomEvent(that.lfoId + '.change.sync.enable', {}));
+            ctx.dispatchEvent(new CustomEvent(that.lfoId + ".change.sync.enable", {}));
         } else {
-            ctx.dispatchEvent(new CustomEvent(that.lfoId + '.change.sync.disable', {}));
+            ctx.dispatchEvent(new CustomEvent(that.lfoId + ".change.sync.disable", {}));
         }
     };
     if (params.syncControls) {
-        syncRateNumerator = document.createElement('input');
+        syncRateNumerator = document.createElement("input");
         syncRateNumerator.value = patch.syncRatioNumerator;
-        syncRateNumerator.type = 'number';
+        syncRateNumerator.type = "number";
         syncRateNumerator.min = 1;
         syncRateNumerator.max = 32;
-        syncRateNumerator.addEventListener('input', changeSyncRatio);
+        syncRateNumerator.addEventListener("input", changeSyncRatio);
 
         lfoView.appendChild(syncRateNumerator);
 
-        syncRateDenominator = document.createElement('input');
+        syncRateDenominator = document.createElement("input");
         syncRateDenominator.value = patch.syncRatioDenominator;
-        syncRateDenominator.type = 'number';
+        syncRateDenominator.type = "number";
         syncRateDenominator.min = 1;
         syncRateDenominator.max = 32;
-        syncRateDenominator.addEventListener('input', changeSyncRatio);
+        syncRateDenominator.addEventListener("input", changeSyncRatio);
 
         lfoView.appendChild(syncRateDenominator);
 
-        syncRateToggle = document.createElement('input');
-        syncRateToggle.type = 'checkbox';
+        syncRateToggle = document.createElement("input");
+        syncRateToggle.type = "checkbox";
         syncRateToggle.checked = patch.syncEnabled;
-        syncRateToggle.addEventListener('change', toggleSync);
+        syncRateToggle.addEventListener("change", toggleSync);
         lfoView.appendChild(syncRateToggle);
 
     }

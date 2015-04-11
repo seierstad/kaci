@@ -1,9 +1,11 @@
+/* global document */
 var drawWaveform = require('./drawWaveform');
 
 var WaveformSelector = function (oscillator, waveforms, eventName, eventDispatchObject, controlName, initialValue) {
     var parentElement = null,
         names,
         waveformSelector,
+        waveformSelectorElement,
         heading,
         button,
         canvas,

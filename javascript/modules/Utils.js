@@ -1,8 +1,9 @@
 /*global module, require */
+/* global document, module, CustomEvent */
 "use strict";
 var svg = function (elementType, attributes) {
     var element,
-        svgns = 'http://www.w3.org/2000/svg',
+        svgns = "http://www.w3.org/2000/svg",
         attribute;
 
     element = document.createElementNS(svgns, elementType);
@@ -18,9 +19,7 @@ var getOffsetElement = function (svgElement) {
     // returns the fillRect rectangle.
     var offsetElement;
 
-    for (offsetElement = svgElement; offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains('controller'); offsetElement = offsetElement.parentNode) {
-        console.log(offsetElement);
-    }
+    for (offsetElement = svgElement; offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains("controller"); offsetElement = offsetElement.parentNode) {}
     return offsetElement.firstChild;
 };
 
@@ -56,8 +55,8 @@ var cursorPosition = function (event, touch) {
         }
     }
     return {
-        'x': x,
-        'y': y
+        "x": x,
+        "y": y
     };
 };
 
@@ -70,23 +69,23 @@ var sizeInPixels = function (svgElement) {
     height = e.height.baseVal.valueInSpecifiedUnits;
     width = e.width.baseVal.valueInSpecifiedUnits;
     return {
-        'width': width,
-        'height': height
+        "width": width,
+        "height": height
     };
 };
 var rangeInputId = 0;
 var createRangeInput = function (params) {
-    var elementId = 'range_' + rangeInputId++;
-    var element = document.createElement('input');
-    element.setAttribute('type', 'range');
+    var elementId = "range_" + rangeInputId++;
+    var element = document.createElement("input");
+    element.setAttribute("type", "range");
     element.min = params.min;
     element.max = params.max;
     element.step = params.step;
     element.value = params.value;
-    element.setAttribute('id', elementId);
-    var label = document.createElement('label');
+    element.setAttribute("id", elementId);
+    var label = document.createElement("label");
     label.innerHTML = params.label;
-    label.setAttribute('for', elementId);
+    label.setAttribute("for", elementId);
 
     if (params && params.container) {
         params.container.appendChild(label);
@@ -107,9 +106,9 @@ var getCheckboxInputHandler = function (eventName, eventContext) {
 };
 var checkboxInputId = 0;
 var createCheckboxInput = function (params, eventContext) {
-    var id = params.id || 'checkbox_' + checkboxInputId++;
-    var cb = document.createElement('input');
-    cb.type = 'checkbox';
+    var id = params.id || "checkbox_" + checkboxInputId++;
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
     if (params.className) {
         cb.classList.add(params.className);
     }
@@ -117,16 +116,16 @@ var createCheckboxInput = function (params, eventContext) {
         cb.checked = true;
     }
     if (eventContext && params.dispatchEvent) {
-        cb.addEventListener('change', getCheckboxInputHandler(id + params.dispatchEvent, eventContext));
+        cb.addEventListener("change", getCheckboxInputHandler(id + params.dispatchEvent, eventContext));
     }
     return cb;
 };
 
 module.exports = {
-    'sizeInPixels': sizeInPixels,
-    'svg': svg,
-    'getOffsetElement': getOffsetElement,
-    'cursorPosition': cursorPosition,
-    'createRangeInput': createRangeInput,
-    'createCheckboxInput': createCheckboxInput
+    "sizeInPixels": sizeInPixels,
+    "svg": svg,
+    "getOffsetElement": getOffsetElement,
+    "cursorPosition": cursorPosition,
+    "createRangeInput": createRangeInput,
+    "createCheckboxInput": createCheckboxInput
 };
