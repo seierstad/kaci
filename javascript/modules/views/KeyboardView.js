@@ -4,8 +4,10 @@ var SVGControllerElement = require('./SVGControllerElement');
 var Utils = require('./Utils');
 
 var KeyboardView = function (context, params) {
-    var params = params || {},
-        data = params.dataObject,
+    if (!params) {
+        params = {};
+    }
+    var data = params.dataObject,
         view,
         keyboard,
         keys = [],

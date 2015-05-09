@@ -1,5 +1,5 @@
 /* global require, document */
-
+"use strict";
 var KeyboardInput = function (context, configuration) {
     var keyboardCodeLayouts,
         keyDownHandler,

@@ -28,7 +28,7 @@ var NoiseView = function (context, patch, params) {
         container: view,
         min: 0,
         max: 1,
-        step: .05,
+        step: 0.01,
         value: patch.amount
     });
     noiseAmount.input.addEventListener('input', function (evt) {

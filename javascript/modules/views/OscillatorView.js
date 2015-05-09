@@ -1,9 +1,10 @@
-/*global module */
-var EnvelopeView = require('./EnvelopeView');
-var PDOscillator = require('./PDOscillator');
-var WaveformSelector = require('./WaveformSelector');
-var drawWaveform = require('./drawWaveform');
-var Utils = require('./Utils');
+/*global module, require, document */
+var EnvelopeView = require("./EnvelopeView");
+var PDOscillator = require("../PDOscillator");
+var IdealOscillator = require("../IdealOscillator");
+var WaveformSelector = require("./WaveformSelector");
+var drawWaveform = require("./drawWaveform");
+var Utils = require("./Utils");
 
 var OscillatorView = function (ctx, patch, id) {
     "use strict";
@@ -45,7 +46,7 @@ var OscillatorView = function (ctx, patch, id) {
     var updatePDWaveView = function (canvas, pdNumber) {
         drawWaveform(function (phase) {
             return viewOscillator.selectedWaveform.call(viewOscillator,
-                viewOscillator.getDistortedPhase.call(viewOscillator, phase, viewOscillator['pdEnvelope' + pdNumber])
+                viewOscillator.getDistortedPhase.call(viewOscillator, phase, viewOscillator["pdEnvelope" + pdNumber])
             );
         }, canvas);
     };
@@ -71,50 +72,49 @@ var OscillatorView = function (ctx, patch, id) {
     };
 
 
-
-    this.id = id || 'oscillator';
+    this.id = id || "oscillator";
     viewOscillator = new PDOscillator(ctx, patch);
     this.waveView = {};
 
     // build DOM content
     // a wrapper:
-    view = document.createElement('section');
-    view.classList.add('oscillator-view');
+    view = document.createElement("section");
+    view.classList.add("oscillator-view");
 
     // waveform selector
-    view.appendChild(new WaveformSelector(viewOscillator, viewOscillator.waveforms, this.id + '.change.waveform', ctx, 'oscillator-waveform', patch.waveform));
+    view.appendChild(new WaveformSelector(viewOscillator, IdealOscillator.waveforms, this.id + ".change.waveform", ctx, "oscillator-waveform", patch.waveform));
 
     // first pdEnvelope
-    pd0View = document.createElement('div');
-    pd0View.classList.add('oscillator-pd-view');
+    pd0View = document.createElement("div");
+    pd0View.classList.add("oscillator-pd-view");
 
     this.waveView.pd0 = document.createElement("canvas");
     updatePDWaveView.call(this, this.waveView.pd0, 0);
     pd0View.appendChild(this.waveView.pd0);
 
     env0View = new EnvelopeView(ctx, patch.pdEnvelope0, {
-        id: this.id + '.env0'
+        id: this.id + ".env0"
     });
     pd0View.appendChild(env0View);
     view.appendChild(pd0View);
 
     // secound pdEnvelope
-    pd1View = document.createElement('div');
-    pd1View.classList.add('oscillator-pd-view');
+    pd1View = document.createElement("div");
+    pd1View.classList.add("oscillator-pd-view");
 
     this.waveView.pd1 = document.createElement("canvas");
     updatePDWaveView.call(this, this.waveView.pd1, 1);
     pd1View.appendChild(this.waveView.pd1);
 
     env1View = new EnvelopeView(ctx, patch.pdEnvelope1, {
-        id: this.id + '.env1'
+        id: this.id + ".env1"
     });
     pd1View.appendChild(env1View);
     view.appendChild(pd1View);
 
     // mix control
-    mixView = document.createElement('div');
-    mixView.classList.add('oscillator-mix-view');
+    mixView = document.createElement("div");
+    mixView.classList.add("oscillator-mix-view");
     mix = Utils.createRangeInput({
         label: "Mix",
         min: 0,
@@ -133,8 +133,8 @@ var OscillatorView = function (ctx, patch, id) {
 
 
     // resonance control
-    resonanceView = document.createElement('div');
-    resonanceView.classList.add('oscillator-resonance-view');
+    resonanceView = document.createElement("div");
+    resonanceView.classList.add("oscillator-resonance-view");
 
     res = Utils.createRangeInput({
         label: "Resonance",
@@ -150,25 +150,25 @@ var OscillatorView = function (ctx, patch, id) {
     updateResonanceWaveView.call(this, this.waveView.resonance);
     resonanceView.appendChild(this.waveView.resonance);
 
-    var wrappedWaveforms = wrapWaveform(viewOscillator, viewOscillator.wrappers, viewOscillator.waveforms.sinus, 5);
-    var wrapperView = new WaveformSelector(viewOscillator, wrappedWaveforms, this.id + '.change.wrapper', ctx, 'oscillator-wrapper', patch.wrapper);
+    var wrappedWaveforms = wrapWaveform(viewOscillator, viewOscillator.wrappers, IdealOscillator.waveforms.sinus, 5);
+    var wrapperView = new WaveformSelector(viewOscillator, wrappedWaveforms, this.id + ".change.wrapper", ctx, "oscillator-wrapper", patch.wrapper);
     wrapperView.appendChild(new Utils.createCheckboxInput({
-        "id": this.id + '.resonance',
-        dispatchEvent: '.toggle',
+        "id": this.id + ".resonance",
+        dispatchEvent: ".toggle",
         checked: (patch.resonanceActive)
     }, ctx));
     resonanceView.appendChild(wrapperView);
     view.appendChild(resonanceView);
 
 
-    ctx.addEventListener('oscillator.env0.changed.data', function (event) {
+    ctx.addEventListener("oscillator.env0.changed.data", function (event) {
         viewOscillator.setPDEnvelope0(event.detail.full);
         updatePDWaveView(that.waveView.pd0, 0);
         updateMixWaveView(that.waveView.mix);
         updateResonanceWaveView(that.waveView.resonance);
     });
 
-    ctx.addEventListener('oscillator.change.waveform', function (event) {
+    ctx.addEventListener("oscillator.change.waveform", function (event) {
         viewOscillator.setWaveform(event.detail);
         updatePDWaveView(that.waveView.pd0, 0);
         updatePDWaveView(that.waveView.pd1, 1);
@@ -176,39 +176,39 @@ var OscillatorView = function (ctx, patch, id) {
         updateResonanceWaveView(that.waveView.resonance);
     });
 
-    ctx.addEventListener('oscillator.env1.changed.data', function (event) {
+    ctx.addEventListener("oscillator.env1.changed.data", function (event) {
         viewOscillator.setPDEnvelope1(event.detail.full);
         updatePDWaveView(that.waveView.pd1, 1);
         updateMixWaveView(that.waveView.mix);
         updateResonanceWaveView(that.waveView.resonance);
     });
 
-    ctx.addEventListener('oscillator.change.mix', function (event) {
+    ctx.addEventListener("oscillator.change.mix", function (event) {
         viewOscillator.mix.value = event.detail;
         updateMixWaveView(that.waveView.mix);
         updateResonanceWaveView(that.waveView.resonance);
     });
 
-    mix.input.addEventListener('input', function (evt) {
-        var changeEvent = new CustomEvent(this.id + '.change.mix', {
-            'detail': evt.target.value
+    mix.input.addEventListener("input", function (evt) {
+        var changeEvent = new CustomEvent(this.id + ".change.mix", {
+            "detail": evt.target.value
         });
         ctx.dispatchEvent(changeEvent);
     }.bind(this));
 
-    res.input.addEventListener('input', function (evt) {
-        var changeEvent = new CustomEvent(this.id + '.change.resonance', {
-            'detail': evt.target.value
+    res.input.addEventListener("input", function (evt) {
+        var changeEvent = new CustomEvent(this.id + ".change.resonance", {
+            "detail": evt.target.value
         });
         ctx.dispatchEvent(changeEvent);
     }.bind(this));
 
 
-    ctx.addEventListener('oscillator.change.resonance', function (event) {
+    ctx.addEventListener("oscillator.change.resonance", function (event) {
         viewOscillator.resonance.value = event.detail;
         updateResonanceWaveView(that.waveView.resonance);
     });
-    ctx.addEventListener('oscillator.change.wrapper', function (event) {
+    ctx.addEventListener("oscillator.change.wrapper", function (event) {
         viewOscillator.setWrapper(event.detail);
         updateResonanceWaveView(that.waveView.resonance);
     });

@@ -32,22 +32,27 @@ var patch = {
     "lfo": [{
         "waveform": "square",
         "frequency": 1.34,
-        "amount": 1,
-        "mode": "global"
+        "amount": 0,
+        "mode": "global",
+        "active": true
     }, {
-        "waveform": "additiveSaw",
-        "frequency": 6.4,
-        "amount": 0.4,
+        "waveform": "sinus",
+        "frequency": 0.4,
+        "amount": 1.0,
         "syncEnabled": false,
         "syncRatioNumerator": 32,
-        "syncRatioDenominator": 1
+        "syncRatioDenominator": 1,
+        "active": true,
+        "mode": "voice"
     }, {
         "waveform": "square",
         "frequency": 0.08,
-        "amount": 0.1,
-        "syncEnabled": false,
+        "amount": 0.0,
+        "syncEnabled": true,
         "syncRatioNumerator": 1,
-        "syncRatioDenominator": 4
+        "syncRatioDenominator": 4,
+        "active": false,
+        "mode": "global"
     }],
     "envelope": [{
         "attack": {
@@ -176,15 +181,18 @@ var rpatch = {
     }],
     modulation: { // not implemented yet... structure supposed to be along these lines..
         envelope: [{
-            "target": "oscillator.amplitude",
-            "amount": 1.0
-        }, {
-            "target": "oscillator.mix",
-            "amount": 0.3
+            "oscillator.amplitude": {
+                "amount": 1.0,
+                "type": "other modulation properties than amount might be useful..."
+            },
+            "oscillator.mix": {
+                "amount": 0.3
+            }
         }],
         lfo: [{
-            "target": "oscillator.detune",
-            "amount": 1
+            "oscillator.detune": {
+                "amount": 1
+            }
         }]
     }
 };

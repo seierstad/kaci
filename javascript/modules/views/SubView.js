@@ -28,7 +28,7 @@ var SubView = function (context, patch, params) {
         container: view,
         min: 0,
         max: 1,
-        step: .05,
+        step: 0.01,
         value: patch.amount
     });
     subAmount.input.addEventListener('input', function (evt) {

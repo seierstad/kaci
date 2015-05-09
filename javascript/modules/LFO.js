@@ -110,7 +110,6 @@ var LFO = function (context, patch, id, options) {
 
 };
 LFO.prototype.setFrequency = function (frequency) {
-    this.oscillator.frequency.setValueAtTime(frequency, this.context.currentTime);
     if (frequency !== this.values.currentFrequency) {
         this.values.currentFrequency = frequency;
         this.context.dispatchEvent(new CustomEvent(this.id + '.changed.frequency', {
@@ -122,6 +121,7 @@ LFO.prototype.setFrequency = function (frequency) {
                 detail: this.values.currentFrequency
             }));
         }
+        this.oscillator.frequency.setValueAtTime(frequency, this.context.currentTime);
     }
 };
 LFO.prototype.syncToMaster = function () {
@@ -165,18 +165,14 @@ LFO.prototype.getWaveforms = function () {
 LFO.prototype.start = function (time) {
     this.oscillator.start(time);
 };
-LFO.prototype.stop = function (time) {
-    var osc = this.context.createOscillator();
-    osc.frequency.value = this.oscillator.frequency.value;
-    osc.detune.value = this.oscillator.detune.value;
-    osc.type = this.oscillator.type.value;
-    osc.connect(this.inverter);
-
-    this.oscillator.stop(time);
-    this.oscillator.disconnect(this.inverter);
-
-    this.oscillator = osc;
-
+LFO.prototype.stop = function () {
+    this.oscillator.stop();
+};
+LFO.prototype.destroy = function () {
+    console.log('TODO: implement LFO.prototype.destroy()');
+};
+LFO.prototype.disconnect = function () {
+    this.postGain.disconnect();
 };
 LFO.prototype.connect = function (node) {
     if (node.hasOwnProperty('input')) {

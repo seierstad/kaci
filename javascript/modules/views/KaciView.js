@@ -1,0 +1,51 @@
+/* global module, require, document */
+"use strict";
+
+var LFOView = require("./LFOView");
+var SustainEnvelopeView = require("./SustainEnvelopeView");
+var OscillatorView = require("./OscillatorView");
+var KeyboardView = require("./KeyboardView");
+var SystemSettingsView = require("./SystemSettingsView");
+var NoiseView = require("./NoiseView");
+var SubView = require("./SubView");
+
+var KaciView = function (context, systemSettings, patch) {
+    var systemSettingsView = new SystemSettingsView(context, systemSettings);
+    document.body.appendChild(systemSettingsView);
+
+    var keyboardView = new KeyboardView(context, {
+        startKey: 36,
+        endKey: 73,
+        className: "keyboard"
+    });
+    document.body.appendChild(keyboardView);
+
+    var ov = new OscillatorView(context, patch.oscillator);
+    document.body.appendChild(ov);
+
+    var noiseView = new NoiseView(context, patch.noise);
+    document.body.appendChild(noiseView);
+
+    var subView = new SubView(context, patch.sub);
+    document.body.appendChild(subView);
+
+    var lfoView = [],
+        envelopeView = [],
+        i, j;
+
+    for (i = 0, j = patch.lfo.length; i < j; i += 1) {
+        lfoView[i] = new LFOView(context, patch.lfo[i], {
+            lfoId: "lfo" + i,
+            syncControls: i > 0
+        });
+        document.body.appendChild(lfoView[i]);
+    }
+
+    for (i = 0, j = patch.envelope.length; i < j; i += 1) {
+        envelopeView[i] = new SustainEnvelopeView(context, patch.envelope[i], "envelope" + i);
+        document.body.appendChild(envelopeView[i].controller);
+
+    }
+
+};
+module.exports = KaciView;

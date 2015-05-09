@@ -1,4 +1,5 @@
 var MidiView = function (context) {
+    "use strict";
     this.view = document.createElement('fieldset');
     this.view.classList.add('midi-view');
     var heading = document.createElement('legend');

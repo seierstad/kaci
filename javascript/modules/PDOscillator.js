@@ -1,21 +1,21 @@
 /*global require, module, document */
 "use strict";
-var DCGenerator = require('./DCGenerator');
-var IdealOscillator = require('./IdealOscillator');
-var BUFFER_LENGTH = require('constants').BUFFER_LENGTH;
+var DCGenerator = require("./DCGenerator");
+var IdealOscillator = require("./IdealOscillator");
+var BUFFER_LENGTH = require("constants").BUFFER_LENGTH;
 
 var PDOscillator = function (context, patch, frequency, options) {
     var inputDefs = [{
-            name: 'frequency',
+            name: "frequency",
             defaultValue: frequency || 440
         }, {
-            name: 'detune',
+            name: "detune",
             defaultValue: 0
         }, {
-            name: 'resonance',
+            name: "resonance",
             defaultValue: 1
         }, {
-            name: 'mix',
+            name: "mix",
             defaultValue: 0
         }],
         i,
@@ -55,15 +55,15 @@ var PDOscillator = function (context, patch, frequency, options) {
         phase: 0
     };
     if (patch) {
-        if (typeof this.waveforms[patch.waveform] === 'function') {
-            this.selectedWaveform = this.waveforms[patch.waveform];
+        if (typeof IdealOscillator.waveforms[patch.waveform] === "function") {
+            this.selectedWaveform = IdealOscillator.waveforms[patch.waveform];
         }
-        if (typeof this.wrappers[patch.wrapper] === 'function') {
+        if (typeof this.wrappers[patch.wrapper] === "function") {
             this.selectedWrapper = this.wrappers[patch.wrapper];
         }
         this.resonanceActive = patch.resonanceActive;
     } else {
-        this.selectedWaveform = this.waveforms.additiveSaw;
+        this.selectedWaveform = IdealOscillator.waveforms.additiveSaw;
         this.resonanceActive = false;
         this.selectedWrapper = this.wrappers.saw;
     }
@@ -75,17 +75,17 @@ var PDOscillator = function (context, patch, frequency, options) {
     for (i = 0, j = inputDefs.length; i < j; i += 1) {
         def = inputDefs[i];
 
-        this[def.name + 'Node'] = context.createGain();
-        this.dc.connect(this[def.name + 'Node']);
-        this[def.name] = this[def.name + 'Node'].gain;
-        this[def.name + 'Node'].connect(this.mergedInput, null, i);
+        this[def.name + "Node"] = context.createGain();
+        this.dc.connect(this[def.name + "Node"]);
+        this[def.name] = this[def.name + "Node"].gain;
+        this[def.name + "Node"].connect(this.mergedInput, null, i);
         useValue = (patch && !isNaN(patch[def.name])) ? patch[def.name] : def.defaultValue;
         this[def.name].value = useValue;
         this[def.name].setValueAtTime(useValue, this.context.currentTime);
     }
     this.generatorFunction = this.getGenerator(this);
     this.generator = context.createScriptProcessor(BUFFER_LENGTH, inputDefs.length, 1);
-    this.generator.addEventListener('audioprocess', this.generatorFunction);
+    this.generator.addEventListener("audioprocess", this.generatorFunction);
 
     this.mergedInput.connect(this.generator);
 };
@@ -104,16 +104,16 @@ PDOscillator.prototype.setPDEnvelope1 = function (data) {
     this.pdEnvelope1.functions = [];
 };
 PDOscillator.prototype.addPDEnvelopePoint = function (id, index, data) {
-    this['pdEnvelope' + id].splice(index, 0, data);
-    this['pdEnvelope' + id].functions = [];
+    this["pdEnvelope" + id].splice(index, 0, data);
+    this["pdEnvelope" + id].functions = [];
 };
 PDOscillator.prototype.movePDEnvelopePoint = function (id, index, data) {
-    this['pdEnvelope' + id][index] = data;
-    this['pdEnvelope' + id].functions = [];
+    this["pdEnvelope" + id][index] = data;
+    this["pdEnvelope" + id].functions = [];
 };
 PDOscillator.prototype.deletePDEnvelopePoint = function (id, index) {
-    this['pdEnvelope' + id].splice(index, 1);
-    this['pdEnvelope' + id].functions = [];
+    this["pdEnvelope" + id].splice(index, 1);
+    this["pdEnvelope" + id].functions = [];
 };
 PDOscillator.prototype.getChangeWaveformHandler = function (osc) {
     return function (evt) {
@@ -132,10 +132,10 @@ PDOscillator.prototype.destroy = function () {
     this.mergedInput.disconnect();
     this.mergedInput = null;
     this.generator.disconnect();
-    this.generator.removeEventListener('audioprocess', this.generatorFunction);
+    this.generator.removeEventListener("audioprocess", this.generatorFunction);
     this.generator = null;
     this.generatorFunction = null;
-    if (this.destroyCallback && typeof this.destroyCallback === 'function') {
+    if (this.destroyCallback && typeof this.destroyCallback === "function") {
         this.destroyCallback(this);
     }
 };
@@ -197,7 +197,7 @@ PDOscillator.prototype.getGenerator = function (oscillator) {
     };
 };
 PDOscillator.prototype.connect = function (node) {
-    if (node.hasOwnProperty('input')) {
+    if (node.hasOwnProperty("input")) {
         this.generator.connect(node.input);
     } else {
         this.generator.connect(node);
@@ -213,13 +213,13 @@ PDOscillator.prototype.linearFunctionFromVector = function (vector) {
     };
 };
 PDOscillator.prototype.setWaveform = function (waveformName) {
-    if (waveformName && this.waveforms[waveformName] && typeof this.waveforms[waveformName] === 'function') {
-        this.selectedWaveform = this.waveforms[waveformName];
+    if (waveformName && IdealOscillator.waveforms[waveformName] && typeof IdealOscillator.waveforms[waveformName] === "function") {
+        this.selectedWaveform = IdealOscillator.waveforms[waveformName];
     }
     return this;
 };
 PDOscillator.prototype.setWrapper = function (wrapperName) {
-    if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === 'function') {
+    if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === "function") {
         this.selectedWrapper = this.wrappers[wrapperName];
     }
     return this;
@@ -264,85 +264,6 @@ PDOscillator.prototype.getComputedFrequency = function (frequency, detune) {
 };
 PDOscillator.prototype.DOUBLE_PI = Math.PI * 2;
 
-PDOscillator.prototype.waveforms = //IdealOscillator.prototype.waveforms;
-    {
-        zero: function () {
-            return 0;
-        },
-        sinus: function (phase) {
-            return Math.sin(phase * this.DOUBLE_PI);
-        },
-        square: function (phase) {
-            if (phase > 0.5) {
-                return -1;
-            } else {
-                return 1;
-            }
-        },
-        additiveSquare: function (phase, maxHarmonic) {
-            var value = 0,
-                i = 1;
-            maxHarmonic = maxHarmonic || 8;
-            for (i = 1; i < maxHarmonic; i += 2) {
-                value += Math.sin(phase * this.DOUBLE_PI * i) / i;
-            }
-            return value * (4 / Math.PI);
-        },
-        saw: function (phase) {
-            return (phase - 0.5) * 2;
-        },
-        additiveSaw: function (phase, maxHarmonic) {
-            var value = 0,
-                i;
-            maxHarmonic = maxHarmonic || 8;
-            for (i = 1; i < maxHarmonic; i += 1) {
-                value += Math.sin(phase * this.DOUBLE_PI * i) / i;
-            }
-            return value * (2 / Math.PI);
-        },
-        saw_inverse: function (phase) {
-            return 1 - (phase * 2);
-        },
-        triangle: function (phase) {
-            if (phase < 0.25) {
-                return phase * 4;
-            } else if (phase < 0.75) {
-                return (phase - 0.5) * -4;
-            } else {
-                return (phase - 1) * 4;
-            }
-        },
-        additiveTriangle: function (phase, maxHarmonic) {
-            var value = 0,
-                i = 1,
-                odd = true;
-
-            maxHarmonic = maxHarmonic || 5;
-            for (i = 1; i < maxHarmonic; i += 2) {
-                if (odd) {
-                    value += Math.sin(phase * this.DOUBLE_PI * i) / (i * i);
-                } else {
-                    value -= Math.sin(phase * this.DOUBLE_PI * i) / (i * i);
-                }
-                odd = !odd;
-            }
-            return value * (8 / Math.pow(Math.PI, 2));
-        },
-        sampleAndHold: function (phase, steps) {
-            var fraction;
-            steps = steps || 2;
-            fraction = 1 / steps;
-            if (this.sampleAndHoldBuffer.value === null) {
-                this.sampleAndHoldBuffer.value = (Math.random() - 0.5) * 2;
-            }
-            if (Math.ceil(phase / fraction) > Math.ceil(this.sampleAndHoldBuffer.phase / fraction)) {
-                this.sampleAndHoldBuffer.value = (Math.random() - 0.5) * 2;
-            }
-            this.sampleAndHoldBuffer.phase = phase;
-            return this.sampleAndHoldBuffer.value;
-        }
-    };
-//*/
 PDOscillator.prototype.gaussianFunction = function (mu, sig) {
     var twoSigSquared = 2 * Math.pow(sig, 2);
     var muSquared = mu * mu;
@@ -364,5 +285,23 @@ PDOscillator.prototype.wrappers = {
         // dummy function to be replaced by constructor
         // added for static enumeration purposes
     }
+};
+PDOscillator.getModulationInputDescriptors = function () {
+    return {
+        "mix": {
+            "min": 0,
+            "max": 1
+        },
+        "resonance": {
+            "min": 1,
+            "max": 10
+        },
+        "detune": {
+            "min": -1200,
+            "max": 1200,
+            "flipWhenNegative": false,
+            "midValue": "limit" // ["center", "limit"]
+        }
+    };
 };
 module.exports = PDOscillator;

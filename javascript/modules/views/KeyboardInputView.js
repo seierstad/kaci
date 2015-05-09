@@ -1,5 +1,6 @@
 var KeyboardInputView = function (context) {
-    var initializeView, changeLayout;
+    "use strict";
+    var initializeView, changeLayout, changeLayoutHandler;
     this.view = document.createElement('fieldset');
     this.view.classList.add('keyboard-input-view');
 

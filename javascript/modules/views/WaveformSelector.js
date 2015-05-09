@@ -1,4 +1,5 @@
 /* global document */
+"use strict";
 var drawWaveform = require('./drawWaveform');
 
 var WaveformSelector = function (oscillator, waveforms, eventName, eventDispatchObject, controlName, initialValue) {

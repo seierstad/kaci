@@ -1,4 +1,5 @@
 var drawWaveform = function (waveGenerator, canvas, params) {
+    "use strict";
     if (!params) {
         params = {};
     }

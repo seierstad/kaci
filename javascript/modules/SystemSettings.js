@@ -1,11 +1,11 @@
-var defaultSettings = require('../configuration.json');
-
-var SystemSettings = function (context) {
+/* global localStorage */
+var SystemSettings = function (context, defaultSettings) {
+    "use strict";
     var settingsString;
     this.settings = defaultSettings;
 
     if (localStorage) {
-        settingsString = localStorage.getItem('kaciSystemSettings');
+        settingsString = localStorage.getItem("kaciSystemSettings");
         if (settingsString && settingsString !== "undefined") {
             this.settings = JSON.parse(settingsString);
         }
@@ -14,7 +14,7 @@ var SystemSettings = function (context) {
         var string;
         if (localStorage) {
             string = JSON.stringify(this.settings);
-            localStorage.setItem('kaciSystemSettings', string);
+            localStorage.setItem("kaciSystemSettings", string);
         }
     };
     var keyboardLayoutChangedHandler = function (event) {
@@ -26,8 +26,8 @@ var SystemSettings = function (context) {
         this.storeSettings();
     };
 
-    context.addEventListener('system.keyboard.input.layout.changed', keyboardLayoutChangedHandler.bind(this));
-    context.addEventListener('midi.select.input.port', midiInputPortChangedHandler.bind(this));
+    context.addEventListener("system.keyboard.input.layout.changed", keyboardLayoutChangedHandler.bind(this));
+    context.addEventListener("midi.select.input.port", midiInputPortChangedHandler.bind(this));
 
 };
 module.exports = SystemSettings;

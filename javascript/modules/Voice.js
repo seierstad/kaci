@@ -4,6 +4,7 @@ var EnvelopeGenerator = require("./EnvelopeGenerator");
 var PDOscillator = require("./PDOscillator");
 var NoiseGenerator = require("./NoiseGenerator");
 var SubOscillator = require("./SubOscillator");
+var LFO = require("./LFO");
 
 var Voice = function (context, patch, frequency, options) {
     var key,
@@ -22,6 +23,14 @@ var Voice = function (context, patch, frequency, options) {
     this.vca = this.vcaNode.gain;
     this.vca.value = 1;
     this.envelope = [];
+    this.lfo = [];
+
+    var createVoiceLfo = function (lfoPatch, index) {
+        if (lfoPatch.mode === "voice") {
+            that.lfo[index] = new LFO(context, lfoPatch, "lfo" + index, {});
+        }
+    };
+    patch.lfo.forEach(createVoiceLfo);
 
     for (i = 0, j = patch.envelope.length; i < j; i += 1) {
         this.envelope[i] = new EnvelopeGenerator(context, patch.envelope[i], "envelope" + i);
@@ -53,7 +62,7 @@ var Voice = function (context, patch, frequency, options) {
         this.oscillator.connect(this.vcaNode);
         this.noise.connect(this.vcaNode);
     }
-
+    this.lfo[1].connect(this.oscillator.pan);
     this.envelope[0].connect(this.vca);
     //    this.envelope[1].connect(this.oscillator.detune);
 
@@ -176,14 +185,25 @@ Voice.prototype.destroy = function () {
         envelope.disconnect();
         envelope = null;
     });
+    this.lfo.forEach(function (lfo) {
+        lfo.disconnect();
+        lfo.destroy();
+        lfo = null;
+    });
     this.oscillator.destroy();
     this.oscillator = null;
     this.disconnect();
     this.vcaNode = null;
+    if (typeof this.destroyCallback === 'function') {
+        this.destroyCallback(this);
+    }
 };
 Voice.prototype.start = function (time) {
     this.startTime = time;
     this.sub.start(time);
+    this.lfo.forEach(function (lfo) {
+        lfo.start();
+    });
     this.envelope.forEach(function (envelope) {
         envelope.trigger(time);
     });

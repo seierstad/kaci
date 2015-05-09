@@ -1,10 +1,14 @@
 /*global document, module, require, CustomEvent */
 
+
+// TODO: rewrite direct calls to lfo to event passing
+
+
 var Utils = require("./Utils"),
-    IdealOscillator = require("./IdealOscillator"),
+    IdealOscillator = require("../IdealOscillator"),
     WaveformSelector = require("./WaveformSelector");
 
-var LFOView = function (ctx, lfo, patch, params) {
+var LFOView = function (ctx, patch, params) {
     "use strict";
     var lfoToggle,
         lfoReset,
@@ -20,13 +24,11 @@ var LFOView = function (ctx, lfo, patch, params) {
     lfoView = document.createElement("section");
     lfoView.id = this.lfoId + "-view";
 
-
-    lfoToggle = document.createElement("button");
-    lfoToggle.innerHTML = "toggle";
-    lfoToggle.addEventListener("click", function () {
-        lfo.postGain.gain.setValueAtTime(lfoActive ? 0 : 1, ctx.currentTime);
-        lfoActive = !lfoActive;
-    });
+    lfoToggle = new Utils.createCheckboxInput({
+        "id": this.lfoId,
+        dispatchEvent: ".toggle",
+        checked: (patch.active)
+    }, ctx);
     lfoView.appendChild(lfoToggle);
 
     lfoReset = document.createElement("button");
@@ -35,7 +37,7 @@ var LFOView = function (ctx, lfo, patch, params) {
     lfoView.appendChild(lfoReset);
 
 
-    lfoView.appendChild(new WaveformSelector(viewOscillator, lfo.getWaveforms(), this.lfoId + ".change.waveform", ctx, this.lfoId + "-waveform", patch.waveform));
+    lfoView.appendChild(new WaveformSelector(viewOscillator, IdealOscillator.waveforms, this.lfoId + ".change.waveform", ctx, this.lfoId + "-waveform", patch.waveform));
     lfoAmount = Utils.createRangeInput({
         label: params.labelAmount || "LFO amount",
         container: lfoView,
@@ -95,7 +97,7 @@ var LFOView = function (ctx, lfo, patch, params) {
     var lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
 
     var synchronizeAnimation = function synchronizeAnimation(freq) {
-        lfo.oscillator.requestZeroPhaseEvent(that.lfoId + ".zeroPhase");
+        //        lfo.oscillator.requestZeroPhaseEvent(that.lfoId + ".zeroPhase");
         ctx.addEventListener(that.lfoId + ".zeroPhase", function () {
             ctx.removeEventListener(that.lfoId + ".zeroPhase");
             lfoRateAnimation = blinkAnimation(lfoRateMonitor, freq || lfoRate.input.value);
