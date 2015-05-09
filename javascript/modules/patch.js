@@ -79,7 +79,7 @@ var patch = {
                 [0.3, 0.5],
                 [1, 1]
             ],
-            "duration": 2
+            "duration": 1
         },
         "release": {
             "steps": [
@@ -92,15 +92,33 @@ var patch = {
     }],
     "modulation": {
         "envelope": [{
-            "target": "oscillator.amplitude",
-            "amount": 1
+            "vca": {
+                "amount": 1.0,
+                "type": "other modulation properties than amount might be useful..."
+            },
+            "oscillator.mix": {
+                "amount": 0.3
+            }
         }, {
-            "target": "oscillator.mix",
-            "amount": 0.3
+            "oscillator.resonance": {
+                "amount": 1
+            }
         }],
         "lfo": [{
-            "target": "oscillator.detune",
-            "amount": 1
+            "oscillator.detune": {
+                "amount": 1
+            }
+        }, {
+            "oscillator.pan": {
+                "amount": 1
+            }
+        }, {
+            "noise.pan": {
+                "amount": 1
+            },
+            "oscillator.detune": {
+                "amount": 1
+            }
         }]
     }
 };

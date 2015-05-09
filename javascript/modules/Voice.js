@@ -62,8 +62,8 @@ var Voice = function (context, patch, frequency, options) {
         this.oscillator.connect(this.vcaNode);
         this.noise.connect(this.vcaNode);
     }
-    this.lfo[1].connect(this.oscillator.pan);
-    this.envelope[0].connect(this.vca);
+    //    this.lfo[1].connect(this.oscillator.pan);
+    //    this.envelope[0].connect(this.vca);
     //    this.envelope[1].connect(this.oscillator.detune);
 
     var getHandler = function (module, parameter) {
@@ -166,7 +166,6 @@ var Voice = function (context, patch, frequency, options) {
     this.removeVoiceEventListeners = getRemoveEventFunction();
     addVoiceEventListeners();
 };
-
 Voice.prototype.connect = function (node) {
     if (node.hasOwnProperty("input")) {
         this.vcaNode.connect(node.input);
@@ -201,10 +200,10 @@ Voice.prototype.destroy = function () {
 Voice.prototype.start = function (time) {
     this.startTime = time;
     this.sub.start(time);
-    this.lfo.forEach(function (lfo) {
+    this.lfo.forEach(function startLFO(lfo) {
         lfo.start();
     });
-    this.envelope.forEach(function (envelope) {
+    this.envelope.forEach(function triggerEnvelope(envelope) {
         envelope.trigger(time);
     });
 };
@@ -219,6 +218,12 @@ Voice.prototype.stop = function (time, callback) {
             osc.destroy();
         };
     }(this)), this.envelope[0].getReleaseDuration() * 1000 + 30);
+};
+Voice.prototype.getModulators = function getModulators() {
+    return {
+        "lfo": this.lfo,
+        "envelope": this.envelope
+    };
 };
 Voice.getModulationInputDescriptors = function (context) {
     var inputs = {

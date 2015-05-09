@@ -2,10 +2,9 @@
 
 "use strict";
 var Tunings = require("./Tunings");
-var ModulationMatrix = require("./ModulationMatrix");
 var Voice = require("./Voice");
 
-var VoiceRegister = function (context, patchHandler, globalModulators) {
+var VoiceRegister = function (context, patchHandler, modulationMatrix) {
 
     this.context = context;
     this.patchHandler = patchHandler;
@@ -21,9 +20,7 @@ var VoiceRegister = function (context, patchHandler, globalModulators) {
 
     this.mainMix = context.createChannelMerger();
     this.mainMix.connect(context.destination);
-
-    this.modulationMatrix = new ModulationMatrix(context);
-    this.globalModulators = globalModulators;
+    this.modulationMatrix = modulationMatrix;
 
     this.tuning = this.tunings.tempered;
 
@@ -55,9 +52,7 @@ VoiceRegister.prototype.deleteVoice = function (voice) {
 
     if (this.voices.every(notVoice)) {
         // no active voices -> stop global lfos
-        this.globalModulators.lfo.forEach(function (lfo) {
-            lfo.stop();
-        });
+        this.context.dispatchEvent(new CustomEvent("voice.last.ended", {}));
     }
 
 };
@@ -80,21 +75,19 @@ VoiceRegister.prototype.startTone = function (key, freq) {
     var voice = new Voice(this.context, patch, frequency);
     voice.connect(this.mainMix);
 
-    //        modulationMatrix.patch(voice);
+    this.modulationMatrix.patch(voice, patch.modulation);
 
-    this.globalModulators.lfo[0].outputs.oscillatorDetune.connect(voice.oscillator.detune);
+    //    this.globalModulators.lfo[0].outputs.oscillatorDetune.connect(voice.oscillator.detune);
     //    this.globalModulators.lfo[1].outputs.pdMix.connect(voice.oscillator.pan);
-    this.globalModulators.lfo[2].outputs.pdMix.connect(voice.noise.pan);
-    this.globalModulators.lfo[2].outputs.oscillatorDetune.connect(voice.oscillator.detune);
+    //    this.globalModulators.lfo[2].outputs.pdMix.connect(voice.noise.pan);
+    //    this.globalModulators.lfo[2].outputs.oscillatorDetune.connect(voice.oscillator.detune);
 
 
     var notVoice = function (v) {
         return v === null;
     };
     if (this.voices.every(notVoice)) {
-        this.globalModulators.lfo.forEach(function (lfo) {
-            lfo.start();
-        });
+        this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
     }
 
     voice.start(this.context.currentTime);
