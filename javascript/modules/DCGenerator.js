@@ -19,4 +19,9 @@ DCGenerator.prototype.connect = function (node) {
         this.generator.connect(node);
     }
 };
+DCGenerator.prototype.destroy = function destroyDCGenerator() {
+    this.generator.stop();
+    this.generator.disconnect();
+    this.generator = null;
+};
 module.exports = DCGenerator;

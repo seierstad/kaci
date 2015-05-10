@@ -13,6 +13,7 @@ var LFO = function (context, patch, id, options) {
     this.amount = context.createGain();
     this.sum = context.createChannelMerger();
     this.postGain = context.createGain(); // set gain.value to 0 to mute the lfo output
+    this.oscillator = new IdealOscillator(context);
     this.outputs = {};
 
     this.dc.connect(this.offset);
@@ -21,7 +22,7 @@ var LFO = function (context, patch, id, options) {
     this.amount.connect(this.sum);
     this.sum.connect(this.postGain);
 
-    this.oscillator = new IdealOscillator(context);
+
     this.frequency = this.oscillator.frequency;
     this.detune = this.oscillator.detune;
     this.oscillator.connect(this.inverter);
@@ -53,61 +54,135 @@ var LFO = function (context, patch, id, options) {
             this.setWaveform(patch.waveform);
         }
     }
-
-    var that = this;
-    this.context.addEventListener(this.id + '.change.waveform', function (event) {
-        that.setWaveform(event.detail);
-    });
-    this.context.addEventListener(this.id + '.change.frequency', function (event) {
-        that.values.frequency = event.detail;
-        that.setFrequency(event.detail);
-
-    });
-    this.context.addEventListener(this.id + '.change.amount', function (event) {
-        that.setValueAtTime(event.detail, context.currentTime);
-    });
-    this.context.addEventListener(this.id + '.change.sync.ratio', function (event) {
-        that.sync.ratio.numerator = event.detail.numerator;
-        that.sync.ratio.denominator = event.detail.denominator;
-        that.syncToMaster();
-    });
-    this.context.addEventListener(this.id + '.change.sync.enable', function (event) {
-        that.sync.enabled = true;
-        that.syncToMaster();
-    });
-    this.context.addEventListener(this.id + '.change.sync.disable', function (event) {
-        that.sync.enabled = false;
-        that.setFrequency(that.values.frequency);
-    });
-    this.context.addEventListener(this.id + '.reset', function (event) {
-        if (syncMaster) {
-            that.context.dispatchEvent(new CustomEvent('lfo.master.reset', {}));
-        }
-        that.oscillator.resetPhase();
-    });
     if (syncMaster) {
         this.isSyncMaster = true;
-        this.context.addEventListener('lfo.master.requestZeroPhase', function (event) {
-            that.oscillator.requestZeroPhaseEvent('lfo.master.zeroPhase');
+    }
+    this.addEventListeners();
+};
+LFO.prototype.addEventListeners = function () {
+    var that = this,
+        i,
+        j;
+    this.eventHandlers = [{
+        "event": 'lfo.change.waveform',
+        "handler": function lfoWaveformChangeHandler(event) {
+            if (event.detail.id === this.id) {
+                this.setWaveform(event.detail.value);
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.frequency",
+        "handler": function lfoFrequencyChangeHandler(event) {
+            if (event.detail.id === this.id) {
+                this.values.frequency = event.detail.value;
+                this.setFrequency(event.detail.value);
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.amount",
+        "handler": function lfoChangeAmountHandler(event) {
+            if (event.detail.id === this.id) {
+                this.setValueAtTime(event.detail.value, this.context.currentTime);
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.sync.ratio",
+        "handler": function lfoChangeHandler(event) {
+            if (event.detail.id === this.id) {
+                this.sync.ratio.numerator = event.detail.numerator;
+                this.sync.ratio.denominator = event.detail.denominator;
+                this.syncToMaster();
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.sync.enable",
+        "handler": function lfoSyncEnableHandler(event) {
+            if (event.detail.id === this.id) {
+                this.sync.enabled = true;
+                this.syncToMaster();
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.sync.disable",
+        "handler": function lfoSyncDisableHandler(event) {
+            if (event.detail.id === this.id) {
+                this.sync.enabled = false;
+                this.setFrequency(this.values.frequency);
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.",
+        "handler": function lfoChangeHandler(event) {
+            if (event.detail.id === this.id) {
+
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.reset",
+        "handler": function lfoChangeHandler(event) {
+            if (event.detail.id === this.id) {
+                if (this.isSyncMaster) {
+                    this.context.dispatchEvent(new CustomEvent('lfo.master.reset', {}));
+                }
+                this.oscillator.resetPhase();
+            }
+        }.bind(this)
+    }, {
+        "event": "lfo.change.",
+        "handler": function lfoChangeHandler(event) {
+            if (event.detail.id === this.id) {
+
+            }
+        }.bind(this)
+    }];
+
+
+    if (this.isSyncMaster) {
+        this.eventHandlers.push({
+            "event": "lfo.master.requestZeroPhase",
+            "handler": function lfoChangeHandler(event) {
+                this.oscillator.requestZeroPhaseEvent('lfo.master.zeroPhase');
+            }.bind(this)
         });
-        this.context.addEventListener('lfo.master.requestFrequency', function (event) {
-            that.context.dispatchEvent(new CustomEvent('lfo.master.frequency', {
-                detail: that.values.currentFrequency
-            }));
+        this.eventHandlers.push({
+            "event": "lfo.master.requestFrequency",
+            "handler": function lfoChangeHandler(event) {
+                this.context.dispatchEvent(new CustomEvent('lfo.master.frequency', {
+                    detail: this.values.currentFrequency
+                }));
+            }.bind(this)
         });
     } else {
-        this.context.addEventListener('lfo.master.changed.frequency', function (event) {
-            if (that.sync.enabled) {
-                var syncedFrequency = event.detail * that.sync.ratio.denominator / that.sync.ratio.numerator;
-                that.setFrequency(syncedFrequency);
-                that.syncToMaster();
-            }
+        this.eventHandlers.push({
+            "event": "lfo.master.changed.frequency",
+            "handler": function lfoChangeHandler(event) {
+                if (this.sync.enabled) {
+                    var syncedFrequency = event.detail * this.sync.ratio.denominator / this.sync.ratio.numerator;
+                    this.setFrequency(syncedFrequency);
+                    if (this.mode !== "voice") {
+                        this.syncToMaster();
+                    }
+                }
+            }.bind(this)
         });
-        this.context.addEventListener('lfo.master.reset', function () {
-            that.oscillator.resetPhase();
+        this.eventHandlers.push({
+            "event": "lfo.master.reset",
+            "handler": function lfoChangeHandler(event) {
+                if (this.mode !== "voice") {
+                    this.oscillator.resetPhase();
+                }
+            }.bind(this)
         });
     }
-
+    for (i = 0, j = this.eventHandlers.length; i < j; i += 1) {
+        this.context.addEventListener(this.eventHandlers[i].event, this.eventHandlers[i].handler, false);
+    }
+};
+LFO.prototype.removeEventListeners = function () {
+    var i, j;
+    for (i = 0, j = this.eventHandlers.length; i < j; i += 1) {
+        this.context.removeEventListener(this.eventHandlers[i].event, this.eventHandlers[i].handler);
+    }
 };
 LFO.prototype.setFrequency = function (frequency) {
     if (frequency !== this.values.currentFrequency) {
@@ -169,7 +244,21 @@ LFO.prototype.stop = function () {
     this.oscillator.stop();
 };
 LFO.prototype.destroy = function () {
-    console.log('TODO: implement LFO.prototype.destroy()');
+    this.removeEventListeners();
+    this.dc.destroy();
+    this.dc = null;
+    this.inverter.disconnect();
+    this.inverter = null;
+    this.offset.disconnect();
+    this.offset = null;
+    this.amount.disconnect();
+    this.amount = null;
+    this.sum.disconnect();
+    this.sum = null;
+    this.postGain.disconnect();
+    this.postGain = null;
+    this.oscillator.destroy();
+    this.oscillator = null;
 };
 LFO.prototype.disconnect = function () {
     this.postGain.disconnect();

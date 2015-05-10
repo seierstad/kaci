@@ -30,6 +30,7 @@ var Voice = function (context, patch, frequency, options) {
             that.lfo[index] = new LFO(context, lfoPatch, "lfo" + index, {});
         }
     };
+
     patch.lfo.forEach(createVoiceLfo);
 
     for (i = 0, j = patch.envelope.length; i < j; i += 1) {
@@ -71,12 +72,14 @@ var Voice = function (context, patch, frequency, options) {
         switch (parameter) {
         case "waveform":
             result = function (evt) {
-                that[module].setWaveform(evt.detail);
+                var value = evt.detail.value || evt.detail;
+                that[module].setWaveform(value);
             };
             break;
         case "wrapper":
             result = function (evt) {
-                that[module].setWrapper(evt.detail);
+                var value = evt.detail.value || evt.detail;
+                that[module].setWrapper(value);
             };
             break;
         case "resonanceActive":
@@ -178,6 +181,11 @@ Voice.prototype.disconnect = function () {
 };
 Voice.prototype.destroy = function () {
     this.sub.stop(this.stopTime);
+    this.sub.disconnect();
+    this.sub.destroy();
+    this.noise.stop();
+    this.noise.disconnect();
+    this.noise.destroy();
 
     this.removeVoiceEventListeners();
     this.envelope.forEach(function (envelope) {
@@ -200,6 +208,7 @@ Voice.prototype.destroy = function () {
 Voice.prototype.start = function (time) {
     this.startTime = time;
     this.sub.start(time);
+    this.noise.start();
     this.lfo.forEach(function startLFO(lfo) {
         lfo.start();
     });
@@ -213,9 +222,9 @@ Voice.prototype.stop = function (time, callback) {
         envelope.release(time);
     });
     this.destroyCallback = callback;
-    this.destroyTimer = setTimeout((function (osc) {
+    this.destroyTimer = setTimeout((function (voice) {
         return function () {
-            osc.destroy();
+            voice.destroy();
         };
     }(this)), this.envelope[0].getReleaseDuration() * 1000 + 30);
 };

@@ -30,12 +30,20 @@ var SubOscillator = function (context, patch, frequency) {
         "stop": this.oscillator.stop.bind(this.oscillator),
         "connect": this.output.connect.bind(this.output),
         "disconnect": this.output.disconnect.bind(this.output),
+        "destroy": this.destroy,
         // exposed audio parameters
         "gain": this.gain,
         "frequency": this.oscillator.frequency,
         "ratio": this.ratioNode.gain
     };
     return result;
+};
+SubOscillator.prototype.destroy = function destroySubOscillator() {
+    this.oscillator = null;
+    this.gainNode = null;
+    this.frequencyNode = null;
+    this.ratioNode = null;
+    this.output = null;
 };
 SubOscillator.getModulationInputDescriptors = function () {
     return {

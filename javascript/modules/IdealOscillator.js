@@ -5,19 +5,19 @@ var BUFFER_LENGTH = require("./constants").BUFFER_LENGTH;
 var DOUBLE_PI = require("./constants").DOUBLE_PI;
 
 var IdealOscillator = function (context) {
-    var inputDefs = [{
-            name: "frequency",
-            defaultValue: 440
-        }, {
-            name: "detune",
-            defaultValue: 0
-        }],
-        i,
+    var i,
         j,
         def,
         key,
         zeroPhaseActions;
 
+    this.inputDefs = [{
+        name: "frequency",
+        defaultValue: 440
+    }, {
+        name: "detune",
+        defaultValue: 0
+    }];
     this.context = context;
     this.phase = 0;
     this.paused = false;
@@ -26,10 +26,10 @@ var IdealOscillator = function (context) {
         phase: 0
     };
     this.dc = new DCGenerator(context);
-    this.mergedInput = context.createChannelMerger(inputDefs.length);
+    this.mergedInput = context.createChannelMerger(this.inputDefs.length);
 
-    for (i = 0, j = inputDefs.length; i < j; i += 1) {
-        def = inputDefs[i];
+    for (i = 0, j = this.inputDefs.length; i < j; i += 1) {
+        def = this.inputDefs[i];
 
         this[def.name + "Node"] = context.createGain();
         this.dc.connect(this[def.name + "Node"]);
@@ -37,7 +37,7 @@ var IdealOscillator = function (context) {
         this[def.name].value = def.defaultValue;
         this[def.name + "Node"].connect(this.mergedInput, null, i);
     }
-    this.generator = context.createScriptProcessor(BUFFER_LENGTH, inputDefs.length, 1);
+    this.generator = context.createScriptProcessor(BUFFER_LENGTH, this.inputDefs.length, 1);
     this.mergedInput.connect(this.generator);
 
 };
@@ -208,14 +208,33 @@ IdealOscillator.prototype.start = function () {
     if (!this.paused) {
         this.resetPhase();
     }
-    this.generator.onaudioprocess = this.getGenerator(this);
+    this.generator.addEventListener("audioprocess", this.getGenerator(this));
 };
 IdealOscillator.prototype.stop = function () {
-    this.generator.onaudioprocess = null;
+    this.generator.removeEventListener("audioprocess");
 };
 IdealOscillator.prototype.setWaveform = function (waveformName) {
     if (typeof IdealOscillator.waveforms[waveformName] === "function") {
         this.selectedWaveform = IdealOscillator.waveforms[waveformName];
     }
+};
+IdealOscillator.prototype.destroy = function destroyIdealOscillator() {
+    var i, j, def;
+    this.dc.destroy();
+    this.dc = null;
+
+    for (i = 0, j = this.inputDefs.length; i < j; i += 1) {
+        def = this.inputDefs[i];
+        this[def.name + "Node"].disconnect();
+        this[def.name] = null;
+        this[def.name + "Node"] = null;
+    }
+    this.mergedInput.disconnect();
+    this.mergedInput = null;
+
+    this.generator.removeEventListener("audioprocess");
+    this.generator.disconnect();
+    this.generator = null;
+
 };
 module.exports = IdealOscillator;
