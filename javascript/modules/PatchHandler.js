@@ -50,7 +50,11 @@ var PatchHandler = function (context) {
 
     var voiceParameterHandler = function (mod, param) {
         return function (evt) {
-            that.patch[mod][param] = evt.detail;
+            if (evt.detail.value) {
+                that.patch[mod][param] = evt.detail.value;
+            } else {
+                that.patch[mod][param] = evt.detail;
+            }
         };
     };
 

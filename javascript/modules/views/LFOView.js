@@ -37,7 +37,7 @@ var LFOView = function (ctx, patch, params) {
     lfoView.appendChild(lfoReset);
 
 
-    lfoView.appendChild(new WaveformSelector(viewOscillator, IdealOscillator.waveforms, this.lfoId + ".change.waveform", ctx, this.lfoId + "-waveform", patch.waveform));
+    lfoView.appendChild(new WaveformSelector(viewOscillator, IdealOscillator.waveforms, "lfo.change.waveform", ctx, this.lfoId + "-waveform", patch.waveform, this.lfoId));
     lfoAmount = Utils.createRangeInput({
         label: params.labelAmount || "LFO amount",
         container: lfoView,
@@ -47,8 +47,11 @@ var LFOView = function (ctx, patch, params) {
         value: patch.amount
     });
     lfoAmount.input.addEventListener("input", function (evt) {
-        var event = new CustomEvent(that.lfoId + ".change.amount", {
-            detail: evt.target.value
+        var event = new CustomEvent("lfo.change.amount", {
+            detail: {
+                value: evt.target.value,
+                id: that.lfoId
+            }
         });
         ctx.dispatchEvent(event);
     });
@@ -63,8 +66,11 @@ var LFOView = function (ctx, patch, params) {
         value: patch.frequency
     });
     var rateInputChangeListener = function rateInputChangeListener(evt) {
-        var event = new CustomEvent(that.lfoId + ".change.frequency", {
-            detail: evt.target.value
+        var event = new CustomEvent("lfo.change.frequency", {
+            detail: {
+                value: evt.target.value,
+                id: that.lfoId
+            }
         });
         ctx.dispatchEvent(event);
     };
@@ -127,15 +133,18 @@ var LFOView = function (ctx, patch, params) {
     synchronizeAnimation();
 
     var frequencyChangeHandler = function frequencyChangeHandler(event) {
-        synchronizeAnimation(event.detail);
+        if (event.detail.id === that.lfoId) {
+            synchronizeAnimation(event.detail.value);
+        }
     };
-    ctx.addEventListener(this.lfoId + ".changed.frequency", frequencyChangeHandler);
+    ctx.addEventListener("lfo.changed.frequency", frequencyChangeHandler);
 
     var syncRateNumerator, syncRateDenominator, syncRateToggle;
 
     var changeSyncRatio = function changeSyncRatio() {
-        ctx.dispatchEvent(new CustomEvent(that.lfoId + ".change.sync.ratio", {
+        ctx.dispatchEvent(new CustomEvent("lfo.change.sync.ratio", {
             detail: {
+                id: that.lfoId,
                 numerator: parseInt(syncRateNumerator.value, 10),
                 denominator: parseInt(syncRateDenominator.value, 10)
             }
@@ -149,9 +158,17 @@ var LFOView = function (ctx, patch, params) {
         syncRateDenominator.disabled = !enabled;
 
         if (enabled) {
-            ctx.dispatchEvent(new CustomEvent(that.lfoId + ".change.sync.enable", {}));
+            ctx.dispatchEvent(new CustomEvent("lfo.change.sync.enable", {
+                detail: {
+                    id: that.lfoId
+                }
+            }));
         } else {
-            ctx.dispatchEvent(new CustomEvent(that.lfoId + ".change.sync.disable", {}));
+            ctx.dispatchEvent(new CustomEvent("lfo.change.sync.disable", {
+                detail: {
+                    id: that.lfoId
+                }
+            }));
         }
     };
     if (params.syncControls) {

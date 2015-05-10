@@ -169,7 +169,8 @@ var OscillatorView = function (ctx, patch, id) {
     });
 
     ctx.addEventListener("oscillator.change.waveform", function (event) {
-        viewOscillator.setWaveform(event.detail);
+        var value = event.detail.value || event.detail;
+        viewOscillator.setWaveform(value);
         updatePDWaveView(that.waveView.pd0, 0);
         updatePDWaveView(that.waveView.pd1, 1);
         updateMixWaveView(that.waveView.mix);
@@ -209,7 +210,8 @@ var OscillatorView = function (ctx, patch, id) {
         updateResonanceWaveView(that.waveView.resonance);
     });
     ctx.addEventListener("oscillator.change.wrapper", function (event) {
-        viewOscillator.setWrapper(event.detail);
+        var value = event.detail.value || event.detail;
+        viewOscillator.setWrapper(value);
         updateResonanceWaveView(that.waveView.resonance);
     });
 

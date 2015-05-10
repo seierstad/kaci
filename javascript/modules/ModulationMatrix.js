@@ -50,6 +50,7 @@ ModulationMatrix.prototype.patch = function patch(voice, patch) {
         var i, j, l, g, path;
         l = locals[modulatorType] || [];
         g = this.globalModulators[modulatorType] || [];
+
         var connector = function (modulatorIndex) {
             return function connect(path) {
                 var pathArray = path.split("."),
@@ -63,7 +64,9 @@ ModulationMatrix.prototype.patch = function patch(voice, patch) {
                     }
                 }
                 if (currentTarget !== voice) {
-                    (l[modulatorIndex] || g[modulatorIndex]).connect(currentTarget);
+                    if ((l[modulatorIndex] || g[modulatorIndex])) {
+                        (l[modulatorIndex] || g[modulatorIndex]).connect(currentTarget);
+                    }
                 }
             };
         };

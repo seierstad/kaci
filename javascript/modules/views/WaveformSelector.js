@@ -2,7 +2,7 @@
 "use strict";
 var drawWaveform = require('./drawWaveform');
 
-var WaveformSelector = function (oscillator, waveforms, eventName, eventDispatchObject, controlName, initialValue) {
+var WaveformSelector = function (oscillator, waveforms, eventName, eventDispatchObject, controlName, initialValue, id) {
     var parentElement = null,
         names,
         waveformSelector,
@@ -48,9 +48,15 @@ var WaveformSelector = function (oscillator, waveforms, eventName, eventDispatch
     }
 
     waveformSelectorElement.addEventListener('change', function (evt) {
-        var event = new CustomEvent(eventName, {
-            detail: evt.target.value
-        });
+        var data = {
+            detail: {
+                value: evt.target.value
+            }
+        };
+        if (id) {
+            data.detail.id = id;
+        }
+        var event = new CustomEvent(eventName, data);
         eventDispatchObject.dispatchEvent(event);
     });
 
