@@ -1,60 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>JavaScript phase distortion synthesizer</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, height=device-height" />
-    <link rel="stylesheet" type="text/css" href="kaci.css" />
+    <title>Kaci - a phase distortion synthesizer</title>
   </head>
   <body>
-    <script type="text/javascript" src="lib/PubSub/src/pubsub.js"></script>
-    <script type="text/javascript" src="js/kaci.js"></script>
-    <script type="text/javascript" src="js/eventUtils.js"></script>
-    <script type="text/javascript" src="js/patch.js"></script>
-    <script type="text/javascript" src="js/oscillator.js"></script>
-    <script type="text/javascript" src="js/audio_output.js"></script>
-    <script type="text/javascript" src="js/svgController.js"></script>
-    <script type="text/javascript" src="js/voice.js"></script>
-    <script type="text/javascript" src="js/envelope.js"></script>
-    <script type="text/javascript" src="js/ribbon.js"></script>
-    <script type="text/javascript" src="js/keyboard.js"></script>
-    <script type="text/javascript" src="js/test.js"></script>
-    <button onclick="kaci.audioOutput.disable();">stopp</button>
-    <nav>
-    <a href="#pdo">Oscillator</a>
-    <a href="#keyboard">Keyboard</a>
-    <a href="#lfo1">LFO</a>
-    <a href="#lfo2">LFO 2</a>    
-    <a href="#env1">Envelope</a>
-    </nav>
-	<a id="pdo-phase"></a>
-    <a id="pdo-waveforms"></a>
-    <a id="pdo-modulation"></a>
-    <section id="pdo">
-        <h1 title="oscillator">OSC</h1>
-        <nav class="section-navigation">
-        <a href="#pdo-phase">phase</a>
-        <a href="#pdo-waveforms">waveforms</a>
-        <a href="#pdo-modulation">modulation</a>
-        </nav>
-        <canvas height="300" width="300" id="waveform"></canvas>
-    </section>
-    <section id="keyboard">
-        <h1 title="keyboard">keyboard</h1>
-    </section>
-    <section id="lfo" class="lfo">
-        <h1 title="low frequency oscillator">LFO</h1>
-        <canvas height="100" width="100" id="lfo1-visualisation"></canvas>
-        <input type="range" name="lfo-frequency" size="20" />
-    </section>
-    <section id="lfo2" class="lfo">
-        <h1 title="low frequency oscillator 2">LFO 2</h1>
-        <canvas height="100" width="100" id="lfo2-visualisation"></canvas>
-        <input type="range" name="lfo2-frequency" size="20" />
-    </section>
-    <section id="env1">
-        <h1 title="envelope generator 1">ENV 1</h1>
-    </section>
-    
+    <h1>Kaci</h1>
   </body>
 </html>
