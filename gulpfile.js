@@ -17,6 +17,9 @@ var source = require("vinyl-source-stream");
 var rename = require("gulp-rename");
 
 
+// server
+var connect = require("gulp-connect");
+
 // SCSS Compiler
 var sass = require("gulp-sass");
 // Autoprefixer. Adds css vendor prefixes if needed
@@ -24,6 +27,8 @@ var autoprefixer = require("gulp-autoprefixer");
 var sourcemaps = require("gulp-sourcemaps");
 
 var plato = require("gulp-plato");
+
+var eslint = require("gulp-eslint");
 
 gulp.task("plato", function () {
     return gulp.src("javascript/**/*.js")
@@ -91,7 +96,23 @@ gulp.task("copyFonts", function () {
         .pipe(gulp.dest("./build/css"));
 });
 */
+
+gulp.task('lint', function () {
+    return gulp.src(['**/*.js','!node_modules/**'])
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
+});
+
+gulp.task('webserver', function () {
+    connect.server({
+        livereload: true,
+        root: ['.', 'build']
+    });
+});
+
 gulp.task("default", [
+    "lint",
     "plato",
     "browserify",
     "styles",

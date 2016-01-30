@@ -1,10 +1,11 @@
 /*global require, module, document */
 "use strict";
-var DCGenerator = require("./DCGenerator");
-var IdealOscillator = require("./IdealOscillator");
-var BUFFER_LENGTH = require("constants").BUFFER_LENGTH;
+var DCGenerator = require("./DCGenerator"),
+    IdealOscillator = require("./IdealOscillator"),
+    BUFFER_LENGTH = require("constants").BUFFER_LENGTH,
+    PDOscillator;
 
-var PDOscillator = function (context, patch, frequency, options) {
+PDOscillator = function (context, patch, frequency, options) {
     var inputDefs = [{
             name: "frequency",
             defaultValue: frequency || 440
@@ -75,14 +76,20 @@ var PDOscillator = function (context, patch, frequency, options) {
     for (i = 0, j = inputDefs.length; i < j; i += 1) {
         def = inputDefs[i];
 
-        this[def.name + "Node"] = context.createGain();
-        this.dc.connect(this[def.name + "Node"]);
-        this[def.name] = this[def.name + "Node"].gain;
-        this[def.name + "Node"].connect(this.mergedInput, null, i);
+        this[def.name] = context.createGain();
+        //        this.dc.connect(this[def.name + "Node"]);
+        this[def.name].connect(this.mergedInput, null, i);
+        /*
         useValue = (patch && !isNaN(patch[def.name])) ? patch[def.name] : def.defaultValue;
         this[def.name].value = useValue;
         this[def.name].setValueAtTime(useValue, this.context.currentTime);
+*/
     }
+    //set frequency
+    this.dc.connect(this.frequency);
+    this.frequency.gain.value = frequency || 440;
+    this.frequency.gain.setValueAtTime(frequency || 440, this.context.currentTime);
+
     this.generatorFunction = this.getGenerator(this);
     this.generator = context.createScriptProcessor(BUFFER_LENGTH, inputDefs.length, 1);
     this.generator.addEventListener("audioprocess", this.generatorFunction);
@@ -121,14 +128,14 @@ PDOscillator.prototype.getChangeWaveformHandler = function (osc) {
     };
 };
 PDOscillator.prototype.destroy = function () {
-    this.frequencyNode.disconnect();
-    this.frequencyNode = null;
-    this.detuneNode.disconnect();
-    this.detuneNode = null;
-    this.resonanceNode.disconnect();
-    this.resonanceNode = null;
-    this.mixNode.disconnect();
-    this.mixNode = null;
+    this.frequency.disconnect();
+    this.frequency = null;
+    this.detune.disconnect();
+    this.detune = null;
+    this.resonance.disconnect();
+    this.resonance = null;
+    this.mix.disconnect();
+    this.mix = null;
     this.mergedInput.disconnect();
     this.mergedInput = null;
     this.generator.disconnect();
@@ -154,6 +161,7 @@ PDOscillator.prototype.getGenerator = function (oscillator) {
             distortedPhase0,
             distortedPhase1,
             distortedPhaseMix,
+            debugVisible = true,
             previous = {
                 frequency: 0,
                 detune: 0,
@@ -161,7 +169,12 @@ PDOscillator.prototype.getGenerator = function (oscillator) {
                 calculatedFrequency: 0,
                 calculatedResonanceFrequency: 0
             };
+        /*        if (debugVisible) {
+            console.log("mix: " + mix[0] + " resonance: " + resonance[0] + " detune: " + detune[0]);
 
+            debugVisible = false;
+        }
+*/
         for (i = 0, j = this.bufferSize; i < j; i += 1) {
             if (frequency[i] === previous.frequency && detune[i] === previous.detune) {
                 calculatedFrequency = previous.calculatedFrequency;
@@ -206,6 +219,7 @@ PDOscillator.prototype.connect = function (node) {
 PDOscillator.prototype.linearFunctionFromVector = function (vector) {
     var rate,
         constant;
+
     rate = (vector[1][1] - vector[0][1]) / (vector[1][0] - vector[0][0]);
     constant = vector[0][1] - (rate * vector[0][0]);
     return function linear(phase) {
@@ -265,8 +279,9 @@ PDOscillator.prototype.getComputedFrequency = function (frequency, detune) {
 PDOscillator.prototype.DOUBLE_PI = Math.PI * 2;
 
 PDOscillator.prototype.gaussianFunction = function (mu, sig) {
-    var twoSigSquared = 2 * Math.pow(sig, 2);
-    var muSquared = mu * mu;
+    var twoSigSquared = 2 * Math.pow(sig, 2),
+        muSquared = mu * mu;
+
     return function (phase) {
         return Math.exp(-(muSquared - (2 * mu * phase) + (phase * phase)) / twoSigSquared);
     };

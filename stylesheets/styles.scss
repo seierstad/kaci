@@ -1,10 +1,12 @@
 button {
     min-height: 3em;
 }
+/*
 #oscilloscope {
     width: 100vw;
     height: 50vh;
 }
+*/
 label {
     display: inline-block;
 }
@@ -71,4 +73,45 @@ fieldset {
 }
 body {
     padding: 2rem;
+}
+.modulation-matrix {
+    tbody {
+        &:nth-of-type(odd) {
+            background: rgba(255,255,0,.5);
+        }
+        &:nth-of-type(even) {
+            background: rgba(255, 150, 0, .5);
+        }
+    }
+    th[scope='rowgroup'] {
+        margin: 3px;
+        position: relative;
+        overflow: visible;
+        padding: .5em;
+        min-height: 1em;
+        &,
+        span {
+            -webkit-writing-mode: vertical-lr;
+            writing-mode: vertical-lr;
+        }
+    }
+    col {
+        &:nth-of-type(2n) {
+            background-color: rgba(0,0,0,.3);
+        }
+        &:nth-of-type(3n) {
+            background-color: rgba(255,0,0,.3);
+        }
+    }
+    label {
+        font-size: 0;
+        line-height: 0;
+        color: transparent;
+    }
+    td {
+        padding: .5em;
+    }
+    [type='range'] {
+        width: 3em;
+    }
 }

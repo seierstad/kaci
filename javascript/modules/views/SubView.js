@@ -1,21 +1,22 @@
 /* global require, module, document */
 "use strict";
-var Utils = require('./Utils');
+var ViewUtils = require('./ViewUtils');
+var Utils = require('../Utils');
 
-var SubView = function (context, patch, params) {
+var SubView = function (context, modulationLimits, patch, params) {
     if (!patch) {
         patch = {};
     }
     if (!params) {
         params = {};
     }
-    var view, subToggle, subAmount;
+    var view, subToggle, subGain, subPan;
     this.subId = (params && params.subId) ? params.subId : 'sub';
     var that = this;
     view = document.createElement("section");
     view.id = this.subId + "-view";
 
-    subToggle = new Utils.createCheckboxInput({
+    subToggle = new ViewUtils.createCheckboxInput({
         "id": this.subId,
         dispatchEvent: ".toggle",
         checked: (patch.subActive)
@@ -23,22 +24,39 @@ var SubView = function (context, patch, params) {
 
     view.appendChild(subToggle);
 
-    subAmount = Utils.createRangeInput({
-        label: params.labelAmount || "Sub amount",
+    subGain = ViewUtils.createRangeInput({
+        label: params.labelGain || "Sub gain",
         container: view,
-        min: 0,
+        min: -1,
         max: 1,
         step: 0.01,
-        value: patch.amount
+        value: Utils.scale(patch.gain, modulationLimits.gain, {min: -1, max: 1})
     });
-    subAmount.input.addEventListener('input', function (evt) {
-        var event = new CustomEvent(that.subId + ".change.amount", {
+    subGain.input.addEventListener('input', function (evt) {
+        var event = new CustomEvent(that.subId + ".change.gain", {
             detail: evt.target.value
         });
         context.dispatchEvent(event);
     });
-    view.appendChild(subAmount.label);
-    view.appendChild(subAmount.input);
+    view.appendChild(subGain.label);
+    view.appendChild(subGain.input);
+
+    subPan = ViewUtils.createRangeInput({
+        label: params.labelPan || "Sub pan",
+        container: view,
+        min: -1,
+        max: 1,
+        step: 0.01,
+        value: Utils.scale(patch.pan, modulationLimits.pan, {min: -1, max: 1})
+    });
+    subPan.input.addEventListener('input', function (evt) {
+        var event = new CustomEvent(that.subId + ".change.pan", {
+            detail: evt.target.value
+        });
+        context.dispatchEvent(event);
+    });
+    view.appendChild(subPan.label);
+    view.appendChild(subPan.input);
 
     this.currentRatio = patch.ratio;
     var ratioChangeHandler = function (event) {

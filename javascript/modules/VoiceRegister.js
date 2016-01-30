@@ -1,10 +1,13 @@
 /*global require, module, document */
 
 "use strict";
-var Tunings = require("./Tunings");
-var Voice = require("./Voice");
+var Tunings = require("./Tunings"),
+    Voice = require("./Voice"),
+    VoiceRegister;
 
-var VoiceRegister = function (context, patchHandler, modulationMatrix) {
+VoiceRegister = function (context, patchHandler, modulationMatrix) {
+    var appKeyDownHandler,
+        appKeyUpHandler;
 
     this.context = context;
     this.patchHandler = patchHandler;
@@ -18,17 +21,19 @@ var VoiceRegister = function (context, patchHandler, modulationMatrix) {
     };
     this.voices = [];
 
-    this.mainMix = context.createChannelMerger();
+    this.mainMix = context.createGain();
     this.mainMix.connect(context.destination);
+
     this.modulationMatrix = modulationMatrix;
 
     this.tuning = this.tunings.tempered;
 
 
-    var appKeyDownHandler = function appKeyDownHandler(event) {
+    appKeyDownHandler = function appKeyDownHandler(event) {
         this.startTone(event.detail.keyNumber);
     };
-    var appKeyUpHandler = function appKeyUpHandler(event) {
+
+    appKeyUpHandler = function appKeyUpHandler(event) {
         this.stopTone(event.detail.keyNumber);
     };
     context.addEventListener("keyboard.keydown", appKeyDownHandler.bind(this));
@@ -37,16 +42,16 @@ var VoiceRegister = function (context, patchHandler, modulationMatrix) {
 };
 
 VoiceRegister.prototype.deleteVoice = function (voice) {
-    //        modulationMatrix.unpatch(voice);
+    var voiceIndex,
+        notVoice;
 
-    //    this.globalModulators.lfo[0].outputs.oscillatorDetune.disconnect(voice.detune);
-    //    this.globalModulators.lfo[1].outputs.pdMix.disconnect(voice.mix);
-    var voiceIndex = this.voices.indexOf(voice);
+    voiceIndex = this.voices.indexOf(voice);
     if (voiceIndex !== -1) {
         this.voices[voiceIndex] = null;
     }
+//    this.modulationMatrix.unpatchVoice(voice);
     voice = null;
-    var notVoice = function (v) {
+    notVoice = function (v) {
         return v === null;
     };
 
@@ -59,6 +64,7 @@ VoiceRegister.prototype.deleteVoice = function (voice) {
 
 VoiceRegister.prototype.stopTone = function (key) {
     var voice = this.voices[key];
+
     if (voice) {
         voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
         this.context.dispatchEvent(new CustomEvent("voice.ended", {
@@ -70,33 +76,33 @@ VoiceRegister.prototype.stopTone = function (key) {
 };
 
 VoiceRegister.prototype.startTone = function (key, freq) {
-    var frequency = (typeof key === "number") ? this.tuning[key] : freq;
-    var patch = this.patchHandler.getActivePatch();
-    var voice = new Voice(this.context, patch, frequency);
-    voice.connect(this.mainMix);
+    var frequency,
+        patch,
+        voice,
+        notVoice = function (v) {
+            return v === null;
+        };
 
-    this.modulationMatrix.patch(voice, patch.modulation);
-
-    //    this.globalModulators.lfo[0].outputs.oscillatorDetune.connect(voice.oscillator.detune);
-    //    this.globalModulators.lfo[1].outputs.pdMix.connect(voice.oscillator.pan);
-    //    this.globalModulators.lfo[2].outputs.pdMix.connect(voice.noise.pan);
-    //    this.globalModulators.lfo[2].outputs.oscillatorDetune.connect(voice.oscillator.detune);
-
-
-    var notVoice = function (v) {
-        return v === null;
-    };
     if (this.voices.every(notVoice)) {
         this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
     }
+    if (!this.voices[key]) {
+        frequency = (typeof key === "number") ? this.tuning[key] : freq;
+        patch = this.patchHandler.getActivePatch();
 
-    voice.start(this.context.currentTime);
-    this.voices[key] = voice;
+        voice = new Voice(this.context, patch, frequency);
 
-    this.context.dispatchEvent(new CustomEvent("voice.started", {
-        "detail": {
-            "keyNumber": key
-        }
-    }));
+        this.modulationMatrix.patchVoice(voice, patch);
+        voice.connect(this.mainMix);
+        this.voices[key] = voice;
+
+        voice.start(this.context.currentTime);
+
+        this.context.dispatchEvent(new CustomEvent("voice.started", {
+            "detail": {
+                "keyNumber": key
+            }
+        }));
+    }
 };
 module.exports = VoiceRegister;

@@ -1,15 +1,19 @@
 /* global module, require */
 "use strict";
-var DC = require("./DCGenerator");
-var SubOscillator = function (context, patch, frequency) {
+var DC = require("./DCGenerator"),
+    SubOscillator;
+
+SubOscillator = function (context, patch, frequency) {
+    var dc = new DC(context),
+        result;
+
     this.oscillator = context.createOscillator();
     this.oscillator.frequency.value = 0;
     this.oscillator.type = "sine";
     this.gainNode = context.createGain();
     this.gain = this.gainNode.gain;
-    this.gain.value = patch.amount;
+    this.gain.value = 0;
 
-    var dc = new DC(context);
     this.frequencyNode = context.createGain();
     dc.connect(this.frequencyNode);
     this.frequencyNode.gain.value = frequency;
@@ -25,7 +29,7 @@ var SubOscillator = function (context, patch, frequency) {
     this.oscillator.connect(this.gainNode);
     this.gainNode.connect(this.output);
 
-    var result = {
+    result = {
         "start": this.oscillator.start.bind(this.oscillator),
         "stop": this.oscillator.stop.bind(this.oscillator),
         "connect": this.output.connect.bind(this.output),

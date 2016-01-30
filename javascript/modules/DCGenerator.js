@@ -1,13 +1,18 @@
 "use strict";
 var DCGenerator = function (context) {
-    var gen;
-    var real = new Float32Array([0, 1]);
-    var imag = new Float32Array([0, 0]);
+    var gen,
+        real,
+        imag;
+
+    real = new Float32Array([0, 1]);
+    imag = new Float32Array([0, 0]);
 
     gen = context.createOscillator();
-    gen.type = 'custom';
     gen.setPeriodicWave(context.createPeriodicWave(real, imag));
     gen.frequency.value = 0;
+    if (gen.type !== "custom") {
+        gen.type = "custom";
+    }
     gen.start();
     this.generator = gen;
 };

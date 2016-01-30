@@ -1,31 +1,30 @@
 /*global require, module, document */
 "use strict";
 var DCGenerator = require('./DCGenerator'),
-    IdealOscillator = require('./IdealOscillator');
+    IdealOscillator = require('./IdealOscillator'),
+    LFO;
 
-var LFO = function (context, patch, id, options) {
+/**
+    LFO: three outputs
+        - LFO.output (connected by LFO.connect(...)): full range (-1 to 1)
+        - LFO.outputs.positive (connected by LFO.)
+
+*/
+
+LFO = function (context, patch, id, options) {
     var syncMaster = (options && options.syncMaster);
+
     this.id = id || 'lfo';
     this.context = context;
-    this.dc = new DCGenerator(context);
-    this.inverter = context.createGain();
-    this.offset = context.createGain();
-    this.amount = context.createGain();
-    this.sum = context.createChannelMerger();
     this.postGain = context.createGain(); // set gain.value to 0 to mute the lfo output
     this.oscillator = new IdealOscillator(context);
     this.outputs = {};
 
-    this.dc.connect(this.offset);
-    this.inverter.connect(this.amount);
-    this.offset.connect(this.sum);
-    this.amount.connect(this.sum);
-    this.sum.connect(this.postGain);
+    this.oscillator.connect(this.postGain);
 
 
     this.frequency = this.oscillator.frequency;
     this.detune = this.oscillator.detune;
-    this.oscillator.connect(this.inverter);
 
     this.sync = {
         enabled: (patch.syncEnabled),
@@ -58,6 +57,8 @@ var LFO = function (context, patch, id, options) {
         this.isSyncMaster = true;
     }
     this.addEventListeners();
+    this.addOutput("positive", [ 0, 1]);
+    this.addOutput("negative", [-1, 0]);
 };
 LFO.prototype.addEventListeners = function () {
     var that = this,
@@ -111,13 +112,6 @@ LFO.prototype.addEventListeners = function () {
             }
         }.bind(this)
     }, {
-        "event": "lfo.change.",
-        "handler": function lfoChangeHandler(event) {
-            if (event.detail.id === this.id) {
-
-            }
-        }.bind(this)
-    }, {
         "event": "lfo.reset",
         "handler": function lfoChangeHandler(event) {
             if (event.detail.id === this.id) {
@@ -125,13 +119,6 @@ LFO.prototype.addEventListeners = function () {
                     this.context.dispatchEvent(new CustomEvent('lfo.master.reset', {}));
                 }
                 this.oscillator.resetPhase();
-            }
-        }.bind(this)
-    }, {
-        "event": "lfo.change.",
-        "handler": function lfoChangeHandler(event) {
-            if (event.detail.id === this.id) {
-
             }
         }.bind(this)
     }];
@@ -156,8 +143,10 @@ LFO.prototype.addEventListeners = function () {
         this.eventHandlers.push({
             "event": "lfo.master.changed.frequency",
             "handler": function lfoChangeHandler(event) {
+                var syncedFrequency;
+
                 if (this.sync.enabled) {
-                    var syncedFrequency = event.detail * this.sync.ratio.denominator / this.sync.ratio.numerator;
+                    syncedFrequency = event.detail * this.sync.ratio.denominator / this.sync.ratio.numerator;
                     this.setFrequency(syncedFrequency);
                     if (this.mode !== "voice") {
                         this.syncToMaster();
@@ -227,9 +216,26 @@ LFO.prototype.syncToMaster = function () {
     this.context.dispatchEvent(new CustomEvent('lfo.master.requestFrequency', {}));
 
 };
+LFO.prototype.updateOutputRanges = function () {
+    if (this.outputs.positive) {
+        this.outputs.positive.curve = new Float32Array([0, this.values.amount]);
+    }
+    if (this.outputs.negative) {
+        this.outputs.negative.curve = new Float32Array([-this.values.amount, 0]);
+    }
+    console.log("amount: " + this.values.amount);
+};
+
 LFO.prototype.setValueAtTime = function (value, time) {
-    this.amount.gain.setValueAtTime(value / 2, time);
-    this.offset.gain.setValueAtTime(value / 2, time);
+    var delay = 0;
+
+    this.postGain.gain.setValueAtTime(value, time);
+    this.values.amount = value;
+
+    if (time) {
+        delay = Math.max(time - this.context.currentTime, 0);
+    }
+    setTimeout(this.updateOutputRanges.bind(this), delay);
 };
 LFO.prototype.setWaveform = function (waveformName) {
     this.oscillator.setWaveform(waveformName);
@@ -245,16 +251,6 @@ LFO.prototype.stop = function () {
 };
 LFO.prototype.destroy = function () {
     this.removeEventListeners();
-    this.dc.destroy();
-    this.dc = null;
-    this.inverter.disconnect();
-    this.inverter = null;
-    this.offset.disconnect();
-    this.offset = null;
-    this.amount.disconnect();
-    this.amount = null;
-    this.sum.disconnect();
-    this.sum = null;
     this.postGain.disconnect();
     this.postGain = null;
     this.oscillator.destroy();
@@ -271,17 +267,21 @@ LFO.prototype.connect = function (node) {
     }
 };
 LFO.prototype.addOutput = function (name, range) {
+    var shaper,
+        out;
+
     if (this.outputs[name]) {
         throw {
             "error": "An output named '" + name + "' already exists"
         };
     }
+    shaper = this.context.createWaveShaper();
 
-    var out = this.context.createGain();
-    out.gain.value = range;
-    this.postGain.connect(out);
+    if (range && range.length === 2) {
+        shaper.curve = new Float32Array(range);
+    }
 
-    this.outputs[name] = out;
-    return out;
+    this.oscillator.connect(shaper);
+    this.outputs[name] = shaper;
 };
 module.exports = LFO;

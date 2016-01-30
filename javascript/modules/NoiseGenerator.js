@@ -8,7 +8,7 @@ var NoiseGenerator = function (context, patch) {
     this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
     this.gainNode = context.createGain();
     this.gain = this.gainNode.gain;
-    this.gain.value = patch.amount;
+    this.gain.value = 0;
     this.generator.connect(this.gainNode);
 };
 NoiseGenerator.prototype.start = function () {

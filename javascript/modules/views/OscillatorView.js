@@ -4,9 +4,10 @@ var PDOscillator = require("../PDOscillator");
 var IdealOscillator = require("../IdealOscillator");
 var WaveformSelector = require("./WaveformSelector");
 var drawWaveform = require("./drawWaveform");
-var Utils = require("./Utils");
+var ViewUtils = require("./ViewUtils");
+var Utils = require("../Utils");
 
-var OscillatorView = function (ctx, patch, id) {
+var OscillatorView = function (ctx, modulationLimits, patch, id) {
     "use strict";
     var viewOscillator,
         view,
@@ -115,12 +116,12 @@ var OscillatorView = function (ctx, patch, id) {
     // mix control
     mixView = document.createElement("div");
     mixView.classList.add("oscillator-mix-view");
-    mix = Utils.createRangeInput({
+    mix = ViewUtils.createRangeInput({
         label: "Mix",
-        min: 0,
+        min: -1,
         max: 1,
         step: 0.01,
-        value: patch.mix
+        value: Utils.scale(patch.mix, modulationLimits.mix, {min: -1, max: 1})
     });
 
     mixView.appendChild(mix.input);
@@ -136,12 +137,12 @@ var OscillatorView = function (ctx, patch, id) {
     resonanceView = document.createElement("div");
     resonanceView.classList.add("oscillator-resonance-view");
 
-    res = Utils.createRangeInput({
+    res = ViewUtils.createRangeInput({
         label: "Resonance",
-        min: 1,
-        max: 20,
+        min: -1,
+        max: 1,
         step: 0.001,
-        value: patch.resonance
+        value: Utils.scale(patch.resonance, modulationLimits.resonance, {min: -1, max: 1})
     });
     resonanceView.appendChild(res.input);
     resonanceView.appendChild(res.label);
@@ -152,7 +153,7 @@ var OscillatorView = function (ctx, patch, id) {
 
     var wrappedWaveforms = wrapWaveform(viewOscillator, viewOscillator.wrappers, IdealOscillator.waveforms.sinus, 5);
     var wrapperView = new WaveformSelector(viewOscillator, wrappedWaveforms, this.id + ".change.wrapper", ctx, "oscillator-wrapper", patch.wrapper);
-    wrapperView.appendChild(new Utils.createCheckboxInput({
+    wrapperView.appendChild(new ViewUtils.createCheckboxInput({
         "id": this.id + ".resonance",
         dispatchEvent: ".toggle",
         checked: (patch.resonanceActive)
@@ -160,6 +161,27 @@ var OscillatorView = function (ctx, patch, id) {
     resonanceView.appendChild(wrapperView);
     view.appendChild(resonanceView);
 
+    res.input.addEventListener("input", function (evt) {
+        var changeEvent = new CustomEvent(this.id + ".change.resonance", {
+            "detail": evt.target.value
+        });
+        ctx.dispatchEvent(changeEvent);
+    }.bind(this));
+
+    // resonance control
+    var detuneView = document.createElement("div");
+    detuneView.classList.add("oscillator-detune-view");
+
+    var detune = ViewUtils.createRangeInput({
+        label: "Detune",
+        min: -1,
+        max: 1,
+        step:.01,
+        value: Utils.scale(patch.detune, modulationLimits.detune, {min: -1, max: 1})
+    });
+    detuneView.appendChild(detune.input);
+    detuneView.appendChild(detune.label);
+    view.appendChild(detuneView);
 
     ctx.addEventListener("oscillator.env0.changed.data", function (event) {
         viewOscillator.setPDEnvelope0(event.detail.full);
@@ -185,7 +207,7 @@ var OscillatorView = function (ctx, patch, id) {
     });
 
     ctx.addEventListener("oscillator.change.mix", function (event) {
-        viewOscillator.mix.value = event.detail;
+        viewOscillator.mix.value = Utils.scale(event.detail, {min: -1, max: 1}, modulationLimits.mix);
         updateMixWaveView(that.waveView.mix);
         updateResonanceWaveView(that.waveView.resonance);
     });
@@ -197,16 +219,17 @@ var OscillatorView = function (ctx, patch, id) {
         ctx.dispatchEvent(changeEvent);
     }.bind(this));
 
-    res.input.addEventListener("input", function (evt) {
-        var changeEvent = new CustomEvent(this.id + ".change.resonance", {
+
+
+    detune.input.addEventListener("input", function (evt) {
+        var changeEvent = new CustomEvent(this.id + ".change.detune", {
             "detail": evt.target.value
         });
         ctx.dispatchEvent(changeEvent);
     }.bind(this));
 
-
     ctx.addEventListener("oscillator.change.resonance", function (event) {
-        viewOscillator.resonance.value = event.detail;
+        viewOscillator.resonance.value = Utils.scale(event.detail, {min: -1, max: 1}, modulationLimits.resonance);
         updateResonanceWaveView(that.waveView.resonance);
     });
     ctx.addEventListener("oscillator.change.wrapper", function (event) {

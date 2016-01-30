@@ -33,11 +33,14 @@ var KeyboardInput = function (context, configuration) {
     pressed = [];
 
     keyDownHandler = function (event) {
+        var index,
+            key;
+
         if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey) {
             return true;
         }
-        var index = activeLayout.map.indexOf(event.keyCode);
-        var key = activeLayout.offset + index;
+        index = activeLayout.map.indexOf(event.keyCode);
+        key = activeLayout.offset + index;
 
         if (index !== -1 && !pressed[key]) {
             context.dispatchEvent(new CustomEvent('keyboard.keydown', {
@@ -54,8 +57,11 @@ var KeyboardInput = function (context, configuration) {
         }
     };
     keyUpHandler = function (event) {
-        var index = activeLayout.map.indexOf(event.keyCode);
-        var key = activeLayout.offset + index;
+        var index,
+            key;
+
+        index = activeLayout.map.indexOf(event.keyCode);
+        key = activeLayout.offset + index;
 
         if (index !== -1) {
             context.dispatchEvent(new CustomEvent('keyboard.keyup', {

@@ -14,40 +14,42 @@ var patch = {
             [1, 1]
         ],
         "resonanceActive": true,
-        "resonance": 1.633,
+        "resonance": 1.1,
         "wrapper": "saw",
-        "mix": 0.94,
-        "pan": 0
+        "mix": 0,
+        "pan": 0,
+        "detune": 0
     },
     "noise": {
-        "amount": 0.01,
+        "gain": 0,
         "active": true,
         "pan": 0
     },
     "sub": {
         "ratio": 1,
-        "amount": 0.3,
-        "active": true
+        "gain": 0.3,
+        "active": true,
+        "pan": 0
     },
     "lfo": [{
         "waveform": "square",
         "frequency": 1.34,
-        "amount": 0,
-        "mode": "global",
-        "active": true
+        "amount": 1,
+        "active": true,
+        "mode": "global"
     }, {
-        "waveform": "sinus",
-        "frequency": 0.4,
+        "waveform": "additiveSaw",
+        "frequency": 6.4,
         "amount": 1.0,
-        "syncEnabled": false,
+        "syncEnabled": true,
         "syncRatioNumerator": 32,
         "syncRatioDenominator": 1,
         "active": true,
-        "mode": "voice"
+        "mode": "global" /* "voice"  TODO: implement voice LFOs */
     }, {
-        "waveform": "square",
+        "waveform": "sinus",
         "frequency": 0.08,
-        "amount": 0.0,
+        "amount": 1.0,
         "syncEnabled": true,
         "syncRatioNumerator": 1,
         "syncRatioDenominator": 4,
@@ -71,7 +73,8 @@ var patch = {
                 [1, 0]
             ],
             "duration": 1
-        }
+        },
+        mode: "local"
     }, {
         "attack": {
             "steps": [
@@ -87,37 +90,44 @@ var patch = {
                 [0.2, 0.1],
                 [1, 0]
             ],
-            "duration": 0.5
-        }
+            "duration": 0.1
+        },
+        mode: "local"
     }],
     "modulation": {
         "envelope": [{
-            "vca": {
+            "vca.gain": {
                 "amount": 1.0,
-                "type": "other modulation properties than amount might be useful..."
+                "range": "positive"
             },
             "oscillator.mix": {
-                "amount": 0.3
+                "amount": 0.3,
+                "range": "positive"
             }
         }, {
             "oscillator.resonance": {
-                "amount": 1
+                "amount": 1,
+                "range": "positive"
             }
         }],
         "lfo": [{
             "oscillator.detune": {
-                "amount": 1
-            }
-        }, {
-            "oscillator.pan": {
-                "amount": 1
-            }
-        }, {
-            "noise.pan": {
-                "amount": 1
+                "amount": .1,
+                "range": "positive"
             },
-            "oscillator.detune": {
-                "amount": 1
+        }, {
+            "oscillator.resonance": {
+                "amount": .1,
+                "range": "positive"
+            },
+            "noise.pan": {
+                "amount": 1,
+                "range": "full"
+            }
+        }, {
+            "noise.gain": {
+                "amount": .1,
+                "range": "positive"
             }
         }]
     }
@@ -139,7 +149,8 @@ var rpatch = {
         resonanceActive: true,
         resonance: 1.1,
         wrapper: 'saw',
-        mix: 0
+        mix: 0,
+        detune: 0
     },
     lfo: [{
         waveform: "square",

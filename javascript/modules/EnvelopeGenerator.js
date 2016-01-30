@@ -30,7 +30,6 @@ var EnvelopeGenerator = function (context, envelopeData, id) {
         }
     };
     this.connections.disconnect = function () {
-        this.cancelScheduledValues();
         var i, j;
         for (i = 0, j = this.length; i < j; i += 1) {
             this[i] = null;
@@ -53,7 +52,7 @@ EnvelopeGenerator.prototype.applyEnvelope = function (envelope, time) {
     step = envelope.steps[0];
     stepTime = time + (step[0] * duration);
     stepValue = step[1];
-    this.connections.setValueAtTime(stepValue, stepTime);
+    this.connections.linearRampToValueAtTime(stepValue, stepTime);
 
     for (i = 1, j = envelope.steps.length; i < j; i += 1) {
         step = envelope.steps[i];

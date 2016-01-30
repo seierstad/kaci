@@ -5,7 +5,16 @@ var MidiInput = function (context, settings) {
     "use strict";
     var midiAccessFailure,
         midiAccessSuccess,
-        that = this;
+        that = this,
+        controlChangeHandler,
+        sendControlChangeEvent,
+        isActiveChannel,
+        activeChannelMessageHandler,
+        midiMessageHandler,
+        midiHandler,
+        removeInputListeners,
+        addInputListeners,
+        selectInputPortHandler;
 
     this.access = null;
     this.inputs = {};
@@ -69,8 +78,8 @@ var MidiInput = function (context, settings) {
     midiAccessFailure = function (exception) {
         console.log("MIDI failure: " + exception);
     };
+
     midiAccessSuccess = function (access) {
-        console.log("MIDI success");
         var input,
             inputIterator;
 
@@ -90,20 +99,20 @@ var MidiInput = function (context, settings) {
             detail: that.activeInputId
         });
     };
-    var controlChangeHandler = function controlChangeHandler(event) {
+    controlChangeHandler = function controlChangeHandler(event) {
 
     };
-    var sendControlChangeEvent = function (controlName, value) {
+    sendControlChangeEvent = function (controlName, value) {
         context.dispatchEvent(new CustomEvent("midi.control.change." + controlName, {
             "detail": {
                 "value": value
             }
         }));
     };
-    var isActiveChannel = function isActiveChannel(firstByte) {
+    isActiveChannel = function isActiveChannel(firstByte) {
         return (that.activeChannel === firstByte & 0x0F) || (typeof that.activeChannel === "string" && that.activeChannel === "all");
     };
-    var activeChannelMessageHandler = function activeChannelMessageHandler(data, overrideType) {
+    activeChannelMessageHandler = function activeChannelMessageHandler(data, overrideType) {
         var type = data[0],
             index = 0;
 
@@ -160,19 +169,19 @@ var MidiInput = function (context, settings) {
         }
 
     };
-    var midiMessageHandler = function (event) {
+    midiMessageHandler = function (event) {
         if (isActiveChannel(event.data[0])) {
             activeChannelMessageHandler(event.data);
         }
     };
-    var midiHandler = midiMessageHandler.bind(this);
-    var removeInputListeners = function (port) {
+    midiHandler = midiMessageHandler.bind(this);
+    removeInputListeners = function (port) {
         port.removeEventListener("midimessage", midiHandler);
     };
-    var addInputListeners = function (port) {
+    addInputListeners = function (port) {
         port.addEventListener("midimessage", midiHandler, false);
     };
-    var selectInputPortHandler = function (event) {
+    selectInputPortHandler = function (event) {
         var portId = event.detail;
         if (that.activeInput && that.activeInput.id !== portId) {
             removeInputListeners(that.activeInput);

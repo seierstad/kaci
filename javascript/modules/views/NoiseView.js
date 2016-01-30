@@ -1,21 +1,23 @@
 /* global require, module, document */
 "use strict";
-var Utils = require('./Utils');
+var ViewUtils = require('./ViewUtils');
+var Utils = require('../Utils');
 
-var NoiseView = function (context, patch, params) {
+
+var NoiseView = function (context, modulationLimits, patch, params) {
     if (!patch) {
         patch = {};
     }
     if (!params) {
         params = {};
     }
-    var view, noiseToggle, noiseAmount;
+    var view, noiseToggle, noiseGain, noisePan;
     this.noiseId = (params && params.noiseId) ? params.noiseId : 'noise';
     var that = this;
     view = document.createElement("section");
     view.id = this.noiseId + "-view";
 
-    noiseToggle = new Utils.createCheckboxInput({
+    noiseToggle = new ViewUtils.createCheckboxInput({
         "id": this.noiseId,
         dispatchEvent: ".toggle",
         checked: (patch.noiseActive)
@@ -23,22 +25,39 @@ var NoiseView = function (context, patch, params) {
 
     view.appendChild(noiseToggle);
 
-    noiseAmount = Utils.createRangeInput({
-        label: params.labelAmount || "Noise amount",
+    noiseGain = ViewUtils.createRangeInput({
+        label: params.labelGain || "Noise gain",
         container: view,
-        min: 0,
+        min: -1,
         max: 1,
         step: 0.01,
-        value: patch.amount
+        value: Utils.scale(patch.gain, modulationLimits.gain, {min: -1, max: 1})
     });
-    noiseAmount.input.addEventListener('input', function (evt) {
-        var event = new CustomEvent(that.noiseId + ".change.amount", {
+    noiseGain.input.addEventListener('input', function (evt) {
+        var event = new CustomEvent(that.noiseId + ".change.gain", {
             detail: evt.target.value
         });
         context.dispatchEvent(event);
     });
-    view.appendChild(noiseAmount.label);
-    view.appendChild(noiseAmount.input);
+    view.appendChild(noiseGain.label);
+    view.appendChild(noiseGain.input);
+
+    noisePan = ViewUtils.createRangeInput({
+        label: params.labelPan || "Noise pan",
+        container: view,
+        min: -1,
+        max: 1,
+        step: 0.01,
+        value: Utils.scale(patch.pan, modulationLimits.pan, {min: -1, max: 1})
+    });
+    noisePan.input.addEventListener('input', function (evt) {
+        var event = new CustomEvent(that.noiseId + ".change.pan", {
+            detail: evt.target.value
+        });
+        context.dispatchEvent(event);
+    });
+    view.appendChild(noisePan.label);
+    view.appendChild(noisePan.input);
 
     return view;
 };

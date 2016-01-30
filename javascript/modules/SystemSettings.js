@@ -1,7 +1,11 @@
 /* global localStorage */
 var SystemSettings = function (context, defaultSettings) {
     "use strict";
-    var settingsString;
+    var settingsString,
+        keyboardLayoutChangedHandler,
+        midiInputPortChangedHandler,
+        baseFrequencyChangedHandler;
+
     this.settings = defaultSettings;
 
     if (localStorage) {
@@ -17,17 +21,22 @@ var SystemSettings = function (context, defaultSettings) {
             localStorage.setItem("kaciSystemSettings", string);
         }
     };
-    var keyboardLayoutChangedHandler = function (event) {
+    keyboardLayoutChangedHandler = function (event) {
         this.settings.keyboard.layout = event.detail;
         this.storeSettings();
     };
-    var midiInputPortChangedHandler = function (event) {
+    midiInputPortChangedHandler = function (event) {
         this.settings.midi.portId = event.detail;
+        this.storeSettings();
+    };
+    baseFrequencyChangedHandler = function (event) {
+        this.settings.tuning.baseFrequency = event.detail;
         this.storeSettings();
     };
 
     context.addEventListener("system.keyboard.input.layout.changed", keyboardLayoutChangedHandler.bind(this));
     context.addEventListener("midi.select.input.port", midiInputPortChangedHandler.bind(this));
+    context.addEventListener("system.tuning.baseFrequency.changed", baseFrequencyChangedHandler.bind(this));
 
 };
 module.exports = SystemSettings;

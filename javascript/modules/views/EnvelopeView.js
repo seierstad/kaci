@@ -2,7 +2,7 @@
 
 "use strict";
 var SVGControllerElement = require('./SVGControllerElement'),
-    utils = require('./Utils');
+    utils = require('./ViewUtils');
 
 var svgns = 'http://www.w3.org/2000/svg';
 

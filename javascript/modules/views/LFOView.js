@@ -4,7 +4,7 @@
 // TODO: rewrite direct calls to lfo to event passing
 
 
-var Utils = require("./Utils"),
+var Utils = require("./ViewUtils"),
     IdealOscillator = require("../IdealOscillator"),
     WaveformSelector = require("./WaveformSelector");
 
@@ -41,7 +41,7 @@ var LFOView = function (ctx, patch, params) {
     lfoAmount = Utils.createRangeInput({
         label: params.labelAmount || "LFO amount",
         container: lfoView,
-        min: -1,
+        min: 0,
         max: 1,
         step: 1 / 12,
         value: patch.amount
@@ -49,7 +49,7 @@ var LFOView = function (ctx, patch, params) {
     lfoAmount.input.addEventListener("input", function (evt) {
         var event = new CustomEvent("lfo.change.amount", {
             detail: {
-                value: evt.target.value,
+                value: parseFloat(evt.target.value),
                 id: that.lfoId
             }
         });
@@ -68,7 +68,7 @@ var LFOView = function (ctx, patch, params) {
     var rateInputChangeListener = function rateInputChangeListener(evt) {
         var event = new CustomEvent("lfo.change.frequency", {
             detail: {
-                value: evt.target.value,
+                value: parseFloat(evt.target.value),
                 id: that.lfoId
             }
         });
@@ -79,66 +79,72 @@ var LFOView = function (ctx, patch, params) {
         lfoRate.input.disabled = true;
     }
 
-    var blinkAnimation = function blinkAnimation(element, frequency, states, easing) {
-        var animation = element.animate(states || [{
-            backgroundColor: "blue"
-        }, {
-            backgroundColor: "red"
-        }], {
-            duration: 1000 / frequency,
-            iterations: Infinity,
-            delay: 0,
-            easing: easing || "step-middle"
-        });
-        element.addEventListener("animationiteration", function (event) {
-            console.dir(event);
-        });
-        return animation;
-    };
+
 
     var lfoRateMonitor = document.createElement("div");
-    lfoRateMonitor.setAttribute("class", "blink");
-    lfoView.appendChild(lfoRateMonitor);
+    if (typeof lfoRateMonitor === "function") {
 
-    var lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
+        var blinkAnimation = function blinkAnimation(element, frequency, states, easing) {
+            if (typeof element.animate === "function") {
+                var animation = element.animate(states || [{
+                        backgroundColor: "blue"
+                    }, {
+                        backgroundColor: "red"
+                    }], {
+                    duration: 1000 / frequency,
+                    iterations: Infinity,
+                    delay: 0,
+                    easing: easing || "step-middle"
+                });
+                element.addEventListener("animationiteration", function (event) {
+                    console.dir(event);
+                });
+                return animation;
+            }
+        };
 
-    var synchronizeAnimation = function synchronizeAnimation(freq) {
-        //        lfo.oscillator.requestZeroPhaseEvent(that.lfoId + ".zeroPhase");
-        ctx.addEventListener(that.lfoId + ".zeroPhase", function () {
-            ctx.removeEventListener(that.lfoId + ".zeroPhase");
-            lfoRateAnimation = blinkAnimation(lfoRateMonitor, freq || lfoRate.input.value);
-        });
-    };
+        lfoRateMonitor.setAttribute("class", "blink");
+        lfoView.appendChild(lfoRateMonitor);
 
-    var startAnimation = function startAnimation() {
-        if (lfoRateAnimation) {
-            lfoRateAnimation.cancel();
-            lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
-            lfoRateAnimation.addEventListener("finish", function () {
-                synchronizeAnimation();
+        var lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
+
+        var synchronizeAnimation = function synchronizeAnimation(freq) {
+            //        lfo.oscillator.requestZeroPhaseEvent(that.lfoId + ".zeroPhase");
+            ctx.addEventListener(that.lfoId + ".zeroPhase", function () {
+                ctx.removeEventListener(that.lfoId + ".zeroPhase");
+                lfoRateAnimation = blinkAnimation(lfoRateMonitor, freq || lfoRate.input.value);
             });
-        } else {
-            synchronizeAnimation();
-        }
-    };
+        };
 
-    lfoRate.input.addEventListener("input", function () {
-        startAnimation();
-    });
-    lfoReset.addEventListener("click", function () {
-        var event = new CustomEvent(that.lfoId + ".reset", {});
-        startAnimation();
-        ctx.dispatchEvent(event);
-    });
-    synchronizeAnimation();
+        var startAnimation = function startAnimation() {
+            if (lfoRateAnimation) {
+                lfoRateAnimation.cancel();
+                lfoRateAnimation = blinkAnimation(lfoRateMonitor, lfoRate.input.value);
+                lfoRateAnimation.addEventListener("finish", function () {
+                    synchronizeAnimation();
+                });
+            } else {
+                synchronizeAnimation();
+            }
+        };
 
-    var frequencyChangeHandler = function frequencyChangeHandler(event) {
-        if (event.detail.id === that.lfoId) {
-            synchronizeAnimation(event.detail.value);
-        }
-    };
-    ctx.addEventListener("lfo.changed.frequency", frequencyChangeHandler);
+        lfoRate.input.addEventListener("input", function () {
+            startAnimation();
+        });
+        lfoReset.addEventListener("click", function () {
+            var event = new CustomEvent(that.lfoId + ".reset", {});
+            startAnimation();
+            ctx.dispatchEvent(event);
+        });
+        synchronizeAnimation();
 
+        var frequencyChangeHandler = function frequencyChangeHandler(event) {
+            if (event.detail.id === that.lfoId) {
+                synchronizeAnimation(event.detail.value);
+            }
+        };
+        ctx.addEventListener("lfo.changed.frequency", frequencyChangeHandler);
+    }
     var syncRateNumerator, syncRateDenominator, syncRateToggle;
 
     var changeSyncRatio = function changeSyncRatio() {

@@ -1,11 +1,19 @@
 /* global module, require */
 "use strict";
-var patch = require("./patch");
-var PatchHandler = function (context) {
-    var i, j, that = this;
-    this.patch = patch;
+var Utils = require("./Utils"),
+    PatchHandler;
 
-    var getEnvelopeEventListener = function (envelopeData, envelopeId) {
+PatchHandler = function (context, configuration) {
+    var i,
+        j,
+        that = this,
+        getEnvelopeEventListener,
+        voiceParameterHandler,
+        getLfoToggleHandler;
+
+    this.patch = require("./patch");
+
+    getEnvelopeEventListener = function (envelopeData, envelopeId) {
         return function (event) {
             var detail = event.detail;
 
@@ -30,45 +38,69 @@ var PatchHandler = function (context) {
         };
     };
 
-    for (i = 0, j = patch.envelope.length; i < j; i += 1) {
-        context.addEventListener("envelope" + i + ".attack.change.data", getEnvelopeEventListener(patch.envelope[i].attack.steps, "envelope" + i + ".attack"));
-        context.addEventListener("envelope" + i + ".release.change.data", getEnvelopeEventListener(patch.envelope[i].release.steps, "envelope" + i + ".release"));
+    for (i = 0, j = this.patch.envelope.length; i < j; i += 1) {
+        context.addEventListener("envelope" + i + ".attack.change.data", getEnvelopeEventListener(this.patch.envelope[i].attack.steps, "envelope" + i + ".attack"));
+        context.addEventListener("envelope" + i + ".release.change.data", getEnvelopeEventListener(this.patch.envelope[i].release.steps, "envelope" + i + ".release"));
     }
-    context.addEventListener("oscillator.env0.change.data", getEnvelopeEventListener(patch.oscillator.pdEnvelope0, "oscillator.env0"));
-    context.addEventListener("oscillator.env1.change.data", getEnvelopeEventListener(patch.oscillator.pdEnvelope1, "oscillator.env1"));
+    context.addEventListener("oscillator.env0.change.data", getEnvelopeEventListener(this.patch.oscillator.pdEnvelope0, "oscillator.env0"));
+    context.addEventListener("oscillator.env1.change.data", getEnvelopeEventListener(this.patch.oscillator.pdEnvelope1, "oscillator.env1"));
 
-    var getLfoToggleHandler = function (index) {
+    voiceParameterHandler = function (mod, param, modIndex) {
+        return function (evt) {
+            var value = evt.detail.value || evt.detail;
+            if (configuration.modulation.target[mod] && configuration.modulation.target[mod][param] && typeof configuration.modulation.target[mod][param].min === "number") {
+                value = Utils.scale(value, {
+                    min: -1,
+                    max: 1
+                }, configuration.modulation.target[mod][param]);
+            }
+            if (typeof modIndex !== "undefined") {
+                that.patch[mod][modIndex][param] = value;
+            } else {
+                that.patch[mod][param] = value;
+            }
+        };
+    };
+
+    var modulationDisconnectHandler = function (event) {
+        console.log("type: " + event.detail.sourceType);
+        console.log("index: " + event.detail.sourceIndex);
+        console.log("target module: " + event.detail.targetModule);
+        console.log("target parameter: " + event.detail.targetParameter);
+        //that.patch.modulation        
+    };
+
+
+    getLfoToggleHandler = function (index) {
         return function (event) {
             that.patch.lfo[index].active = event.detail;
         };
     };
 
-    for (i = 0, j = patch.lfo.length; i < j; i += 1) {
+    for (i = 0, j = this.patch.lfo.length; i < j; i += 1) {
         context.addEventListener("lfo" + i + ".toggle", getLfoToggleHandler(i));
     }
-
-
-    var voiceParameterHandler = function (mod, param) {
-        return function (evt) {
-            if (evt.detail.value) {
-                that.patch[mod][param] = evt.detail.value;
-            } else {
-                that.patch[mod][param] = evt.detail;
-            }
-        };
-    };
+    context.addEventListener("lfo.change.frequency", function (evt) {
+        var id;
+        if (evt.detail.id) {
+            id = evt.detail.id.substr(3);
+            voiceParameterHandler("lfo", "frequency", id)(evt);
+        }
+    });
+    context.addEventListener("modulation.change.disconnect", modulationDisconnectHandler);
 
     context.addEventListener("oscillator.change.waveform", voiceParameterHandler("oscillator", "waveform"));
     context.addEventListener("oscillator.change.wrapper", voiceParameterHandler("oscillator", "wrapper"));
     context.addEventListener("oscillator.resonance.toggle", voiceParameterHandler("oscillator", "resonanceActive"));
     context.addEventListener("oscillator.change.resonance", voiceParameterHandler("oscillator", "resonance"));
     context.addEventListener("oscillator.change.mix", voiceParameterHandler("oscillator", "mix"));
+    context.addEventListener("oscillator.change.detune", voiceParameterHandler("oscillator", "detune"));
 
-    context.addEventListener("noise.change.amount", voiceParameterHandler("noise", "amount"));
+    context.addEventListener("noise.change.gain", voiceParameterHandler("noise", "gain"));
     context.addEventListener("noise.toggle", voiceParameterHandler("noise", "active"));
 
     context.addEventListener("sub.change.ratio", voiceParameterHandler("sub", "ratio"));
-    context.addEventListener("sub.change.amount", voiceParameterHandler("sub", "amount"));
+    context.addEventListener("sub.change.gain", voiceParameterHandler("sub", "gain"));
     context.addEventListener("sub.toggle", voiceParameterHandler("sub", "active"));
 };
 PatchHandler.prototype.getActivePatch = function () {

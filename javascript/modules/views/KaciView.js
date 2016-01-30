@@ -8,6 +8,7 @@ var KeyboardView = require("./KeyboardView");
 var SystemSettingsView = require("./SystemSettingsView");
 var NoiseView = require("./NoiseView");
 var SubView = require("./SubView");
+var ModulationMatrixView = require("./ModulationMatrixView");
 
 var KaciView = function (context, systemSettings, patch) {
     var systemSettingsView = new SystemSettingsView(context, systemSettings);
@@ -20,13 +21,13 @@ var KaciView = function (context, systemSettings, patch) {
     });
     document.body.appendChild(keyboardView);
 
-    var ov = new OscillatorView(context, patch.oscillator);
+    var ov = new OscillatorView(context, systemSettings.modulation.target.oscillator, patch.oscillator);
     document.body.appendChild(ov);
 
-    var noiseView = new NoiseView(context, patch.noise);
+    var noiseView = new NoiseView(context, systemSettings.modulation.target.noise, patch.noise);
     document.body.appendChild(noiseView);
 
-    var subView = new SubView(context, patch.sub);
+    var subView = new SubView(context, systemSettings.modulation.target.sub, patch.sub);
     document.body.appendChild(subView);
 
     var lfoView = [],
@@ -47,5 +48,7 @@ var KaciView = function (context, systemSettings, patch) {
 
     }
 
+    var modulationMatrixView = new ModulationMatrixView(context, systemSettings.modulation, patch.modulation);
+    document.body.appendChild(modulationMatrixView);
 };
 module.exports = KaciView;

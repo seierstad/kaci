@@ -1,7 +1,7 @@
 /*globals require, module */
 "use strict";
 var SVGControllerElement = require('./SVGControllerElement');
-var Utils = require('./Utils');
+var Utils = require('./ViewUtils');
 
 var KeyboardView = function (context, params) {
     if (!params) {

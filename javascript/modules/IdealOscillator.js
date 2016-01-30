@@ -1,8 +1,8 @@
 /*globals require, module, CustomEvent */
 "use strict";
-var DCGenerator = require("./DCGenerator");
-var BUFFER_LENGTH = require("./constants").BUFFER_LENGTH;
-var DOUBLE_PI = require("./constants").DOUBLE_PI;
+var DCGenerator = require("./DCGenerator"),
+    BUFFER_LENGTH = require("./constants").BUFFER_LENGTH,
+    DOUBLE_PI = require("./constants").DOUBLE_PI;
 
 var IdealOscillator = function (context) {
     var i,
@@ -59,7 +59,9 @@ IdealOscillator.waveforms = {
     additiveSquare: function additiveSquare(phase, maxHarmonic) {
         var value = 0,
             i = 1;
+
         maxHarmonic = maxHarmonic || 8;
+
         for (i = 1; i < maxHarmonic; i += 2) {
             value += Math.sin(phase * this.DOUBLE_PI * i) / i;
         }
@@ -71,10 +73,13 @@ IdealOscillator.waveforms = {
     additiveSaw: function additiveSaw(phase, maxHarmonic) {
         var value = 0,
             i;
+
         maxHarmonic = maxHarmonic || 8;
+
         for (i = 1; i < maxHarmonic; i += 1) {
             value += Math.sin(phase * this.DOUBLE_PI * i) / i;
         }
+
         return value * (2 / Math.PI);
     },
     saw_inverse: function saw_inverse(phase) {
@@ -208,10 +213,13 @@ IdealOscillator.prototype.start = function () {
     if (!this.paused) {
         this.resetPhase();
     }
-    this.generator.addEventListener("audioprocess", this.getGenerator(this));
+    this.generator.onaudioprocess = this.getGenerator(this);
+//    this.generator.addEventListener("audioprocess", this.getGenerator(this));
 };
 IdealOscillator.prototype.stop = function () {
-    this.generator.removeEventListener("audioprocess");
+    this.generator.onaudioprocess = null;
+    
+//    this.generator.removeEventListener("audioprocess");
 };
 IdealOscillator.prototype.setWaveform = function (waveformName) {
     if (typeof IdealOscillator.waveforms[waveformName] === "function") {
