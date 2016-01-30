@@ -19,7 +19,8 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
         "erik": Tunings.getExperimentalScale(0, 120, 57, 220),
         "halvannen": Tunings.getHalvannenScale(0, 120, 57, 220)
     };
-    this.voices = [];
+    this.activeVoices = [];
+    this.stoppedVoices = [];
 
     this.mainMix = context.createGain();
     this.mainMix.connect(context.destination);
@@ -45,9 +46,14 @@ VoiceRegister.prototype.deleteVoice = function (voice) {
     var voiceIndex,
         notVoice;
 
-    voiceIndex = this.voices.indexOf(voice);
+    voiceIndex = this.stoppedVoices.indexOf(voice);
     if (voiceIndex !== -1) {
-        this.voices[voiceIndex] = null;
+        this.stoppedVoices[voiceIndex] = null;
+    } else {
+        voiceIndex = this.activeVoices.indexOf(voice);
+        if (voiceIndex !== -1) {
+            this.activeVoices[voiceIndex] = null;
+        }
     }
 //    this.modulationMatrix.unpatchVoice(voice);
     voice = null;
@@ -55,7 +61,7 @@ VoiceRegister.prototype.deleteVoice = function (voice) {
         return v === null;
     };
 
-    if (this.voices.every(notVoice)) {
+    if (this.activeVoices.every(notVoice) && this.stoppedVoices.every(notVoice)) {
         // no active voices -> stop global lfos
         this.context.dispatchEvent(new CustomEvent("voice.last.ended", {}));
     }
@@ -63,10 +69,18 @@ VoiceRegister.prototype.deleteVoice = function (voice) {
 };
 
 VoiceRegister.prototype.stopTone = function (key) {
-    var voice = this.voices[key];
+    var voice = this.activeVoices[key];
 
     if (voice) {
+
         voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
+        if (this.stoppedVoices[key]) {
+            this.deleteVoice(this.stoppedVoices[key]);
+        }
+
+        this.stoppedVoices[key] = voice;
+        this.activeVoices[key] = null;
+
         this.context.dispatchEvent(new CustomEvent("voice.ended", {
             "detail": {
                 "keyNumber": key
@@ -83,10 +97,10 @@ VoiceRegister.prototype.startTone = function (key, freq) {
             return v === null;
         };
 
-    if (this.voices.every(notVoice)) {
+    if (this.activeVoices.every(notVoice)) {
         this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
     }
-    if (!this.voices[key]) {
+    if (!this.activeVoices[key]) {
         frequency = (typeof key === "number") ? this.tuning[key] : freq;
         patch = this.patchHandler.getActivePatch();
 
@@ -94,7 +108,7 @@ VoiceRegister.prototype.startTone = function (key, freq) {
 
         this.modulationMatrix.patchVoice(voice, patch);
         voice.connect(this.mainMix);
-        this.voices[key] = voice;
+        this.activeVoices[key] = voice;
 
         voice.start(this.context.currentTime);
 
