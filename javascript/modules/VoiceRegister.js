@@ -7,7 +7,11 @@ var Tunings = require("./Tunings"),
 
 VoiceRegister = function (context, patchHandler, modulationMatrix) {
     var appKeyDownHandler,
-        appKeyUpHandler;
+        appKeyUpHandler,
+        chordShiftHandler,
+        activateChordShiftHandler,
+        deactivateChordShiftHandler,
+        getIndexes;
 
     this.context = context;
     this.patchHandler = patchHandler;
@@ -21,6 +25,11 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
     };
     this.activeVoices = [];
     this.stoppedVoices = [];
+    this.chordShifter = {
+        active: false,
+        chords: [],
+        activeKeys: []
+    };
 
     this.mainMix = context.createGain();
     this.mainMix.connect(context.destination);
@@ -29,16 +38,127 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
 
     this.tuning = this.tunings.tempered;
 
+    getIndexes = function getIndexes(keyarray) {
+        return keyarray.map(function (value, index, arr) {
+            if (value !== null && value !== undefined) return index;
+        }).filter(function (value) {
+            return value !== undefined
+        });
+    };
 
     appKeyDownHandler = function appKeyDownHandler(event) {
-        this.startTone(event.detail.keyNumber);
+        var k = event.detail.keyNumber,
+            lastChord,
+            chords = this.chordShifter.chords;
+
+        if (!this.chordShifter.active) {
+            this.startTone(k);
+        } else {
+            if (this.chordShifter.activeKeys.length === 0) {
+                // first pressed key -> start new chord
+                chords.push([k]);
+            } else {
+                lastChord = chords[chords.length - 1];
+                if (lastChord.indexOf(k) === -1) {
+                    // add key to last chord
+                    lastChord.push(k);
+                    lastChord.sort(function (a, b) {
+                        return a < b ? -1 : 1;
+                    });
+                }
+            }
+            this.chordShifter.activeKeys.push(k);
+            if (chords.length === 1) {
+                // add tones to initial chord after chordShift is activated
+                this.startTone(k);
+            }
+        }
     };
 
     appKeyUpHandler = function appKeyUpHandler(event) {
-        this.stopTone(event.detail.keyNumber);
+        var k = event.detail.keyNumber,
+            activeIndex;
+        if (!this.chordShifter.active) {
+            this.stopTone(k);
+        } else {
+            // register key as released in chordShifter
+            activeIndex = this.chordShifter.activeKeys.indexOf(k);
+            if (activeIndex !== -1) {
+                this.chordShifter.activeKeys.splice(activeIndex, 1);
+            }
+        }
     };
+
+    activateChordShiftHandler = function activateChordShiftHandler(event) {
+        // activate
+        this.chordShifter.active = true;
+
+        // add current chord (if any)
+        var activeKeys = getIndexes(this.activeVoices);
+        if (activeKeys.length > 0) {
+            this.chordShifter.chords.push(activeKeys);
+            this.chordShifter.activeKeys = activeKeys.slice();
+        } else {
+            this.chordShifter.activeKeys = [];
+        }
+    };
+
+    deactivateChordShiftHandler = function activateChordShiftHandler(event) {
+        this.chordShifter = {
+            active: false,
+            chords: [],
+            activeKeys: []
+        };
+        // TODO: handle held keys/active voices
+
+    };
+
+    chordShiftHandler = function chordShiftHandler(event) {
+        var value = event.detail.value,
+            i,
+            j,
+            voice,
+            voiceIndexes,
+            chordIndex,
+            chordRatio,
+            frequency1,
+            frequency2,
+            q,
+            frequency,
+            chords = this.chordShifter.chords;
+
+        if (this.chordShifter.active) {
+
+            q = value * (chords.length - 1);
+            chordIndex = Math.floor(q);
+            chordRatio = q - chordIndex;
+
+            voiceIndexes = getIndexes(this.activeVoices);
+
+            //            console.log("chord index: " + chordIndex + "\tchord1:\t" + chords[chordIndex].length + "\tchord2:\t" + chords[chordIndex + 1].length + " ratio: " + chordRatio);
+            for (i = 0, j = voiceIndexes.length; i < j; i += 1) {
+                voice = this.activeVoices[voiceIndexes[i]];
+
+                frequency1 = this.tuning[chords[chordIndex][i]];
+                if (chordIndex === chords.length - 1) {
+                    frequency = frequency1;
+                } else {
+                    frequency2 = this.tuning[chords[chordIndex + 1][i]];
+                    frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
+                    console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
+                }
+                if (!isNaN(frequency)) {
+                    voice.setFrequency(frequency);
+                }
+            }
+        }
+    };
+
     context.addEventListener("keyboard.keydown", appKeyDownHandler.bind(this));
     context.addEventListener("keyboard.keyup", appKeyUpHandler.bind(this));
+    context.addEventListener("keyboard.chordShift.activate", activateChordShiftHandler.bind(this));
+    context.addEventListener("keyboard.chordShift.deactivate", deactivateChordShiftHandler.bind(this));
+    context.addEventListener("keyboard.chordShift", chordShiftHandler.bind(this));
 
 };
 
@@ -55,7 +175,7 @@ VoiceRegister.prototype.deleteVoice = function (voice) {
             this.activeVoices[voiceIndex] = null;
         }
     }
-//    this.modulationMatrix.unpatchVoice(voice);
+    //    this.modulationMatrix.unpatchVoice(voice);
     voice = null;
     notVoice = function (v) {
         return v === null;

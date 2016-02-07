@@ -209,7 +209,6 @@ Voice.prototype.start = function (time) {
             envelope.trigger(time);
         }
     });
-    this.envelope[0].connect(this.vca.gain); // veldig midlertidig hack TODO TODO
 };
 Voice.prototype.stop = function (time, callback) {
     this.stopTime = time;
@@ -219,17 +218,31 @@ Voice.prototype.stop = function (time, callback) {
     this.destroyCallback = callback;
     this.destroyTimer = setTimeout(this.destroy.bind(this), this.envelope[0].getReleaseDuration() * 1000);
 };
+Voice.prototype.setFrequency = function setFrequency(frequency) {
+    this.oscillator.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
+    this.sub.frequency.setValueAtTime(frequency, this.context.currentTime);
+};
 Voice.prototype.getLocalModulators = function getLocalModulators() {
     return {
         "lfo": this.lfo,
         "envelope": this.envelope
     };
 };
-Voice.prototype.getEnvelopeTargets = function getEnvelopeTargets () {
-    return {
+Voice.prototype.getEnvelopeTargets = function getEnvelopeTargets() {
+    var targets = {
         "vca.gain": this.vca.gain,
-        "noise.gain": this.noise.gain
+        "noise.gain": this.noise.gain,
+        "sub.gain": this.sub.gain,
+        "oscillator.resonance": this.oscillator.resonance.gain,
+        "oscillator.mix": this.oscillator.mix.gain,
+        "oscillator.detune": this.oscillator.detune
     };
+    if (typeof this.context.createStereoPanner === "function") {
+        targets["oscillator.pan"] = this.oscillator.pan;
+        targets["sub.pan"] = this.sub.pan;
+        targets["noise.pan"] = this.noise.pan;
+    }
+    return targets;
 };
 
 module.exports = Voice;

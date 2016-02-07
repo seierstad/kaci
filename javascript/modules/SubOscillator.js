@@ -37,7 +37,7 @@ SubOscillator = function (context, patch, frequency) {
         "destroy": this.destroy,
         // exposed audio parameters
         "gain": this.gain,
-        "frequency": this.oscillator.frequency,
+        "frequency": this.frequencyNode.gain,
         "ratio": this.ratioNode.gain
     };
     return result;

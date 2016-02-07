@@ -1,5 +1,7 @@
 /* global require, document */
 "use strict";
+var CHORD_SHIFTER_TOGGLE = 32; // space bar
+
 var KeyboardInput = function (context, configuration) {
     var keyboardCodeLayouts,
         keyDownHandler,
@@ -8,7 +10,8 @@ var KeyboardInput = function (context, configuration) {
         changeLayoutHandler,
         activeLayout,
         activeLayoutName,
-        pressed;
+        pressed,
+        pressedControlKeys;
 
     keyboardCodeLayouts = {
         // colemak: [109, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 59, 219],
@@ -31,6 +34,7 @@ var KeyboardInput = function (context, configuration) {
     }
     activeLayout = keyboardCodeLayouts[activeLayoutName];
     pressed = [];
+    pressedControlKeys = [];
 
     keyDownHandler = function (event) {
         var index,
@@ -42,6 +46,10 @@ var KeyboardInput = function (context, configuration) {
         index = activeLayout.map.indexOf(event.keyCode);
         key = activeLayout.offset + index;
 
+        if (event.keyCode === 32 || event.keyCode === 27) {
+            event.preventDefault();
+        }
+
         if (index !== -1 && !pressed[key]) {
             context.dispatchEvent(new CustomEvent('keyboard.keydown', {
                 'detail': {
@@ -52,8 +60,18 @@ var KeyboardInput = function (context, configuration) {
             event.preventDefault();
             event.stopPropagation();
             pressed[key] = true;
+        } else if (event.keyCode === CHORD_SHIFTER_TOGGLE && !pressedControlKeys[CHORD_SHIFTER_TOGGLE]) {
+            context.dispatchEvent(new CustomEvent('keyboard.chordShift.activate', {
+                'detail': {
+                    'source': 'keyboardInput'
+                }
+            }));
+            event.preventDefault();
+            event.stopPropagation();
+            pressedControlKeys[CHORD_SHIFTER_TOGGLE] = true;
         } else {
-            //            console.log(event.keyCode);
+            console.log(event.keyCode); // uncomment to get keyCodes for new layouts
+
         }
     };
     keyUpHandler = function (event) {
@@ -73,6 +91,15 @@ var KeyboardInput = function (context, configuration) {
             event.preventDefault();
             event.stopPropagation();
             pressed[key] = false;
+        } else if (event.keyCode === CHORD_SHIFTER_TOGGLE) {
+            context.dispatchEvent(new CustomEvent('keyboard.chordShift.deactivate', {
+                'detail': {
+                    'source': 'keyboardInput'
+                }
+            }));
+            event.preventDefault();
+            event.stopPropagation();
+            pressedControlKeys[CHORD_SHIFTER_TOGGLE] = false;
         }
     };
 

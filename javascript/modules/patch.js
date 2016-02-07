@@ -99,10 +99,6 @@ var patch = {
             "vca.gain": {
                 "amount": 1.0,
                 "range": "positive"
-            },
-            "oscillator.mix": {
-                "amount": 0.3,
-                "range": "positive"
             }
         }, {
             "oscillator.resonance": {
@@ -111,11 +107,6 @@ var patch = {
             }
         }],
         "lfo": [{
-            "oscillator.detune": {
-                "amount": .1,
-                "range": "positive"
-            },
-        }, {
             "oscillator.resonance": {
                 "amount": .1,
                 "range": "positive"
@@ -123,11 +114,6 @@ var patch = {
             "noise.pan": {
                 "amount": 1,
                 "range": "full"
-            }
-        }, {
-            "noise.gain": {
-                "amount": .1,
-                "range": "positive"
             }
         }]
     }

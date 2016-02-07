@@ -17,7 +17,9 @@ var KeyboardView = function (context, params) {
         keyUpHandler,
         keyDownHandler,
         startKey = params.startKey || 0,
-        endKey = params.endKey || 13;
+        endKey = params.endKey || 13,
+        pitchShift,
+        chordShift;
 
     this.id = params.id || 'keyboard';
 
@@ -29,6 +31,46 @@ var KeyboardView = function (context, params) {
     view.appendChild(keyboard);
     params.width = params.width || '100%';
     params.height = params.height || '180px';
+
+
+    pitchShift = Utils.createRangeInput({
+        label: "Pitch shift",
+        container: view,
+        min: -1,
+        max: 1,
+        step: 0.01,
+        value: 0
+    });
+    pitchShift.input.addEventListener('input', function (evt) {
+        var event = new CustomEvent("keyboard.pitchShift", {
+            detail: {
+                value: evt.target.value
+            }
+        });
+        context.dispatchEvent(event);
+    });
+    view.appendChild(pitchShift.label);
+    view.appendChild(pitchShift.input);
+
+
+    chordShift = Utils.createRangeInput({
+        label: "Chord shift",
+        container: view,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0
+    });
+    chordShift.input.addEventListener('input', function (evt) {
+        var event = new CustomEvent("keyboard.chordShift", {
+            detail: {
+                value: evt.target.value
+            }
+        });
+        context.dispatchEvent(event);
+    });
+    view.appendChild(chordShift.label);
+    view.appendChild(chordShift.input);
 
     init = function () {
 
@@ -75,6 +117,7 @@ var KeyboardView = function (context, params) {
         }
         keyboard.appendChild(whiteKeys);
         keyboard.appendChild(blackKeys);
+
     };
 
     keyDownHandler = function (event) {
