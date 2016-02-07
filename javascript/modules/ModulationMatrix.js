@@ -256,7 +256,7 @@ ModulationMatrix.prototype.patch = function (patch) {
 ModulationMatrix.prototype.patchVoice = function (voice, patch) {
     var localModulators = voice.getLocalModulators(),
         localTargets = voice.getEnvelopeTargets(),
-        split, key;
+        split, key, envelopePatch, i, j;
 
     if (!this.staticValuesSet) {
         this.setStaticModulatorValues(patch);
@@ -270,8 +270,16 @@ ModulationMatrix.prototype.patchVoice = function (voice, patch) {
         split = key.split(".");
         this.targets[key].outputNode.connect(voice[split[0]][split[1]]);
     }
-//    localModulators.envelope[0].connect(localTargets["noise.gain"]);
-
+    for (i = 0, j = patch.modulation.envelope.length; i < j; i += 1) {
+        if (localModulators.envelope[i]) {
+            envelopePatch = patch.modulation.envelope[i];
+            for (key in envelopePatch) {
+                if (localTargets[key]) {
+                    localModulators.envelope[i].connect(localTargets[key]);
+                }
+            }
+        }
+    }
 };
 /*
 ModulationMatrix.prototype.unpatchVoice = function (voice) {

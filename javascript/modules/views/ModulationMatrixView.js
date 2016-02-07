@@ -87,9 +87,9 @@ var ModulationMatrixView = function (context, configuration, patch) {
         paramNames = Object.keys(moduleConfig);
         tbody = document.createElement("tbody");
 
-        function rangeInput (prefix, value, sourceType, sourceIndex, targetModule, targetParameter) {
-            var label, 
-                select = document.createElement("select"), 
+        function rangeInput(prefix, value, sourceType, sourceIndex, targetModule, targetParameter) {
+            var label,
+                select = document.createElement("select"),
                 option;
 
             select.id = prefix + "-range";
@@ -98,11 +98,19 @@ var ModulationMatrixView = function (context, configuration, patch) {
             select.dataset.targetModule = targetModule;
             select.dataset.targetParameter = targetParameter;
             select.dataset.type = "range";
-            [
-                {value: "positive", label: "+", title: "positive"},
-                {value: "full", label: "±", title: "full"}, 
-                {value: "negative", label: "-", title: "negative"}
-            ].forEach(function (item) {
+            [{
+                value: "positive",
+                label: "+",
+                title: "positive"
+            }, {
+                value: "full",
+                label: "±",
+                title: "full"
+            }, {
+                value: "negative",
+                label: "-",
+                title: "negative"
+            }].forEach(function (item) {
                 option = document.createElement("option");
                 option.value = item.value;
                 if (option.value === value) {
@@ -116,11 +124,14 @@ var ModulationMatrixView = function (context, configuration, patch) {
                 label.setAttribute("for", prefix + "-range");
 
             });
-            return {input: select, label: label};
+            return {
+                input: select,
+                label: label
+            };
         }
 
-        function amountInput (prefix, value, sourceType, sourceIndex, targetModule, targetParameter) {
-            var label = document.createElement("label"), 
+        function amountInput(prefix, value, sourceType, sourceIndex, targetModule, targetParameter) {
+            var label = document.createElement("label"),
                 input = document.createElement("input"),
                 id = prefix + "-amount";
 
@@ -140,7 +151,10 @@ var ModulationMatrixView = function (context, configuration, patch) {
             label.innerHTML = "amount";
             label.setAttribute("for", id);
 
-            return {input: input, label: label};
+            return {
+                input: input,
+                label: label
+            };
         }
 
         for (i = 0, j = paramNames.length; i < j; i += 1) {
@@ -165,7 +179,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
             function cellContent(type, index, isNone) {
                 var name = "",
                     range, amount,
-                    patchRange, 
+                    patchRange,
                     patchAmount;
 
                 cell = document.createElement("td");
@@ -176,7 +190,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
                 label.setAttribute("for", id);
                 cell.appendChild(label);
 
-                input = document.createElement("input");  
+                input = document.createElement("input");
 
                 input.id = id;
                 input.dataset.sourceIndex = index;
@@ -202,9 +216,9 @@ var ModulationMatrixView = function (context, configuration, patch) {
                     patchRange = patch[type][index][target].range;
                     patchAmount = patch[type][index][target].amount;
 
-                } 
+                }
 
-                function anyPatchConnection (target) {
+                function anyPatchConnection(target) {
                     return patch[type].some(function (i) {
                         return i.hasOwnProperty(target);
                     });
@@ -239,43 +253,43 @@ var ModulationMatrixView = function (context, configuration, patch) {
     }
 
     var eventHandler = function (event) {
-        var eventData = {}, 
-            key, 
-            customEvent, 
+        var eventData = {},
+            key,
+            customEvent,
             eventName,
             rangeInput,
             amountInput;
 
         for (key in event.target.dataset) {
-            if(event.target.dataset.hasOwnProperty(key)) {
+            if (event.target.dataset.hasOwnProperty(key)) {
                 eventData[key] = event.target.dataset[key];
             }
         }
-        
+
         switch (eventData.type) {
-            case "connection":
-                if (event.target.checked === true) {
-                    eventName = "modulation.change.connect";
-                    rangeInput = event.target.parentElement.querySelector("[id$='range']");
-                    if (rangeInput) {
-                        eventData.range = rangeInput.value;
-                    }
-                    amountInput = event.target.parentElement.querySelector("[id$='amount']");
-                    if (amountInput) {
-                        eventData.amount = amountInput.value;
-                    }
-                } else {
-                    eventName = "modulation.change.disconnect";
+        case "connection":
+            if (event.target.checked === true) {
+                eventName = "modulation.change.connect";
+                rangeInput = event.target.parentElement.querySelector("[id$='range']");
+                if (rangeInput) {
+                    eventData.range = rangeInput.value;
                 }
-                break;
-            case "amount":
-                eventName = "modulation.change.amount";
-                eventData.amount = event.target.value;
-                break;
-            case "range":
-                eventName = "modulation.change.range";
-                eventData.range = event.target.value;
-                break;
+                amountInput = event.target.parentElement.querySelector("[id$='amount']");
+                if (amountInput) {
+                    eventData.amount = amountInput.value;
+                }
+            } else {
+                eventName = "modulation.change.disconnect";
+            }
+            break;
+        case "amount":
+            eventName = "modulation.change.amount";
+            eventData.amount = event.target.value;
+            break;
+        case "range":
+            eventName = "modulation.change.range";
+            eventData.range = event.target.value;
+            break;
         }
         customEvent = new CustomEvent(eventName, {
             "detail": eventData
@@ -286,6 +300,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
 
     Object.keys(configuration.target).forEach(moduleTargets);
     table.addEventListener("change", eventHandler, false);
+    table.addEventListener("input", eventHandler, false);
 
     view = table;
     return view;
