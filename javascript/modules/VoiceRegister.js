@@ -121,6 +121,8 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             voiceIndexes,
             chordIndex,
             chordRatio,
+            key1,
+            key2,
             frequency1,
             frequency2,
             q,
@@ -139,6 +141,8 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             for (i = 0, j = voiceIndexes.length; i < j; i += 1) {
                 voice = this.activeVoices[voiceIndexes[i]];
 
+
+                /* contious shift between frequencies: */
                 frequency1 = this.tuning[chords[chordIndex][i]];
                 if (chordIndex === chords.length - 1) {
                     frequency = frequency1;
@@ -147,6 +151,29 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
                     frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
                     console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
                 }
+
+                /* end continous shift */
+
+                /* stepwise (semitone) shift between frequencies: */
+                /*
+                function getKey(value, key1, key2) {
+                    var diff = key2 - key1;
+
+                    if (diff < 0) {
+                        return key1 + Math.ceil(value * (diff - 1));
+                    } else {
+                        return key1 + Math.floor(value * (diff + 1));
+                    }
+                }
+
+                key1 = chords[chordIndex][i];
+                key2 = chords[chordIndex + 1][i];
+
+
+                frequency = this.tuning[getKey(chordRatio, key1, key2)];
+*/
+                /* end stepwise shift */
+
                 if (!isNaN(frequency)) {
                     voice.setFrequency(frequency);
                 }
@@ -154,12 +181,19 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
         }
     };
 
+    var pitchBendHandler = function (event) {
+        console.log("PITCH coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
+    };
+    var modulationWheelHandler = function (event) {
+        console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
+    };
     context.addEventListener("keyboard.keydown", appKeyDownHandler.bind(this));
     context.addEventListener("keyboard.keyup", appKeyUpHandler.bind(this));
     context.addEventListener("keyboard.chordShift.activate", activateChordShiftHandler.bind(this));
     context.addEventListener("keyboard.chordShift.deactivate", deactivateChordShiftHandler.bind(this));
     context.addEventListener("keyboard.chordShift", chordShiftHandler.bind(this));
-
+    context.addEventListener("pitchBend.change", pitchBendHandler.bind(this));
+    context.addEventListener("modulationWheel.change", modulationWheelHandler.bind(this));
 };
 
 VoiceRegister.prototype.deleteVoice = function (voice) {
