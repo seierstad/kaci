@@ -21,8 +21,12 @@ var SVGControllerElement = function (params) {
     svgElement.setAttributeNS(null, "version", "1.2");
     svgElement.setAttributeNS(null, "x", params.offsetX || 0);
     svgElement.setAttributeNS(null, "y", params.offsetY || 0);
-    svgElement.setAttributeNS(null, "width", params.width || 500);
-    svgElement.setAttributeNS(null, "height", params.height || 500);
+    if (params.width) {
+        svgElement.setAttributeNS(null, "width", params.width || 500);
+    }
+    if (params.height) {
+        svgElement.setAttributeNS(null, "height", params.height || 500);
+    }
     svgElement.setAttributeNS(null, "class", className);
 
     fillRect = document.createElementNS(svgns, "rect");

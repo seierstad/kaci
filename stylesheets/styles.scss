@@ -1,5 +1,28 @@
+$border-color: rgba(127,127,255,.4);
+$bg-and-section-bg-color: #77B3D9;
+$padding-section-top: 1.2rem;
+$padding-section-bottom: .5rem;
+$padding-section-sides: 1rem;
+$keyboard-section-height: 20vh;
+
+* {
+    box-sizing: border-box;
+}
+body {
+    background-color: #aff;
+}
 button {
     min-height: 3em;
+}
+section {
+    border: 3px solid $border-color;
+    border-radius: .5em;
+    margin: 2em 1em;
+    padding: $padding-section-top $padding-section-sides $padding-section-bottom;
+    position: relative;
+    background-image: -webkit-linear-gradient(left bottom, rgba(0,0,0,.1), rgba(0,0,0,0));
+    background-color: rgba(2,0,127,.3);
+    display: inline-block;
 }
 /*
 #oscilloscope {
@@ -13,6 +36,39 @@ label {
 fieldset {
     display: inline-block;
 }
+#keyboard-view {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    background-color: $bg-and-section-bg-color;
+    height: $keyboard-section-height;
+    position: fixed;
+    margin-bottom: 0;
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-left: 5rem;
+
+    [type="range"] {
+        width: calc($keyboard-section-height - $padding-section-top - $padding-section-bottom);
+        transform: translateX(1rem) rotateZ(-90deg);
+        transform-origin: bottom left;
+        height: 1rem;
+        position: absolute;
+        bottom: $padding-section-bottom;
+        left: 1rem;
+        ~ [type="range"] {
+            left: 3rem;
+        }
+    }
+
+    ~ section:last-of-type {
+        margin-bottom: 20vh;
+    }
+}
+
 .blink {
     display: inline-block;
     height: 30px;
@@ -24,6 +80,7 @@ fieldset {
 }
 .keyboard.controller {
     width: 100%;
+    height: 100%;
 }
 .key {
     stroke: #000;

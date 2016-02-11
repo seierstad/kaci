@@ -15,6 +15,7 @@ var LFOView = function (ctx, patch, params) {
         lfoView,
         lfoAmount,
         lfoRate,
+        heading,
         lfoActive = true,
         viewOscillator = new IdealOscillator(ctx),
         that = this;
@@ -23,6 +24,12 @@ var LFOView = function (ctx, patch, params) {
 
     lfoView = document.createElement("section");
     lfoView.id = this.lfoId + "-view";
+    lfoView.classList.add("lfo");
+
+    heading = document.createElement("h2");
+    heading.innerHTML = "<abbr title='low frequency oscillator'>LFO</abbr>" + (!isNaN(params.number) ? " " + params.number : "");
+
+    lfoView.appendChild(heading);
 
     lfoToggle = new Utils.createCheckboxInput({
         "id": this.lfoId,
@@ -80,17 +87,16 @@ var LFOView = function (ctx, patch, params) {
     }
 
 
-
     var lfoRateMonitor = document.createElement("div");
     if (typeof lfoRateMonitor === "function") {
 
         var blinkAnimation = function blinkAnimation(element, frequency, states, easing) {
             if (typeof element.animate === "function") {
                 var animation = element.animate(states || [{
-                        backgroundColor: "blue"
-                    }, {
-                        backgroundColor: "red"
-                    }], {
+                    backgroundColor: "blue"
+                }, {
+                    backgroundColor: "red"
+                }], {
                     duration: 1000 / frequency,
                     iterations: Infinity,
                     delay: 0,

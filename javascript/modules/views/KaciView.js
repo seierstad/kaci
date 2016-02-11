@@ -11,6 +11,10 @@ var SubView = require("./SubView");
 var ModulationMatrixView = require("./ModulationMatrixView");
 
 var KaciView = function (context, systemSettings, patch) {
+    var heading = document.createElement("h1");
+    heading.innerHTML = "Kaci-05";
+    document.body.appendChild(heading);
+
     var systemSettingsView = new SystemSettingsView(context, systemSettings);
     document.body.appendChild(systemSettingsView);
 
@@ -37,7 +41,8 @@ var KaciView = function (context, systemSettings, patch) {
     for (i = 0, j = patch.lfo.length; i < j; i += 1) {
         lfoView[i] = new LFOView(context, patch.lfo[i], {
             lfoId: "lfo" + i,
-            syncControls: i > 0
+            syncControls: i > 0,
+            number: i
         });
         document.body.appendChild(lfoView[i]);
     }

@@ -18,7 +18,22 @@ function countObjectKeys(config, level) {
 }
 
 var ModulationMatrixView = function (context, configuration, patch) {
-    var view, table, colgroup, col, thead, tbody, row, cell, i, j, k, l;
+    var view, expandState, heading, table, colgroup, col, thead, tbody, row, cell, i, j, k, l;
+
+
+    view = document.createElement("section");
+    view.classList.add("modulation");
+
+    expandState = document.createElement("input");
+    expandState.id = "modulation-expand";
+    expandState.setAttribute("type", "checkbox");
+    expandState.setAttribute("checked", "checked");
+    view.appendChild(expandState);
+
+    heading = document.createElement("h2");
+    heading.innerHTML = "Modulation matrix <label for='modulation-expand'><span class='expand'>expand</span><span class='minimize'>minimize</span>";
+    view.appendChild(heading);
+
     table = document.createElement("table");
     table.setAttribute("class", "modulation-matrix");
 
@@ -157,6 +172,70 @@ var ModulationMatrixView = function (context, configuration, patch) {
             };
         }
 
+        function cellContent(type, index, isNone) {
+            var name = "",
+                range, amount,
+                patchRange,
+                patchAmount;
+
+            cell = document.createElement("td");
+            label = document.createElement("label");
+            id = type + "-" + (isNone ? "none" : index) + "-" + moduleName + "-" + paramNames[i];
+            label.innerHTML = "connect " + id.split("-").join(" ");
+
+            label.setAttribute("for", id);
+            cell.appendChild(label);
+
+            input = document.createElement("input");
+
+            input.id = id;
+            input.dataset.sourceIndex = index;
+            input.dataset.targetModule = moduleName;
+            input.dataset.targetParameter = paramNames[i];
+            input.dataset.type = "connection";
+
+            if (type === "envelope") {
+                input.dataset.sourceType = "envelope";
+                name = type + "-" + moduleName + "-" + paramNames[i];
+                input.value = index;
+                input.setAttribute("type", "radio");
+            } else {
+                input.dataset.sourceType = "lfo";
+                name = id;
+                input.setAttribute("type", "checkbox");
+            }
+            input.name = name;
+
+            var target = moduleName + "." + paramNames[i];
+            if (patch[type] && patch[type][index] && patch[type][index].hasOwnProperty(target)) {
+                input.checked = true;
+                patchRange = patch[type][index][target].range;
+                patchAmount = patch[type][index][target].amount;
+
+            }
+
+            function anyPatchConnection(target) {
+                return patch[type].some(function (i) {
+                    return i.hasOwnProperty(target);
+                });
+            }
+            if (isNone && !anyPatchConnection(target)) {
+                input.checked = true;
+            }
+            cell.appendChild(input);
+
+            if (!isNaN(parseInt(index, 10))) {
+                range = rangeInput(id, patchRange, type, index, moduleName, paramNames[i]);
+                cell.appendChild(range.label);
+                cell.appendChild(range.input);
+                amount = amountInput(id, patchAmount, type, index, moduleName, paramNames[i]);
+                cell.appendChild(amount.label);
+                cell.appendChild(amount.input);
+            }
+            row.appendChild(cell);
+
+        }
+
         for (i = 0, j = paramNames.length; i < j; i += 1) {
 
             row = document.createElement("tr");
@@ -176,69 +255,6 @@ var ModulationMatrixView = function (context, configuration, patch) {
             cell.innerHTML = paramNames[i];
             row.appendChild(cell);
 
-            function cellContent(type, index, isNone) {
-                var name = "",
-                    range, amount,
-                    patchRange,
-                    patchAmount;
-
-                cell = document.createElement("td");
-                label = document.createElement("label");
-                id = type + "-" + (isNone ? "none" : index) + "-" + moduleName + "-" + paramNames[i];
-                label.innerHTML = "connect " + id.split("-").join(" ");
-
-                label.setAttribute("for", id);
-                cell.appendChild(label);
-
-                input = document.createElement("input");
-
-                input.id = id;
-                input.dataset.sourceIndex = index;
-                input.dataset.targetModule = moduleName;
-                input.dataset.targetParameter = paramNames[i];
-                input.dataset.type = "connection";
-
-                if (type === "envelope") {
-                    input.dataset.sourceType = "envelope";
-                    name = type + "-" + moduleName + "-" + paramNames[i];
-                    input.value = index;
-                    input.setAttribute("type", "radio");
-                } else {
-                    input.dataset.sourceType = "lfo";
-                    name = id;
-                    input.setAttribute("type", "checkbox");
-                }
-                input.name = name;
-
-                var target = moduleName + "." + paramNames[i];
-                if (patch[type] && patch[type][index] && patch[type][index].hasOwnProperty(target)) {
-                    input.checked = true;
-                    patchRange = patch[type][index][target].range;
-                    patchAmount = patch[type][index][target].amount;
-
-                }
-
-                function anyPatchConnection(target) {
-                    return patch[type].some(function (i) {
-                        return i.hasOwnProperty(target);
-                    });
-                }
-                if (isNone && !anyPatchConnection(target)) {
-                    input.checked = true;
-                }
-                cell.appendChild(input);
-
-                if (!isNaN(parseInt(index, 10))) {
-                    range = rangeInput(id, patchRange, type, index, moduleName, paramNames[i]);
-                    cell.appendChild(range.label);
-                    cell.appendChild(range.input);
-                    amount = amountInput(id, patchAmount, type, index, moduleName, paramNames[i]);
-                    cell.appendChild(amount.label);
-                    cell.appendChild(amount.input);
-                }
-                row.appendChild(cell);
-
-            }
             for (k = 0, l = configuration.source.lfo; k < l; k += 1) {
                 cellContent("lfo", k);
             }
@@ -302,7 +318,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
     table.addEventListener("change", eventHandler, false);
     table.addEventListener("input", eventHandler, false);
 
-    view = table;
+    view.appendChild(table);
     return view;
 };
 
