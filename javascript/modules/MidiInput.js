@@ -112,7 +112,9 @@ var MidiInput = function (context, settings) {
         });
     };
     this.updatePair = function (pair, coarse, fine) {
-        var changed = false;
+        var changed = false,
+            combinedValue;
+
         if (!isNaN(coarse) && pair.coarse !== coarse) {
             pair.coarse = coarse;
             changed = true;
@@ -122,12 +124,14 @@ var MidiInput = function (context, settings) {
             changed = true;
         }
         if (changed && !isNaN(pair.coarse)) {
+            combinedValue = pair.coarse << 7 | (pair.fine || 0);
+
             context.dispatchEvent(new CustomEvent(pair.eventName + ".change", {
                 "detail": {
                     "coarse": pair.coarse,
                     "fine": pair.fine,
-                    "MIDIvalue": pair.coarse << 7 | (pair.fine || 0),
-                    "value": (pair.coarse << 7 | (pair.fine || 0)) / 0x3FFF,
+                    "MIDIvalue": combinedValue,
+                    "value": pair.fine === null ? pair.coarse / 0x7f : combinedValue / 0x3FFF,
                     "source": "midi"
                 }
             }));

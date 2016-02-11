@@ -15,7 +15,6 @@ var MidiView = function (context) {
     };
 
     var noMidiMessage = function noMidiMessage(event) {
-        console.log('arst neio');
         var message = document.createElement('span');
         message.innerHTML = 'midi is not supported in this browser/device';
         that.view.appendChild(message);
