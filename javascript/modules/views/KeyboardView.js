@@ -206,18 +206,36 @@ var KeyboardView = function (context, params) {
     var pitchBendHandler = function pitchBendHandler(event) {
         pitchShift.input.value = event.detail.value;
     };
-
+    var setKeyStyling = function (key, amount) {
+        key.style.fill = "rgba(0,0,255," + amount + ")";
+    };
     var chordShiftChangedHandler = function (event) {
         var i,
             j,
-            pair;
+            pair,
+            balance = event.detail.balance;
 
         for (i = 0, j = event.detail.keys.length; i < j; i += 1) {
             pair = event.detail.keys[i];
-            console.log(keys[pair.from] + " til " + keys[pair.to]);
+            if (keys[pair.from]) {
+                setKeyStyling(keys[pair.from].DOMElement, 1 - balance);
+            }
+            if (keys[pair.to]) {
+                setKeyStyling(keys[pair.to].DOMElement, balance);
+            }
         }
     };
 
+    var chordShiftEnabledHandler = function (event) {
+        console.log("TODO: handle enabled chordShift in keyboardView");
+    };
+
+    var chordShiftDisabledHandler = function (event) {
+        function removeChordShiftStyling(key) {
+            key.DOMElement.style.fill = null;
+        }
+        keys.forEach(removeChordShiftStyling);
+    }
     init();
 
     keyboard.addEventListener('mousedown', keyDownHandler, false);
@@ -227,6 +245,8 @@ var KeyboardView = function (context, params) {
     context.addEventListener('voice.started', voiceStartedHandler); // new voice started
     context.addEventListener('voice.ended', voiceEndedHandler); // voice finished
     context.addEventListener("chordShift.changed", chordShiftChangedHandler, false);
+    context.addEventListener("chordShift.enabled", chordShiftEnabledHandler, false);
+    context.addEventListener("chordShift.disabled", chordShiftDisabledHandler, false);
     context.addEventListener("pitchBend.change", pitchBendHandler, false);
 
     return view;

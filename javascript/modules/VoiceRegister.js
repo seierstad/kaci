@@ -9,8 +9,8 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
     var appKeyDownHandler,
         appKeyUpHandler,
         chordShiftHandler,
-        activateChordShiftHandler,
-        deactivateChordShiftHandler,
+        enableChordShiftHandler,
+        disableChordShiftHandler,
         getIndexes;
 
     this.context = context;
@@ -26,7 +26,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
     this.activeVoices = [];
     this.stoppedVoices = [];
     this.chordShifter = {
-        active: false,
+        enabled: false,
         chords: [],
         activeKeys: []
     };
@@ -51,7 +51,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             lastChord,
             chords = this.chordShifter.chords;
 
-        if (!this.chordShifter.active) {
+        if (!this.chordShifter.enabled) {
             this.startTone(k);
         } else {
             if (this.chordShifter.activeKeys.length === 0) {
@@ -69,7 +69,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             }
             this.chordShifter.activeKeys.push(k);
             if (chords.length === 1) {
-                // add tones to initial chord after chordShift is activated
+                // add tones to initial chord after chordShift is enabled
                 this.startTone(k);
             }
         }
@@ -78,7 +78,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
     appKeyUpHandler = function appKeyUpHandler(event) {
         var k = event.detail.keyNumber,
             activeIndex;
-        if (!this.chordShifter.active) {
+        if (!this.chordShifter.enabled) {
             this.stopTone(k);
         } else {
             // register key as released in chordShifter
@@ -89,9 +89,9 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
         }
     };
 
-    activateChordShiftHandler = function activateChordShiftHandler(event) {
-        // activate
-        this.chordShifter.active = true;
+    enableChordShiftHandler = function enableChordShiftHandler(event) {
+        // enable
+        this.chordShifter.enabled = true;
 
         // add current chord (if any)
         var activeKeys = getIndexes(this.activeVoices);
@@ -101,16 +101,22 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
         } else {
             this.chordShifter.activeKeys = [];
         }
+        context.dispatchEvent(new CustomEvent("chordShift.enabled", {
+            "detail": {}
+        }));
     };
 
-    deactivateChordShiftHandler = function activateChordShiftHandler(event) {
+    disableChordShiftHandler = function disableChordShiftHandler(event) {
         this.chordShifter = {
-            active: false,
+            enabled: false,
             chords: [],
             activeKeys: []
         };
         // TODO: handle held keys/active voices
 
+        context.dispatchEvent(new CustomEvent("chordShift.disabled", {
+            "detail": {}
+        }));
     };
 
     chordShiftHandler = function chordShiftHandler(event) {
@@ -130,7 +136,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             frequency,
             chords = this.chordShifter.chords;
 
-        if (this.chordShifter.active) {
+        if (this.chordShifter.enabled) {
 
             q = value * (chords.length - 1);
             chordIndex = Math.floor(q);
@@ -204,8 +210,8 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
     };
     context.addEventListener("keyboard.keydown", appKeyDownHandler.bind(this));
     context.addEventListener("keyboard.keyup", appKeyUpHandler.bind(this));
-    context.addEventListener("chordShift.activate", activateChordShiftHandler.bind(this));
-    context.addEventListener("chordShift.deactivate", deactivateChordShiftHandler.bind(this));
+    context.addEventListener("chordShift.enable", enableChordShiftHandler.bind(this));
+    context.addEventListener("chordShift.disable", disableChordShiftHandler.bind(this));
     context.addEventListener("chordShift.change", chordShiftHandler.bind(this));
     context.addEventListener("pitchBend.change", pitchBendHandler.bind(this));
     context.addEventListener("modulationWheel.change", modulationWheelHandler.bind(this));
