@@ -110,10 +110,9 @@ var KeyboardView = function (context, params) {
                 nextKeyX += keyWidth;
                 whiteKeys.appendChild(key);
             }
-            keys.push({
-                'DOMElement': key,
-                'number': i
-            });
+            keys[i] = {
+                'DOMElement': key
+            };
         }
         keyboard.appendChild(whiteKeys);
         keyboard.appendChild(blackKeys);
@@ -125,29 +124,24 @@ var KeyboardView = function (context, params) {
             originalClass,
             i;
 
+        var isPressed = function (key, index) {
+            if (key.DOMElement === event.target && !key.pressed) {
+                keyPressed = index;
+                key.pressed = true;
+            }
+        };
+
+
         switch (event.type) {
         case 'mousedown':
-            for (i = 0; i < keys.length; i += 1) {
-                if (keys[i].DOMElement === event.target) {
-                    keyPressed = keys[i];
-                    break;
-                }
-            }
-            break;
         case 'touchstart':
-            for (i = 0; i < keys.length; i += 1) {
-                if (keys[i].DOMElement === event.target) {
-                    keyPressed = keys[i];
-                    break;
-                }
-            }
+            keys.forEach(isPressed);
             break;
         }
         if (keyPressed) {
-            keyPressed.pressed = true;
             context.dispatchEvent(new CustomEvent('keyboard.keydown', {
                 'detail': {
-                    'keyNumber': keyPressed.number,
+                    'keyNumber': keyPressed,
                     'source': 'keyboardView'
                 }
             }));
@@ -157,25 +151,28 @@ var KeyboardView = function (context, params) {
 
     keyUpHandler = function keyUp(event) {
         var keyReleased,
-            originalClass,
-            i;
+            number;
+
+        var isReleased = function (key, index) {
+            if (key.DOMElement === event.target) {
+                if (key.pressed) {
+                    keyReleased = key;
+                    key.pressed = false;
+                    number = index;
+                }
+            }
+        };
 
         switch (event.type) {
         case 'mouseup':
         case 'mouseout':
-            for (i = 0; i < keys.length; i += 1) {
-                if (keys[i].DOMElement === event.target) {
-                    keyReleased = keys[i];
-                    break;
-                }
-            }
+            keys.forEach(isReleased);
             break;
         }
-        if (keyReleased && keyReleased.pressed) {
-            keyReleased.pressed = false;
+        if (keyReleased) {
             context.dispatchEvent(new CustomEvent('keyboard.keyup', {
                 'detail': {
-                    'keyNumber': keyReleased.number,
+                    'keyNumber': number,
                     'source': 'keyboardView'
                 }
             }));
@@ -183,49 +180,44 @@ var KeyboardView = function (context, params) {
     };
 
     var voiceStartedHandler = function (event) {
-        var i, j, key, originalClass;
-        for (i = 0, j = keys.length; i < j; i += 1) {
-            key = keys[i];
-            if (key.number === event.detail.keyNumber) {
+        keys.forEach(function (key, index) {
+            if (index === event.detail.keyNumber) {
                 key.DOMElement.classList.remove('dropped');
                 key.DOMElement.classList.add('pressed');
             }
-        }
+        });
     };
     var voiceEndedHandler = function (event) {
-        var i, j, key, originalClass;
-        for (i = 0, j = keys.length; i < j; i += 1) {
-            key = keys[i];
-            if (key.number === event.detail.keyNumber) {
+        keys.forEach(function (key, index) {
+            if (index === event.detail.keyNumber) {
                 key.DOMElement.classList.remove('pressed');
             }
-        }
+        });
     };
     var voiceDroppedHandler = function (event) {
-        var i, j, key, originalClass;
-        for (i = 0, j = keys.length; i < j; i += 1) {
-            key = keys[i];
-            if (key.number === event.detail.keyNumber) {
+        keys.forEach(function (key, index) {
+            if (index === event.detail.keyNumber) {
                 key.DOMElement.classList.remove('pressed');
                 key.DOMElement.classList.add('dropped');
             }
-        }
+        });
     };
 
     var pitchBendHandler = function pitchBendHandler(event) {
         pitchShift.input.value = event.detail.value;
     };
 
-    var chordBalanceHandler = function (event) {
+    var chordShiftChangedHandler = function (event) {
         var i,
             j,
             pair;
 
-        for (i = event.detail.keys.length, j = 0; i < j; i += 1) {
+        for (i = 0, j = event.detail.keys.length; i < j; i += 1) {
             pair = event.detail.keys[i];
             console.log(keys[pair.from] + " til " + keys[pair.to]);
         }
     };
+
     init();
 
     keyboard.addEventListener('mousedown', keyDownHandler, false);
@@ -234,7 +226,7 @@ var KeyboardView = function (context, params) {
     document.addEventListener('touchstart', keyDownHandler, false);
     context.addEventListener('voice.started', voiceStartedHandler); // new voice started
     context.addEventListener('voice.ended', voiceEndedHandler); // voice finished
-    context.addEventListener("chordShift.changed.chordBalance", chordBalanceHandler, false);
+    context.addEventListener("chordShift.changed", chordShiftChangedHandler, false);
     context.addEventListener("pitchBend.change", pitchBendHandler, false);
 
     return view;

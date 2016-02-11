@@ -186,7 +186,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
                     voice.setFrequency(frequency);
                 }
             }
-            context.dispatchEvent(new CustomEvent("chordShift.changed.chordBalance", {
+            context.dispatchEvent(new CustomEvent("chordShift.changed", {
                 "detail": {
                     "keys": keys,
                     "balance": chordRatio,
