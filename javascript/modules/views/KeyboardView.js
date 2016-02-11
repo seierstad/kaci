@@ -62,7 +62,7 @@ var KeyboardView = function (context, params) {
         value: 0
     });
     chordShift.input.addEventListener('input', function (evt) {
-        var event = new CustomEvent("keyboard.chordShift", {
+        var event = new CustomEvent("chordShift.change", {
             detail: {
                 value: evt.target.value
             }
@@ -212,6 +212,20 @@ var KeyboardView = function (context, params) {
         }
     };
 
+    var pitchBendHandler = function pitchBendHandler(event) {
+        pitchShift.input.value = event.detail.value;
+    };
+
+    var chordBalanceHandler = function (event) {
+        var i,
+            j,
+            pair;
+
+        for (i = event.detail.keys.length, j = 0; i < j; i += 1) {
+            pair = event.detail.keys[i];
+            console.log(keys[pair.from] + " til " + keys[pair.to]);
+        }
+    };
     init();
 
     keyboard.addEventListener('mousedown', keyDownHandler, false);
@@ -220,6 +234,8 @@ var KeyboardView = function (context, params) {
     document.addEventListener('touchstart', keyDownHandler, false);
     context.addEventListener('voice.started', voiceStartedHandler); // new voice started
     context.addEventListener('voice.ended', voiceEndedHandler); // voice finished
+    context.addEventListener("chordShift.changed.chordBalance", chordBalanceHandler, false);
+    context.addEventListener("pitchBend.change", pitchBendHandler, false);
 
     return view;
 };

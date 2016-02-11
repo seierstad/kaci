@@ -123,6 +123,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             chordRatio,
             key1,
             key2,
+            keys = [],
             frequency1,
             frequency2,
             q,
@@ -137,24 +138,31 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
 
             voiceIndexes = getIndexes(this.activeVoices);
 
-            //            console.log("chord index: " + chordIndex + "\tchord1:\t" + chords[chordIndex].length + "\tchord2:\t" + chords[chordIndex + 1].length + " ratio: " + chordRatio);
+            // console.log("chord index: " + chordIndex + "\tchord1:\t" + chords[chordIndex].length + "\tchord2:\t" + chords[chordIndex + 1].length + " ratio: " + chordRatio);
             for (i = 0, j = voiceIndexes.length; i < j; i += 1) {
                 voice = this.activeVoices[voiceIndexes[i]];
-
+                key1 = chords[chordIndex][i];
 
                 /* contious shift between frequencies: */
-                frequency1 = this.tuning[chords[chordIndex][i]];
+                frequency1 = this.tuning[key1];
                 if (chordIndex === chords.length - 1) {
+                    // handle edge case
                     frequency = frequency1;
                 } else {
-                    frequency2 = this.tuning[chords[chordIndex + 1][i]];
+                    key2 = chords[chordIndex + 1][i];
+                    frequency2 = this.tuning[key2];
                     frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
+                    keys.push({
+                        "from": key1,
+                        "to": key2
+                    });
+                    // emit event to update view...
                     console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
                 }
 
                 /* end continous shift */
 
-                /* stepwise (semitone) shift between frequencies: */
+                /* stepwise (semitone, glissando) shift between frequencies: */
                 /*
                 function getKey(value, key1, key2) {
                     var diff = key2 - key1;
@@ -178,6 +186,13 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
                     voice.setFrequency(frequency);
                 }
             }
+            context.dispatchEvent(new CustomEvent("chordShift.changed.chordBalance", {
+                "detail": {
+                    "keys": keys,
+                    "balance": chordRatio,
+                    "fromIndex": chordIndex
+                }
+            }));
         }
     };
 
@@ -189,9 +204,9 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
     };
     context.addEventListener("keyboard.keydown", appKeyDownHandler.bind(this));
     context.addEventListener("keyboard.keyup", appKeyUpHandler.bind(this));
-    context.addEventListener("keyboard.chordShift.activate", activateChordShiftHandler.bind(this));
-    context.addEventListener("keyboard.chordShift.deactivate", deactivateChordShiftHandler.bind(this));
-    context.addEventListener("keyboard.chordShift", chordShiftHandler.bind(this));
+    context.addEventListener("chordShift.activate", activateChordShiftHandler.bind(this));
+    context.addEventListener("chordShift.deactivate", deactivateChordShiftHandler.bind(this));
+    context.addEventListener("chordShift.change", chordShiftHandler.bind(this));
     context.addEventListener("pitchBend.change", pitchBendHandler.bind(this));
     context.addEventListener("modulationWheel.change", modulationWheelHandler.bind(this));
 };

@@ -61,7 +61,7 @@ var KeyboardInput = function (context, configuration) {
             event.stopPropagation();
             pressed[key] = true;
         } else if (event.keyCode === CHORD_SHIFTER_TOGGLE && !pressedControlKeys[CHORD_SHIFTER_TOGGLE]) {
-            context.dispatchEvent(new CustomEvent('keyboard.chordShift.activate', {
+            context.dispatchEvent(new CustomEvent('chordShift.activate', {
                 'detail': {
                     'source': 'keyboardInput'
                 }
@@ -92,7 +92,7 @@ var KeyboardInput = function (context, configuration) {
             event.stopPropagation();
             pressed[key] = false;
         } else if (event.keyCode === CHORD_SHIFTER_TOGGLE) {
-            context.dispatchEvent(new CustomEvent('keyboard.chordShift.deactivate', {
+            context.dispatchEvent(new CustomEvent('chordShift.deactivate', {
                 'detail': {
                     'source': 'keyboardInput'
                 }
