@@ -4,11 +4,11 @@ let rangeInputId = 0;
 
 class RangeInput extends Component {
     render () {
-    	const {min, max, step, value, label, onInput} = this.props;
+    	const {min, max, step, value, label, onInput, onChange} = this.props;
     	const id = "range_" + (rangeInputId += 1);
         return (
         	<div>
-	        	<input id={id} type="range" onInput={onInput} min={min} max={max} step={step} value={value} />
+	        	<input id={id} type="range" onInput={onInput} onChange={onChange} min={min} max={max} step={step} value={value} />
 	        	<label htmlFor={id}>{label}</label>
         	</div>
         );

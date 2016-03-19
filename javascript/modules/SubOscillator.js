@@ -19,7 +19,7 @@ SubOscillator = function (context, patch, frequency) {
     this.frequencyNode.gain.value = frequency;
 
     this.ratioNode = context.createGain();
-    this.ratioNode.gain.value = patch.ratio;
+    this.ratioNode.gain.value = Math.pow(2, patch.depth); // TODO: change 2 to the base number of the current scale...
     this.frequencyNode.connect(this.ratioNode);
     this.ratioNode.connect(this.oscillator.frequency);
 

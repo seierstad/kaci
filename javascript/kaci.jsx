@@ -42,7 +42,7 @@ if (window.AudioContext) {
 
     var midi = new Midi(ctx, system.settings.midi, store);
     var keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
-    var reg = new VoiceRegister(ctx, patchHandler, modulationMatrix);
+    var reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
 
     //    var shaperCurve = new Float32Array([-.5, 0, .5]);
     //    var shaper = ctx.createWaveShaper();

@@ -7,7 +7,7 @@ var EnvelopeGenerator = require("./EnvelopeGenerator"),
     LFO = require("./LFO"),
     Voice;
 
-Voice = function (context, patch, frequency, options) {
+Voice = function (context, patch, frequency, options, store) {
     var key,
         i, j,
         that = this,
@@ -24,6 +24,7 @@ Voice = function (context, patch, frequency, options) {
             }
         }
     }
+    this.store = store;
     this.context = context;
     this.vca = context.createGain();
     this.vca.gain.value = 1;
@@ -134,9 +135,6 @@ Voice = function (context, patch, frequency, options) {
         eventName: "noise.toggle",
         handler: getHandler("noise", "active")
     }, {
-        eventName: "sub.change.ratio",
-        handler: getHandler("sub", "ratio")
-    }, {
         eventName: "sub.toggle",
         handler: getHandler("sub", "active")
     }];
@@ -170,6 +168,7 @@ Voice.prototype.disconnect = function () {
     this.vca.disconnect();
 };
 Voice.prototype.destroy = function () {
+    this.unsubscribe();
     this.sub.stop(this.stopTime);
     this.sub.disconnect();
     this.sub.destroy();
@@ -196,6 +195,11 @@ Voice.prototype.destroy = function () {
     }
 };
 Voice.prototype.start = function (time) {
+    const update = () => {
+        const state = this.store.getState().patch;
+        this.sub.ratio.setValueAtTime(Math.pow(2, state.sub.depth), this.context.currentTime);
+    };
+    this.unsubscribe = this.store.subscribe(update);
     this.startTime = time;
     this.sub.start(time);
     this.noise.start();

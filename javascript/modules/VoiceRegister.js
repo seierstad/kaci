@@ -6,7 +6,7 @@ var Tunings = require("./Tunings"),
     VoiceRegister,
     DCGenerator = require("./DCGenerator");
 
-VoiceRegister = function (context, patchHandler, modulationMatrix) {
+VoiceRegister = function (context, patchHandler, modulationMatrix, store) {
     var appKeyDownHandler,
         appKeyUpHandler,
         chordShiftHandler,
@@ -14,6 +14,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
         disableChordShiftHandler,
         getIndexes;
 
+    this.store = store;
     this.context = context;
     this.patchHandler = patchHandler;
     this.tunings = {
@@ -282,7 +283,7 @@ VoiceRegister.prototype.startTone = function (key, freq) {
         frequency = (typeof key === "number") ? this.tuning[key] : freq;
         patch = this.patchHandler.getActivePatch();
 
-        voice = new Voice(this.context, patch, frequency);
+        voice = new Voice(this.context, patch, frequency, null, this.store);
 
         this.modulationMatrix.patchVoice(voice, patch);
         voice.connect(this.mainMix);

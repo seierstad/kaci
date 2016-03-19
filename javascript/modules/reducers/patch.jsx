@@ -5,7 +5,6 @@ const nullReducer = (state = {}, action) => {
     return state;
 };
 const oscillator = nullReducer;
-const sub = nullReducer;
 const lfo = nullReducer;
 const envelope = nullReducer;
 const modulation = nullReducer;
@@ -31,6 +30,34 @@ const noise = (state = {}, action) => {
             return state;
     }
 };
+
+const sub = (state = {}, action) => {
+    switch (action.type) {
+        case Actions.SUB_GAIN_CHANGE:
+            return {
+                ...state,
+                gain: action.value
+            };
+        case Actions.SUB_PAN_CHANGE:
+            return {
+                ...state,
+                pan: action.value
+            };
+        case Actions.SUB_TOGGLE:
+            return {
+                ...state,
+                active: !state.active
+            };
+        case Actions.SUB_DEPTH_CHANGE:
+            return {
+                ...state,
+                depth: action.value
+            };
+        default:
+            return state;
+    }
+};
+
 
 const patch = combineReducers({
     oscillator,

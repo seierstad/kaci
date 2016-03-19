@@ -26,7 +26,7 @@ var patch = {
         "pan": 0
     },
     "sub": {
-        "ratio": 1,
+        "depth": -1,
         "gain": 0.3,
         "active": true,
         "pan": 0

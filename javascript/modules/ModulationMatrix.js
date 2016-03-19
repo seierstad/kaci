@@ -189,6 +189,13 @@ ModulationMatrix = function (context, configuration, patch, store) {
         if (this.state.patch.noise.pan !== state.patch.noise.pan) {
             this.sources.static["noise.pan"].setValueAtTime(state.patch.noise.pan, this.context.currentTime);
         }
+        if (this.state.patch.sub.gain !== state.patch.sub.gain) {
+            this.sources.static["sub.gain"].setValueAtTime(state.patch.sub.gain, this.context.currentTime);
+        }
+        if (this.state.patch.sub.pan !== state.patch.sub.pan) {
+            this.sources.static["sub.pan"].setValueAtTime(state.patch.sub.pan, this.context.currentTime);
+        }
+
         this.state = state;
     };
 

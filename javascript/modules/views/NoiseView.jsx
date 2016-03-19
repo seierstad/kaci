@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react";
 import RangeInput from "./RangeInput.jsx";
 import { connect } from "react-redux";
 import * as Actions from "../Actions.jsx";
@@ -8,7 +8,7 @@ class NoiseViewPresentation extends Component {
         const { patch, settings, onPanInput, onGainInput, onToggle } = this.props;
 
         return (
-            <section>
+            <section className="noise-view">
                 <h1>Noise</h1>
                 <input type="checkbox" onChange={onToggle} checked={patch.active} />
                 <RangeInput 

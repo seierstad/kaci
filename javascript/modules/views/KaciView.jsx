@@ -5,16 +5,12 @@ var LFOView = require("./LFOView");
 var SustainEnvelopeView = require("./SustainEnvelopeView");
 var OscillatorView = require("./OscillatorView.jsx");
 var KeyboardView = require("./KeyboardView");
-var SystemSettingsView = require("./SystemSettingsView.jsx");
-var NoiseView = require("./NoiseView.jsx");
-var SubView = require("./SubView");
 var ModulationMatrixView = require("./ModulationMatrixView");
 
-import * as Actions from "../Actions.jsx";
-import React, { Component } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-
+import KaciReactView from "./KaciReactView.jsx";
 
 var KaciView = function (context, systemSettings, patch, store) {
     var heading = document.createElement("h1");
@@ -24,18 +20,11 @@ var KaciView = function (context, systemSettings, patch, store) {
     var reactComponentsWrapper = document.createElement("div");
     document.body.appendChild(reactComponentsWrapper);
     ReactDOM.render(
-        <div>
-            <Provider store={store}>
-                <SystemSettingsView />
-            </Provider> 
-            <Provider store={store}>
-                <NoiseView />
-            </Provider>
-        </div>
+        <Provider store={store}>
+            <KaciReactView />
+        </Provider> 
         , reactComponentsWrapper
     );
-
-    var systemSettingsView = new SystemSettingsView(context, systemSettings, store);
 
     var keyboardView = new KeyboardView(context, {
         startKey: 36,
@@ -46,9 +35,6 @@ var KaciView = function (context, systemSettings, patch, store) {
 
     var ov = new OscillatorView(context, systemSettings.modulation.target.oscillator, patch.oscillator);
     document.body.appendChild(ov);
-
-    var subView = new SubView(context, systemSettings.modulation.target.sub, patch.sub);
-    document.body.appendChild(subView);
 
     var lfoView = [],
         envelopeView = [],
