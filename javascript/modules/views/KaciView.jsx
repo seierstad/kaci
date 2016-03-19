@@ -5,7 +5,7 @@ var LFOView = require("./LFOView");
 var SustainEnvelopeView = require("./SustainEnvelopeView");
 var OscillatorView = require("./OscillatorView.jsx");
 var KeyboardView = require("./KeyboardView");
-var SystemSettingsView = require("./SystemSettingsView");
+var SystemSettingsView = require("./SystemSettingsView.jsx");
 var NoiseView = require("./NoiseView.jsx");
 var SubView = require("./SubView");
 var ModulationMatrixView = require("./ModulationMatrixView");
@@ -24,10 +24,14 @@ var KaciView = function (context, systemSettings, patch, store) {
     var reactComponentsWrapper = document.createElement("div");
     document.body.appendChild(reactComponentsWrapper);
     ReactDOM.render(
+        <div>
         <Provider store={store}>
             <SystemSettingsView />
-            <NoiseView />
         </Provider> 
+        <Provider store={store}>
+            <NoiseView />
+        </Provider>
+        </div>
         , reactComponentsWrapper
     );
 

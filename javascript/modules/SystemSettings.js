@@ -1,5 +1,5 @@
 /* global localStorage */
-var SystemSettings = function (context, defaultSettings) {
+var SystemSettings = function (context, defaultSettings, store) {
     "use strict";
     var settingsString,
         keyboardLayoutChangedHandler,
