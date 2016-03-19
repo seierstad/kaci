@@ -1,35 +1,35 @@
-var KeyboardInputView = function (context) {
-    "use strict";
-    var initializeView, changeLayout, changeLayoutHandler;
-    this.view = document.createElement('fieldset');
-    this.view.classList.add('keyboard-input-view');
+import { Component } from "react";
+import { connect } from "react-redux";
 
-    changeLayoutHandler = function (event) {
-        changeLayout(event.target.value);
-    };
-    changeLayout = function (layout) {
-        context.dispatchEvent(new CustomEvent('system.keyboard.input.changeLayout', {
-            "detail": layout
-        }));
-    };
+class KeyboardInputViewPresentation extends Component {
+    render () {
+        const {layouts, activeLayout, onSelectLayout } = this.props;
 
-    initializeView = function (event) {
-        var i, j, option, select, list, active;
-        list = event.detail.availableLayouts;
-        active = event.detail.active;
-        select = document.createElement('select');
-        for (i = 0, j = list.length; i < j; i += 1) {
-            option = document.createElement('option');
-            option.innerHTML = list[i];
-            if (list[i] === active) {
-                option.selected = true;
-            }
-            select.appendChild(option);
-        }
-        this.view.appendChild(select);
-        select.addEventListener('input', changeLayoutHandler);
-    };
-
-    return this.view;
+        return (
+            <fieldset className="keyboard-input-view">
+                <select onInput={onSelectLayout}>
+                    layouts.map(layout => (<option selected={layout.name === activeLayout} value={layout.name}>{layout.name}</option>));
+                </select>
+            </fieldset>
+        );
+    }
+}
+const mapStateToProps = (state) => {
+    return {
+        activeLayout: state.settings.keyboard.activeLayout,
+        layouts: state.settings.keyboard.layouts
+    }
 };
-module.exports = KeyboardInputView;
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onLayoutChange: (event) => {
+            const value = event.target.value;
+
+            dispatch({
+                type: Actions.KEYBOARD_LAYOUT_CHANGE,
+                value
+            })
+        }
+    }
+};
+export default KeyboardInputView;
