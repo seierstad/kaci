@@ -11,8 +11,6 @@ const envelope = nullReducer;
 const modulation = nullReducer;
 
 const noise = (state = {}, action) => {
-    console.log(state);
-    console.log(action.type + ": " + action.value);
     switch (action.type) {
         case Actions.NOISE_GAIN_CHANGE:
             return {

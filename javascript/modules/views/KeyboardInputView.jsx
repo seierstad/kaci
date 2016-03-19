@@ -1,14 +1,16 @@
-import { Component } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
+import * as Actions from "../Actions.jsx";
+
 
 class KeyboardInputViewPresentation extends Component {
     render () {
-        const {layouts, activeLayout, onSelectLayout } = this.props;
+        const {layouts, activeLayout, onLayoutChange } = this.props;
 
         return (
             <fieldset className="keyboard-input-view">
-                <select onInput={onSelectLayout}>
-                    layouts.map(layout => (<option selected={layout.name === activeLayout} value={layout.name}>{layout.name}</option>));
+                <select onChange={onLayoutChange} value={activeLayout}>
+                    {layouts.map(layout => <option key={layout.name} value={layout.name}>{layout.name}</option>)}
                 </select>
             </fieldset>
         );
@@ -32,4 +34,9 @@ const mapDispatchToProps = (dispatch) => {
         }
     }
 };
+const KeyboardInputView = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(KeyboardInputViewPresentation);
+
 export default KeyboardInputView;

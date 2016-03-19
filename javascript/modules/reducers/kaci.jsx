@@ -1,9 +1,7 @@
 import { combineReducers } from "redux";
 import patch from "./patch.jsx";
+import settings from "./settings.jsx";
 
-const settings = (state = {}, action) => {
-    return state;
-};
 const reducer = combineReducers({
     patch,
     settings

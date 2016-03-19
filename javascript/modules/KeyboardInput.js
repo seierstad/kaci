@@ -16,7 +16,7 @@ var KeyboardInput = function (context, configuration, store) {
     const state = store.getState().settings.keyboard;
 
     activeLayoutName = state.activeLayout;
-    activeLayout = state.layouts[activeLayoutName];
+    activeLayout = state.layouts.find(layout => layout.name === activeLayoutName)
     pressed = [];
     pressedControlKeys = [];
 
@@ -89,23 +89,13 @@ var KeyboardInput = function (context, configuration, store) {
 
     changeLayout = function (layout) {
         if (layout !== activeLayoutName) {
-            if (layout && keyboardCodeLayouts[layout]) {
-                activeLayout = keyboardCodeLayouts[layout];
-                activeLayoutName = layout;
-
-                context.dispatchEvent(new CustomEvent('system.keyboard.input.layout.changed', {
-                    "detail": activeLayoutName
-                }));
-            }
+            activeLayout = state.layouts.find(l => l.name === layout);
+            activeLayoutName = layout;
         }
-    };
-    changeLayoutHandler = function (event) {
-        changeLayout(event.detail);
     };
 
     document.addEventListener('keydown', keyDownHandler, false);
     document.addEventListener('keyup', keyUpHandler, false);
-    context.addEventListener('system.keyboard.input.changeLayout', changeLayoutHandler.bind(this));
 
     const update = () => {
         const state = store.getState();
