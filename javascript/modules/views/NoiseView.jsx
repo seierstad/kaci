@@ -1,9 +1,79 @@
 /* global require, module, document */
 "use strict";
-var ViewUtils = require('./ViewUtils');
-var Utils = require('../Utils');
+const ViewUtils = require('./ViewUtils');
+const Utils = require('../Utils');
 
+import React, {Component, PropTypes} from "react";
+import RangeInput from "./RangeInput.jsx";
+import { connect } from "react-redux";
+import * as Actions from "../Actions.jsx";
 
+class NoiseViewPresentation extends Component {
+    render () {
+        let noiseToggle = new ViewUtils.createCheckboxInput({
+            "id": "noise",
+            dispatchEvent: ".toggle",
+            checked: true
+        }, null);
+        const { patch, settings, onPanInput, onGainInput } = this.props;
+
+        return (
+            <section>
+                <h1>Noise</h1>
+                <RangeInput 
+                    label="Noise gain" 
+                    min={settings.gain.min}
+                    max={settings.gain.max}
+                    step={0.01}
+                    onInput={onGainInput}
+                    value={patch.gain} />
+                <RangeInput 
+                    label="Noise pan" 
+                    min={settings.pan.min}
+                    max={settings.pan.max}
+                    step={0.01}
+                    onInput={onPanInput}
+                    value={patch.pan} />
+            </section>
+        );
+    }
+}
+const mapStateToProps = (state) => {
+    return {
+        patch: state.patch.noise,
+        settings: state.settings.modulation.target.noise
+    }
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onPanInput: (event) => {
+            const value = parseFloat(event.target.value);
+            dispatch({
+                type: Actions.NOISE_PAN_CHANGE,
+                value
+            })
+        },
+        onGainInput: (event) => {
+            const value = parseFloat(event.target.value);
+            dispatch({
+                type: Actions.NOISE_GAIN_CHANGE,
+                value
+            })
+        }
+    }
+};
+
+const NoiseView = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(NoiseViewPresentation);
+/*
+NoiseViewContainer.contextTypes = {
+    store: React.PropTypes.object
+};
+*/
+/*
 var NoiseView = function (context, modulationLimits, patch, params) {
     if (!patch) {
         patch = {};
@@ -14,14 +84,8 @@ var NoiseView = function (context, modulationLimits, patch, params) {
     var view, noiseToggle, noiseGain, noisePan;
     this.noiseId = (params && params.noiseId) ? params.noiseId : 'noise';
     var that = this;
-    view = document.createElement("section");
-    view.id = this.noiseId + "-view";
 
-    noiseToggle = new ViewUtils.createCheckboxInput({
-        "id": this.noiseId,
-        dispatchEvent: ".toggle",
-        checked: (patch.noiseActive)
-    }, context);
+
 
     view.appendChild(noiseToggle);
 
@@ -61,5 +125,5 @@ var NoiseView = function (context, modulationLimits, patch, params) {
 
     return view;
 };
-
+*/
 module.exports = NoiseView;
