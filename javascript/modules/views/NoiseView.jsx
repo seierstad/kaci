@@ -15,11 +15,12 @@ class NoiseViewPresentation extends Component {
             dispatchEvent: ".toggle",
             checked: true
         }, null);
-        const { patch, settings, onPanInput, onGainInput } = this.props;
+        const { patch, settings, onPanInput, onGainInput, onToggle } = this.props;
 
         return (
             <section>
                 <h1>Noise</h1>
+                <input type="checkbox" onChange={onToggle} checked={patch.active} />
                 <RangeInput 
                     label="Noise gain" 
                     min={settings.gain.min}
@@ -47,6 +48,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        onToggle: (event) => {
+            dispatch({
+                type: Actions.NOISE_TOGGLE
+            })
+        },
         onPanInput: (event) => {
             const value = parseFloat(event.target.value);
             dispatch({

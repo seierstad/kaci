@@ -30,8 +30,6 @@ var KeyboardInputView = function (context) {
         select.addEventListener('input', changeLayoutHandler);
     };
 
-    context.addEventListener('system.keyboard.input.initialized', initializeView.bind(this));
-
     return this.view;
 };
 module.exports = KeyboardInputView;

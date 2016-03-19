@@ -21,8 +21,17 @@ var KaciView = function (context, systemSettings, patch, store) {
     heading.innerHTML = "Kaci-05";
     document.body.appendChild(heading);
 
-    var systemSettingsView = new SystemSettingsView(context, systemSettings);
-    document.body.appendChild(systemSettingsView);
+    var reactComponentsWrapper = document.createElement("div");
+    document.body.appendChild(reactComponentsWrapper);
+    ReactDOM.render(
+        <Provider store={store}>
+            <SystemSettingsView />
+            <NoiseView />
+        </Provider> 
+        , reactComponentsWrapper
+    );
+
+    var systemSettingsView = new SystemSettingsView(context, systemSettings, store);
 
     var keyboardView = new KeyboardView(context, {
         startKey: 36,
@@ -33,10 +42,6 @@ var KaciView = function (context, systemSettings, patch, store) {
 
     var ov = new OscillatorView(context, systemSettings.modulation.target.oscillator, patch.oscillator);
     document.body.appendChild(ov);
-
-    var noiseView = document.createElement("div");
-    document.body.appendChild(noiseView);
-    ReactDOM.render(<Provider store={store}><NoiseView /></Provider> , noiseView);
 
     var subView = new SubView(context, systemSettings.modulation.target.sub, patch.sub);
     document.body.appendChild(subView);

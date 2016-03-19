@@ -46,8 +46,4 @@ if (window.AudioContext) {
 
     //    shaper.connect(scope);
     //reg.mainMix.connect(scope);
-
-}scope);
-    //reg.mainMix.connect(scope);
-
 }

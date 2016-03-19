@@ -24,6 +24,11 @@ const noise = (state = {}, action) => {
                 ...state,
                 pan: action.value
             };
+        case Actions.NOISE_TOGGLE:
+            return {
+                ...state,
+                active: !state.active
+            };
         default:
             return state;
     }
