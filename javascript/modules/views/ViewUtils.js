@@ -1,6 +1,11 @@
 /*global module, require */
 /* global document, module, CustomEvent */
 "use strict";
+import {
+    Component
+}
+from "react";
+
 var svg = function (elementType, attributes) {
     var element,
         svgns = "http://www.w3.org/2000/svg",

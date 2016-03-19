@@ -1,3 +1,6 @@
+var React = require("react");
+
+
 var MidiView = function (context) {
     "use strict";
     this.view = document.createElement('fieldset');

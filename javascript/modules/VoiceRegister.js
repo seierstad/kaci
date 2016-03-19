@@ -3,7 +3,8 @@
 "use strict";
 var Tunings = require("./Tunings"),
     Voice = require("./Voice"),
-    VoiceRegister;
+    VoiceRegister,
+    DCGenerator = require("./DCGenerator");
 
 VoiceRegister = function (context, patchHandler, modulationMatrix) {
     var appKeyDownHandler,
@@ -57,6 +58,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
             if (this.chordShifter.activeKeys.length === 0) {
                 // first pressed key -> start new chord
                 chords.push([k]);
+                console.log("starting chord " + chords.length);
             } else {
                 lastChord = chords[chords.length - 1];
                 if (lastChord.indexOf(k) === -1) {
@@ -65,6 +67,7 @@ VoiceRegister = function (context, patchHandler, modulationMatrix) {
                     lastChord.sort(function (a, b) {
                         return a < b ? -1 : 1;
                     });
+                    console.log("added note " + lastChord.length + " to chord " + chords.length);
                 }
             }
             this.chordShifter.activeKeys.push(k);

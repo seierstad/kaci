@@ -1,0 +1,2 @@
+export const NOISE_GAIN_CHANGE = "NOISE_GAIN_CHANGE";
+export const NOISE_PAN_CHANGE = "NOISE_PAN_CHANGE";

@@ -52,13 +52,14 @@ fieldset {
     padding-left: 5rem;
 
     [type="range"] {
-        width: calc($keyboard-section-height - $padding-section-top - $padding-section-bottom);
+        width: calc(#{$keyboard-section-height} - #{$padding-section-top} - #{$padding-section-bottom});
         transform: translateX(1rem) rotateZ(-90deg);
         transform-origin: bottom left;
         height: 1rem;
         position: absolute;
         bottom: $padding-section-bottom;
         left: 1rem;
+
         ~ [type="range"] {
             left: 3rem;
         }

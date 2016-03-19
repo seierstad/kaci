@@ -5,7 +5,7 @@ var LFO = require("./LFO"),
     Utils = require("./Utils"),
     ModulationMatrix;
 
-ModulationMatrix = function (context, configuration, patch) {
+ModulationMatrix = function (context, configuration, patch, store) {
     var lfo = [],
         dc = new DCGenerator(context),
         that = this,
@@ -16,6 +16,8 @@ ModulationMatrix = function (context, configuration, patch) {
         stopGlobalModulators,
         staticParameterChangeHandler;
 
+    this.store = store;
+    this.state = store.getState();
     this.targets = {};
     this.sources = {};
     this.connections = {};
@@ -104,17 +106,14 @@ ModulationMatrix = function (context, configuration, patch) {
         return data.sourceType && !isNaN(parseInt(data.sourceIndex, 10)) && data.targetModule && data.targetParameter;
     };
     this.eventDataConnection = function (data) {
-        if (this.validEventData(data)
-            && this.connections[data.sourceType] 
-            && this.connections[data.sourceType][data.sourceIndex] 
-            && this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter]) {
+        if (this.validEventData(data) && this.connections[data.sourceType] && this.connections[data.sourceType][data.sourceIndex] && this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter]) {
             return this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
         } else {
             return null;
         }
     };
     var disconnectHandler = function (event) {
-        var data = event.detail, 
+        var data = event.detail,
             connection = this.eventDataConnection(data);
         if (connection) {
             connection.disconnect();
@@ -123,7 +122,7 @@ ModulationMatrix = function (context, configuration, patch) {
         }
     };
     var connectHandler = function (event) {
-        var data = event.detail, 
+        var data = event.detail,
             connection = this.eventDataConnection(data);
         if (!connection) {
             this.connect(data.sourceType, data.sourceIndex, data.range, data.amount, data.targetModule + "." + data.targetParameter);
@@ -131,7 +130,7 @@ ModulationMatrix = function (context, configuration, patch) {
     };
 
     var amountHandler = function (event) {
-        var data = event.detail, 
+        var data = event.detail,
             connection = this.eventDataConnection(data);
 
         if (connection && !isNaN(parseFloat(data.amount, 10))) {
@@ -140,7 +139,7 @@ ModulationMatrix = function (context, configuration, patch) {
     };
 
     var rangeHandler = function (event) {
-        var data = event.detail, 
+        var data = event.detail,
             connection = this.eventDataConnection(data),
             amount,
             source;
@@ -171,15 +170,31 @@ ModulationMatrix = function (context, configuration, patch) {
             }
         }
     };
+    /*
     context.addEventListener("noise.change.gain", staticParameterChangeHandler("noise.gain").bind(this));
-    context.addEventListener("sub.change.gain", staticParameterChangeHandler("sub.gain").bind(this));
     context.addEventListener("noise.change.pan", staticParameterChangeHandler("noise.pan").bind(this));
+    */
+    context.addEventListener("sub.change.gain", staticParameterChangeHandler("sub.gain").bind(this));
     context.addEventListener("sub.change.pan", staticParameterChangeHandler("sub.pan").bind(this));
     context.addEventListener("oscillator.change.resonance", staticParameterChangeHandler("oscillator.resonance").bind(this));
     context.addEventListener("oscillator.change.mix", staticParameterChangeHandler("oscillator.mix").bind(this));
     context.addEventListener("oscillator.change.pan", staticParameterChangeHandler("oscillator.pan").bind(this));
     context.addEventListener("oscillator.change.detune", staticParameterChangeHandler("oscillator.detune").bind(this));
+
+    this.update = () => {
+        const state = this.store.getState();
+        if (this.state.patch.noise.gain !== state.patch.noise.gain) {
+            this.sources.static["noise.gain"].setValueAtTime(state.patch.noise.gain, this.context.currentTime);
+        }
+        if (this.state.patch.noise.pan !== state.patch.noise.pan) {
+            this.sources.static["noise.pan"].setValueAtTime(state.patch.noise.pan, this.context.currentTime);
+        }
+        this.state = state;
+    };
+
+    store.subscribe(this.update);
 };
+
 ModulationMatrix.prototype.setStaticModulatorValues = function initStaticModulators(patch) {
     var i,
         j,
@@ -223,14 +238,14 @@ ModulationMatrix.prototype.connect = function (sourceType, sourceIndex, range, a
     var source;
     if (this.targets[target]) {
         switch (range) {
-            case "full": 
-                source = this.globalModulators[sourceType][sourceIndex];
-                break;
-            case "positive":
-                source = this.globalModulators[sourceType][sourceIndex].outputs.positive;
-                break;
-            case "negative":
-                source = this.globalModulators[sourceType][sourceIndex].outputs.negative;
+        case "full":
+            source = this.globalModulators[sourceType][sourceIndex];
+            break;
+        case "positive":
+            source = this.globalModulators[sourceType][sourceIndex].outputs.positive;
+            break;
+        case "negative":
+            source = this.globalModulators[sourceType][sourceIndex].outputs.negative;
         }
 
         this.connections[sourceType] = this.connections[sourceType] || [];

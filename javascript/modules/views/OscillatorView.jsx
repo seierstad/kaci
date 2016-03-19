@@ -1,11 +1,14 @@
 /*global module, require, document */
-var EnvelopeView = require("./EnvelopeView");
-var PDOscillator = require("../PDOscillator");
-var IdealOscillator = require("../IdealOscillator");
-var WaveformSelector = require("./WaveformSelector");
-var drawWaveform = require("./drawWaveform");
-var ViewUtils = require("./ViewUtils");
-var Utils = require("../Utils");
+import EnvelopeView from "./EnvelopeView";
+import PDOscillator from "../PDOscillator";
+import IdealOscillator from "../IdealOscillator";
+import WaveformSelector from "./WaveformSelector";
+import drawWaveform from "./drawWaveform";
+import ViewUtils from "./ViewUtils";
+import Utils from "../Utils";
+import RangeInput from "./RangeInput.jsx";
+import ReactDOM from "react-dom";
+import React, {Component} from "react";
 
 var OscillatorView = function (ctx, modulationLimits, patch, id) {
     "use strict";
@@ -121,7 +124,10 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
         min: -1,
         max: 1,
         step: 0.01,
-        value: Utils.scale(patch.mix, modulationLimits.mix, {min: -1, max: 1})
+        value: Utils.scale(patch.mix, modulationLimits.mix, {
+            min: -1,
+            max: 1
+        })
     });
 
     mixView.appendChild(mix.input);
@@ -136,7 +142,6 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
     // resonance control
     resonanceView = document.createElement("div");
     resonanceView.classList.add("oscillator-resonance-view");
-
     res = ViewUtils.createRangeInput({
         label: "Resonance",
         min: -1,
@@ -146,6 +151,7 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
     });
     resonanceView.appendChild(res.input);
     resonanceView.appendChild(res.label);
+
 
     this.waveView.resonance = document.createElement("canvas");
     updateResonanceWaveView.call(this, this.waveView.resonance);
@@ -176,8 +182,11 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
         label: "Detune",
         min: -1,
         max: 1,
-        step:.01,
-        value: Utils.scale(patch.detune, modulationLimits.detune, {min: -1, max: 1})
+        step: .01,
+        value: Utils.scale(patch.detune, modulationLimits.detune, {
+            min: -1,
+            max: 1
+        })
     });
     detuneView.appendChild(detune.input);
     detuneView.appendChild(detune.label);
@@ -207,7 +216,10 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
     });
 
     ctx.addEventListener("oscillator.change.mix", function (event) {
-        viewOscillator.mix.value = Utils.scale(event.detail, {min: -1, max: 1}, modulationLimits.mix);
+        viewOscillator.mix.value = Utils.scale(event.detail, {
+            min: -1,
+            max: 1
+        }, modulationLimits.mix);
         updateMixWaveView(that.waveView.mix);
         updateResonanceWaveView(that.waveView.resonance);
     });
@@ -220,7 +232,6 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
     }.bind(this));
 
 
-
     detune.input.addEventListener("input", function (evt) {
         var changeEvent = new CustomEvent(this.id + ".change.detune", {
             "detail": evt.target.value
@@ -229,7 +240,10 @@ var OscillatorView = function (ctx, modulationLimits, patch, id) {
     }.bind(this));
 
     ctx.addEventListener("oscillator.change.resonance", function (event) {
-        viewOscillator.resonance.value = Utils.scale(event.detail, {min: -1, max: 1}, modulationLimits.resonance);
+        viewOscillator.resonance.value = Utils.scale(event.detail, {
+            min: -1,
+            max: 1
+        }, modulationLimits.resonance);
         updateResonanceWaveView(that.waveView.resonance);
     });
     ctx.addEventListener("oscillator.change.wrapper", function (event) {

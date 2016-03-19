@@ -110,7 +110,6 @@ EnvelopeView.prototype.addPoint = function (index, data) {
     this.points.splice(index, 0, point);
 
 
-
     if (index > 0) {
         // draw line to previous point
         point.line = this.line(this.points[index - 1].position, position);
