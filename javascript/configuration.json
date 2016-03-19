@@ -17,7 +17,8 @@
     },
     "midi": {
         "portId": "",
-        "channel": "all"
+        "channel": "all",
+        "ports": []
     },
     "tuning": {
         "baseFrequency": 440,

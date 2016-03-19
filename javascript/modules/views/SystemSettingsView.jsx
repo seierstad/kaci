@@ -6,7 +6,7 @@ class SystemSettingsView extends Component {
 	render () {	    
 	    return (
 	    	<section className="system-settings-view">
-
+	    		<MidiView />
 	    		<KeyboardInputView />
 	    	</section>
 	    );

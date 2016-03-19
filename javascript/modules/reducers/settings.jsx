@@ -20,16 +20,16 @@ const keyboard = (state = {}, action) => {
 
 const midi = (state = {}, action) => {
 	switch (action.type) {
-		case Actions.MIDI_PORT_ADDED:
+		case Actions.MIDI_ADD_INPUT_PORT:
 			return {
 				...state,
 				ports: [
 					...state.ports,
-					...action.value
+					action.value
 				]
 			}
-		case Actions.MIDI_PORT_SElECTED:
-			if (state.ports.some((item) => item.name === action.value)) {
+		case Actions.MIDI_PORT_SELECT:
+			if (state.ports.some((item) => item.id === action.value)) {
 				return {
 					...state,
 					portId: action.value

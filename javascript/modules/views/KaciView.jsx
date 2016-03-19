@@ -25,12 +25,12 @@ var KaciView = function (context, systemSettings, patch, store) {
     document.body.appendChild(reactComponentsWrapper);
     ReactDOM.render(
         <div>
-        <Provider store={store}>
-            <SystemSettingsView />
-        </Provider> 
-        <Provider store={store}>
-            <NoiseView />
-        </Provider>
+            <Provider store={store}>
+                <SystemSettingsView />
+            </Provider> 
+            <Provider store={store}>
+                <NoiseView />
+            </Provider>
         </div>
         , reactComponentsWrapper
     );

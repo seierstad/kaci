@@ -40,7 +40,7 @@ if (window.AudioContext) {
     var patchHandler = new PatchHandler(ctx, defaultSettings);
     var modulationMatrix = new ModulationMatrix(ctx, system.settings, patchHandler.getActivePatch(), store);
 
-    var midi = new Midi(ctx, system.settings.midi);
+    var midi = new Midi(ctx, system.settings.midi, store);
     var keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
     var reg = new VoiceRegister(ctx, patchHandler, modulationMatrix);
 

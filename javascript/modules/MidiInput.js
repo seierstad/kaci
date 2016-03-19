@@ -1,7 +1,9 @@
 /* global require, document, navigator, CustomEvent */
+import * as Actions from "./Actions.jsx";
+
 var c = require("./midiConstants");
 
-var MidiInput = function (context, settings) {
+var MidiInput = function (context, settings, store) {
     "use strict";
     var midiAccessFailure,
         midiAccessSuccess,
@@ -14,14 +16,16 @@ var MidiInput = function (context, settings) {
         midiHandler,
         removeInputListeners,
         addInputListeners,
-        selectInputPortHandler;
+        selectInputPort;
+
+    const state = store.getState().settings.midi;
 
     this.access = null;
     this.inputs = {};
     this.outputs = {};
-    this.activeInputId = settings.portId || null;
+    this.activeInputId = state.portId || null;
     this.activeInput = null;
-    this.activeChannel = (typeof settings.channel === "number" || (typeof settings.channel === "string" && settings.channel === "all")) ? settings.channel : null;
+    this.activeChannel = (typeof state.channel === "number" || (typeof state.channel === "string" && state.channel === "all")) ? state.channel : null;
     this.runningStatusBuffer = null;
     this.valuePairs = {
         "BANK_SELECT": {
@@ -98,18 +102,22 @@ var MidiInput = function (context, settings) {
         inputIterator = access.inputs.entries();
         input = inputIterator.next();
         while (!input.done) {
-            that.inputs[input.value[0]] = input.value[1];
+            let id = input.value[0];
+            let port = input.value[1];
+            that.inputs[id] = port;
+
+            store.dispatch({
+                type: Actions.MIDI_ADD_INPUT_PORT,
+                value: {
+                    "name": port.name,
+                    "id": port.id,
+                    "manufacturer": port.manufacturer
+                }
+            });
             input = inputIterator.next();
         }
-        context.dispatchEvent(new CustomEvent("midi.ports.added", {
-            "detail": {
-                "ports": that.inputs,
-                "source": "midi"
-            }
-        }));
-        selectInputPortHandler.call(this, {
-            detail: that.activeInputId
-        });
+
+        selectInputPort.call(this, that.activeInputId);
     };
     this.updatePair = function (pair, coarse, fine) {
         var changed = false,
@@ -313,8 +321,7 @@ var MidiInput = function (context, settings) {
     addInputListeners = function (port) {
         port.addEventListener("midimessage", midiHandler, false);
     };
-    selectInputPortHandler = function (event) {
-        var portId = event.detail;
+    var selectInputPort = function (portId) {
         if (that.activeInput && that.activeInput.id !== portId) {
             removeInputListeners(that.activeInput);
         }
@@ -322,20 +329,28 @@ var MidiInput = function (context, settings) {
             that.activeInputId = portId;
             that.activeInput = that.inputs[portId];
             addInputListeners(that.activeInput);
-            context.dispatchEvent(new CustomEvent("system.midi.port.selected", {
-                "detail": that.activeInputId
-            }));
         }
     };
-    context.addEventListener("midi.select.input.port", selectInputPortHandler.bind(this));
 
     if (navigator && navigator.requestMIDIAccess) {
         navigator.requestMIDIAccess({
             "sysex": true
         }).then(midiAccessSuccess, midiAccessFailure);
     } else {
-        context.dispatchEvent(new CustomEvent("system.feature.missing.midi", {}));
+        store.dispatch({
+            type: Actions.MIDI_UNAVAILABLE
+        })
     }
+
+    const update = () => {
+        const state = store.getState().settings.midi;
+
+        if (this.activeInputId !== state.portId) {
+            selectInputPort(state.portId);
+        }
+    };
+
+    store.subscribe(update);
 };
 
 module.exports = MidiInput;
