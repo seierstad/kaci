@@ -1,12 +1,14 @@
 import * as Actions from "../Actions.jsx";
 import { combineReducers } from "redux";
-
+import config from "../../configuration.json";
 
 const envelopePart = (state = [], action) => {
 	switch (action.type) {
 		case Actions.ENVELOPE_POINT_ADD:
-			// TODO: find out how to get index of the added point
-			// add index of added point to an array ("activePoints"?)
+			return [
+				...state.map(el => (el >= action.index ? el + 1 : el)),
+				action.index
+			];
 			break;
 		case Actions.ENVELOPE_BLUR:
 			return [];
@@ -30,6 +32,19 @@ const envelopePart = (state = [], action) => {
 }
 
 const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
+	switch (action.type) {
+		case Actions.ENVELOPE_SUSTAIN_EDIT_START:
+			return {
+				...state,
+				editSustain: true
+			};
+		case Actions.ENVELOPE_SUSTAIN_EDIT_END:
+			return {
+				...state,
+				editSustain: false
+			};
+	}
+
     switch (action.envelopePart) {
         case "attack":
             return {
@@ -48,14 +63,19 @@ const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
 
 
 
-const envelope = (state = [], action) => {
-	if (!isNaN(action.envelopeIndex)) {
-		return [
-			...state.splice(0, action.envelopeIndex),
-			sustainedEnvelope(state[action.envelopeIndex], action),
-			...state.splice(action.envelopeIndex + 1)
+const envelope = (state = new Array(config.modulation.source.envelope.count), action) => {
+	const index = action.envelopeIndex;
+
+	if (!isNaN(index)) {	
+
+		let result = [
+			...state
 		];
+		result[index] = sustainedEnvelope(state[index], action);
+
+		return result;
 	}
+
 	return state;
 }
 

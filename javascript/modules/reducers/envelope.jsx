@@ -20,11 +20,35 @@ const steps = (state = [], action) => {
         case Actions.ENVELOPE_POINT_ADD:
             return [...state, [action.x, action.y]].sort(sortByX);
         case Actions.ENVELOPE_POINT_CHANGE:
-            return [
+            if (action.index === 0) {
+                return [
+                    [0, action.y],
+                    ...state.slice(action.index + 1)
+                ];
+            } else if (action.index === state.length - 1) { 
+                return [
+                    ...state.slice(0, action.index),
+                    [1, action.y]
+                ];
+            }
+            let result = [
                 ...state.slice(0, action.index),
                 [action.x, action.y],
                 ...state.slice(action.index + 1)
             ];
+            //all x values for steps after the changed step should be larger (and not equal) 
+            for (let i = action.index + 1; i < result.length; i += 1) {
+                if (result[i - 1][0] >= result[i][0]) {
+                    result[i][0] = result[i - 1][0] + Number.EPSILON;
+                }
+            }
+            // x values before the changed step...
+            for (let i = action.index - 1; i > 0; i -= 1) {
+                if (result[i + 1][0] <= result[i][0]) {
+                    result[i][0] = result[i + 1][0] - Number.EPSILON;
+                }
+            }
+            return result;
     }
     return state;
 };
@@ -42,11 +66,35 @@ const envelopePart = combineReducers({
 });
 
 const sustainedEnvelope = (state = {}, action) => {
-    if (action.type === Actions.ENVELOPE_MODE_CHANGE) {
-        return {
-            ...state,
-            mode: action.value
-        };
+    let result;
+
+    switch (action.type) {
+        case Actions.ENVELOPE_MODE_CHANGE:
+            return {
+                ...state,
+                mode: action.value
+            };
+        case Actions.ENVELOPE_SUSTAIN_CHANGE:
+            const a = state.attack.steps;
+            const r = state.release.steps;
+
+            return {
+                ...state,
+                attack: {
+                    ...state.attack,
+                    steps: [
+                        ...a.slice(0, a.length - 1),
+                        [1, action.value]
+                    ]
+                },
+                release: {
+                    ...state.release,
+                    steps: [
+                        [0, action.value],
+                        ...r.slice(1)
+                    ]
+                }
+            };
     }
     switch (action.envelopePart) {
         case "attack":

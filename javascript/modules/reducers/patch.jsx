@@ -1,12 +1,12 @@
 import * as Actions from "../Actions.jsx";
 import { combineReducers } from "redux";
+import envelope from "./envelope.jsx";
 
 const nullReducer = (state = {}, action) => {
     return state;
 };
 const oscillator = nullReducer;
 const lfo = nullReducer;
-const envelope = nullReducer;
 const modulation = nullReducer;
 
 const noise = (state = {}, action) => {

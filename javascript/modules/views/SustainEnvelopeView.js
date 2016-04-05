@@ -3,7 +3,7 @@
 "use strict";
 var SVGControllerElement = require('./SVGControllerElement'),
     utils = require('./ViewUtils'),
-    EnvelopeView = require('./EnvelopeView');
+    EnvelopeView = require("./EnvelopeViewOld");
 
 var svgns = 'http://www.w3.org/2000/svg';
 
@@ -170,7 +170,6 @@ var SustainEnvelopeView = function (ctx, patch, id) {
         return sustainController;
     };
     this.sustain.value = this.release.data.steps[0][1];
-
 
 
     params.width = "20%";

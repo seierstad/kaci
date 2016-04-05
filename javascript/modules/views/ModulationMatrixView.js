@@ -40,7 +40,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
     // create colgroups
     colgroup = document.createElement("colgroup");
     table.appendChild(colgroup);
-    [2, configuration.source.lfo, configuration.source.envelope + 1].forEach(function (span) {
+    [2, configuration.source.lfo, configuration.source.envelope.count + 1].forEach(function (span) {
         col = document.createElement("col");
         col.setAttribute("span", span);
         colgroup.appendChild(col);
@@ -64,7 +64,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
     row.appendChild(cell);
     cell = document.createElement("th");
     cell.setAttribute("scope", "colspan");
-    cell.setAttribute("colspan", configuration.source.envelope + 1);
+    cell.setAttribute("colspan", configuration.source.envelope.count + 1);
     cell.innerHTML = "Envelope";
     row.appendChild(cell);
     row = document.createElement("tr");
@@ -75,7 +75,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
         cell.innerHTML = i;
         row.appendChild(cell);
     }
-    for (i = 0, j = configuration.source.envelope; i < j; i += 1) {
+    for (i = 0, j = configuration.source.envelope.count; i < j; i += 1) {
         cell = document.createElement("th");
         cell.setAttribute("scope", "col");
         cell.innerHTML = i;
@@ -258,7 +258,7 @@ var ModulationMatrixView = function (context, configuration, patch) {
             for (k = 0, l = configuration.source.lfo; k < l; k += 1) {
                 cellContent("lfo", k);
             }
-            for (k = 0, l = configuration.source.envelope; k < l; k += 1) {
+            for (k = 0, l = configuration.source.envelope.count; k < l; k += 1) {
                 cellContent("envelope", k);
             }
             cellContent("envelope", null, true);

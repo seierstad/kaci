@@ -79,6 +79,42 @@ fieldset {
     stroke-width: 3;
     stroke: black;
 }
+.envelope {
+    .circles {
+        .active {
+            cursor: move;
+            r: 30;
+
+            &.first,
+            &.last {
+                cursor: ns-resize;
+            }
+
+        }
+
+        circle {
+            transition-property: r;
+            transition-duration: .2s;
+            transition-timing-function: easeOutElastic;
+            cursor: grab;
+
+        }
+    }
+    rect {
+        cursor: crosshair;
+    }
+}
+.sustain-envelope {
+    padding: 30px;
+    margin: -20px;
+    width: calc(100% - 20px);
+    box-sizing: content-box;
+
+    .controller {
+        overflow: visible;
+    }
+}
+
 .keyboard.controller {
     width: 100%;
     height: 100%;

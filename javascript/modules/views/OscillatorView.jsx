@@ -1,5 +1,5 @@
 /*global module, require, document */
-import EnvelopeView from "./EnvelopeView";
+import EnvelopeView from "./EnvelopeViewOld";
 import PDOscillator from "../PDOscillator";
 import IdealOscillator from "../IdealOscillator";
 import WaveformSelector from "./WaveformSelector";

@@ -29,7 +29,26 @@
     "modulation": {
         "source": {
             "lfo": 3,
-            "envelope": 2
+            "envelope": {
+                "count": 2,
+                "default": {
+                    "attack": {
+                        "steps": [
+                            [0, 0],
+                            [1, 1]
+                        ],
+                        "duration": 1
+                    },
+                    "release": {
+                        "steps": [
+                            [0, 1],
+                            [1, 0]
+                        ],
+                        "duration": 1
+                    },
+                    "mode": "local"
+                }
+            }
         },
         "target": {
             "vca": {
