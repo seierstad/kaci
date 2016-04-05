@@ -2,21 +2,20 @@
 /*globals require, console, window, document, CustomEvent */
 "use strict";
 
-var KaciView = require("./modules/views/KaciView.jsx");
-var VoiceRegister = require("./modules/VoiceRegister");
-var WavyJones = require("../lib/wavy-jones/wavy-jones");
-var ModulationMatrix = require("./modules/ModulationMatrix");
-var KeyboardInput = require("./modules/KeyboardInput");
-//var react = require("react");
-var ctx, mainMix;
-var patch = require("./modules/patch");
-var Midi = require("./modules/MidiInput");
-var SystemSettings = require("./modules/SystemSettings");
-var defaultSettings = require("./configuration.json");
-var PatchHandler = require("./modules/PatchHandler");
+import KaciView from "./modules/views/KaciView.jsx";
+import VoiceRegister from "./modules/VoiceRegister";
+import WavyJones from "../lib/wavy-jones/wavy-jones";
+import ModulationMatrix from "./modules/ModulationMatrix";
+import KeyboardInput from "./modules/KeyboardInput";
+import patch from "./modules/patch";
+import Midi from "./modules/MidiInput";
+import SystemSettings from "./modules/SystemSettings";
+import defaultSettings from "./configuration.json";
+import PatchHandler from "./modules/PatchHandler";
 
 import { createStore } from "redux";
 import reducer from "./modules/reducers/kaci.jsx";
+var ctx, mainMix;
 
 
 if (window.webkitAudioContext) {
@@ -34,7 +33,7 @@ if (window.AudioContext) {
     }
     settings = settings || defaultSettings;
 
-    var store = createStore(reducer, {patch: {...patch}, settings: {...settings}});
+    var store = createStore(reducer, {patch: {...patch}, settings: {...settings}},  window.devToolsExtension ? window.devToolsExtension() : undefined);
     var system = new SystemSettings(ctx, settings, store);
     var view = new KaciView(ctx, system.settings, patch, store);
     var patchHandler = new PatchHandler(ctx, defaultSettings);
