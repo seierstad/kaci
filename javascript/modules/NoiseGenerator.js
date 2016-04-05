@@ -12,10 +12,11 @@ var NoiseGenerator = function (context, patch) {
     this.generator.connect(this.gainNode);
 };
 NoiseGenerator.prototype.start = function () {
-    this.generator.addEventListener("audioprocess", this.audioProcessHandler.bind(this));
+    this.boundAudioProcessHandler = this.audioProcessHandler.bind(this);
+    this.generator.addEventListener("audioprocess", this.boundAudioProcessHandler);
 };
 NoiseGenerator.prototype.stop = function () {
-    this.generator.removeEventListener("audioprocess");
+    this.generator.removeEventListener("audioprocess", this.boundAudioProcessHandler);
 };
 NoiseGenerator.prototype.audioProcessHandler = function (event) {
     var output = event.outputBuffer.getChannelData(0);
