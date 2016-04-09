@@ -74,6 +74,36 @@ class EnvelopeCircles extends Component {
     }
 }
 
+class SustainView extends Component {
+    render () {
+        const {patch, width, viewState, x, onBackgroundClick} = this.props;
+        const background = (<rect 
+            ref={(bg) => this.background = bg}
+            onMouseDown={onBackgroundClick}
+            width="100%" 
+            height="100%" 
+            opacity="0"
+        />);
+        const y = toPercent(1 - patch.attack.steps.slice(-1)[0][1]);
+        return (
+            <svg
+                x={x ? x : 0}
+                className="controller"
+                height="100%"
+                width={width ? width : "100%"}>
+                {background}
+                <line
+                    strokeWidth="10"
+                    y1={y}
+                    y2={y}
+                    x1="0%"
+                    x2="100%"
+                    className="sustain-bar"
+                />
+            </svg>
+        );
+    }
+}
 
 class EnvelopeView extends Component {
     render () {
@@ -111,11 +141,12 @@ class EnvelopeView extends Component {
 
 class SustainEnvelopePresentation extends Component {
     render () {
-        const {index, patch, viewState, onMouseOut, onCircleClick, onCircleBlur, onCircleMouseDrag, onBackgroundClick, onEnvelopeBlur, onDurationChange} = this.props;
+        const {index, patch, viewState, onMouseOut, onCircleClick, onCircleBlur, onCircleMouseDrag, onBackgroundClick, onSustainBackgroundClick, onEnvelopeBlur, onDurationChange} = this.props;
         const attackPart = patch.attack.duration / (patch.attack.duration + patch.release.duration);
         const releasePart = patch.release.duration / (patch.attack.duration + patch.release.duration);
-        const attackWidth = "" + (attackPart * 100) + "%";
-        const releaseWidth = "" + (releasePart * 100) + "%";
+        const sustainWidth = 10;
+        const attackWidth = attackPart * (100 - sustainWidth);
+        const releaseWidth = releasePart * (100 - sustainWidth);
 
         return (
             <section className="envelope">
@@ -133,9 +164,10 @@ class SustainEnvelopePresentation extends Component {
                         onCircleBlur={onCircleBlur(index, "attack", patch.attack.steps.length)}
                         onCircleMouseDrag={onCircleMouseDrag(index, "attack", patch.attack.steps.length)}
                         viewState={viewState.attack}
-                        width={attackWidth}
+                        width={attackWidth + "%"}
                         activeIndex={viewState.editSustain ? patch.attack.steps.length - 1 : null}
                     />
+
                     <EnvelopeView 
                         patch={patch.release}
                         className="release"
@@ -145,11 +177,17 @@ class SustainEnvelopePresentation extends Component {
                         onCircleBlur={onCircleBlur(index, "release", patch.release.steps.length)}
                         onCircleMouseDrag={onCircleMouseDrag(index, "release", patch.release.steps.length)}
                         viewState={viewState.release}
-                        width={releaseWidth}
-                        x={attackWidth}
+                        width={releaseWidth + "%"}
+                        x={(attackWidth + sustainWidth) + "%"}
                         activeIndex={viewState.editSustain ? 0 : null}
                     />
-
+                    <SustainView
+                        patch={patch}
+                        width={sustainWidth + "%"}
+                        viewState={viewState}
+                        x={attackWidth + "%"}
+                        onBackgroundClick={onSustainBackgroundClick(index)}
+                    />
                 </svg>
                 <label htmlFor={"env-" + index + "-attack-duration"}>attack duration</label>
                 <input 
@@ -255,6 +293,14 @@ const mapDispatchToSustainEnvelopeProps = (dispatch) => {
                 x,
                 y
             });
+        },
+        onSustainBackgroundClick: (envelopeIndex) => (event) => {
+            const {x, y} = getValuePair(event, event.target);
+            dispatch({
+                type: Actions.ENVELOPE_SUSTAIN_CHANGE,
+                envelopeIndex,
+                value: y
+            });            
         },
         onCircleMouseDrag: (envelopeIndex, envelopePart, stepCount) => (index, background) => (event) => {
             const {x, y} = getValuePair(event, background);
