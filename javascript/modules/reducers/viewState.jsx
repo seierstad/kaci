@@ -33,6 +33,7 @@ const envelopePart = (state = [], action) => {
 
 const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
 	switch (action.type) {
+		case Actions.ENVELOPE_SUSTAIN_CHANGE:
 		case Actions.ENVELOPE_SUSTAIN_EDIT_START:
 			return {
 				...state,

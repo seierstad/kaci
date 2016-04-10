@@ -51,7 +51,7 @@ class EnvelopeCircles extends Component {
                     r={10}
                     className={(isActive ? "active" : "") + (index === 0 ? " first" : "") + (index === arr.length - 1 ? " last" : "") }
                     key={"circle-" + index + "_of_" + arr.length}
-                    onMouseMove={isActive ? onDrag(index, background) : null}
+                    onMouseMove={isActive ? onDrag(background, index) : null}
                     onMouseDown={onClick(index)}
                     onMouseUp={isActive ? onBlur(index) : null}
                     onMouseOut={isActive ? onBlur(index) : null}
@@ -76,7 +76,7 @@ class EnvelopeCircles extends Component {
 
 class SustainView extends Component {
     render () {
-        const {patch, width, viewState, x, onBackgroundClick} = this.props;
+        const {patch, width, viewState, x, onBackgroundClick, onDrag, onBlur, onClick} = this.props;
         const background = (<rect 
             ref={(bg) => this.background = bg}
             onMouseDown={onBackgroundClick}
@@ -85,6 +85,8 @@ class SustainView extends Component {
             opacity="0"
         />);
         const y = toPercent(1 - patch.attack.steps.slice(-1)[0][1]);
+        const isActive = !!viewState.editSustain;
+
         return (
             <svg
                 x={x ? x : 0}
@@ -93,12 +95,16 @@ class SustainView extends Component {
                 width={width ? width : "100%"}>
                 {background}
                 <line
+                    onMouseMove={isActive ? onDrag(this.background) : null}
+                    onMouseUp={isActive ? onBlur : null}
+                    onMouseOut={isActive ? onBlur : null}
+                    onMouseDown={isActive ? null : onClick}
                     strokeWidth="10"
                     y1={y}
                     y2={y}
                     x1="0%"
                     x2="100%"
-                    className="sustain-bar"
+                    className={"sustain-bar" + (isActive ? " active" : "")}
                 />
             </svg>
         );
@@ -186,6 +192,9 @@ class SustainEnvelopePresentation extends Component {
                         width={sustainWidth + "%"}
                         viewState={viewState}
                         x={attackWidth + "%"}
+                        onDrag={onCircleMouseDrag(index, "sustain")}
+                        onBlur={onCircleBlur(index, "sustain")()}
+                        onClick={onCircleClick(index, "sustain")()}
                         onBackgroundClick={onSustainBackgroundClick(index)}
                     />
                 </svg>
@@ -227,7 +236,7 @@ const mapDispatchToSustainEnvelopeProps = (dispatch) => {
                     index
                 });
             } else {
-                if ((envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
+                if ((envelopePart === "sustain") || (envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
                     dispatch({
                         type: Actions.ENVELOPE_SUSTAIN_EDIT_START,
                         envelopeIndex
@@ -267,7 +276,7 @@ const mapDispatchToSustainEnvelopeProps = (dispatch) => {
             })
         },
         onCircleBlur: (envelopeIndex, envelopePart, stepCount) => (index) => (event) => {
-            if ((envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
+            if ((envelopePart === "sustain") || (envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
                 dispatch({
                     type: Actions.ENVELOPE_SUSTAIN_EDIT_END,
                     envelopeIndex
@@ -302,10 +311,10 @@ const mapDispatchToSustainEnvelopeProps = (dispatch) => {
                 value: y
             });            
         },
-        onCircleMouseDrag: (envelopeIndex, envelopePart, stepCount) => (index, background) => (event) => {
+        onCircleMouseDrag: (envelopeIndex, envelopePart, stepCount) => (background, index) => (event) => {
             const {x, y} = getValuePair(event, background);
 
-            if ((envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
+            if ((envelopePart === "sustain") || (envelopePart === "release" && index === 0) || (envelopePart === "attack" && index === stepCount - 1)) {
 
                 dispatch({
                     type: Actions.ENVELOPE_SUSTAIN_CHANGE,
@@ -348,7 +357,7 @@ class EnvelopesViewPresentation extends Component {
 
         for (let i = 0; i < configuration.count; i += 1) {
             let patch = patchData[i] || configuration["default"];
-            let vs = viewState[i] || {attack: [], release: []};
+            let vs = viewState[i] || {attack: [], release: [], editSustain: false};
             envelopes.push(<SustainEnvelope key={i} index={i} patch={patch} viewState={vs} />);
         }
 

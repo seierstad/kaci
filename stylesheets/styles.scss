@@ -79,11 +79,14 @@ fieldset {
     stroke-width: 3;
     stroke: black;
 }
+$envelope-circle-radius: 10;
+$envelope-circle-radius-active: 30;
+$envelope-circle-color: black;
 .envelope {
     .circles {
         .active {
             cursor: move;
-            r: 30;
+            r: $envelope-circle-radius-active;
 
             &.first,
             &.last {
@@ -93,6 +96,7 @@ fieldset {
         }
 
         circle {
+            r: $envelope-circle-radius;
             transition-property: r;
             transition-duration: .2s;
             transition-timing-function: easeOutElastic;
@@ -112,6 +116,17 @@ fieldset {
 
     .controller {
         overflow: visible;
+    }
+    .sustain-bar {
+        stroke: $envelope-circle-color;
+        stroke-width: $envelope-circle-radius * 2;
+        stroke-linecap: round;
+        cursor: grab;
+
+        &.active {
+            stroke-width: $envelope-circle-radius-active * 2;
+            cursor: ns-resize;
+        }
     }
 }
 
