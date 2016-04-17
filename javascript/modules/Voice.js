@@ -37,10 +37,10 @@ Voice = function (context, patch, frequency, options, store) {
         }
     };
 
-    patch.lfo.forEach(createVoiceLfo);
+    patch.lfos.forEach(createVoiceLfo);
 
-    for (i = 0, j = patch.envelope.length; i < j; i += 1) {
-        this.envelope[i] = new EnvelopeGenerator(context, patch.envelope[i], "envelope" + i);
+    for (i = 0, j = patch.envelopes.length; i < j; i += 1) {
+        this.envelope[i] = new EnvelopeGenerator(context, patch.envelopes[i], "envelope" + i);
     }
 
 
@@ -220,7 +220,7 @@ Voice.prototype.stop = function (time, callback) {
         envelope.release(time);
     });
     this.destroyCallback = callback;
-    this.destroyTimer = setTimeout(this.destroy.bind(this), this.envelope[0].getReleaseDuration() * 1000);
+    this.destroyTimer = setTimeout(this.destroy.bind(this), this.envelopes[0].getReleaseDuration() * 1000);
 };
 Voice.prototype.setFrequency = function setFrequency(frequency) {
     this.oscillator.frequency.gain.setValueAtTime(frequency, this.context.currentTime);

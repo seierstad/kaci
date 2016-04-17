@@ -31,7 +31,7 @@ var patch = {
         "active": true,
         "pan": 0
     },
-    "lfo": [{
+    "lfos": [{
         "waveform": "square",
         "frequency": 1.34,
         "amount": 1,
@@ -40,23 +40,27 @@ var patch = {
     }, {
         "waveform": "additiveSaw",
         "frequency": 6.4,
-        "amount": 1.0,
-        "syncEnabled": true,
-        "syncRatioNumerator": 32,
-        "syncRatioDenominator": 1,
+        "amount": 0.5,
         "active": true,
+        "sync": {
+            "enabled": true,
+            "numerator": 32,
+            "denominator": 1
+        },
         "mode": "global" /* "voice"  TODO: implement voice LFOs */
     }, {
         "waveform": "sinus",
         "frequency": 0.08,
         "amount": 1.0,
-        "syncEnabled": true,
-        "syncRatioNumerator": 1,
-        "syncRatioDenominator": 4,
         "active": false,
+        "sync": {
+            "enabled": true,
+            "numerator": 1,
+            "denominator": 4
+        },
         "mode": "global"
     }],
-    "envelope": [{
+    "envelopes": [{
         "attack": {
             "steps": [
                 [0, 0],
@@ -95,7 +99,7 @@ var patch = {
         mode: "local"
     }],
     "modulation": {
-        "envelope": [{
+        "envelopes": [{
             "vca.gain": {
                 "amount": 1.0,
                 "range": "positive"
@@ -106,7 +110,7 @@ var patch = {
                 "range": "positive"
             }
         }],
-        "lfo": [{
+        "lfos": [{
             "oscillator.resonance": {
                 "amount": .1,
                 "range": "positive"

@@ -1,9 +1,5 @@
 /* global module, require, document */
 "use strict";
-
-var LFOView = require("./LFOView");
-var SustainEnvelopeView = require("./SustainEnvelopeView");
-var OscillatorView = require("./OscillatorView.jsx");
 var KeyboardView = require("./KeyboardView");
 var ModulationMatrixView = require("./ModulationMatrixView");
 
@@ -32,28 +28,10 @@ var KaciView = function (context, systemSettings, patch, store) {
         className: "keyboard"
     });
     document.body.appendChild(keyboardView);
-
+/*
     var ov = new OscillatorView(context, systemSettings.modulation.target.oscillator, patch.oscillator);
     document.body.appendChild(ov);
-
-    var lfoView = [],
-        envelopeView = [],
-        i, j;
-
-    for (i = 0, j = patch.lfo.length; i < j; i += 1) {
-        lfoView[i] = new LFOView(context, patch.lfo[i], {
-            lfoId: "lfo" + i,
-            syncControls: i > 0,
-            number: i
-        });
-        document.body.appendChild(lfoView[i]);
-    }
-
-    for (i = 0, j = patch.envelope.length; i < j; i += 1) {
-        envelopeView[i] = new SustainEnvelopeView(context, patch.envelope[i], "envelope" + i);
-        document.body.appendChild(envelopeView[i].controller);
-
-    }
+*/
 
     var modulationMatrixView = new ModulationMatrixView(context, systemSettings.modulation, patch.modulation);
     document.body.appendChild(modulationMatrixView);

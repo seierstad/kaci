@@ -4,6 +4,8 @@ import * as Actions from "../Actions.jsx";
 
 import { getOffsetElement, cursorPosition, sizeInPixels } from "./ViewUtils";
 
+import WaveformSelector from "./WaveformSelector.jsx";
+
 const toPercent = (number) => {
     return (number * 100).toString() + "%";
 };
@@ -74,7 +76,7 @@ class EnvelopeCircles extends Component {
     }
 }
 
-class SustainView extends Component {
+class Sustain extends Component {
     render () {
         const {patch, width, viewState, x, onBackgroundClick, onDrag, onBlur, onClick} = this.props;
         const background = (<rect 
@@ -111,7 +113,7 @@ class SustainView extends Component {
     }
 }
 
-class EnvelopeView extends Component {
+class Envelope extends Component {
     render () {
         const { onBackgroundClick, onCircleClick, onCircleMouseDrag, onEnvelopeBlur, onCircleBlur, patch, viewState, activeIndex, width, x, className } = this.props;
         this.patch = patch;
@@ -161,7 +163,7 @@ class SustainEnvelopePresentation extends Component {
                     className="sustain-envelope controller"
                     onMouseOut={viewState.editSustain ? onMouseOut(index) : null}>
 
-                    <EnvelopeView 
+                    <Envelope
                         patch={patch.attack}
                         className="attack"
                         onEnvelopeBlur={onEnvelopeBlur(index, "attack")}
@@ -174,7 +176,7 @@ class SustainEnvelopePresentation extends Component {
                         activeIndex={viewState.editSustain ? patch.attack.steps.length - 1 : null}
                     />
 
-                    <EnvelopeView 
+                    <Envelope
                         patch={patch.release}
                         className="release"
                         onEnvelopeBlur={onEnvelopeBlur(index, "release")} 
@@ -187,7 +189,7 @@ class SustainEnvelopePresentation extends Component {
                         x={(attackWidth + sustainWidth) + "%"}
                         activeIndex={viewState.editSustain ? 0 : null}
                     />
-                    <SustainView
+                    <Sustain
                         patch={patch}
                         width={sustainWidth + "%"}
                         viewState={viewState}
@@ -212,7 +214,6 @@ class SustainEnvelopePresentation extends Component {
                     onInput={onDurationChange(index, "release")}
                     onChange={onDurationChange(index, "release")}
                 />
-
             </section>
         );
     }
@@ -350,7 +351,7 @@ const SustainEnvelope = connect(
 )(SustainEnvelopePresentation);
 
 
-class EnvelopesViewPresentation extends Component {
+class EnvelopesPresentation extends Component {
     render () {
         const {patchData, configuration, viewState} = this.props;
         let envelopes = [];
@@ -366,15 +367,15 @@ class EnvelopesViewPresentation extends Component {
 }
 const mapStateToEnvelopesProps = (state) => {
     return {
-        patchData: state.patch.envelope,
-        configuration: state.settings.modulation.source.envelope,
-        viewState: state.viewState.envelope
+        patchData: state.patch.envelopes,
+        configuration: state.settings.modulation.source.envelopes,
+        viewState: state.viewState.envelopes
     };
 };
-const EnvelopesView = connect(
+const Envelopes = connect(
     mapStateToEnvelopesProps,
     null
-)(EnvelopesViewPresentation);
+)(EnvelopesPresentation);
 
 /*
     this.controller.addEventListener('mousemove', this.mouseHandler.bind(this), false);
@@ -436,4 +437,5 @@ EnvelopeView.prototype.changeHandler = function (event, touch) {
 };
 
 */
-export default EnvelopesView;
+export {Envelope};
+export default Envelopes;

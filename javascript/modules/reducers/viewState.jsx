@@ -2,7 +2,7 @@ import * as Actions from "../Actions.jsx";
 import { combineReducers } from "redux";
 import config from "../../configuration.json";
 
-const envelopePart = (state = [], action) => {
+const envelope = (state = [], action) => {
 	switch (action.type) {
 		case Actions.ENVELOPE_POINT_ADD:
 			return [
@@ -50,21 +50,19 @@ const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
         case "attack":
             return {
                 ...state,
-                attack: envelopePart(state.attack, action)
+                attack: envelope(state.attack, action)
             };
         case "release":
             return {
                 ...state,
-                release: envelopePart(state.release, action)
+                release: envelope(state.release, action)
             };
     }
     return state;
 };
 
 
-
-
-const envelope = (state = new Array(config.modulation.source.envelope.count), action) => {
+const envelopes = (state = new Array(config.modulation.source.envelopes.count), action) => {
 	const index = action.envelopeIndex;
 
 	if (!isNaN(index)) {	
@@ -80,9 +78,9 @@ const envelope = (state = new Array(config.modulation.source.envelope.count), ac
 	return state;
 }
 
-const viewState = combineReducers({
-	envelope
-});
 
+const viewState = combineReducers({
+	envelopes
+});
 
 export default viewState;

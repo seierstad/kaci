@@ -33,7 +33,7 @@ if (window.AudioContext) {
     }
     settings = settings || defaultSettings;
 
-    var store = createStore(reducer, {patch: {...patch}, settings: {...settings}},  window.devToolsExtension ? window.devToolsExtension() : undefined);
+    var store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
     var system = new SystemSettings(ctx, settings, store);
     var view = new KaciView(ctx, system.settings, patch, store);
     var patchHandler = new PatchHandler(ctx, defaultSettings);

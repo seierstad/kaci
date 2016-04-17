@@ -38,9 +38,9 @@ PatchHandler = function (context, configuration) {
         };
     };
 
-    for (i = 0, j = this.patch.envelope.length; i < j; i += 1) {
-        context.addEventListener("envelope" + i + ".attack.change.data", getEnvelopeEventListener(this.patch.envelope[i].attack.steps, "envelope" + i + ".attack"));
-        context.addEventListener("envelope" + i + ".release.change.data", getEnvelopeEventListener(this.patch.envelope[i].release.steps, "envelope" + i + ".release"));
+    for (i = 0, j = this.patch.envelopes.length; i < j; i += 1) {
+        context.addEventListener("envelope" + i + ".attack.change.data", getEnvelopeEventListener(this.patch.envelopes[i].attack.steps, "envelope" + i + ".attack"));
+        context.addEventListener("envelope" + i + ".release.change.data", getEnvelopeEventListener(this.patch.envelopes[i].release.steps, "envelope" + i + ".release"));
     }
     context.addEventListener("oscillator.env0.change.data", getEnvelopeEventListener(this.patch.oscillator.pdEnvelope0, "oscillator.env0"));
     context.addEventListener("oscillator.env1.change.data", getEnvelopeEventListener(this.patch.oscillator.pdEnvelope1, "oscillator.env1"));
@@ -73,11 +73,11 @@ PatchHandler = function (context, configuration) {
 
     getLfoToggleHandler = function (index) {
         return function (event) {
-            that.patch.lfo[index].active = event.detail;
+            that.patch.lfos[index].active = event.detail;
         };
     };
 
-    for (i = 0, j = this.patch.lfo.length; i < j; i += 1) {
+    for (i = 0, j = this.patch.lfos.length; i < j; i += 1) {
         context.addEventListener("lfo" + i + ".toggle", getLfoToggleHandler(i));
     }
     context.addEventListener("lfo.change.frequency", function (evt) {
