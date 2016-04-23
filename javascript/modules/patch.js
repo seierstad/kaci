@@ -102,22 +102,26 @@ var patch = {
         "envelopes": [{
             "vca.gain": {
                 "amount": 1.0,
-                "range": "positive"
+                "polarity": "positive",
+                "enabled": true
             }
         }, {
             "oscillator.resonance": {
                 "amount": 1,
-                "range": "positive"
+                "polarity": "positive",
+                "enabled": true
             }
         }],
         "lfos": [{
             "oscillator.resonance": {
                 "amount": .1,
-                "range": "positive"
+                "polarity": "positive",
+                "enabled": true
             },
             "noise.pan": {
                 "amount": 1,
-                "range": "full"
+                "polarity": "full",
+                "enabled": false
             }
         }]
     }

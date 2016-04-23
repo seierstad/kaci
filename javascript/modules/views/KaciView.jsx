@@ -1,7 +1,6 @@
 /* global module, require, document */
 "use strict";
 var KeyboardView = require("./KeyboardView");
-var ModulationMatrixView = require("./ModulationMatrixView");
 
 import React from "react";
 import ReactDOM from "react-dom";
@@ -33,7 +32,5 @@ var KaciView = function (context, systemSettings, patch, store) {
     document.body.appendChild(ov);
 */
 
-    var modulationMatrixView = new ModulationMatrixView(context, systemSettings.modulation, patch.modulation);
-    document.body.appendChild(modulationMatrixView);
 };
 module.exports = KaciView;

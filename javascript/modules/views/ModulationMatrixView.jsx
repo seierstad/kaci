@@ -1,325 +1,209 @@
-/* global require, module, document */
-"use strict";
-var ViewUtils = require('./ViewUtils');
-var Utils = require('../Utils');
+import React, {Component} from "react";
+import {connect} from "react-redux";
 
-function countObjectKeys(config, level) {
-    var count = 0,
-        keys, i, j;
-    keys = Object.keys(config);
-    if (level === 0) {
-        return keys.length;
-    }
+import RangeInput from "./RangeInput.jsx";
+import * as Actions from "../Actions.jsx";
 
-    for (i = 0, j = keys.length; i < j; i += 1) {
-        count += countObjectKeys(config[keys[i]], level - 1);
+const arr = (count) => (new Array(count)).fill(0); 
+
+class PolaritySelector extends Component {
+    render () {
+        const {onInput, prefix, patch} = this.props;
+        return (
+            <div>
+                <select id={prefix + "-polarity"} onInput={onInput} value={patch}>
+                    {
+                        [
+                            { value: "positive", label: "+", title: "positive"}, 
+                            { value: "full",     label: "±", title: "full"},
+                            { value: "negative", label: "-", title: "negative"}
+                        ].map((item, i) => <option key={i} value={item.value} title={item.title}>{item.label}</option>)
+                    }
+                </select>
+                <label htmlFor={prefix + "-polarity"}>polarity</label>
+            </div>
+        );
     }
-    return count;
 }
 
-var ModulationMatrixView = function (context, configuration, patch) {
-    var view, expandState, heading, table, colgroup, col, thead, tbody, row, cell, i, j, k, l;
 
 
-    view = document.createElement("section");
-    view.classList.add("modulation");
+class ConnectionPresentation extends Component {
+    render () {
+        const {type, index, module, parameter, patch, onAmountInput, onPolarityInput, onToggle} = this.props;
+        const prefix = [type, index, module, parameter].join("-");
+        const id = prefix + "-connection";
+        const target = module + "." + parameter;
+        const checked = patch[type] && patch[type][index] && patch[type][index].hasOwnProperty(target);
 
-    expandState = document.createElement("input");
-    expandState.id = "modulation-expand";
-    expandState.setAttribute("type", "checkbox");
-    expandState.setAttribute("checked", "checked");
-    view.appendChild(expandState);
+        let polarity;
+        let amount;
+        let name = [type, module, parameter].join("-") + "-connection"
 
-    heading = document.createElement("h2");
-    heading.innerHTML = "Modulation matrix <label for='modulation-expand'><span class='expand'>expand</span><span class='minimize'>minimize</span>";
-    view.appendChild(heading);
 
-    table = document.createElement("table");
-    table.setAttribute("class", "modulation-matrix");
+        if (checked) {
+            polarity = patch[type][index][target].polarity;
+            amount = patch[type][index][target].amount;
+        }
+        let toggle;
 
-    // create colgroups
-    colgroup = document.createElement("colgroup");
-    table.appendChild(colgroup);
-    [2, configuration.source.lfo, configuration.source.envelope.count + 1].forEach(function (span) {
-        col = document.createElement("col");
-        col.setAttribute("span", span);
-        colgroup.appendChild(col);
-    });
+        if (type === "lfos") {
+            toggle = <input type="checkbox" checked={checked} onChange={onToggle(type, index, module, parameter)} id={id} />;
+        } else {
+            toggle = <input type="radio" checked={checked} onChange={onToggle(type, index, module, parameter)} id={id} name={name} />;
+        }
 
-    // create table head
-    thead = document.createElement("thead");
-    table.appendChild(thead);
+        return (
+            <td>
+                <label htmlFor={id}>connect {type + " " + index + " to " + module + " " + parameter}</label>
+                {toggle}
+                <PolaritySelector prefix={prefix} patch={polarity} onInput={onPolarityInput(type, index, module, parameter)} />
+                <RangeInput 
+                    label="amount" 
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onInput={onAmountInput(type, index, module, parameter)}
+                    value={amount} />
 
-    row = document.createElement("tr");
-    thead.appendChild(row);
-    cell = document.createElement("td");
-    cell.setAttribute("scope", "col");
-    cell.setAttribute("colspan", 2);
-    cell.setAttribute("rowspan", 2);
-    row.appendChild(cell);
-    cell = document.createElement("th");
-    cell.setAttribute("scope", "colspan");
-    cell.setAttribute("colspan", configuration.source.lfo);
-    cell.innerHTML = "LFO";
-    row.appendChild(cell);
-    cell = document.createElement("th");
-    cell.setAttribute("scope", "colspan");
-    cell.setAttribute("colspan", configuration.source.envelope.count + 1);
-    cell.innerHTML = "Envelope";
-    row.appendChild(cell);
-    row = document.createElement("tr");
-    thead.appendChild(row);
-    for (i = 0, j = configuration.source.lfo; i < j; i += 1) {
-        cell = document.createElement("th");
-        cell.setAttribute("scope", "col");
-        cell.innerHTML = i;
-        row.appendChild(cell);
+            </td>
+        );
     }
-    for (i = 0, j = configuration.source.envelope.count; i < j; i += 1) {
-        cell = document.createElement("th");
-        cell.setAttribute("scope", "col");
-        cell.innerHTML = i;
-        row.appendChild(cell);
-    }
-
-    cell = document.createElement("th");
-    cell.setAttribute("scope", "col");
-    cell.innerHTML = "none";
-    row.appendChild(cell);
-
-
-    var targetHeader = false;
-
-    function moduleTargets(moduleName) {
-        var i, j, k, l,
-            span,
-            id,
-            paramNames,
-            input,
-            label,
-            moduleConfig = configuration.target[moduleName];
-
-        paramNames = Object.keys(moduleConfig);
-        tbody = document.createElement("tbody");
-
-        function rangeInput(prefix, value, sourceType, sourceIndex, targetModule, targetParameter) {
-            var label,
-                select = document.createElement("select"),
-                option;
-
-            select.id = prefix + "-range";
-            select.dataset.sourceType = sourceType;
-            select.dataset.sourceIndex = sourceIndex;
-            select.dataset.targetModule = targetModule;
-            select.dataset.targetParameter = targetParameter;
-            select.dataset.type = "range";
-            [{
-                value: "positive",
-                label: "+",
-                title: "positive"
-            }, {
-                value: "full",
-                label: "±",
-                title: "full"
-            }, {
-                value: "negative",
-                label: "-",
-                title: "negative"
-            }].forEach(function (item) {
-                option = document.createElement("option");
-                option.value = item.value;
-                if (option.value === value) {
-                    option.selected = true;
-                }
-                option.innerHTML = item.label;
-                option.title = item.title;
-                select.appendChild(option);
-
-                label = document.createElement("label");
-                label.setAttribute("for", prefix + "-range");
-
-            });
-            return {
-                input: select,
-                label: label
-            };
-        }
-
-        function amountInput(prefix, value, sourceType, sourceIndex, targetModule, targetParameter) {
-            var label = document.createElement("label"),
-                input = document.createElement("input"),
-                id = prefix + "-amount";
-
-            input.type = "range";
-            input.min = 0;
-            input.max = 1;
-            input.step = 0.001;
-            input.id = id;
-            input.value = value || 1;
-            input.dataset.sourceType = sourceType;
-            input.dataset.sourceIndex = sourceIndex;
-            input.dataset.targetModule = targetModule;
-            input.dataset.targetParameter = targetParameter;
-            input.dataset.type = "amount";
-
-
-            label.innerHTML = "amount";
-            label.setAttribute("for", id);
-
-            return {
-                input: input,
-                label: label
-            };
-        }
-
-        function cellContent(type, index, isNone) {
-            var name = "",
-                range, amount,
-                patchRange,
-                patchAmount;
-
-            cell = document.createElement("td");
-            label = document.createElement("label");
-            id = type + "-" + (isNone ? "none" : index) + "-" + moduleName + "-" + paramNames[i];
-            label.innerHTML = "connect " + id.split("-").join(" ");
-
-            label.setAttribute("for", id);
-            cell.appendChild(label);
-
-            input = document.createElement("input");
-
-            input.id = id;
-            input.dataset.sourceIndex = index;
-            input.dataset.targetModule = moduleName;
-            input.dataset.targetParameter = paramNames[i];
-            input.dataset.type = "connection";
-
-            if (type === "envelope") {
-                input.dataset.sourceType = "envelope";
-                name = type + "-" + moduleName + "-" + paramNames[i];
-                input.value = index;
-                input.setAttribute("type", "radio");
-            } else {
-                input.dataset.sourceType = "lfo";
-                name = id;
-                input.setAttribute("type", "checkbox");
-            }
-            input.name = name;
-
-            var target = moduleName + "." + paramNames[i];
-            if (patch[type] && patch[type][index] && patch[type][index].hasOwnProperty(target)) {
-                input.checked = true;
-                patchRange = patch[type][index][target].range;
-                patchAmount = patch[type][index][target].amount;
-
-            }
-
-            function anyPatchConnection(target) {
-                return patch[type].some(function (i) {
-                    return i.hasOwnProperty(target);
-                });
-            }
-            if (isNone && !anyPatchConnection(target)) {
-                input.checked = true;
-            }
-            cell.appendChild(input);
-
-            if (!isNaN(parseInt(index, 10))) {
-                range = rangeInput(id, patchRange, type, index, moduleName, paramNames[i]);
-                cell.appendChild(range.label);
-                cell.appendChild(range.input);
-                amount = amountInput(id, patchAmount, type, index, moduleName, paramNames[i]);
-                cell.appendChild(amount.label);
-                cell.appendChild(amount.input);
-            }
-            row.appendChild(cell);
-
-        }
-
-        for (i = 0, j = paramNames.length; i < j; i += 1) {
-
-            row = document.createElement("tr");
-
-            if (i === 0) {
-                cell = document.createElement("th");
-                span = document.createElement("span"); // in order to rotate text
-                span.innerHTML = moduleName;
-                cell.setAttribute("rowspan", paramNames.length);
-                cell.setAttribute("scope", "rowgroup");
-                cell.appendChild(span);
-                row.appendChild(cell);
-            }
-
-            cell = document.createElement("th");
-            cell.setAttribute("scope", "row");
-            cell.innerHTML = paramNames[i];
-            row.appendChild(cell);
-
-            for (k = 0, l = configuration.source.lfo; k < l; k += 1) {
-                cellContent("lfo", k);
-            }
-            for (k = 0, l = configuration.source.envelope.count; k < l; k += 1) {
-                cellContent("envelope", k);
-            }
-            cellContent("envelope", null, true);
-
-            tbody.appendChild(row);
-        }
-        table.appendChild(tbody);
-    }
-
-    var eventHandler = function (event) {
-        var eventData = {},
-            key,
-            customEvent,
-            eventName,
-            rangeInput,
-            amountInput;
-
-        for (key in event.target.dataset) {
-            if (event.target.dataset.hasOwnProperty(key)) {
-                eventData[key] = event.target.dataset[key];
-            }
-        }
-
-        switch (eventData.type) {
-        case "connection":
-            if (event.target.checked === true) {
-                eventName = "modulation.change.connect";
-                rangeInput = event.target.parentElement.querySelector("[id$='range']");
-                if (rangeInput) {
-                    eventData.range = rangeInput.value;
-                }
-                amountInput = event.target.parentElement.querySelector("[id$='amount']");
-                if (amountInput) {
-                    eventData.amount = amountInput.value;
-                }
-            } else {
-                eventName = "modulation.change.disconnect";
-            }
-            break;
-        case "amount":
-            eventName = "modulation.change.amount";
-            eventData.amount = event.target.value;
-            break;
-        case "range":
-            eventName = "modulation.change.range";
-            eventData.range = event.target.value;
-            break;
-        }
-        customEvent = new CustomEvent(eventName, {
-            "detail": eventData
-        });
-        context.dispatchEvent(customEvent);
-        console.dir(event);
+}
+const mapStateToConnectionProps = (state) => {
+    return {
+        patch: state.patch.modulation
     };
+}
+const mapDispatchToConnectionProps = (dispatch) => {
+    return {
+        onAmountInput: (sourceType, index, module, parameter) => (event) => {
+            dispatch({"type": Actions.MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value: parseFloat(event.target.value)});
+        },
+        onPolarityInput: (sourceType, index, module, parameter) => (event) => {
+            dispatch({"type": Actions.MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value: event.target.value});
+        }
+    }
+}
+const Connection = connect(mapStateToConnectionProps, mapDispatchToConnectionProps)(ConnectionPresentation);
 
-    Object.keys(configuration.target).forEach(moduleTargets);
-    table.addEventListener("change", eventHandler, false);
-    table.addEventListener("input", eventHandler, false);
+class TargetPresentation extends Component {
+    render () {
+        const {module, moduleLength, index, parameter, configuration, onConnectionToggle} = this.props;
 
-    view.appendChild(table);
-    return view;
-};
+        const lfoCount = configuration.source.lfos.count;
+        const envCount = configuration.source.envelopes.count;
 
-module.exports = ModulationMatrixView;
+        return (
+            <tr>
+                {index === 0 ?
+                    <th scope="rowgroup" rowSpan={moduleLength}><span>{module}</span></th>
+                : null }
+                <th scope="row">{parameter}</th>
+
+                {arr(lfoCount).map(
+                    (a, i) => <Connection 
+                                key={i} 
+                                type="lfos" 
+                                index={i} 
+                                module={module} 
+                                parameter={parameter} 
+                                onToggle={onConnectionToggle} />
+                    )}
+                {arr(envCount).map(
+                    (a, i) => <Connection 
+                                key={i} 
+                                type="envelopes" 
+                                index={i} 
+                                module={module} 
+                                parameter={parameter} 
+                                onToggle={onConnectionToggle} />
+                )}
+                <td>
+                    <input 
+                        type="radio" 
+                        name={["envelope", module, parameter].join("-") + "-connection"}
+                        id={["envelope", "none", module, parameter].join("-") + "-connection"}
+                        onChange={onConnectionToggle("envelope", null, module, parameter)}
+                    />
+                </td>
+            </tr>
+        );
+    }
+}
+const mapStateToTargetProps = (state) => {
+    return {
+        configuration: state.settings.modulation
+    }
+}
+const mapDispatchToTargetProps = (dispatch) => {
+    return {
+        onConnectionToggle: (sourceType, index, module, parameter) => () => {
+            dispatch({"type": Actions.MODULATION_CONNECTION_TOGGLE, sourceType, index, module, parameter});
+        }
+    }
+}
+const Target = connect(mapStateToTargetProps, mapDispatchToTargetProps)(TargetPresentation);
+
+class ModuleTargetsPresentation extends Component {
+    render () {
+        const {module, configuration} = this.props;
+        const moduleConfig = configuration.target[module];
+        const parameters = Object.keys(moduleConfig);
+        return (
+            <tbody>
+                {parameters.map((parameter, index, parameters) => <Target module={module} index={index} moduleLength={parameters.length} parameter={parameter} key={index} />)}
+            </tbody>
+        );
+    }
+}
+const mapStateToModuleProps = (state) => {
+    return {
+        configuration: state.settings.modulation
+    };
+}
+const ModuleTargets = connect(mapStateToModuleProps, null)(ModuleTargetsPresentation);
+
+
+class ModulationMatrixPresentation extends Component {
+
+    render() {
+        const {configuration, patch} = this.props;
+        const lfoCount = configuration.source.lfos.count;
+        const envCount = configuration.source.envelopes.count;
+
+        return ( 
+            <section className="modulation" >
+                <h2>Modulation</h2>
+                <table className="modulation-matrix">
+                    <colgroup>
+                        {[2, lfoCount, envCount + 1].map((colSpan, index) => <col key={index} span={colSpan} />)}
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <td scope="col" colSpan="2" rowSpan="2" />
+                            <th scope="colspan" colSpan={lfoCount}>LFO</th>
+                            <th scope="colspan" colSpan={envCount + 1}>Envelope</th>
+                        </tr>
+                        <tr>
+                            {arr(lfoCount).map((z, i) => <th key={"lfo" + i} scope="col">{i}</th>)}
+                            {arr(envCount).map((z, i) => <th key={"env" + i} scope="col">{i}</th>)}
+                            <th scope="col">none</th>
+                        </tr>
+                    </thead>
+                    {Object.keys(configuration.target).map((module, i) => <ModuleTargets key={i} module={module} />)}
+                </table>
+            </section>
+        );
+    }
+}
+
+const mapStateToMMProps = (state) => {
+    return {
+        configuration: state.settings.modulation,
+        patch: state.patch.modulation
+    }
+}
+const ModulationMatrix = connect(mapStateToMMProps, null)(ModulationMatrixPresentation);
+
+export default ModulationMatrix;

@@ -27,6 +27,13 @@
         }
     },
     "modulation": {
+        "connection": {
+            "default": {
+                "enabled": false,
+                "polarity": "positive",
+                "amount": 0
+            }
+        },
         "source": {
             "lfos": {
                 "count": 3,

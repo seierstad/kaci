@@ -6,7 +6,6 @@ const nullReducer = (state = {}, action) => {
 };
 
 const keyboard = (state = {}, action) => {
-	console.log(action.type + ": " + action.value);
 	switch (action.type) {
 		case Actions.KEYBOARD_LAYOUT_CHANGE:
 			return {

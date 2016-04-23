@@ -30,8 +30,8 @@ ModulationMatrix = function (context, configuration, patch, store) {
         var i, j,
             key;
         for (i = 0, j = sources.lfo; i < j; i += 1) {
-            if (patch.lfo[i].mode === "global" || patch.lfo[i].mode === "retrigger") { // TODO: implement voice LFOs
-                lfo[i] = new LFO(context, patch.lfo[i], "lfo" + i, { // TODO: rewrite LFO constructor to initialize without patch data
+            if (patch.lfos[i].mode === "global" || patch.lfos[i].mode === "retrigger") { // TODO: implement voice LFOs
+                lfo[i] = new LFO(context, patch.lfos[i], "lfo" + i, { // TODO: rewrite LFO constructor to initialize without patch data
                     syncMaster: i === 0
                 });
             }
@@ -266,8 +266,8 @@ ModulationMatrix.prototype.connect = function (sourceType, sourceIndex, range, a
 };
 ModulationMatrix.prototype.patch = function (patch) {
     var i, j, target, lfoPatch, source;
-    for (i = 0, j = patch.lfo.length; i < j; i += 1) {
-        lfoPatch = patch.lfo[i];
+    for (i = 0, j = patch.lfos.length; i < j; i += 1) {
+        lfoPatch = patch.lfos[i];
         for (target in lfoPatch) {
             if (lfoPatch.hasOwnProperty(target)) {
                 this.connect("lfo", i, lfoPatch[target].range, lfoPatch[target].amount, target);
@@ -292,12 +292,12 @@ ModulationMatrix.prototype.patchVoice = function (voice, patch) {
         split = key.split(".");
         this.targets[key].outputNode.connect(voice[split[0]][split[1]]);
     }
-    for (i = 0, j = patch.modulation.envelope.length; i < j; i += 1) {
+    for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {
         if (localModulators.envelope[i]) {
-            envelopePatch = patch.modulation.envelope[i];
+            envelopePatch = patch.modulation.envelopes[i];
             for (key in envelopePatch) {
                 if (localTargets[key]) {
-                    localModulators.envelope[i].connect(localTargets[key]);
+                    localModulators.envelopes[i].connect(localTargets[key]);
                 }
             }
         }
