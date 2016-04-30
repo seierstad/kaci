@@ -1,68 +1,33 @@
 import React, {Component} from "react";
 import RangeInput from "./RangeInput.jsx";
-import { connect } from "react-redux";
-import * as Actions from "../Actions.jsx";
 
-class NoiseViewPresentation extends Component {
+class NoiseView extends Component {
     render () {
-        const { patch, settings, onPanInput, onGainInput, onToggle } = this.props;
+        const {patch, configuration, handlers} = this.props;
+        const {panInput, gainInput, toggle} = handlers;
+        const {active, gain, pan} = patch;
 
         return (
             <section className="noise-view">
                 <h1>Noise</h1>
-                <input type="checkbox" onChange={onToggle} checked={patch.active} />
+                <input type="checkbox" onChange={toggle} checked={active} />
                 <RangeInput 
                     label="Noise gain" 
-                    min={settings.gain.min}
-                    max={settings.gain.max}
+                    min={configuration.gain.min}
+                    max={configuration.gain.max}
                     step={0.01}
-                    onInput={onGainInput}
-                    value={patch.gain} />
+                    onInput={gainInput}
+                    value={gain} />
                 <RangeInput 
                     label="Noise pan" 
-                    min={settings.pan.min}
-                    max={settings.pan.max}
+                    min={configuration.pan.min}
+                    max={configuration.pan.max}
                     step={0.01}
-                    onInput={onPanInput}
-                    value={patch.pan} />
+                    onInput={panInput}
+                    value={pan} />
             </section>
         );
     }
 }
-const mapStateToProps = (state) => {
-    return {
-        patch: state.patch.noise,
-        settings: state.settings.modulation.target.noise
-    }
-};
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        onToggle: (event) => {
-            dispatch({
-                type: Actions.NOISE_TOGGLE
-            })
-        },
-        onPanInput: (event) => {
-            const value = parseFloat(event.target.value);
-            dispatch({
-                type: Actions.NOISE_PAN_CHANGE,
-                value
-            })
-        },
-        onGainInput: (event) => {
-            const value = parseFloat(event.target.value);
-            dispatch({
-                type: Actions.NOISE_GAIN_CHANGE,
-                value
-            })
-        }
-    }
-};
-
-const NoiseView = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(NoiseViewPresentation);
 
 module.exports = NoiseView;

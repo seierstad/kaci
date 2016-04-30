@@ -1,16 +1,13 @@
+import React from "react";
 import MidiView from "./MidiView.jsx";
 import KeyboardInputView from "./KeyboardInputView.jsx";
-import React, { Component } from "react";
 
-class SystemSettingsView extends Component {
-	render () {	    
-	    return (
-	    	<section className="system-settings-view">
-	    		<MidiView />
-	    		<KeyboardInputView />
-	    	</section>
-	    );
-	}
-};
 
-module.exports = SystemSettingsView;
+const SystemSettingsView = ({midiConfiguration, midiHandlers, keyboardConfiguration, keyboardHandlers}) => (
+	<section className="system-settings-view">
+		<MidiView configuration={midiConfiguration} handlers={midiHandlers} />
+		<KeyboardInputView configuration={keyboardConfiguration} handlers={keyboardHandlers} />
+	</section>
+);
+
+export default SystemSettingsView;

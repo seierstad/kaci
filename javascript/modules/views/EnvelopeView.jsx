@@ -1,10 +1,4 @@
-import React, {Component} from "react";
-import { connect } from "react-redux";
-import * as Actions from "../Actions.jsx";
-
-import { getOffsetElement, cursorPosition, sizeInPixels } from "./ViewUtils";
-
-import WaveformSelector from "./WaveformSelector.jsx";
+import React, {Component, PropTypes} from "react";
 
 const toPercent = (number) => {
     return (number * 100).toString() + "%";
@@ -35,29 +29,85 @@ class EnvelopeLines extends Component {
         );
     }
 }
+class Circle extends Component {
+    constructor () {
+        super();
+        this.click = this.click.bind(this);
+        this.blur = this.blur.bind(this);
+        this.mouseDrag = this.mouseDrag.bind(this);
+    }
+    blur (event) {
+        const {module, envelopeIndex, part, index, handlers, first, last} = this.props;
+        handlers.circleBlur(event, module, envelopeIndex, part, index, first, last);
+    }
+    mouseDrag (event) {
+        const {module, envelopeIndex, part, background, index, first, last, handlers} = this.props;
+        handlers.circleMouseDrag(event, module, envelopeIndex, part, background, index, first, last);
+    }
+    click (event) {
+        const {module, envelopeIndex, part, index, handlers, first, last} = this.props;
+        handlers.circleClick(event, module, envelopeIndex, part, index, first, last);
+    }
+    render () {
+        const {cx, cy, r, active, first, last} = this.props;
+        return (
+            <circle
+                cx={cx}
+                cy={cy}
+                r={r}
+                className={(active ? "active" : "") + (first ? " first" : "") + (last ? " last" : "") }
+                onMouseMove={active ? this.mouseDrag : null}
+                onMouseDown={this.click}
+                onMouseUp={active ? this.blur : null}
+                onMouseOut={active ? this.blur : null}
+            />
+        );
+    }    
+}
+Circle.propTypes = {
+    cx: PropTypes.string.isRequired,
+    cy: PropTypes.string.isRequired,
+    r: PropTypes.number.isRequired,
+    active: PropTypes.bool,
+    first: PropTypes.bool,
+    last: PropTypes.bool,
+    handlers: PropTypes.shape({
+        circleClick: PropTypes.func.isRequired,
+        circleBlur: PropTypes.func.isRequired,
+        circleMouseDrag: PropTypes.func.isRequired
+    }),
+    module: PropTypes.string.isRequired,
+    envelopeIndex: PropTypes.number,
+    part: PropTypes.string,
+    index: PropTypes.number.isRequired,
+};
 
 
 class EnvelopeCircles extends Component {
-    render () {
-        const { steps, onClick, onBlur, onDrag, viewState, activeIndex, background } = this.props;
 
+    render () {
+        const {module, envelopeIndex, part, steps, handlers, viewState, activeIndex, background} = this.props;
         let inactive = [];
         let active = [];
 
         const circle = (point, index, arr) => {
             const isActive = viewState.indexOf(index) !== -1 || index === activeIndex;
             const c = (
-                <circle
-                    cx={toPercent(arr[index][0])} 
+                <Circle 
+                    cx={toPercent(arr[index][0])}
                     cy={toPercent(1 - arr[index][1])}
                     r={10}
-                    className={(isActive ? "active" : "") + (index === 0 ? " first" : "") + (index === arr.length - 1 ? " last" : "") }
-                    key={"circle-" + index + "_of_" + arr.length}
-                    onMouseMove={isActive ? onDrag(background, index) : null}
-                    onMouseDown={onClick(index)}
-                    onMouseUp={isActive ? onBlur(index) : null}
-                    onMouseOut={isActive ? onBlur(index) : null}
-                />
+                    envelopeIndex={envelopeIndex}
+                    key={index + "_" + point[0]}
+                    active={isActive}
+                    first={index === 0}
+                    last={index === arr.length - 1}
+                    module={module}
+                    index={index}
+                    part={part}
+                    background={background}
+                    handlers={handlers}
+                    />
             );
             if (isActive) {
                 active.push(c);
@@ -77,17 +127,39 @@ class EnvelopeCircles extends Component {
 }
 
 class Sustain extends Component {
+    constructor () {
+        super();
+        this.click = this.click.bind(this);
+        this.blur = this.blur.bind(this);
+        this.mouseDrag = this.mouseDrag.bind(this);
+        this.backgroundClick = this.backgroundClick.bind(this);
+    }
+    backgroundClick (event) {
+        const {module, envelopeIndex, handlers} = this.props;
+        handlers.sustainBackgroundClick(event, module, envelopeIndex);
+    }
+    blur (event) {
+        const {module, envelopeIndex, part, handlers} = this.props;
+        handlers.circleBlur(event, module, envelopeIndex, part);
+    }
+    mouseDrag (event) {
+        const {module, envelopeIndex, part, handlers} = this.props;
+        handlers.circleMouseDrag(event, module, envelopeIndex, part, this.background);
+    }
+    click (event) {
+        const {module, envelopeIndex, part, handlers} = this.props;
+        handlers.circleClick(event, module, envelopeIndex, part);
+    }
     render () {
-        const {patch, width, viewState, x, onBackgroundClick, onDrag, onBlur, onClick} = this.props;
+        const {value, width, active, x} = this.props;
         const background = (<rect 
             ref={(bg) => this.background = bg}
-            onMouseDown={onBackgroundClick}
+            onMouseDown={this.backgroundClick}
             width="100%" 
             height="100%" 
             opacity="0"
         />);
-        const y = toPercent(1 - patch.attack.steps.slice(-1)[0][1]);
-        const isActive = !!viewState.editSustain;
+        const y = toPercent(1 - value);
 
         return (
             <svg
@@ -97,29 +169,63 @@ class Sustain extends Component {
                 width={width ? width : "100%"}>
                 {background}
                 <line
-                    onMouseMove={isActive ? onDrag(this.background) : null}
-                    onMouseUp={isActive ? onBlur : null}
-                    onMouseOut={isActive ? onBlur : null}
-                    onMouseDown={isActive ? null : onClick}
-                    strokeWidth="10"
+                    onMouseMove={active ? this.mouseDrag : null}
+                    onMouseUp={active ? this.blur : null}
+                    onMouseOut={active ? this.blur : null}
+                    onMouseDown={active ? null : this.click}
+                    strokeWidth={10}
                     y1={y}
                     y2={y}
                     x1="0%"
                     x2="100%"
-                    className={"sustain-bar" + (isActive ? " active" : "")}
+                    className={"sustain-bar" + (active ? " active" : "")}
                 />
             </svg>
         );
     }
 }
+Sustain.propTypes = {
+    value: PropTypes.number.isRequired,
+    module: PropTypes.string.isRequired,
+    envelopeIndex: PropTypes.number,
+    part: PropTypes.string,
+    width: PropTypes.string,
+    active: PropTypes.bool,
+    viewState: PropTypes.object.isRequired,
+    x: PropTypes.string,
+    handlers: PropTypes.shape({
+        circleClick: PropTypes.func.isRequired,
+        activeCircleMouseUp: PropTypes.func.isRequired,
+        envelopeBlur: PropTypes.func.isRequired,
+        circleBlur: PropTypes.func.isRequired,
+        sustainBackgroundClick: PropTypes.func.isRequired,
+        circleMouseDrag: PropTypes.func.isRequired
+    }).isRequired
+}
+
 
 class Envelope extends Component {
+    constructor () {
+        super();
+        this.backgroundClick = this.backgroundClick.bind(this);
+        this.mouseOut = this.mouseOut.bind(this);
+    }
+    backgroundClick (event) {
+        const {module, index, part, patch, handlers} = this.props;
+        handlers.backgroundClick(event, module, patch.steps, index, part);
+    }
+    mouseOut (event) {
+        const {module,index, part, patch, handlers} = this.props;
+        handlers.mouseOut(event, module, index, part);
+    }
     render () {
-        const { onBackgroundClick, onCircleClick, onCircleMouseDrag, onEnvelopeBlur, onCircleBlur, patch, viewState, activeIndex, width, x, className } = this.props;
+        const {handlers, index, module, patch, viewState, activeIndex, width, x, part} = this.props;
+        const {backgroundClick, envelopeBlur} = handlers;
+
         this.patch = patch;
         const background = (<rect 
             ref={(bg) => this.background = bg}
-            onMouseDown={onBackgroundClick(this.patch.steps)} 
+            onMouseDown={this.backgroundClick} 
             width="100%" 
             height="100%" 
             opacity="0" 
@@ -130,15 +236,18 @@ class Envelope extends Component {
                 height="100%"
                 width={width ? width : "100%"}
                 x={x}
-                className={"controller" + (className ? " " + className : "")}>
+                className={"controller" + (part ? " " + part : "")}
+                onMouseOut={this.mouseOut}
+                >
                 {background}
                 <EnvelopeLines 
                     steps={patch.steps} />
-                <EnvelopeCircles 
-                    steps={patch.steps} 
-                    onClick={onCircleClick} 
-                    onBlur={onCircleBlur} 
-                    onDrag={onCircleMouseDrag}
+                <EnvelopeCircles
+                    module={module}
+                    envelopeIndex={index}
+                    part={part}
+                    steps={patch.steps}
+                    handlers={handlers}
                     viewState={viewState} 
                     activeIndex={activeIndex}
                     background={this.background}/>
@@ -146,10 +255,45 @@ class Envelope extends Component {
         );
     }
 };
+Envelope.propTypes = {
+    patch: PropTypes.shape({
+        steps: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
+    }).isRequired,
+    module: PropTypes.string.isRequired,
+    part: PropTypes.string,
+    index: PropTypes.number,
+    handlers: PropTypes.objectOf(PropTypes.func).isRequired,
+    viewState: PropTypes.array,
+    width: PropTypes.string,
+    x: PropTypes.string,
+    activeIndex: PropTypes.number
+}
 
-class SustainEnvelopePresentation extends Component {
+
+class SustainEnvelope extends Component {
+    constructor () {
+        super();
+        this.mouseOut = this.mouseOut.bind(this);
+        this.attackDurationChange = this.attackDurationChange.bind(this);
+        this.releaseDurationChange = this.releaseDurationChange.bind(this);
+    }
+    mouseOut (event) {
+        const {module, index, handlers} = this.props;
+        handlers.mouseOut(event, module, index);
+    }
+    attackDurationChange (event) {
+        const {module, index, handlers} = this.props;
+        handlers.durationChange(event, module, index, "attack");
+    } 
+    releaseDurationChange (event) {
+        const {module, index, handlers} = this.props;
+        handlers.durationChange(event, module, index, "release");
+    } 
+
     render () {
-        const {index, patch, viewState, onMouseOut, onCircleClick, onCircleBlur, onCircleMouseDrag, onBackgroundClick, onSustainBackgroundClick, onEnvelopeBlur, onDurationChange} = this.props;
+        const {module, index, patch, viewState, handlers} = this.props;
+        const {mouseOut, durationChange} = handlers;
+
         const attackPart = patch.attack.duration / (patch.attack.duration + patch.release.duration);
         const releasePart = patch.release.duration / (patch.attack.duration + patch.release.duration);
         const sustainWidth = 10;
@@ -161,16 +305,14 @@ class SustainEnvelopePresentation extends Component {
                 <h1><abbr title="envelope">Env</abbr> {index + 1}</h1>
                 <svg 
                     className="sustain-envelope controller"
-                    onMouseOut={viewState.editSustain ? onMouseOut(index) : null}>
+                    onMouseOut={viewState.editSustain ? this.mouseOut : null}>
 
                     <Envelope
                         patch={patch.attack}
-                        className="attack"
-                        onEnvelopeBlur={onEnvelopeBlur(index, "attack")}
-                        onCircleClick={onCircleClick(index, "attack", patch.attack.steps.length)}
-                        onBackgroundClick={onBackgroundClick(index, "attack")}
-                        onCircleBlur={onCircleBlur(index, "attack", patch.attack.steps.length)}
-                        onCircleMouseDrag={onCircleMouseDrag(index, "attack", patch.attack.steps.length)}
+                        module={module}
+                        part="attack"
+                        index={index}
+                        handlers={handlers}
                         viewState={viewState.attack}
                         width={attackWidth + "%"}
                         activeIndex={viewState.editSustain ? patch.attack.steps.length - 1 : null}
@@ -178,227 +320,81 @@ class SustainEnvelopePresentation extends Component {
 
                     <Envelope
                         patch={patch.release}
-                        className="release"
-                        onEnvelopeBlur={onEnvelopeBlur(index, "release")} 
-                        onCircleClick={onCircleClick(index, "release", patch.release.steps.length)}
-                        onBackgroundClick={onBackgroundClick(index, "release")}
-                        onCircleBlur={onCircleBlur(index, "release", patch.release.steps.length)}
-                        onCircleMouseDrag={onCircleMouseDrag(index, "release", patch.release.steps.length)}
+                        module={module}
+                        part="release"
+                        index={index}
+                        handlers={handlers}
                         viewState={viewState.release}
                         width={releaseWidth + "%"}
                         x={(attackWidth + sustainWidth) + "%"}
                         activeIndex={viewState.editSustain ? 0 : null}
                     />
                     <Sustain
-                        patch={patch}
+                        value={patch.attack.steps.slice(-1)[0][1]}
+                        module={module}
+                        envelopeIndex={index}
+                        part="sustain"
+                        active={!!viewState.editSustain}
                         width={sustainWidth + "%"}
                         viewState={viewState}
                         x={attackWidth + "%"}
-                        onDrag={onCircleMouseDrag(index, "sustain")}
-                        onBlur={onCircleBlur(index, "sustain")()}
-                        onClick={onCircleClick(index, "sustain")()}
-                        onBackgroundClick={onSustainBackgroundClick(index)}
+                        handlers={handlers}
                     />
                 </svg>
                 <label htmlFor={"env-" + index + "-attack-duration"}>attack duration</label>
                 <input 
-                    type="number" 
+                    id={"env-" + index + "-attack-duration"}
+                    type="number"
+                    min={0}
                     value={patch.attack.duration} 
-                    onInput={onDurationChange(index, "attack")}
-                    onChange={onDurationChange(index, "attack")}
+                    onInput={this.attackDurationChange}
+                    onChange={this.attackDurationChange}
                 />
                 <label htmlFor={"env-" + index + "-release-duration"}>release duration</label>
                 <input 
-                    type="number" 
+                    id={"env-" + index + "-release-duration"}
+                    type="number"
+                    min={0}
                     value={patch.release.duration} 
-                    onInput={onDurationChange(index, "release")}
-                    onChange={onDurationChange(index, "release")}
+                    onInput={this.releaseDurationChange}
+                    onChange={this.releaseDurationChange}
                 />
             </section>
         );
     }
 }
 
-const getValuePair = (evt, element) => {
-    const pos = element.getBoundingClientRect();
-    const x = (evt.clientX - pos.left) / pos.width;
-    const y = 1 - (evt.clientY - pos.top) / pos.height; 
-    return {x, y};
-}
 
-const mapDispatchToSustainEnvelopeProps = (dispatch) => {
-    return {
-        onCircleClick: (envelopeIndex, envelopePart, stepCount) => (index) => (event) => {
-            if (event.shiftKey) {
-                dispatch({
-                    type: Actions.ENVELOPE_POINT_DELETE,
-                    envelopeIndex,
-                    envelopePart,
-                    index
-                });
-            } else {
-                if ((envelopePart === "sustain") || (envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
-                    dispatch({
-                        type: Actions.ENVELOPE_SUSTAIN_EDIT_START,
-                        envelopeIndex
-                    });
-                } else {
-                    dispatch({
-                        type: Actions.ENVELOPE_POINT_EDIT_START,
-                        envelopeIndex,
-                        envelopePart,
-                        index
-                    });
-                }
-            }
-        },
-        onMouseOut: (envelopeIndex) => (evt) => {
-            const pos = getValuePair(evt, evt.currentTarget);
-            if (pos.x > 1 || pos.x < 0 || pos.y > 1 || pos.y < 0) {
-                dispatch({
-                    type: Actions.ENVELOPE_SUSTAIN_EDIT_END,
-                    envelopeIndex
-                })            
-            }
-        },
-        onActiveCircleMouseUp: (envelopeIndex, envelopePart) => (index) => {
-            dispatch({
-                type: Actions.ENVELOPE_POINT_EDIT_END,
-                envelopeIndex,
-                envelopePart,
-                index
-            })
-        },
-        onEnvelopeBlur: (envelopeIndex, envelopePart) => (event) => {
-            dispatch({
-                type: Actions.ENVELOPE_BLUR,
-                envelopeIndex,
-                envelopePart
-            })
-        },
-        onCircleBlur: (envelopeIndex, envelopePart, stepCount) => (index) => (event) => {
-            if ((envelopePart === "sustain") || (envelopePart === "release" && index === 0) || envelopePart === "attack" && index === stepCount - 1) {
-                dispatch({
-                    type: Actions.ENVELOPE_SUSTAIN_EDIT_END,
-                    envelopeIndex
-                });
-            } else {
-                dispatch({
-                    type: Actions.ENVELOPE_POINT_EDIT_END,
-                    envelopeIndex,
-                    envelopePart,
-                    index
-                });
-            }
-        },
-        onBackgroundClick: (envelopeIndex, envelopePart) => (steps) => (event) => {
-            const {x, y} = getValuePair(event, event.target);
-            const index = steps.findIndex(e => e[0] > x);
-
-            dispatch({
-                type: Actions.ENVELOPE_POINT_ADD,
-                envelopeIndex,
-                envelopePart,
-                index,
-                x,
-                y
-            });
-        },
-        onSustainBackgroundClick: (envelopeIndex) => (event) => {
-            const {x, y} = getValuePair(event, event.target);
-            dispatch({
-                type: Actions.ENVELOPE_SUSTAIN_CHANGE,
-                envelopeIndex,
-                value: y
-            });            
-        },
-        onCircleMouseDrag: (envelopeIndex, envelopePart, stepCount) => (background, index) => (event) => {
-            const {x, y} = getValuePair(event, background);
-
-            if ((envelopePart === "sustain") || (envelopePart === "release" && index === 0) || (envelopePart === "attack" && index === stepCount - 1)) {
-
-                dispatch({
-                    type: Actions.ENVELOPE_SUSTAIN_CHANGE,
-                    envelopeIndex,
-                    envelopePart,
-                    value: y
-                });
-            } else {
-
-                dispatch({
-                    type: Actions.ENVELOPE_POINT_CHANGE,
-                    envelopeIndex,
-                    envelopePart,
-                    index,
-                    x,
-                    y
-                });
-            }
-        },
-        onDurationChange: (envelopeIndex, envelopePart) => (event) => {
-            dispatch({
-                type: Actions.ENVELOPE_DURATION_CHANGE,
-                envelopeIndex,
-                envelopePart,
-                value: parseFloat(event.target.value)
-            })
-        }
-    }
-};
-const SustainEnvelope = connect(
-    null,
-    mapDispatchToSustainEnvelopeProps
-)(SustainEnvelopePresentation);
-
-
-class EnvelopesPresentation extends Component {
+class Envelopes extends Component {
     render () {
-        const {patchData, configuration, viewState} = this.props;
+        const {patch, configuration, viewState, handlers} = this.props;
         let envelopes = [];
 
         for (let i = 0; i < configuration.count; i += 1) {
-            let patch = patchData[i] || configuration["default"];
-            let vs = viewState[i] || {attack: [], release: [], editSustain: false};
-            envelopes.push(<SustainEnvelope key={i} index={i} patch={patch} viewState={vs} />);
+            envelopes.push(<SustainEnvelope 
+                key={i} 
+                index={i}
+                module="envelopes"
+                handlers={handlers}
+                patch={patch[i] || configuration["default"]} 
+                viewState={viewState[i]} />
+            );
         }
 
         return <div>{envelopes}</div>;
     }
 }
-const mapStateToEnvelopesProps = (state) => {
-    return {
-        patchData: state.patch.envelopes,
-        configuration: state.settings.modulation.source.envelopes,
-        viewState: state.viewState.envelopes
-    };
-};
-const Envelopes = connect(
-    mapStateToEnvelopesProps,
-    null
-)(EnvelopesPresentation);
 
 /*
-    this.controller.addEventListener('mousemove', this.mouseHandler.bind(this), false);
     this.controller.addEventListener('touchstart', this.touchHandler.bind(this), false);
     this.controller.addEventListener('touchend', this.touchHandler.bind(this), false);
     this.controller.addEventListener('touchcancel', this.touchHandler.bind(this), false);
     this.controller.addEventListener('touchmove', this.touchHandler.bind(this), false);
 };
 
-EnvelopeView.prototype.changeHandler = function (event, touch) {
-    var pixelCoordinates,
-        svgSize,
-        newData,
-        circleDraggable,
-        index,
-        i = 0,
-        changeEvent;
-
-    switch (event.type) {
     case "touchstart":
     case "touchend":
     case "touchcancel":
-    case "mouseup":
         index = this.circleIndex(event);
         if (this.points[index] && this.points[index].draggable) {
             this.points[index].draggable = false;
@@ -411,31 +407,8 @@ EnvelopeView.prototype.changeHandler = function (event, touch) {
             return touchLeaveHandler(event);
         }
         break;
-    case "mousemove":
-        if (event.target.tagName === "circle") {
-            event.preventDefault();
-            event.stopPropagation();
-            index = this.circleIndex(event);
-
-            if (this.points[index] && this.points[index].draggable) {
-                changeEvent = new CustomEvent(this.envId + '.change.data', {
-                    'detail': {
-                        'type': 'move',
-                        'index': index,
-                        'data': newData
-                    }
-                });
-
-            }
-        }
-        break;
     }
-    if (changeEvent) {
-        this.context.dispatchEvent(changeEvent);
-    }
-    return false;
-};
 
 */
-export {Envelope};
+export {Envelope, SustainEnvelope};
 export default Envelopes;

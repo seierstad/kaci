@@ -62,10 +62,10 @@ const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
 };
 
 
-const envelopes = (state = new Array(config.modulation.source.envelopes.count), action) => {
+const envelopes = (state = new Array(config.modulation.source.envelopes.count).fill(config.modulation.source.envelopes.defaultState), action) => {
 	const index = action.envelopeIndex;
-
-	if (!isNaN(index)) {	
+	
+	if (!isNaN(index) && action.module === "envelopes") {	
 
 		let result = [
 			...state
@@ -78,9 +78,15 @@ const envelopes = (state = new Array(config.modulation.source.envelopes.count), 
 	return state;
 }
 
+const oscillator = (state = {}, action) => {
+	if (action.module === "oscillator") {
 
+	}
+	return state;
+}
 const viewState = combineReducers({
-	envelopes
+	envelopes,
+	oscillator
 });
 
 export default viewState;
