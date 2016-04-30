@@ -3,11 +3,12 @@
 import drawWaveform from './drawWaveform';
 import React, {Component} from "react";
 import {connect} from "react-redux";
+
 let waveformSelectorCounter = 0;
 
 class WaveformButtonPresentation extends Component {
     render () {
-        const {controlName, waveformName} = this.props;
+        const {controlName, waveformName, waveform} = this.props;
         
         return (
             <label>
@@ -18,7 +19,7 @@ class WaveformButtonPresentation extends Component {
         );
     }
     componentDidMount() {
-        console.log(this.canvas);
+        drawWaveform(this.props.waveform, this.canvas);
     }
 }
 const mapStateToProps = (state) => {
@@ -34,12 +35,25 @@ const WaveformButton = connect(
 
 export default class WaveformSelector extends Component {
     render () {
+        const {waveforms, selected} = this.props;
         const controlName = "waveform-" + (waveformSelectorCounter++);
-        const waveforms = ["a", "b"];
+        const sampleAndHoldBuffer = {
+            "value": null,
+            "phase": 0
+        };
+
         return (
             <fieldset className="waveform-selector">
                 <legend>waveform</legend>
-                {waveforms.map(w => <WaveformButton key={w} controlName={controlName} waveformName={w} />)}
+                {Object.keys(waveforms).map(
+                    w => <WaveformButton 
+                            key={w} 
+                            controlName={controlName} 
+                            waveformName={w}
+                            selected={selected === w}
+                            waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]} 
+                        />
+                )}
             </fieldset>
         );
     }
