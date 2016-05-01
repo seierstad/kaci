@@ -196,7 +196,7 @@ Sustain.propTypes = {
     handlers: PropTypes.shape({
         circleClick: PropTypes.func.isRequired,
         activeCircleMouseUp: PropTypes.func.isRequired,
-        envelopeBlur: PropTypes.func.isRequired,
+        mouseOut: PropTypes.func.isRequired,
         circleBlur: PropTypes.func.isRequired,
         sustainBackgroundClick: PropTypes.func.isRequired,
         circleMouseDrag: PropTypes.func.isRequired
@@ -236,7 +236,7 @@ class Envelope extends Component {
                 height="100%"
                 width={width ? width : "100%"}
                 x={x}
-                className={"controller" + (part ? " " + part : "")}
+                className={"controller envelope" + (part ? " " + part : "")}
                 onMouseOut={this.mouseOut}
                 >
                 {background}

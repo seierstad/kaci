@@ -1,11 +1,74 @@
 import * as Actions from "../Actions.jsx";
 import { combineReducers } from "redux";
-import envelopes from "./envelopes.jsx";
+import envelopes, {steps} from "./envelopes.jsx";
 import lfos from "./lfos.jsx";
 import modulation from "./modulation.jsx";
 
 const nullReducer = (state = {}, action) => state;
-const oscillator = nullReducer;
+const oscillator = (state = {}, action) => {
+    switch (action.type) {
+        case Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE:
+            return {
+                ...state,
+                resonance: {
+                    ...state.resonance,
+                    "factor": action.value
+                }
+            };
+
+        case Actions.OSCILLATOR_RESONANCE_TOGGLE:
+            return {
+                ...state,
+                resonance: {
+                    ...state.resonance,
+                    "active": !state.resonance.active
+                }
+            };
+
+        case Actions.OSCILLATOR_WRAPPER_CHANGE:
+            return {
+                ...state,
+                resonance: {
+                    ...state.resonance,
+                    wrapper: action.value
+                }
+            };
+
+        case Actions.OSCILLATOR_WAVEFORM_CHANGE:
+            return {
+                ...state,
+                waveform: action.value
+            };
+
+        case Actions.OSCILLATOR_MIX_CHANGE:
+            return {
+                ...state,
+                mix: action.value
+            };
+        case Actions.OSCILLATOR_DETUNE_CHANGE:
+            return {
+                ...state,
+                detune: action.value
+            };
+    }
+    if (action.module === "oscillator") {
+        // generic actions targeting oscillator parameters
+        switch (action.type) {
+            case Actions.ENVELOPE_POINT_DELETE:
+            case Actions.ENVELOPE_POINT_ADD:
+            case Actions.ENVELOPE_POINT_CHANGE:
+                let pd = [...state.pd];
+                pd[action.envelopeIndex].steps = steps(state.pd[action.envelopeIndex].steps, action);
+
+                return {
+                    ...state,
+                    pd 
+                };
+        }
+
+    }
+    return state;
+}
 
 
 const noise = (state = {}, action) => {

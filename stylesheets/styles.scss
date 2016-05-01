@@ -87,6 +87,7 @@ $envelope-circle-color: black;
         .active {
             cursor: move;
             r: $envelope-circle-radius-active;
+            opacity: .5;
 
             &.first,
             &.last {
@@ -117,16 +118,17 @@ $envelope-circle-color: black;
     .controller {
         overflow: visible;
     }
-    .sustain-bar {
-        stroke: $envelope-circle-color;
-        stroke-width: $envelope-circle-radius * 2;
-        stroke-linecap: round;
-        cursor: grab;
 
-        &.active {
-            stroke-width: $envelope-circle-radius-active * 2;
-            cursor: ns-resize;
-        }
+}
+.sustain-bar {
+    stroke: $envelope-circle-color;
+    stroke-width: $envelope-circle-radius * 2;
+    stroke-linecap: round;
+    cursor: grab;
+
+    &.active {
+        stroke-width: $envelope-circle-radius-active * 2;
+        cursor: ns-resize;
     }
 }
 

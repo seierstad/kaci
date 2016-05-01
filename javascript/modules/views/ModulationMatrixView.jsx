@@ -1,17 +1,15 @@
 import React, {Component} from "react";
-import {connect} from "react-redux";
 
 import RangeInput from "./RangeInput.jsx";
-import * as Actions from "../Actions.jsx";
 
 const arr = (count) => (new Array(count)).fill(0); 
 
 class PolaritySelector extends Component {
     render () {
-        const {onInput, prefix, patch} = this.props;
+        const {changeHandler, prefix, patch} = this.props;
         return (
             <div>
-                <select id={prefix + "-polarity"} onInput={onInput} value={patch}>
+                <select id={prefix + "-polarity"} onInput={changeHandler} value={patch}>
                     {
                         [
                             { value: "positive", label: "+", title: "positive"}, 
@@ -28,147 +26,175 @@ class PolaritySelector extends Component {
 
 
 
-class ConnectionPresentation extends Component {
+class Connection extends Component {
+    constructor () {
+        super();
+        this.amountChangeEnvelope = this.amountChangeEnvelope.bind(this);
+        this.amountChangeLfo = this.amountChangeLfo.bind(this);
+        this.polarityChangeEnvelope = this.polarityChangeEnvelope.bind(this);
+        this.polarityChangeLfo = this.polarityChangeLfo.bind(this);
+        this.toggleEnvelope = this.toggleEnvelope.bind(this);
+        this.toggleLfo = this.toggleLfo.bind(this);
+    }
+    amountChangeEnvelope (event) {
+        const {handlers, index, module, parameter} = this.props;
+        handlers.amountChange(event, "envelope", index, module, parameter);
+    }
+    amountChangeLfo (event) {
+        const {handlers, index, module, parameter} = this.props;
+        handlers.amountChange(event, "lfo", index, module, parameter);
+    }
+    polarityChangeEnvelope (event) {
+        const {handlers, index, module, parameter} = this.props;
+        handlers.polarityChange(event, "envelope", index, module, parameter);
+    }
+    polarityChangeLfo (event) {
+        const {handlers, index, module, parameter} = this.props;
+        handlers.polarityChange(event, "lfo", index, module, parameter);
+    }
+    toggleEnvelope (event) {
+        const {handlers, index, module, parameter} = this.props;
+        handlers.toggle(event, "envelope", index, module, parameter);
+    }
+    toggleLfo (event) {
+        const {handlers, index, module, parameter} = this.props;
+        handlers.toggle(event, "lfo", index, module, parameter);
+    }
+
     render () {
-        const {type, index, module, parameter, patch, onAmountInput, onPolarityInput, onToggle} = this.props;
+        const {type, index, module, parameter, patch, handlers, noConnection} = this.props;
         const prefix = [type, index, module, parameter].join("-");
         const id = prefix + "-connection";
         const target = module + "." + parameter;
-        const checked = patch[type] && patch[type][index] && patch[type][index].hasOwnProperty(target);
+        const checked = patch[type] && 
+                        patch[type][index] && 
+                        patch[type][index].hasOwnProperty(target) &&
+                        patch[type][index][target].enabled
+                        ||
+                        index === null && noConnection;
 
         let polarity;
         let amount;
         let name = [type, module, parameter].join("-") + "-connection"
 
+        polarity = patch && patch[type] && patch[type][index] && patch[type][index][target] && patch[type][index][target].polarity || "full";
+        amount = patch && patch[type] && patch[type][index] && patch[type][index][target] && patch[type][index][target].amount || 0;
 
-        if (checked) {
-            polarity = patch[type][index][target].polarity;
-            amount = patch[type][index][target].amount;
-        }
-        let toggle;
-
-        if (type === "lfos") {
-            toggle = <input type="checkbox" checked={checked} onChange={onToggle(type, index, module, parameter)} id={id} />;
-        } else {
-            toggle = <input type="radio" checked={checked} onChange={onToggle(type, index, module, parameter)} id={id} name={name} />;
-        }
+        const isLFO = type === "lfos";
 
         return (
             <td>
                 <label htmlFor={id}>connect {type + " " + index + " to " + module + " " + parameter}</label>
-                {toggle}
-                <PolaritySelector prefix={prefix} patch={polarity} onInput={onPolarityInput(type, index, module, parameter)} />
-                <RangeInput 
-                    label="amount" 
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onInput={onAmountInput(type, index, module, parameter)}
-                    value={amount} />
-
+                <input 
+                    type={isLFO ? "checkbox" : "radio"} 
+                    checked={checked} 
+                    onChange={isLFO ? this.toggleLfo : this.toggleEnvelope} 
+                    id={id} 
+                    name={isLFO ? null : name} 
+                    />
+                {index !== null ?
+                    <PolaritySelector 
+                        prefix={prefix} 
+                        patch={polarity} 
+                        changeHandler={isLFO ? this.polarityChangeLfo : this.polarityChangeEnvelope} 
+                        />
+                : null}
+                {index !== null ?
+                    <RangeInput 
+                        label="amount" 
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        changeHandler={isLFO ? this.amountChangeLfo : this.amountChangeEnvelope}
+                        value={amount} 
+                        />
+                : null}
             </td>
-        );
+        )
     }
 }
-const mapStateToConnectionProps = (state) => {
-    return {
-        patch: state.patch.modulation
-    };
-}
-const mapDispatchToConnectionProps = (dispatch) => {
-    return {
-        onAmountInput: (sourceType, index, module, parameter) => (event) => {
-            dispatch({"type": Actions.MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value: parseFloat(event.target.value)});
-        },
-        onPolarityInput: (sourceType, index, module, parameter) => (event) => {
-            dispatch({"type": Actions.MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value: event.target.value});
-        }
-    }
-}
-const Connection = connect(mapStateToConnectionProps, mapDispatchToConnectionProps)(ConnectionPresentation);
 
-class TargetPresentation extends Component {
+
+class Target extends Component {
     render () {
-        const {module, moduleLength, index, parameter, configuration, onConnectionToggle} = this.props;
+        const {module, moduleParameterCount, patch, handlers, lfoCount, envCount, firstInModule, parameter} = this.props;
 
-        const lfoCount = configuration.source.lfos.count;
-        const envCount = configuration.source.envelopes.count;
+        const target = module + "." + parameter;
+        const noConnection = !patch["envelopes"] ||
+                             !patch["envelopes"].some(env => env.hasOwnProperty(target) && env[target].enabled);
+
 
         return (
             <tr>
-                {index === 0 ?
-                    <th scope="rowgroup" rowSpan={moduleLength}><span>{module}</span></th>
+                {firstInModule ?
+                    <th scope="rowgroup" rowSpan={moduleParameterCount}><span>{module}</span></th>
                 : null }
                 <th scope="row">{parameter}</th>
 
-                {arr(lfoCount).map(
-                    (a, i) => <Connection 
-                                key={i} 
-                                type="lfos" 
-                                index={i} 
-                                module={module} 
-                                parameter={parameter} 
-                                onToggle={onConnectionToggle} />
-                    )}
-                {arr(envCount).map(
-                    (a, i) => <Connection 
-                                key={i} 
-                                type="envelopes" 
-                                index={i} 
-                                module={module} 
-                                parameter={parameter} 
-                                onToggle={onConnectionToggle} />
-                )}
-                <td>
-                    <input 
-                        type="radio" 
-                        name={["envelope", module, parameter].join("-") + "-connection"}
-                        id={["envelope", "none", module, parameter].join("-") + "-connection"}
-                        onChange={onConnectionToggle("envelope", null, module, parameter)}
+                {arr(lfoCount).map((a, i) => <Connection 
+                    key={i} 
+                    type="lfos" 
+                    index={i} 
+                    module={module} 
+                    parameter={parameter}
+                    patch={patch}
+                    handlers={handlers}
                     />
-                </td>
+                )}
+                {arr(envCount).map((a, i) => <Connection 
+                    key={i} 
+                    type="envelopes" 
+                    index={i} 
+                    module={module}
+                    parameter={parameter} 
+                    patch={patch}
+                    handlers={handlers}
+                    />
+                )}
+                {envCount > 0 ?
+                    <Connection 
+                        key={envCount} 
+                        type="envelopes" 
+                        index={null}
+                        module={module} 
+                        parameter={parameter} 
+                        patch={patch}
+                        handlers={handlers}
+                        noConnection={noConnection}
+                        />
+                : null}
             </tr>
         );
     }
 }
-const mapStateToTargetProps = (state) => {
-    return {
-        configuration: state.settings.modulation
-    }
-}
-const mapDispatchToTargetProps = (dispatch) => {
-    return {
-        onConnectionToggle: (sourceType, index, module, parameter) => () => {
-            dispatch({"type": Actions.MODULATION_CONNECTION_TOGGLE, sourceType, index, module, parameter});
-        }
-    }
-}
-const Target = connect(mapStateToTargetProps, mapDispatchToTargetProps)(TargetPresentation);
 
-class ModuleTargetsPresentation extends Component {
+class ModuleTargets extends Component {
     render () {
-        const {module, configuration} = this.props;
-        const moduleConfig = configuration.target[module];
-        const parameters = Object.keys(moduleConfig);
+        const {module, targetConfig, patch, lfoCount, envCount, handlers} = this.props;
+        const parameters = Object.keys(targetConfig);
         return (
             <tbody>
-                {parameters.map((parameter, index, parameters) => <Target module={module} index={index} moduleLength={parameters.length} parameter={parameter} key={index} />)}
+                {parameters.map((parameter, index) => <Target
+                    patch={patch}
+                    firstInModule={index === 0}
+                    module={module}
+                    moduleParameterCount={parameters.length} 
+                    lfoCount={lfoCount}
+                    envCount={envCount}
+                    parameter={parameter} 
+                    key={index}
+                    handlers={handlers}
+                    />
+                )}
             </tbody>
         );
     }
 }
-const mapStateToModuleProps = (state) => {
-    return {
-        configuration: state.settings.modulation
-    };
-}
-const ModuleTargets = connect(mapStateToModuleProps, null)(ModuleTargetsPresentation);
 
-
-class ModulationMatrixPresentation extends Component {
+class ModulationMatrix extends Component {
 
     render() {
-        const {configuration, patch} = this.props;
+        const {configuration, patch, handlers} = this.props;
         const lfoCount = configuration.source.lfos.count;
         const envCount = configuration.source.envelopes.count;
 
@@ -186,24 +212,25 @@ class ModulationMatrixPresentation extends Component {
                             <th scope="colspan" colSpan={envCount + 1}>Envelope</th>
                         </tr>
                         <tr>
-                            {arr(lfoCount).map((z, i) => <th key={"lfo" + i} scope="col">{i}</th>)}
-                            {arr(envCount).map((z, i) => <th key={"env" + i} scope="col">{i}</th>)}
+                            {arr(lfoCount).map((z, i) => <th key={"lfo" + i} scope="col">{i + 1}</th>)}
+                            {arr(envCount).map((z, i) => <th key={"env" + i} scope="col">{i + 1}</th>)}
                             <th scope="col">none</th>
                         </tr>
                     </thead>
-                    {Object.keys(configuration.target).map((module, i) => <ModuleTargets key={i} module={module} />)}
+                    {Object.keys(configuration.target).map((module, i) => <ModuleTargets
+                        patch={patch}
+                        key={i}
+                        handlers={handlers}
+                        module={module} 
+                        targetConfig={configuration.target[module]}
+                        lfoCount={lfoCount}
+                        envCount={envCount}
+                        />
+                    )}
                 </table>
             </section>
         );
     }
 }
-
-const mapStateToMMProps = (state) => {
-    return {
-        configuration: state.settings.modulation,
-        patch: state.patch.modulation
-    }
-}
-const ModulationMatrix = connect(mapStateToMMProps, null)(ModulationMatrixPresentation);
 
 export default ModulationMatrix;

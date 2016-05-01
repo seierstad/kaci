@@ -16,14 +16,14 @@ class NoiseView extends Component {
                     min={configuration.gain.min}
                     max={configuration.gain.max}
                     step={0.01}
-                    onInput={gainInput}
+                    changeHandler={gainInput}
                     value={gain} />
                 <RangeInput 
                     label="Noise pan" 
                     min={configuration.pan.min}
                     max={configuration.pan.max}
                     step={0.01}
-                    onInput={panInput}
+                    changeHandler={panInput}
                     value={pan} />
             </section>
         );

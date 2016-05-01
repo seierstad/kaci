@@ -3,19 +3,24 @@
 var patch = {
     "oscillator": {
         "waveform": "triangle",
-        "pdEnvelope0": [
-            [0, 0],
-            [1, 1]
-        ],
-        "pdEnvelope1": [
-            [0, 0],
-            [0.45, 0.25],
-            [0.5733333333333334, 0.8433333333333333],
-            [1, 1]
-        ],
-        "resonanceActive": true,
-        "resonance": 1.1,
-        "wrapper": "saw",
+        "pd": [{
+            "steps": [
+                [0, 0],
+                [1, 1]
+            ]
+        }, {
+            "steps": [
+                [0, 0],
+                [0.45, 0.25],
+                [0.5733333333333334, 0.8433333333333333],
+                [1, 1]
+            ]
+        }],
+        "resonance": {
+            "active": true,
+            "factor": 1.1,
+            "wrapper": "saw"
+        },
         "mix": 0,
         "pan": 0,
         "detune": 0

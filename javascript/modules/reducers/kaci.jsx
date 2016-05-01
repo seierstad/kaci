@@ -15,4 +15,4 @@ const debugReducer = (state, action) => { // set this as default export to debug
 	console.log(result);
 	return result;
 }
-export default debugReducer;
+export default reducer;

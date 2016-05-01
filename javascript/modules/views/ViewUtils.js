@@ -125,12 +125,21 @@ var createCheckboxInput = function (params, eventContext) {
     }
     return cb;
 };
+const getValuePair = (evt, element) => {
+    const pos = element.getBoundingClientRect();
+    const x = (evt.clientX - pos.left) / pos.width;
+    const y = 1 - (evt.clientY - pos.top) / pos.height;
+    return {
+        x, y
+    };
+}
 
 module.exports = {
-    "sizeInPixels": sizeInPixels,
-    "svg": svg,
-    "getOffsetElement": getOffsetElement,
-    "cursorPosition": cursorPosition,
-    "createRangeInput": createRangeInput,
-    "createCheckboxInput": createCheckboxInput
+    sizeInPixels,
+    svg,
+    getOffsetElement,
+    cursorPosition,
+    createRangeInput,
+    createCheckboxInput,
+    getValuePair
 };

@@ -13,7 +13,7 @@ import * as Actions from "../Actions.jsx";
 import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
 
 class KaciReactViewPresentation extends Component {
-//                <Oscillator handlers={handlers.oscillator} envelopeHandlers={handlers.envelope} />
+
     render () {
         const {configuration, patch, handlers, viewState} = this.props;
         return (
@@ -23,7 +23,13 @@ class KaciReactViewPresentation extends Component {
                     midiConfiguration={configuration.midi}
                     keyboardConfiguration={configuration.keyboard}
                     keyboardHandlers={handlers.keyboard} />
-
+                <Oscillator 
+                    patch={patch.oscillator}
+                    handlers={handlers.oscillator}
+                    envelopeHandlers={handlers.envelope}
+                    configuration={configuration.modulation.target.oscillator}
+                    viewState={viewState.oscillator}
+                    />
         	    <NoiseView 
                     patch={patch.noise}
                     handlers={handlers.noise} 
@@ -38,8 +44,17 @@ class KaciReactViewPresentation extends Component {
                     configuration={configuration.modulation.source.envelopes}
                     viewState={viewState.envelopes}
                     />
-                <LFOs handlers={handlers.lfo} />
-                <ModulationMatrix handlers={handlers.modulation} />
+                <LFOs
+                    patch={patch.lfos}
+                    handlers={handlers.lfos}
+                    syncHandlers={handlers.sync}
+                    configuration={configuration.modulation.source.lfos}
+                    />
+                <ModulationMatrix
+                    patch={patch.modulation}
+                    handlers={handlers.modulation} 
+                    configuration={configuration.modulation}
+                    />
         	</div>
         );
     }
@@ -60,11 +75,30 @@ const mapDispatchToProps = (dispatch) => {
                 }
             },
             oscillator: {
-                resonanceFactor: (event) => {
+                resonance: {
+                    factorChange: (event) => {
+                        const value = parseFloat(event.target.value);
+                        dispatch({type: Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE, value});            
+                    },
+                    wrapperChange: (event, module) => {
+                        dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": event.target.value});
+                    },
+                    toggle: () => {
+                        dispatch({"type": Actions.OSCILLATOR_RESONANCE_TOGGLE});
+                    }
+                },
+                waveformChange: (event, module) => {
+                    dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": event.target.value});
+                },
+                mix: (event) => {
                     const value = parseFloat(event.target.value);
-                    dispatch({type: Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE, value});            
+                    dispatch({"type": Actions.OSCILLATOR_MIX_CHANGE, value});
+                },
+                detune: (event) => {
+                    const value = parseFloat(event.target.value);
+                    dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});                    
                 }
-            },
+             },
             envelope: {
                 circleClick: (event, module, envelopeIndex, envelopePart, index, first, last) => {
                     if (event.shiftKey) {
@@ -147,7 +181,29 @@ const mapDispatchToProps = (dispatch) => {
 
             },
             lfos: {
-
+                reset: (event, module, index) => {
+                    dispatch({"type": Actions.LFO_RESET, module, index});
+                },
+                amountChange: (event, module, index) => {
+                    dispatch({"type": Actions.LFO_AMOUNT_CHANGE, index, module, "value": parseFloat(event.target.value)});
+                },
+                frequencyChange: (event, module, index) => {
+                    dispatch({"type": Actions.LFO_FREQUENCY_CHANGE, index, module, "value": parseFloat(event.target.value)});
+                },
+                changeWaveform: (event, module, index) => {
+                    dispatch({"type": Actions.LFO_WAVEFORM_CHANGE, index, module, "value": event.target.value});
+                }
+            },
+            sync: {
+                denominatorChange: (event, module, index) => {
+                    dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, "value": parseInt(event.target.value, 10)});
+                },
+                numeratorChange: (event, module, index) => {
+                    dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, "value": parseInt(event.target.value, 10)});
+                },
+                toggle: (event, module, index) => {
+                    dispatch({"type": Actions.SYNC_TOGGLE, module, index});
+                }
             },
             sub: {
                 toggle: (event) => {
@@ -180,7 +236,15 @@ const mapDispatchToProps = (dispatch) => {
                 }
             },
             modulation: {
-
+                amountChange: (event, sourceType, index, module, parameter) => {
+                    dispatch({"type": Actions.MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value: parseFloat(event.target.value)});
+                },
+                polarityChange: (event, sourceType, index, module, parameter) => {
+                    dispatch({"type": Actions.MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value: event.target.value});
+                },
+                toggle: (event, sourceType, index, module, parameter) => {
+                    dispatch({"type": Actions.MODULATION_CONNECTION_TOGGLE, sourceType, index, module, parameter});
+                }
             },
             keyboard: {
                 layoutChange: (event) => {

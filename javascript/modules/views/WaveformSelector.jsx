@@ -1,20 +1,25 @@
-/* global document */
-"use strict";
 import drawWaveform from './drawWaveform';
-import React, {Component} from "react";
-import {connect} from "react-redux";
+import React, {Component, PropTypes} from "react";
 
 let waveformSelectorCounter = 0;
 
-class WaveformButtonPresentation extends Component {
+class WaveformButton extends Component {
+    constructor () {
+        super();
+        this.changeHandler = this.changeHandler.bind(this);
+    }
+    changeHandler (event) {
+        const {changeHandler, module, index} = this.props;
+        changeHandler(event, module, index);
+    }
     render () {
-        const {controlName, waveformName, waveform} = this.props;
+        const {controlName, waveformName, waveform, selected} = this.props;
         
         return (
             <label>
-                <input type="radio" name={controlName + "selector"} value={waveformName} />
-                <br />
+                <input type="radio" checked={selected} onChange={this.changeHandler} name={controlName + "-selector"} value={waveformName} />
                 <canvas ref={c => this.canvas = c} width="50px" height="50px" />
+                <span className="waveform-name">{waveformName}</span>
             </label>
         );
     }
@@ -22,20 +27,11 @@ class WaveformButtonPresentation extends Component {
         drawWaveform(this.props.waveform, this.canvas);
     }
 }
-const mapStateToProps = (state) => {
-    return {
-
-    };
-}
-const WaveformButton = connect(
-    mapStateToProps,
-    null
-)(WaveformButtonPresentation);
 
 
-export default class WaveformSelector extends Component {
+class WaveformSelector extends Component {
     render () {
-        const {waveforms, selected} = this.props;
+        const {waveforms, selected, changeHandler, index, module} = this.props;
         const controlName = "waveform-" + (waveformSelectorCounter++);
         const sampleAndHoldBuffer = {
             "value": null,
@@ -47,9 +43,12 @@ export default class WaveformSelector extends Component {
                 <legend>waveform</legend>
                 {Object.keys(waveforms).map(
                     w => <WaveformButton 
-                            key={w} 
+                            key={w}
+                            index={index}
+                            module={module}
                             controlName={controlName} 
                             waveformName={w}
+                            changeHandler={changeHandler}
                             selected={selected === w}
                             waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]} 
                         />
@@ -58,38 +57,13 @@ export default class WaveformSelector extends Component {
         );
     }
 }
-/*
-var aWaveformSelector = function (oscillator, waveforms, eventName, eventDispatchObject, controlName, initialValue, id) {
-    var parentElement = null, names, waveformSelector, waveformSelectorElement, heading, button, canvas, radio, i;
+WaveformSelector.propTypes = {
+    changeHandler: PropTypes.func.isRequired,
+    waveforms: PropTypes.objectOf(PropTypes.func).isRequired,
+    module: PropTypes.string,
+    index: PropTypes.number,
+    selected: PropTypes.string
+}
 
-    names = Object.keys(waveforms);
-    var drawer = function (phase) {
-        return waveforms[names[i]].call(oscillator, phase);
-    };
+export default WaveformSelector;
 
-    for (i = 0; i < names.length; i += 1) {
-
-        drawWaveform(drawer, canvas);
-
-        if (names[i] === initialValue) {
-            radio.setAttribute('checked', 'checked');
-        }
-    }
-
-    waveformSelectorElement.addEventListener('change', function (evt) {
-        var data = {
-            detail: {
-                value: evt.target.value
-            }
-        };
-        if (id) {
-            data.detail.id = id;
-        }
-        var event = new CustomEvent(eventName, data);
-        eventDispatchObject.dispatchEvent(event);
-    });
-
-    return waveformSelectorElement;
-};
-
-*/

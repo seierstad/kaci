@@ -78,9 +78,20 @@ const envelopes = (state = new Array(config.modulation.source.envelopes.count).f
 	return state;
 }
 
-const oscillator = (state = {}, action) => {
-	if (action.module === "oscillator") {
-
+const oscillator = (state = {"pd": [[],[]]}, action) => {
+	if (action.module === "oscillator" && action.hasOwnProperty("envelopeIndex")) {
+		switch (action.type) {
+			case Actions.ENVELOPE_POINT_ADD:
+			case Actions.ENVELOPE_BLUR:
+			case Actions.ENVELOPE_POINT_EDIT_START:
+			case Actions.ENVELOPE_POINT_EDIT_END:
+				const pd = [...state.pd];
+				pd[action.envelopeIndex] = envelope([...state.pd[action.envelopeIndex]], action);
+				return {
+					...state,
+					pd
+				};
+		}
 	}
 	return state;
 }

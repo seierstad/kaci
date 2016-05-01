@@ -1,31 +1,57 @@
 /*global document, module, require, CustomEvent */
-import React, {Component} from "react";
-import {connect} from "react-redux";
-import * as Actions from "../Actions.jsx";
+import React, {Component, PropTypes} from "react";
+
+import {waveforms} from "../waveforms";
+
 import RangeInput from "./RangeInput.jsx";
 import WaveformSelector from "./WaveformSelector.jsx";
 import SyncControls from "./SyncControls.jsx";
 
 
-class LFOPresentation extends Component {
+class LFO extends Component {
+    constructor () {
+        super();
+        this.reset = this.reset.bind(this); 
+        this.amountChange = this.amountChange.bind(this);
+        this.frequencyChange = this.frequencyChange.bind(this);
+    }
+    reset (event) {
+        const {index, module, handlers} = this.props;
+        handlers.reset(event, module, index);
+    } 
+    amountChange (event) {
+        const {index, module, handlers} = this.props;
+        handlers.amountChange(event, module, index);
+
+    }
+    frequencyChange (event) {
+        const {index, module, handlers} = this.props;
+        handlers.frequencyChange(event, module, index);
+
+    }
+
     render () {
-        const {lfoIndex, configuration, patch, onReset, onAmountInput, onFrequencyInput, onSyncToggle, onSyncDenominatorChange, onSyncNumeratorChange} = this.props;
-        const amountChangeHandler = onAmountInput(lfoIndex);
-        const frequencyChangeHandler = onFrequencyInput(lfoIndex);
+        const {index, configuration, patch, handlers, syncHandlers} = this.props;
         const syncPossible = patch.sync;
 
         return (
-            <section id={"lfo-" + lfoIndex + "-view"} className="lfo">
-                <h2><abbr title="low frequency oscillator">LFO</abbr>{lfoIndex + 1}</h2>
-                <button onClick={onReset(lfoIndex)}>reset</button>
-                <WaveformSelector />
+            <section id={"lfo-" + index + "-view"} className="lfo">
+                <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
+                <button onClick={this.reset}>reset</button>
+                <WaveformSelector 
+                    module="lfos"
+                    parameter="waveform"
+                    selected={patch.waveform}
+                    index={index}
+                    waveforms={waveforms}
+                    changeHandler={handlers.changeWaveform}
+                    />
                 <RangeInput 
                     label="amount" 
                     min={configuration.amount.min}
                     max={configuration.amount.max}
                     step={configuration.amount.step}
-                    onChange={amountChangeHandler}
-                    onInput={amountChangeHandler}
+                    changeHandler={this.amountChange}
                     value={patch.amount}
                 />
                 <RangeInput 
@@ -34,99 +60,54 @@ class LFOPresentation extends Component {
                     min={configuration.frequency.min}
                     max={configuration.frequency.max}
                     step={configuration.frequency.step}
-                    onChange={frequencyChangeHandler}
-                    onInput={frequencyChangeHandler}
+                    changeHandler={this.frequencyChange}
                     value={patch.frequency}
                 />
                 {syncPossible ?
                     <SyncControls 
                         patch={patch.sync}
+                        module="lfos"
+                        index={index}
+                        handlers={syncHandlers}
                         configuration={configuration.sync}
-                        onToggle={onSyncToggle(lfoIndex)}
-                        onNumeratorChange={onSyncNumeratorChange(lfoIndex)}
-                        onDenominatorChange={onSyncDenominatorChange(lfoIndex)}
                     />
                 : null}
             </section>
         );
     }
 }
-const mapStateToLFOProps = (state) => {
-    return {
-        configuration: state.settings.modulation.source.lfos
-    };
-}
-const mapDispatchToLFOProps = (dispatch) => {
-    return {
-        onReset: (lfoIndex) => () => {
-            dispatch({"type": Actions.LFO_RESET, lfoIndex});
-        },
-        onAmountInput: (lfoIndex) => (event) => {
-            dispatch({"type": Actions.LFO_AMOUNT_CHANGE, lfoIndex, "value": parseFloat(event.target.value)});
-        },
-        onFrequencyInput: (lfoIndex) => (event) => {
-            dispatch({"type": Actions.LFO_FREQUENCY_CHANGE, lfoIndex, "value": parseFloat(event.target.value)});
-        },
-        onSyncDenominatorChange: lfoIndex => event => {
-            dispatch({"type": Actions.LFO_SYNC_DENOMINATOR_CHANGE, lfoIndex, "value": parseInt(event.target.value, 10)});
-        },
-        onSyncNumeratorChange: lfoIndex => event => {
-            dispatch({"type": Actions.LFO_SYNC_NUMERATOR_CHANGE, lfoIndex, "value": parseInt(event.target.value, 10)});
-        },
-        onSyncToggle: lfoIndex => _ => {
-            dispatch({"type": Actions.LFO_SYNC_TOGGLE, lfoIndex});
-        }
-    };
-}
 
-const LFO = connect(
-    mapStateToLFOProps,
-    mapDispatchToLFOProps
-)(LFOPresentation);
-
-
-class LFOsPresentation extends Component {
+class LFOs extends Component {
     render () {
-        const {patchData, configuration} = this.props;
+        const {patch, configuration, handlers, syncHandlers} = this.props;
         let lfos = [];
 
         for (let i = 0; i < configuration.count; i += 1) {
-            let patch = patchData[i] || configuration["default"];
-            lfos.push(<LFO key={i} lfoIndex={i} patch={patch} />);
+            lfos.push(
+                <LFO 
+                    key={i} 
+                    index={i}
+                    module="lfos"
+                    patch={patch[i] || configuration["default"]}
+                    handlers={handlers}
+                    syncHandlers={syncHandlers}
+                    configuration={configuration}
+                    />
+            );
         }
 
         return <div>{lfos}</div>;
     }
 }
-const mapStateToLFOsProps = (state) => {
-    return {
-        patchData: state.patch.lfos,
-        configuration: state.settings.modulation.source.lfos
-    };
-};
-const LFOs = connect(
-    mapStateToLFOsProps,
-    null
-)(LFOsPresentation);
 
 export default LFOs;
 /*
-var LFOView = function (ctx, patch, params) {
-    IdealOscillator = require("../IdealOscillator");
-
-    viewOscillator = new IdealOscillator(ctx),
-
     lfoToggle = new Utils.createCheckboxInput({
         "id": this.lfoId,
         dispatchEvent: ".toggle",
         checked: (patch.active)
     }, ctx);
     lfoView.appendChild(lfoToggle);
-
-
-    //    lfoView.appendChild(new WaveformSelector(viewOscillator, IdealOscillator.waveforms, "lfo.change.waveform", ctx, this.lfoId + "-waveform", patch.waveform, this.lfoId));
-    return lfoView;
-};
 */
 
 /*

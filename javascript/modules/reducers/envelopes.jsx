@@ -122,4 +122,6 @@ const envelope = (state = {}, action) => {
     return result;
 };
 
+
+export {steps};
 export default envelope;

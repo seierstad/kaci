@@ -8,7 +8,24 @@ const lfo = (state = [], action) => {
 				...state,
 				"frequency": action.value
 			};
-		case Actions.LFO_SYNC_NUMERATOR_CHANGE:
+
+		case Actions.LFO_AMOUNT_CHANGE:
+			return {
+				...state,
+				"amount": action.value
+			};
+
+		case Actions.LFO_WAVEFORM_CHANGE:
+			return {
+				...state,
+				"waveform": action.value
+			};
+
+		case Actions.LFO_RESET:
+			// possible implementation: timestamp in the viewState?
+			return state;
+
+		case Actions.SYNC_NUMERATOR_CHANGE:
 			return {
 				...state,
 				sync: {
@@ -16,7 +33,8 @@ const lfo = (state = [], action) => {
 					"numerator": action.value
 				}
 			};
-		case Actions.LFO_SYNC_DENOMINATOR_CHANGE:
+
+		case Actions.SYNC_DENOMINATOR_CHANGE:
 			return {
 				...state,
 				sync: {
@@ -24,7 +42,8 @@ const lfo = (state = [], action) => {
 					"denominator": action.value
 				}
 			};
-		case Actions.LFO_SYNC_TOGGLE:
+
+		case Actions.SYNC_TOGGLE:
 			return {
 				...state,
 				sync: {
@@ -32,28 +51,21 @@ const lfo = (state = [], action) => {
 					"enabled": !!!state.sync.enabled
 				}
 			};
-		case Actions.LFO_AMOUNT_CHANGE:
-			return {
-				...state,
-				"amount": action.value
-			};
-		case Actions.LFO_WAVEFORM_CHANGE:
-		//todo
-		case Actions.LFO_RESET:
-		// possibly implemented as a timestamp in the viewState?
 	}
 	return state;
 }
 
 const lfos = (state = [], action) => {
-    const index = action.lfoIndex;
+	if (action.module === "lfos") {
 
-    let result = [
-        ...state
-    ];
-    result[index] = lfo(state[index], action);
+	    let result = [
+	        ...state
+	    ];
+	    result[action.index] = lfo(state[action.index], action);
 
-    return result;
+	    return result;
+	}
+	return state;
 };
 
 export default lfos;

@@ -16,16 +16,14 @@ class SubView extends Component {
                     min={configuration.gain.min}
                     max={configuration.gain.max}
                     step={0.01}
-                    onChange={gainInput}
-                    onInput={gainInput}
+                    changeHandler={gainInput}
                     value={patch.gain} />
                 <RangeInput 
                     label="Sub pan" 
                     min={configuration.pan.min}
                     max={configuration.pan.max}
                     step={0.01}
-                    onChange={panInput}
-                    onInput={panInput}
+                    changeHandler={panInput}
                     value={patch.pan} />
                 <fieldset>
                     <legend>Sub depth</legend>

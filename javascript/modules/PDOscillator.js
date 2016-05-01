@@ -1,5 +1,18 @@
 /*global require, module, document */
 "use strict";
+import {
+    wrappers
+}
+from "./waveforms";
+
+import {
+    mixValues,
+    vectorToLinearFunction,
+    getDistortedPhase
+}
+from "./sharedFunctions";
+
+
 var DCGenerator = require("./DCGenerator"),
     IdealOscillator = require("./IdealOscillator"),
     BUFFER_LENGTH = require("constants").BUFFER_LENGTH,
@@ -216,16 +229,7 @@ PDOscillator.prototype.connect = function (node) {
         this.generator.connect(node);
     }
 };
-PDOscillator.prototype.linearFunctionFromVector = function (vector) {
-    var rate,
-        constant;
-
-    rate = (vector[1][1] - vector[0][1]) / (vector[1][0] - vector[0][0]);
-    constant = vector[0][1] - (rate * vector[0][0]);
-    return function linear(phase) {
-        return (phase * rate) + constant;
-    };
-};
+PDOscillator.prototype.linearFunctionFromVector = vectorToLinearFunction;
 PDOscillator.prototype.setWaveform = function (waveformName) {
     if (waveformName && IdealOscillator.waveforms[waveformName] && typeof IdealOscillator.waveforms[waveformName] === "function") {
         this.selectedWaveform = IdealOscillator.waveforms[waveformName];
@@ -247,24 +251,8 @@ PDOscillator.prototype.getIncrementedPhase = function (frequency) {
     }
     return this.phase;
 };
-PDOscillator.prototype.getDistortedPhase = function (phase, envelope) {
-    var i;
-
-    if (envelope.length > 1) {
-        for (i = 1; i < envelope.length; i += 1) {
-            if (phase >= envelope[i - 1][0] && phase < envelope[i][0]) {
-                if (!envelope.functions[i - 1]) {
-                    envelope.functions[i - 1] = this.linearFunctionFromVector([envelope[i - 1], envelope[i]]);
-                }
-                return envelope.functions[i - 1](phase);
-            }
-        }
-    }
-    return 0;
-};
-PDOscillator.prototype.mixValues = function (source1, source2, ratio) {
-    return source1 * (-ratio + 1) + source2 * ratio;
-};
+PDOscillator.prototype.getDistortedPhase = getDistortedPhase;
+PDOscillator.prototype.mixValues = mixValues;
 PDOscillator.prototype.getIncrementedResonancePhase = function (frequency) {
     var increment = frequency / this.context.sampleRate;
     this.resonancePhase += increment;
@@ -276,7 +264,6 @@ PDOscillator.prototype.getIncrementedResonancePhase = function (frequency) {
 PDOscillator.prototype.getComputedFrequency = function (frequency, detune) {
     return frequency * Math.pow(2, detune / 1200);
 };
-PDOscillator.prototype.DOUBLE_PI = Math.PI * 2;
 
 PDOscillator.prototype.gaussianFunction = function (mu, sig) {
     var twoSigSquared = 2 * Math.pow(sig, 2),
@@ -286,37 +273,6 @@ PDOscillator.prototype.gaussianFunction = function (mu, sig) {
         return Math.exp(-(muSquared - (2 * mu * phase) + (phase * phase)) / twoSigSquared);
     };
 };
-PDOscillator.prototype.wrappers = {
-    sync: function () {
-        return 1;
-    },
-    saw: function (phase) {
-        return 1 - phase;
-    },
-    halfSinus: function (phase) {
-        return Math.sin(phase * Math.PI);
-    },
-    gaussian: function (phase) {
-        // dummy function to be replaced by constructor
-        // added for static enumeration purposes
-    }
-};
-PDOscillator.getModulationInputDescriptors = function () {
-    return {
-        "mix": {
-            "min": 0,
-            "max": 1
-        },
-        "resonance": {
-            "min": 1,
-            "max": 10
-        },
-        "detune": {
-            "min": -1200,
-            "max": 1200,
-            "flipWhenNegative": false,
-            "midValue": "limit" // ["center", "limit"]
-        }
-    };
-};
+PDOscillator.prototype.wrappers = wrappers;
+
 module.exports = PDOscillator;
