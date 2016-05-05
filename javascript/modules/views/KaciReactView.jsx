@@ -1,6 +1,9 @@
 import React, {Component} from "react";
 import { connect } from "react-redux";
 
+import * as Actions from "../Actions.jsx";
+import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
+
 import SystemSettingsView from "./SystemSettingsView.jsx";
 import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
@@ -8,14 +11,13 @@ import Envelopes from "./EnvelopeView.jsx";
 import LFOs from "./LFOView.jsx";
 import ModulationMatrix from "./ModulationMatrixView.jsx";
 import Oscillator from "./OscillatorView.jsx";
-import * as Actions from "../Actions.jsx";
+import Keyboard from "./KeyboardView.jsx";
 
-import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
 
 class KaciReactViewPresentation extends Component {
 
     render () {
-        const {configuration, patch, handlers, viewState} = this.props;
+        const {configuration, patch, handlers, viewState, playState} = this.props;
         return (
         	<div>
         	    <SystemSettingsView 
@@ -55,6 +57,11 @@ class KaciReactViewPresentation extends Component {
                     handlers={handlers.modulation} 
                     configuration={configuration.modulation}
                     />
+                <Keyboard
+                    handlers={handlers.keyboard}
+                    playState={playState}
+                    configuration={configuration.keyboard}
+                    />
         	</div>
         );
     }
@@ -62,7 +69,8 @@ class KaciReactViewPresentation extends Component {
 const mapStateToProps = (state) => ({
     configuration: state.settings,
     patch: state.patch,
-    viewState: state.viewState
+    viewState: state.viewState,
+    playState: state.playState
 
 });
 const mapDispatchToProps = (dispatch) => {
@@ -250,6 +258,22 @@ const mapDispatchToProps = (dispatch) => {
                 layoutChange: (event) => {
                     const value = event.target.value;
                     dispatch({type: Actions.KEYBOARD_LAYOUT_CHANGE, value});
+                },
+                pitchShift: (event) => {
+                    const value = parseFloat(event.target.value);
+                    dispatch({"type": Actions.KEYBOARD_PITCH_SHIFT}, value);
+                },
+                chordShift: (event) => {
+                    const value = parseFloat(event.target.value);
+                    dispatch({"type": Actions.KEYBOARD_CHORD_SHIFT}, value);
+                },
+                key: {
+                    down: (event, keyNumber) => {
+                        dispatch({"type": Actions.KEYBOARD_KEY_DOWN, keyNumber});
+                    },
+                    up: (event, keyNumber) => {
+                        dispatch({"type": Actions.KEYBOARD_KEY_UP, keyNumber});
+                    }
                 }
             }
         }

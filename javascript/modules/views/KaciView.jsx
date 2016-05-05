@@ -1,6 +1,5 @@
 /* global module, require, document */
 "use strict";
-var KeyboardView = require("./KeyboardView");
 
 import React from "react";
 import ReactDOM from "react-dom";
@@ -20,17 +19,5 @@ var KaciView = function (context, systemSettings, patch, store) {
         </Provider> 
         , reactComponentsWrapper
     );
-
-    var keyboardView = new KeyboardView(context, {
-        startKey: 36,
-        endKey: 73,
-        className: "keyboard"
-    });
-    document.body.appendChild(keyboardView);
-/*
-    var ov = new OscillatorView(context, systemSettings.modulation.target.oscillator, patch.oscillator);
-    document.body.appendChild(ov);
-*/
-
 };
 module.exports = KaciView;

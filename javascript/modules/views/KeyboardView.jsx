@@ -1,181 +1,155 @@
-/*globals require, module */
-"use strict";
-var SVGControllerElement = require('./SVGControllerElement');
-var Utils = require('./ViewUtils');
+import ReactDOM from "react-dom";
+import React, {Component} from "react";
 
-var KeyboardView = function (context, params) {
-    if (!params) {
-        params = {};
-    }
-    var data = params.dataObject,
-        view,
-        keyboard,
-        keys = [],
-        noteNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'],
+import {NOTE_NAMES} from "../constants";
 
-        init,
-        keyUpHandler,
-        keyDownHandler,
-        startKey = params.startKey || 0,
-        endKey = params.endKey || 13,
-        pitchShift,
-        chordShift;
+import RangeInput from "./RangeInput.jsx";
 
-    this.id = params.id || 'keyboard';
+class Key extends Component {
+	constructor () {
+		super();
+		this.keyDownHandler = this.keyDownHandler.bind(this);
+		this.keyUpHandler = this.keyUpHandler.bind(this);
+	}
+	keyDownHandler (event) {
+		const {handlers, keyNumber} = this.props;
+		handlers.down(event, keyNumber);
+	}
+	keyUpHandler (event) {
+		const {handlers, keyNumber} = this.props;
+		handlers.up(event, keyNumber);
+	}
 
-    view = document.createElement('section');
-    view.id = this.id + '-view';
+}
 
-    keyboard = new SVGControllerElement(params);
+class WhiteKey extends Key {
+	render () {
+		const {x, keyWidth, noteName, keyNumber, playState} = this.props;
+		return (
+    		<rect
+    			className={"key " + noteName + (playState && playState.pressed ? " pressed" : "")}
+    			y="0"
+                x={x}
+                width={keyWidth + "%"}
+                height="100%"
+                onMouseDown={this.keyDownHandler}
+                onMouseUp={this.keyUpHandler}
+                />
+        );
+	}
+}
+class BlackKey extends Key {
+	render () {
+		const {x, keyWidth, noteName, keyNumber, playState} = this.props;
+		return (
+    		<rect
+				className={"key " + noteName + (playState && playState.pressed ? " pressed" : "")}
+				y="0"
+                x={x}
+                width={(keyWidth * 0.7) + "%"}
+                height="60%"
+                onMouseDown={this.keyDownHandler}
+                onMouseUp={this.keyUpHandler}
+                />
+        );
+	}
+}
 
-    view.appendChild(keyboard);
-    params.width = params.width || '100%';
-    params.height = params.height || '180px';
 
 
-    pitchShift = Utils.createRangeInput({
-        label: "Pitch shift",
-        container: view,
-        min: -1,
-        max: 1,
-        step: 0.01,
-        value: 0
-    });
-    pitchShift.input.addEventListener('input', function (evt) {
-        var event = new CustomEvent("keyboard.pitchShift", {
-            detail: {
-                value: evt.target.value
-            }
-        });
-        context.dispatchEvent(event);
-    });
-    view.appendChild(pitchShift.label);
-    view.appendChild(pitchShift.input);
+class KeyboardView extends Component {
+	render () {
+		const {handlers, playState, configuration} = this.props;
+		const {startKey, endKey} = configuration;
+        const keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5));
+
+		const whiteKeys = [];
+		const blackKeys = [];
 
 
-    chordShift = Utils.createRangeInput({
-        label: "Chord shift",
-        container: view,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        value: 0
-    });
-    chordShift.input.addEventListener('input', function (evt) {
-        var event = new CustomEvent("chordShift.change", {
-            detail: {
-                value: evt.target.value
-            }
-        });
-        context.dispatchEvent(event);
-    });
-    view.appendChild(chordShift.label);
-    view.appendChild(chordShift.input);
+		let nextKeyX = 0;
 
-    init = function () {
+        for (let i = startKey; i < endKey; i += 1) {
+            const k = i % 12;
+            const black = (k === 1 || k === 3 || k === 6 || k === 8 || k === 10);
+            const noteName = NOTE_NAMES[i % 12];
 
-        var nextKeyX = 0,
-            keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5)),
-            whiteKeys = Utils.svg("g"),
-            blackKeys = Utils.svg("g"),
-            i,
-            k,
-            key,
-            blackKey;
-
-        whiteKeys.setAttribute("class", "white");
-        blackKeys.setAttribute("class", "black");
-
-        for (i = startKey; i < endKey; i += 1) {
-            k = i % 12;
-            blackKey = (k === 1 || k === 3 || k === 6 || k === 8 || k === 10);
-            if (blackKey) {
-                key = Utils.svg('rect', {
-                    "class": "key " + noteNames[i % 12],
-                    "y": "0",
-                    "x": (nextKeyX - keyWidth * 0.35) + "%",
-                    "width": (keyWidth * 0.7) + "%",
-                    "height": "60%"
-                });
-                blackKeys.appendChild(key);
+            if (black) {
+            	blackKeys.push(
+            		<BlackKey
+            			playState={playState.keys[i]}
+            			key={i + "-" + noteName}
+            			noteName={noteName}
+            			keyNumber={i}
+	                    x={(nextKeyX - keyWidth * 0.35) + "%"}
+	                    keyWidth={keyWidth}
+	                    handlers={handlers.key}
+	                    />
+            	);
             } else {
-                key = Utils.svg('rect', {
-                    "class": "key " + noteNames[i % 12],
-                    "y": "0",
-                    "x": nextKeyX + "%",
-                    "width": keyWidth + "%",
-                    "height": "100%"
-                });
-
+            	whiteKeys.push(
+            		<WhiteKey
+            			playState={playState.keys[i]}
+            			key={i + "-" + noteName}
+            			noteName={noteName}
+            			keyNumber={i}
+	                    x={nextKeyX + "%"}
+	                    keyWidth={keyWidth}
+	                    handlers={handlers.key}
+	                    />
+	            );
                 nextKeyX += keyWidth;
-                whiteKeys.appendChild(key);
             }
-            keys[i] = {
-                'DOMElement': key
-            };
         }
-        keyboard.appendChild(whiteKeys);
-        keyboard.appendChild(blackKeys);
 
-    };
 
+		return (
+			<section id="keyboard-view" className="controller keyboard">
+				<svg width="100%" height="180px">
+					<g className="white">
+						{whiteKeys}
+					</g>
+					<g className="black">
+						{blackKeys}
+					</g>
+				</svg>
+				<RangeInput 
+	                label="Pitch shift"
+	                min={-1}
+	                max={1}
+	                step={0.01}
+	                changeHandler={handlers.pitchShift}
+	                value={playState.pitchShift}
+	                />
+	            <RangeInput 
+	                label="Chord shift"
+	                min={0}
+	                max={1}
+	                step={0.01}
+	                changeHandler={handlers.chordShift}
+	                value={playState.chordShift}
+	                />
+			</section>
+		);
+	}
+}
+
+export default KeyboardView;
+/*
     keyDownHandler = function (event) {
-        var keyPressed,
-            originalClass,
-            i;
-
-        var isPressed = function (key, index) {
-            if (key.DOMElement === event.target && !key.pressed) {
-                keyPressed = index;
-                key.pressed = true;
-            }
-        };
 
 
-        switch (event.type) {
-        case 'mousedown':
         case 'touchstart':
-            keys.forEach(isPressed);
-            break;
-        }
-        if (keyPressed) {
-            context.dispatchEvent(new CustomEvent('keyboard.keydown', {
-                'detail': {
-                    'keyNumber': keyPressed,
-                    'source': 'keyboardView'
-                }
-            }));
-        }
-        return false;
-    };
 
     keyUpHandler = function keyUp(event) {
         var keyReleased,
             number;
-
-        var isReleased = function (key, index) {
-            if (key.DOMElement === event.target) {
-                if (key.pressed) {
-                    keyReleased = key;
-                    key.pressed = false;
-                    number = index;
-                }
-            }
-        };
 
         switch (event.type) {
         case 'mouseup':
         case 'mouseout':
             keys.forEach(isReleased);
             break;
-        }
-        if (keyReleased) {
-            context.dispatchEvent(new CustomEvent('keyboard.keyup', {
-                'detail': {
-                    'keyNumber': number,
-                    'source': 'keyboardView'
-                }
-            }));
         }
     };
 
@@ -203,9 +177,6 @@ var KeyboardView = function (context, params) {
         });
     };
 
-    var pitchBendHandler = function pitchBendHandler(event) {
-        pitchShift.input.value = event.detail.value;
-    };
     var setKeyStyling = function (key, amount) {
         key.style.fill = "rgba(0,0,255," + amount + ")";
     };
@@ -253,3 +224,4 @@ var KeyboardView = function (context, params) {
 };
 
 module.exports = KeyboardView;
+*/
