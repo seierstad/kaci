@@ -1,11 +1,8 @@
-/* global module, require, document */
-"use strict";
-const KeyboardView = require("./KeyboardView");
-
 import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import KaciReactView from "./KaciReactView.jsx";
+
 
 const KaciView = function (context, systemSettings, patch, store) {
     const heading = document.createElement("h1");
@@ -20,17 +17,7 @@ const KaciView = function (context, systemSettings, patch, store) {
         </Provider>
         , reactComponentsWrapper
     );
-
-    const keyboardView = new KeyboardView(context, {
-        startKey: 36,
-        endKey: 73,
-        className: "keyboard"
-    });
-    document.body.appendChild(keyboardView);
-/*
-    const ov = new OscillatorView(context, systemSettings.modulation.target.oscillator, patch.oscillator);
-    document.body.appendChild(ov);
-*/
-
 };
-module.exports = KaciView;
+
+
+export default KaciView;

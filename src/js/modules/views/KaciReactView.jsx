@@ -2,22 +2,22 @@ import React, {Component, PropTypes} from "react";
 import { connect } from "react-redux";
 
 import * as Actions from "../Actions.jsx";
-import {getValuePair} from "./ViewUtils";
-import * as PropDefs from "../../proptype-defs";
+import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
 
-import SystemSettings from "./system-settings.jsx";
-import Noise from "./noise.jsx";
-import Sub from "./sub.jsx";
-import Envelopes from "./envelope/envelopes.jsx";
-import LFOs from "./lfos.jsx";
-import ModulationMatrix from "./modulation-matrix/modulation-matrix.jsx";
-import Oscillator from "./oscillator/oscillator.jsx";
+import SystemSettingsView from "./SystemSettingsView.jsx";
+import NoiseView from "./NoiseView.jsx";
+import SubView from "./SubView.jsx";
+import Envelopes from "./EnvelopeView.jsx";
+import LFOs from "./LFOView.jsx";
+import ModulationMatrix from "./ModulationMatrixView.jsx";
+import Oscillator from "./OscillatorView.jsx";
+import Keyboard from "./KeyboardView.jsx";
 
 
 class KaciReactViewPresentation extends Component {
 
     render () {
-        const {configuration, patch, handlers, viewState} = this.props;
+        const {configuration, patch, handlers, viewState, playState} = this.props;
         return (
             <div>
                 <SystemSettings
@@ -57,10 +57,13 @@ class KaciReactViewPresentation extends Component {
                 />
                 <ModulationMatrix
                     configuration={configuration.modulation}
-                    handlers={handlers.modulation}
-                    patch={patch.modulation}
                 />
-            </div>
+                <Keyboard
+                    handlers={handlers.keyboard}
+                    playState={playState}
+                    configuration={configuration.keyboard}
+                />
+        	</div>
         );
     }
 }
@@ -74,7 +77,8 @@ KaciReactViewPresentation.propTypes = {
 const mapStateToProps = (state) => ({
     configuration: state.settings,
     patch: state.patch,
-    viewState: state.viewState
+    viewState: state.viewState,
+    playState: state.playState
 
 });
 const mapDispatchToProps = (dispatch) => {
@@ -262,15 +266,29 @@ const mapDispatchToProps = (dispatch) => {
                 layoutChange: (event) => {
                     const value = event.target.value;
                     dispatch({type: Actions.KEYBOARD_LAYOUT_CHANGE, value});
+                },
+                pitchShift: (event) => {
+                    const value = parseFloat(event.target.value);
+                    dispatch({"type": Actions.KEYBOARD_PITCH_SHIFT}, value);
+                },
+                chordShift: (event) => {
+                    const value = parseFloat(event.target.value);
+                    dispatch({"type": Actions.KEYBOARD_CHORD_SHIFT}, value);
+                },
+                key: {
+                    down: (event, keyNumber) => {
+                        dispatch({"type": Actions.KEYBOARD_KEY_DOWN, keyNumber});
+                    },
+                    up: (event, keyNumber) => {
+                        dispatch({"type": Actions.KEYBOARD_KEY_UP, keyNumber});
+                    }
                 }
             }
         }
     };
 };
-const KaciReactView = connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(KaciReactViewPresentation);
+
+const KaciReactView = connect(mapStateToProps, mapDispatchToProps)(KaciReactViewPresentation);
 
 
 export default KaciReactView;
