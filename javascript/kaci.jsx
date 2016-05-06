@@ -35,7 +35,6 @@ if (window.AudioContext) {
 
     var store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
     var system = new SystemSettings(ctx, settings, store);
-    var view = new KaciView(ctx, system.settings, patch, store);
     var patchHandler = new PatchHandler(ctx, defaultSettings);
     var modulationMatrix = new ModulationMatrix(ctx, system.settings, patchHandler.getActivePatch(), store);
 
@@ -43,12 +42,14 @@ if (window.AudioContext) {
     var keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
     var reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
 
+    
+    const kaciWrapper = document.getElementById("kaci");
 
     ReactDOM.render(
         <Provider store={store}>
-            <KaciReactView />
+            <KaciView />
         </Provider> 
-        , reactComponentsWrapper
+        , kaciWrapper
     );
 
 
