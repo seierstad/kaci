@@ -35,12 +35,14 @@ if (window.AudioContext) {
     const keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
     const reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
 
+    
+    const kaciWrapper = document.getElementById("kaci");
 
     ReactDOM.render(
         <Provider store={store}>
-            <KaciReactView />
+            <KaciView />
         </Provider> 
-        , reactComponentsWrapper
+        , kaciWrapper
     );
 
 

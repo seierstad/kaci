@@ -136,15 +136,15 @@ $envelope-circle-color: black;
     width: 100%;
     height: 100%;
 }
+.black {
+    fill: #000;
+}
+.white {
+    fill: #fff;
+}
 .key {
     stroke: #000;
 
-    &.black {
-        fill: #000;
-    }
-    &.white {
-        fill: #fff;
-    }
     &.pressed {
         fill: #afe;
     }
