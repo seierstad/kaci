@@ -34,7 +34,7 @@ const keys = (state = [], action) => {
 	return state;
 }
 
-const playState = (state = {keys: [], pitch: 0, chordShift: 0, hold: 0}, action) => {
+const playState = (state = {keys: [], pitchShift: 0, chordShift: 0, hold: 0}, action) => {
 	switch (action.type) {
 		case Actions.MIDI_KEY_DOWN:
 		case Actions.MIDI_KEY_UP:
@@ -44,6 +44,17 @@ const playState = (state = {keys: [], pitch: 0, chordShift: 0, hold: 0}, action)
 				...state,
 				keys: keys(state.keys, action)
 			};
+		case Actions.KEYBOARD_PITCH_SHIFT:
+			return {
+				...state,
+				pitchShift: action.value
+			};
+		case Actions.KEYBOARD_CHORD_SHIFT:
+			return {
+				...state,
+				chordShift: action.value
+			};
+
 	}
 	return state;
 }
