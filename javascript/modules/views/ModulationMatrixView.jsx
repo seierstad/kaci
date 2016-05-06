@@ -9,7 +9,7 @@ class PolaritySelector extends Component {
         const {changeHandler, prefix, patch} = this.props;
         return (
             <div>
-                <select id={prefix + "-polarity"} onInput={changeHandler} value={patch}>
+                <select id={prefix + "-polarity"} onChange={changeHandler} value={patch}>
                     {
                         [
                             { value: "positive", label: "+", title: "positive"}, 
@@ -120,8 +120,8 @@ class Target extends Component {
         const {module, moduleParameterCount, patch, handlers, lfoCount, envCount, firstInModule, parameter} = this.props;
 
         const target = module + "." + parameter;
-        const noConnection = !patch["envelopes"] ||
-                             !patch["envelopes"].some(env => env.hasOwnProperty(target) && env[target].enabled);
+        const noConnection = !patch.envelopes ||
+                             !(patch.envelopes.some(env => env.hasOwnProperty(target) && env[target].enabled));
 
 
         return (
