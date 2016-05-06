@@ -1,4 +1,5 @@
 import KaciView from "./modules/views/KaciView.jsx";
+
 import VoiceRegister from "./modules/VoiceRegister";
 // import WavyJones from "../lib/wavy-jones/wavy-jones";
 import ModulationMatrix from "./modules/ModulationMatrix";
@@ -12,10 +13,6 @@ import PatchHandler from "./modules/PatchHandler";
 import {createStore} from "redux";
 import reducer from "./modules/reducers/kaci.jsx";
 
-
-if (window.webkitAudioContext) {
-    window.AudioContext = window.webkitAudioContext;
-}
 if (window.AudioContext) {
     const ctx = new window.AudioContext();
 
@@ -37,6 +34,15 @@ if (window.AudioContext) {
     const midi = new Midi(ctx, system.settings.midi, store);
     const keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
     const reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
+
+
+    ReactDOM.render(
+        <Provider store={store}>
+            <KaciReactView />
+        </Provider> 
+        , reactComponentsWrapper
+    );
+
 
     //    var shaperCurve = new Float32Array([-.5, 0, .5]);
     //    var shaper = ctx.createWaveShaper();
