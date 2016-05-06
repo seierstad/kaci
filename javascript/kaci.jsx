@@ -2,7 +2,13 @@
 /*globals require, console, window, document, CustomEvent */
 "use strict";
 
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import reducer from "./modules/reducers/kaci.jsx";
 import KaciView from "./modules/views/KaciView.jsx";
+
 import VoiceRegister from "./modules/VoiceRegister";
 import WavyJones from "../lib/wavy-jones/wavy-jones";
 import ModulationMatrix from "./modules/ModulationMatrix";
@@ -13,14 +19,8 @@ import SystemSettings from "./modules/SystemSettings";
 import defaultSettings from "./configuration.json";
 import PatchHandler from "./modules/PatchHandler";
 
-import { createStore } from "redux";
-import reducer from "./modules/reducers/kaci.jsx";
 var ctx, mainMix;
 
-
-if (window.webkitAudioContext) {
-    window.AudioContext = window.webkitAudioContext;
-}
 if (window.AudioContext) {
     ctx = new window.AudioContext();
 
@@ -42,6 +42,15 @@ if (window.AudioContext) {
     var midi = new Midi(ctx, system.settings.midi, store);
     var keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
     var reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
+
+
+    ReactDOM.render(
+        <Provider store={store}>
+            <KaciReactView />
+        </Provider> 
+        , reactComponentsWrapper
+    );
+
 
     //    var shaperCurve = new Float32Array([-.5, 0, .5]);
     //    var shaper = ctx.createWaveShaper();
