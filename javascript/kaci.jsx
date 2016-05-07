@@ -39,10 +39,10 @@ if (window.AudioContext) {
     var modulationMatrix = new ModulationMatrix(ctx, system.settings, patchHandler.getActivePatch(), store);
 
     var midi = new Midi(ctx, system.settings.midi, store);
-    var keyboardInput = new KeyboardInput(ctx, system.settings.keyboard, store);
+    var keyboardInput = new KeyboardInput(store);
     var reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
 
-    
+
     const kaciWrapper = document.getElementById("kaci");
 
     ReactDOM.render(
