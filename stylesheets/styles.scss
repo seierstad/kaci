@@ -14,6 +14,7 @@ body {
 button {
     min-height: 3em;
 }
+
 section {
     border: 3px solid $border-color;
     border-radius: .5em;
@@ -65,11 +66,10 @@ fieldset {
         }
     }
 
-    ~ section:last-of-type {
-        margin-bottom: 20vh;
-    }
 }
-
+#kaci {
+    margin-bottom: 20vh;
+}
 .blink {
     display: inline-block;
     height: 30px;

@@ -9,24 +9,12 @@ import babel from "babelify";
 import buffer from "vinyl-buffer";
 import uglify from "gulp-uglify";
 import gulpif from "gulp-if";
-// Browserify
+
 import browserify from "browserify";
-// Makes it possible to use the NPM browserify package
-// in gulp (stream to text-stream)
 import source from "vinyl-source-stream";
-// React transform for browserify
-//import reactify from "reactify";
-
-// Renames files
 import rename from "gulp-rename";
-
-
-// server
 import connect from "gulp-connect";
-
-// SCSS Compiler
 import sass from "gulp-sass";
-// Autoprefixer. Adds css vendor prefixes if needed
 import autoprefixer from "gulp-autoprefixer";
 import sourcemaps from "gulp-sourcemaps";
 import rev from "gulp-rev";
@@ -35,6 +23,23 @@ import revReplace from "gulp-rev-replace";
 import gutil from "gulp-util";
 
 import eslint from "gulp-eslint";
+import babel from "babelify";
+import uglify from "gulp-uglify";
+import buffer from "vinyl-buffer";
+import gutil from "gulp-util";
+
+const BROWSERIFY_LIBS = [
+    "react",
+    "react-dom",
+    "react-redux",
+    "redux"
+];
+
+const BROWSERIFY_DEVLIBS = [
+    "redux-devtools",
+    "react-addons-perf"
+];
+
 
 import {dependencies} from "./package.json";
 
@@ -110,7 +115,6 @@ gulp.task("styles", function () {
         .pipe(gulp.dest("./build/css"));
 });
 
-// Copies the index.html file to the build folder
 gulp.task("copyIndex", function () {
     return gulp.src("./markup/template.html")
         .pipe(rename("index.html"))
@@ -141,6 +145,12 @@ gulp.task("default", [
 gulp.task("reactfiler", () => {
 
     let b = browserify("./javascript/kaci.jsx").transform(babel);
+    BROWSERIFY_LIBS.forEach(function (lib) {
+        b.external(lib);
+    });
+    BROWSERIFY_DEVLIBS.forEach(function (lib) {
+        b.external(lib);
+    });
     return b.bundle()
         .pipe(source("kaci.js"))
         .pipe(buffer())
@@ -151,4 +161,9 @@ gulp.task("reactfiler", () => {
         .on("error", gutil.log)
         .pipe(sourcemaps.write("./maps"))
         .pipe(gulp.dest("build"));
+});
+
+
+gulp.task("env:production", () => {
+    return process.env.NODE_ENV = "production";
 });

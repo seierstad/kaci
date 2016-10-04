@@ -5,7 +5,7 @@ import VoiceRegister from "./modules/VoiceRegister";
 import ModulationMatrix from "./modules/ModulationMatrix";
 import KeyboardInput from "./modules/KeyboardInput";
 import patch from "./modules/patch";
-import Midi from "./modules/MidiInput";
+import MidiInput from "./modules/MidiInput";
 import SystemSettings from "./modules/SystemSettings";
 import defaultSettings from "./configuration.json";
 import PatchHandler from "./modules/PatchHandler";
@@ -30,10 +30,19 @@ if (window.AudioContext) {
     const view = new KaciView(ctx, system.settings, patch, store);
     const patchHandler = new PatchHandler(ctx, defaultSettings);
     const modulationMatrix = new ModulationMatrix(ctx, system.settings, patchHandler.getActivePatch(), store);
+/*
+    var system = new SystemSettings(ctx, settings, store);
+*/
+
+    const midi = new MidiInput(store);
+    const keyboardInput = new KeyboardInput(store);
 
     const midi = new Midi(ctx, system.settings.midi, store);
     const keyboardInput = new KeyboardInput(store);
     const reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
+
+    var modulationMatrix = new ModulationMatrix(ctx, store);
+    var reg = new VoiceRegister(store, ctx, modulationMatrix);
 
     const kaciWrapper = document.getElementById("kaci");
 
@@ -48,11 +57,13 @@ if (window.AudioContext) {
     //    var shaperCurve = new Float32Array([-.5, 0, .5]);
     //    var shaper = ctx.createWaveShaper();
     //    shaper.curve = shaperCurve;
-
-    //    var scope = new WavyJones(ctx, "oscilloscope");
-    //    scope.lineColor = "black";
-    //    scope.lineThickness = 1;
-
     //    shaper.connect(scope);
-    //reg.mainMix.connect(scope);
+
+    /* start scope
+        var scope = new WavyJones(ctx, "oscilloscope");
+        scope.lineColor = "black";
+        scope.lineThickness = 1;
+
+    reg.mainMix.connect(scope);
+    //*/
 }
