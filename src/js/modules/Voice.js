@@ -4,7 +4,6 @@ import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
 
-import WavyJones from "../../lib/wavy-jones/wavy-jones";
 
 const prefixKeys = (object, prefix) => {
     const result = {};
@@ -60,7 +59,7 @@ class Voice {
             ...(prefixKeys(this.sub.parameters.inputs, "sub."))
         };
 
-        //* start scope
+        /* start scope
         const scope = new WavyJones(context, "oscilloscope");
         scope.lineColor = "black";
         scope.lineThickness = 1;

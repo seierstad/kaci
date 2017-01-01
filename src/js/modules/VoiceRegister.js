@@ -282,7 +282,7 @@ class VoiceRegister {
 
     deleteVoice (voice) {
         const notVoice = (v) => v === null;
-        const voiceIndex = this.stoppedVoices.indexOf(voice);
+        let voiceIndex = this.stoppedVoices.indexOf(voice);
 
         if (voiceIndex !== -1) {
             this.stoppedVoices[voiceIndex] = null;

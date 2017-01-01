@@ -5,7 +5,7 @@ import DC from "./DCGenerator";
 import IdealOscillator from "./IdealOscillator";
 import {BUFFER_LENGTH} from "./constants";
 
-import WavyJones from "../../lib/wavy-jones/wavy-jones";
+//import WavyJones from "../../lib/wavy-jones/wavy-jones";
 
 class PDOscillator extends PannableModule {
     constructor (context, store, frequency) {

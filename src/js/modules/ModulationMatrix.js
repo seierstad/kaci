@@ -1,5 +1,5 @@
 import equal from "deep-equal";
-import WavyJones from "../../lib/wavy-jones/wavy-jones";
+//import WavyJones from "../../lib/wavy-jones/wavy-jones";
 
 
 import LFO from "./LFO";
