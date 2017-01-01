@@ -1,9 +1,14 @@
 /**
  * Import the Gulp module
  */
+import fs from "fs";
+import mkdirp from "mkdirp";
 
 import gulp from "gulp";
-
+import babel from "babelify";
+import buffer from "vinyl-buffer";
+import uglify from "gulp-uglify";
+import gulpif from "gulp-if";
 // Browserify
 import browserify from "browserify";
 // Makes it possible to use the NPM browserify package
@@ -24,37 +29,69 @@ import sass from "gulp-sass";
 // Autoprefixer. Adds css vendor prefixes if needed
 import autoprefixer from "gulp-autoprefixer";
 import sourcemaps from "gulp-sourcemaps";
+import rev from "gulp-rev";
+import revReplace from "gulp-rev-replace";
 
-import plato from "gulp-plato";
+import gutil from "gulp-util";
 
 import eslint from "gulp-eslint";
 
-gulp.task("plato", function () {
-    return gulp.src("javascript/**/*.js")
-        .pipe(plato("report", {
-            jshint: {
-                options: {
-                    strict: true,
-                    node: true,
-                    browser: true
-                }
-            },
-            complexity: {
-                trycatch: true
-            }
-        }));
-});
+import {dependencies} from "./package.json";
+
+const isDevelopment = false;
+const isProduction = !isDevelopment;
+
+const REV_MANIFEST_CONFIG = {
+    base: "build",
+    path: "build/rev-manifest.json",
+    merge: true
+};
 
 // Builds the app file using Browserify
 // with the React(ify) transform for React.js
 gulp.task("browserify", function () {
-    var b = browserify();
+    const b = browserify();
 
     //    b.transform(reactify);
     b.add("./javascript/kaci.js");
     return b.bundle()
         .pipe(source("kaci.js"))
         .pipe(gulp.dest("./build/"));
+});
+
+gulp.task("build:libs", () => {
+    let b = browserify().transform(babel);
+
+
+    Object.keys(dependencies).forEach(lib => b.require(lib));
+/*
+    if (isDevelopment) {
+        BROWSERIFY_DEVLIBS.forEach(lib => b.require(lib));
+    }
+*/
+    return b.bundle()
+        .pipe(source("libs.js"))
+        .pipe(buffer())
+        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
+        .pipe(gulpif(isProduction, uglify()))
+        .on("error", gutil.log)
+        .pipe(rev())
+        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
+        .pipe(gulp.dest("build/js"))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest("build"));
+});
+
+gulp.task("lint:scripts", () => {
+    // ensure target directory exists
+    mkdirp("./reports");
+    mkdirp("./reports/lint");
+
+    return gulp.src(["gulpfile.js", "gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"])
+        .pipe(eslint())
+        .pipe(eslint.format("checkstyle", fs.createWriteStream("reports/lint/checkstyle-eslint.xml")))
+        .pipe(eslint.format("stylish", process.stdout))
+        .pipe(eslint.failOnError());
 });
 
 // Builds SCSS into CSS and minifies CSS
@@ -79,52 +116,27 @@ gulp.task("copyIndex", function () {
         .pipe(rename("index.html"))
         .pipe(gulp.dest("./build"));
 });
-/*
-gulp.task("copyComponents", function () {
-    return gulp.src("./components/**")
-        //        .pipe(rename("index.html"))
-        .pipe(gulp.dest("./build/components"));
-});
-*/
-// Copies the Bootstrap fonts to the build dir
-// This is done so the build folder can be deployed
-// separately from the rest of the project
-/*
-gulp.task("copyFonts", function () {
-    return gulp.src("./node_modules/bootstrap-sass/assets/fonts/**"+"/*.{ttf,woff,eof,svg}")
-        .pipe(gulp.dest("./build/css"));
-});
-*/
 
-gulp.task('lint', function () {
-    return gulp.src(['**/*.js', '!node_modules/**'])
+gulp.task("lint", function () {
+    return gulp.src(["**/*.js", "!node_modules/**"])
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
 });
 
-gulp.task('webserver', function () {
+gulp.task("webserver", function () {
     connect.server({
         livereload: true,
-        root: ['.', 'build']
+        root: [".", "build"]
     });
 });
 
 gulp.task("default", [
     "lint",
-    "plato",
     "browserify",
     "styles",
     "copyIndex"
-    //    ,
-    //    "copyComponents",
-    //    "copyFonts"
 ]);
-
-import babel from "babelify";
-//import uglify from "gulp-uglify";
-import buffer from "vinyl-buffer";
-import gutil from "gulp-util";
 
 gulp.task("reactfiler", () => {
 
