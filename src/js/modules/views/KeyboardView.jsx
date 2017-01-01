@@ -27,7 +27,7 @@ class WhiteKey extends Key {
 		const {x, keyWidth, noteName, keyNumber, playState} = this.props;
 		return (
     		<rect
-    			className={"key " + noteName + (playState && playState.pressed ? " pressed" : "")}
+    			className={"key " + noteName + (playState && playState.down ? " down" : "")}
     			y="0"
                 x={x}
                 width={keyWidth + "%"}
@@ -43,7 +43,7 @@ class BlackKey extends Key {
 		const {x, keyWidth, noteName, keyNumber, playState} = this.props;
 		return (
     		<rect
-				className={"key " + noteName + (playState && playState.pressed ? " pressed" : "")}
+				className={"key " + noteName + (playState && playState.down ? " down" : "")}
 				y="0"
                 x={x}
                 width={(keyWidth * 0.7) + "%"}
@@ -136,6 +136,7 @@ class KeyboardView extends Component {
 
 export default KeyboardView;
 /*
+<<<<<<< Updated upstream:src/js/modules/views/KeyboardView.jsx
     keyDownHandler = function (event) {
         case 'touchstart':
 
@@ -174,6 +175,8 @@ export default KeyboardView;
             }
         });
     };
+=======
+>>>>>>> Stashed changes:javascript/modules/views/KeyboardView.jsx
 
     var setKeyStyling = function (key, amount) {
         key.style.fill = "rgba(0,0,255," + amount + ")";
@@ -201,6 +204,7 @@ export default KeyboardView;
             key.DOMElement.style.fill = null;
         }
         keys.forEach(removeChordShiftStyling);
+<<<<<<< Updated upstream:src/js/modules/views/KeyboardView.jsx
     };
 
     init();
@@ -221,3 +225,8 @@ export default KeyboardView;
 
 module.exports = KeyboardView;
 */
+=======
+    }
+
+*/
+>>>>>>> Stashed changes:javascript/modules/views/KeyboardView.jsx

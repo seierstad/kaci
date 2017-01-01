@@ -2,6 +2,7 @@
 import * as Actions from "./Actions.jsx";
 
 class KeyboardInput {
+
     constructor(store) {
         this.changeLayout = this.changeLayout.bind(this);
         this.keyDownHandler = this.keyDownHandler.bind(this);

@@ -1,5 +1,6 @@
-import KaciView from "./modules/views/KaciView.jsx";
+import ReactDOM from "react-dom";
 
+import KaciView from "./modules/views/KaciView.jsx";
 import VoiceRegister from "./modules/VoiceRegister";
 // import WavyJones from "../lib/wavy-jones/wavy-jones";
 import ModulationMatrix from "./modules/ModulationMatrix";
@@ -36,9 +37,6 @@ if (window.AudioContext) {
 
     const midi = new MidiInput(store);
     const keyboardInput = new KeyboardInput(store);
-
-    const midi = new Midi(ctx, system.settings.midi, store);
-    const keyboardInput = new KeyboardInput(store);
     const reg = new VoiceRegister(ctx, patchHandler, modulationMatrix, store);
 
     var modulationMatrix = new ModulationMatrix(ctx, store);
@@ -49,7 +47,7 @@ if (window.AudioContext) {
     ReactDOM.render(
         <Provider store={store}>
             <KaciView />
-        </Provider> 
+        </Provider>
         , kaciWrapper
     );
 

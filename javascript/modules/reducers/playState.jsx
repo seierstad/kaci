@@ -7,13 +7,13 @@ const key  = (state = {down: false}, action) => {
 		case Actions.KEYBOARD_KEY_DOWN:
 			return {
 				...state,
-				pressed: true
+				down: true
 			};
 		case Actions.KEYBOARD_KEY_UP:
 		case Actions.MIDI_KEY_UP:
 			return {
 				...state,
-				pressed: false
+				down: false
 			};
 	}
 }

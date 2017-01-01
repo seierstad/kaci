@@ -152,8 +152,8 @@ class Resonance extends DependentComponent {
         return (
             super.shouldComponentUpdate(nextProps, nextState) 
             || nextProps.patch.wrapper !== this.props.patch.wrapper
-            || nextProps.patch.factor  !== this.props.patch.factor
-            || nextProps.patch.active  !== this.props.patch.active
+            || nextProps.patch.resonance  !== this.props.patch.resonance
+            || nextProps.patch.resonanceActive  !== this.props.patch.resonanceActive
         );
     }
 
@@ -169,14 +169,14 @@ class Resonance extends DependentComponent {
         return (
             <div className="oscillator-resonance-view">
                 <WaveformCanvas waveFunction={waveFunction} />
-                <input type="checkbox" checked={patch.active} onChange={handlers.toggle} />
+                <input type="checkbox" checked={patch.resonanceActive} onChange={handlers.toggle} />
                 <RangeInput
                     label="Resonance"
                     min={configuration.min}
                     max={configuration.max}
                     step={0.01}
                     changeHandler={handlers.factorChange}
-                    value={patch.factor}
+                    value={patch.resonance}
                     />
                 <WaveformSelector 
                     waveforms={this.state.wrappedWaveforms}
@@ -212,9 +212,9 @@ class Oscillator extends Component {
         return mixValues(this.pdFunction0(phase), this.pdFunction1(phase), mix);
     }
     resonanceFunction (phase) {
-        const {waveform, resonance} = this.props.patch;
+        const {waveform, wrapper, resonance} = this.props.patch;
         //wrap mixedFunction
-        return getWrapperFunction(wrappers[resonance.wrapper], this.mixFunction, resonance.factor)(phase);
+        return getWrapperFunction(wrappers[wrapper], this.mixFunction, resonance)(phase);
     }
 
     render () {
@@ -276,7 +276,7 @@ class Oscillator extends Component {
                     dependencies={mixDependencies}
                     />
                 <Resonance 
-                    patch={patch.resonance}
+                    patch={patch}
                     configuration={configuration.resonance}
                     handlers={handlers.resonance}
                     waveFunction={this.resonanceFunction}

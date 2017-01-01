@@ -1,8 +1,9 @@
 import React, {Component, PropTypes} from "react";
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 
 import * as Actions from "../Actions.jsx";
 import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
+import * as PropDefs from "../../proptype-defs";
 
 import SystemSettingsView from "./SystemSettingsView.jsx";
 import NoiseView from "./NoiseView.jsx";
@@ -59,11 +60,11 @@ class KaciReactViewPresentation extends Component {
                     configuration={configuration.modulation}
                 />
                 <Keyboard
+                    configuration={configuration.keyboard}
                     handlers={handlers.keyboard}
                     playState={playState}
-                    configuration={configuration.keyboard}
                 />
-        	</div>
+            </div>
         );
     }
 }

@@ -20,12 +20,7 @@ import sourcemaps from "gulp-sourcemaps";
 import rev from "gulp-rev";
 import revReplace from "gulp-rev-replace";
 
-import gutil from "gulp-util";
-
 import eslint from "gulp-eslint";
-import babel from "babelify";
-import uglify from "gulp-uglify";
-import buffer from "vinyl-buffer";
 import gutil from "gulp-util";
 
 const BROWSERIFY_LIBS = [
