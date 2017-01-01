@@ -5,7 +5,7 @@ import {noise as noiseFunctions} from "./waveforms";
 
 
 class Noise extends PannableModule {
-    constructor(context, store) {
+    constructor (context, store) {
         super();
         /* start common constructor code */
 
@@ -59,9 +59,6 @@ class Noise extends PannableModule {
 
         /* end common constructor code */
 
-
-        const now = context.currentTime;
-
         this.audioProcessHandler = this.audioProcessHandler.bind(this);
         this.generatorFunction = noiseFunctions[this.state.color];
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
@@ -72,7 +69,7 @@ class Noise extends PannableModule {
 
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState().patch.noise;
         if (newState !== this.state) {
             if (this.state.pan !== newState.pan) {
@@ -87,17 +84,21 @@ class Noise extends PannableModule {
             this.state = newState;
         }
     }
-    start() {
+
+    start () {
         this.generator.addEventListener("audioprocess", this.audioProcessHandler);
     }
-    stop() {
+
+    stop () {
         this.generator.removeEventListener("audioprocess", this.audioProcessHandler);
     }
-    audioProcessHandler(event) {
-        var output = event.outputBuffer.getChannelData(0);
+
+    audioProcessHandler (event) {
+        const output = event.outputBuffer.getChannelData(0);
         this.generatorFunction(output);
     }
-    destroy() {
+
+    destroy () {
         this.unsubscribe();
         this.stateChangeHandler = null;
         this.audioProcessHandler = null;

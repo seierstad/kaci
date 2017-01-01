@@ -14,7 +14,6 @@ import PubSub from "pubsub";
             minValue = params.minValue || 0,
             pointRadius = "10px",
             scrollable = false,
-            svgns = "http://www.w3.org/2000/svg",
             touched = false,
             updateEvent = params.updateEvent || "",
             updateIndicatorPosition;

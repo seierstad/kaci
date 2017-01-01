@@ -4,7 +4,7 @@ import envelopes, {steps} from "./envelopes.jsx";
 import lfos from "./lfos.jsx";
 import modulation from "./modulation.jsx";
 
-const nullReducer = (state = {}, action) => state;
+const nullReducer = (state = {}) => state;
 const vca = (state = {gain: 1}, action) => {
     switch (action.type) {
         case Actions.VCA_GAIN_CHANGE:

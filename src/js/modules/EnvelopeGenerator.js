@@ -1,5 +1,5 @@
 class EnvelopeGenerator {
-    constructor(context, store, index) {
+    constructor (context, store, index) {
 
         this.outputs = {};
         this.triggerTime = null;
@@ -21,24 +21,24 @@ class EnvelopeGenerator {
         };
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
 
     }
 
-    setValueAtTime(stepValue, stepTime) {
+    setValueAtTime (stepValue, stepTime) {
         this.connections.forEach(connection => connection.setValueAtTime(stepValue, stepTime));
     }
 
-    cancelScheduledValues(time) {
+    cancelScheduledValues (time) {
         const cancelTime = time ? time : this.context.currentTime;
-        this.connections.forEach(connection => connection.cancelScheduledValues(cancelTime))
+        this.connections.forEach(connection => connection.cancelScheduledValues(cancelTime));
     }
 
-    linearRampToValueAtTime(stepValue, stepTime) {
+    linearRampToValueAtTime (stepValue, stepTime) {
         this.connections.forEach(connection => connection.linearRampToValueAtTime(stepValue, stepTime));
     }
 
-    applyEnvelope(envelope, time) {
+    applyEnvelope (envelope, time) {
 
         this.cancelScheduledValues(time);
 
@@ -57,28 +57,30 @@ class EnvelopeGenerator {
         }
     }
 
-    getReleaseDuration() {
+    getReleaseDuration () {
         if (this.state && this.state.release && this.state.release.duration) {
             return this.state.release.duration;
         }
         return 0;
     }
 
-    trigger(time) {
+    trigger (time) {
         this.triggerTime = time || this.context.currentTime;
         this.applyEnvelope(this.state.attack, this.triggerTime);
     }
 
-    release(time) {
+    release (time) {
         this.releaseTime = time || this.context.currentTime;
         this.applyEnvelope(this.state.release, this.releaseTime);
+        return this;
     }
 
-    connect(parameter) {
+    connect (parameter) {
         this.connections.push(parameter);
+        return this;
     }
 
-    disconnect(parameter) {
+    disconnect (parameter) {
         if (parameter) {
             const index = this.connections.indexOf(parameter);
             if (index !== -1) {
@@ -88,7 +90,25 @@ class EnvelopeGenerator {
         } else {
             this.connections = [];
         }
+        return this;
+    }
+
+    destroy () {
+        this.unsubscribe();
+        this.outputs = null;
+        this.triggerTime = null;
+        this.releaseTime = null;
+        this.index = null;
+
+        this.context = null;
+        this.store = null;
+        this.state = null;
+        this.stateChangeHandler = null;
+        this.unsubscribe = null;
+        this.connections = null;
+        return this;
     }
 }
+
 
 export default EnvelopeGenerator;

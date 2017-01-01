@@ -100,7 +100,7 @@ export const waveforms = {
 };
 
 export const noise = {
-    "white": function whiteNoise(buffer) {
+    "white": function whiteNoise (buffer) {
         for (let i = 0, j = buffer.length; i < j; i += 1) {
             buffer[i] = Math.random() * 2 - 1;
         }
