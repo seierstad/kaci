@@ -4,34 +4,35 @@ import envelopes, {steps} from "./envelopes.jsx";
 import lfos from "./lfos.jsx";
 import modulation from "./modulation.jsx";
 
+const nullReducer = (state = {}, action) => state;
+const vca = (state = {gain: 1}, action) => {
+    switch (action.type) {
+        case Actions.VCA_GAIN_CHANGE:
+            return {
+                gain: action.value
+            };
+    }
+    return state;
+};
 
 const oscillator = (state = {}, action) => {
     switch (action.type) {
         case Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE:
             return {
                 ...state,
-                resonance: {
-                    ...state.resonance,
-                    "factor": action.value
-                }
+                resonance: action.value
             };
 
         case Actions.OSCILLATOR_RESONANCE_TOGGLE:
             return {
                 ...state,
-                resonance: {
-                    ...state.resonance,
-                    "active": !state.resonance.active
-                }
+                resonanceActive: !state.resonanceActive
             };
 
         case Actions.OSCILLATOR_WRAPPER_CHANGE:
             return {
                 ...state,
-                resonance: {
-                    ...state.resonance,
-                    wrapper: action.value
-                }
+                wrapper: action.value
             };
 
         case Actions.OSCILLATOR_WAVEFORM_CHANGE:
@@ -122,6 +123,7 @@ const sub = (state = {}, action) => {
 
 
 const patch = combineReducers({
+    vca,
     oscillator,
     noise,
     sub,
@@ -129,5 +131,6 @@ const patch = combineReducers({
     envelopes,
     modulation
 });
+
 
 export default patch;

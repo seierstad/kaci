@@ -16,28 +16,32 @@ const patch = {
                 [1, 1]
             ]
         }],
-        "resonance": {
-            "active": true,
-            "factor": 1.1,
-            "wrapper": "saw"
-        },
+        "resonance": 1.1,
+        "resonanceActive": true,
+        "wrapper": "saw",
         "mix": 0,
         "pan": 0,
-        "detune": 0
+        "gain": 1,
+        "detune": 0,
+        "active": true
     },
     "noise": {
-        "gain": 0,
+        "gain": 0.1,
         "active": true,
-        "pan": 0
+        "pan": 0,
+        "color": "white"
     },
     "sub": {
         "depth": -1,
-        "gain": 0.3,
+        "gain": 0.5,
         "active": true,
-        "pan": 0
+        "pan": 1
+    },
+    "vca": {
+        "gain": 1
     },
     "lfos": [{
-        "waveform": "square",
+        "waveform": "sinus",
         "frequency": 1.34,
         "amount": 1,
         "active": true,
@@ -48,22 +52,24 @@ const patch = {
         "amount": 0.5,
         "active": true,
         "sync": {
-            "enabled": true,
+            "enabled": false,
             "numerator": 32,
-            "denominator": 1
+            "denominator": 1,
+            "master": 0
         },
-        "mode": "global" /* "voice"  TODO: implement voice LFOs */
+        "mode": "global"
     }, {
         "waveform": "sinus",
         "frequency": 0.08,
         "amount": 1.0,
         "active": false,
         "sync": {
-            "enabled": true,
+            "enabled": false,
             "numerator": 1,
-            "denominator": 4
+            "denominator": 4,
+            "master": 0
         },
-        "mode": "global"
+        "mode": "voice"
     }],
     "envelopes": [{
         "attack": {
@@ -83,7 +89,7 @@ const patch = {
             ],
             "duration": 1
         },
-        "mode": "local"
+        "mode": "voice"
     }, {
         "attack": {
             "steps": [
@@ -101,7 +107,7 @@ const patch = {
             ],
             "duration": 0.1
         },
-        "mode": "local"
+        "mode": "voice"
     }],
     "modulation": {
         "envelopes": [{
@@ -121,12 +127,18 @@ const patch = {
             "oscillator.resonance": {
                 "amount": .1,
                 "polarity": "positive",
-                "enabled": true
+                "enabled": false
             },
             "noise.pan": {
                 "amount": 1,
                 "polarity": "full",
-                "enabled": false
+                "enabled": true
+            }
+        }, {
+            "oscillator.pan": {
+                "amount": .3,
+                "polarity": "negative",
+                "enabled": true
             }
         }]
     }

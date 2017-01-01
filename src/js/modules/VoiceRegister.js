@@ -1,53 +1,95 @@
 import Tunings from "./Tunings";
 import Voice from "./Voice";
+import DCGenerator from "./DCGenerator";
 
-const VoiceRegister = function (context, patchHandler, modulationMatrix, store) {
-    let appKeyDownHandler,
-        appKeyUpHandler,
-        chordShiftHandler,
-        disableChordShiftHandler,
-        enableChordShiftHandler,
-        getIndexes;
+/**
+ *  class VoiceRegister
+ *  handles mapping from keypresses to voices, via tuning
+ *
+ **/
 
-    this.store = store;
-    this.context = context;
-    this.patchHandler = patchHandler;
-    this.tunings = {
-        "tempered": Tunings.getTemperedScale(0, 120, 57, 220),
-        "tempered6": Tunings.getTemperedScale(0, 120, 57, 220, 5),
-        "tempered12_1_5": Tunings.getTemperedScale(0, 120, 57, 220, 12, 1.5),
-        "pythagorean": Tunings.getPythagoreanScale(0, 120, 57, 220),
-        "erik": Tunings.getExperimentalScale(0, 120, 57, 220),
-        "halvannen": Tunings.getHalvannenScale(0, 120, 57, 220)
-    };
-    this.activeVoices = [];
-    this.stoppedVoices = [];
-    this.chordShifter = {
-        enabled: false,
-        chords: [],
-        activeKeys: []
-    };
+class VoiceRegister {
+    constructor(store, context, modulationMatrix) {
+        this.appKeyDownHandler = this.appKeyDownHandler.bind(this);
+        this.appKeyUpHandler = this.appKeyUpHandler.bind(this);
+        this.chordShiftHandler = this.chordShiftHandler.bind(this);
+        this.enableChordShiftHandler = this.enableChordShiftHandler.bind(this);
+        this.disableChordShiftHandler = this.disableChordShiftHandler.bind(this);
+        this.getIndexes = this.getIndexes.bind(this);
+        this.stateChangeHandler = this.stateChangeHandler.bind(this);
 
-    this.mainMix = context.createGain();
-    this.mainMix.connect(context.destination);
 
-    this.modulationMatrix = modulationMatrix;
+        this.store = store;
+        this.state = this.store.getState();
+        this.activeKeys = [...this.state.playState.keys];
+        this.context = context;
 
-    this.tuning = this.tunings.tempered;
+        this.tunings = {
+            "tempered": Tunings.getTemperedScale(0, 120, 57, 220),
+            "tempered6": Tunings.getTemperedScale(0, 120, 57, 220, 5),
+            "tempered12_1_5": Tunings.getTemperedScale(0, 120, 57, 220, 12, 1.5),
+            "pythagorean": Tunings.getPythagoreanScale(0, 120, 57, 220),
+            "erik": Tunings.getExperimentalScale(0, 120, 57, 220),
+            "halvannen": Tunings.getHalvannenScale(0, 120, 57, 220)
+        };
+        this.activeVoices = [];
+        this.stoppedVoices = [];
+        this.chordShifter = {
+            enabled: false,
+            chords: [],
+            activeKeys: []
+        };
 
-    getIndexes = function getIndexes (keyarray) {
+        this.mainMix = context.createGain();
+        this.mainMix.connect(context.destination);
+
+        this.modulationMatrix = modulationMatrix;
+
+        this.tuning = this.tunings.tempered;
+        this.stateChangeHandler();
+        this.store.subscribe(this.stateChangeHandler);
+    }
+
+    stateChangeHandler() {
+        const newState = this.store.getState();
+        const newKeyState = newState.playState.keys;
+        if (this.activeKeys !== newKeyState) {
+
+            const reduceDownKeys = (prev, current, index) => {
+                if (current && current.down && !this.activeKeys[index]) {
+                    return [...prev, index];
+                }
+                return prev;
+            };
+
+            const reduceUpKeys = function (prev, current, index) {
+                if (!!current && (!newKeyState[index] || !newKeyState[index].down)) {
+                    return [...prev, index];
+                }
+                return prev;
+            };
+
+            const downs = newKeyState.reduce(reduceDownKeys, []);
+            const ups = this.activeKeys.reduce(reduceUpKeys, []);
+
+            ups.forEach(k => this.stopVoice(k));
+            downs.forEach(k => this.startVoice(k));
+
+        }
+    }
+
+    getIndexes(keyarray) {
         return keyarray.map(function (value, index) {
-            if (value !== null && value !== undefined) {
-                return index;
-            }
+            if (value !== null && value !== undefined) return index;
         }).filter(function (value) {
             return value !== undefined;
         });
-    };
+    }
 
-    appKeyDownHandler = function appKeyDownHandler (event) {
-        const k = event.detail.keyNumber;
-        const chords = this.chordShifter.chords;
+    appKeyDownHandler(event) {
+        var k = event.detail.keyNumber,
+            lastChord,
+            chords = this.chordShifter.chords;
 
         if (!this.chordShifter.enabled) {
             this.startTone(k);
@@ -73,11 +115,11 @@ const VoiceRegister = function (context, patchHandler, modulationMatrix, store) 
                 this.startTone(k);
             }
         }
-    };
+    }
 
-    appKeyUpHandler = function appKeyUpHandler (event) {
-        const k = event.detail.keyNumber;
-
+    appKeyUpHandler(event) {
+        var k = event.detail.keyNumber,
+            activeIndex;
         if (!this.chordShifter.enabled) {
             this.stopTone(k);
         } else {
@@ -87,9 +129,9 @@ const VoiceRegister = function (context, patchHandler, modulationMatrix, store) 
                 this.chordShifter.activeKeys.splice(activeIndex, 1);
             }
         }
-    };
+    }
 
-    enableChordShiftHandler = function enableChordShiftHandler () {
+    enableChordShiftHandler(event) {
         // enable
         this.chordShifter.enabled = true;
 
@@ -101,12 +143,9 @@ const VoiceRegister = function (context, patchHandler, modulationMatrix, store) 
         } else {
             this.chordShifter.activeKeys = [];
         }
-        context.dispatchEvent(new CustomEvent("chordShift.enabled", {
-            "detail": {}
-        }));
-    };
+    }
 
-    disableChordShiftHandler = function disableChordShiftHandler () {
+    disableChordShiftHandler(event) {
         this.chordShifter = {
             enabled: false,
             chords: [],
@@ -117,12 +156,24 @@ const VoiceRegister = function (context, patchHandler, modulationMatrix, store) 
         context.dispatchEvent(new CustomEvent("chordShift.disabled", {
             "detail": {}
         }));
-    };
+    }
 
-    chordShiftHandler = function chordShiftHandler (event) {
-        const chords = this.chordShifter.chords;
-        const keys = [];
-        const value = event.detail.value;
+    chordShiftHandler(event) {
+        var value = event.detail.value,
+            i,
+            j,
+            voice,
+            voiceIndexes,
+            chordIndex,
+            chordRatio,
+            key1,
+            key2,
+            keys = [],
+            frequency1,
+            frequency2,
+            q,
+            frequency,
+            chords = this.chordShifter.chords;
 
         if (this.chordShifter.enabled) {
 
@@ -189,90 +240,90 @@ const VoiceRegister = function (context, patchHandler, modulationMatrix, store) 
                 }
             }));
         }
-    };
+    }
 
-    const pitchBendHandler = function (event) {
+    pitchBendHandler(event) {
         console.log("PITCH coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
-    };
-    const modulationWheelHandler = function (event) {
+    }
+
+    modulationWheelHandler(event) {
         console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
-    };
-    context.addEventListener("keyboard.keydown", appKeyDownHandler.bind(this));
-    context.addEventListener("keyboard.keyup", appKeyUpHandler.bind(this));
-    context.addEventListener("chordShift.enable", enableChordShiftHandler.bind(this));
-    context.addEventListener("chordShift.disable", disableChordShiftHandler.bind(this));
-    context.addEventListener("chordShift.change", chordShiftHandler.bind(this));
-    context.addEventListener("pitchBend.change", pitchBendHandler.bind(this));
-    context.addEventListener("modulationWheel.change", modulationWheelHandler.bind(this));
-};
+    }
 
-VoiceRegister.prototype.deleteVoice = function (voice) {
-    let voiceIndex = this.stoppedVoices.indexOf(voice);
-    if (voiceIndex !== -1) {
-        this.stoppedVoices[voiceIndex] = null;
-    } else {
-        voiceIndex = this.activeVoices.indexOf(voice);
+    startVoice(key, freq) {
+        var frequency,
+            patch,
+            voice,
+            notVoice = function (v) {
+                return v === null;
+            };
+
+        if (this.activeVoices.every(notVoice)) {
+            this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
+        }
+        if (!this.activeVoices[key]) {
+            frequency = (typeof key === "number") ? this.tuning[key] : freq;
+            patch = this.store.getState().patch;
+
+            voice = new Voice(this.context, this.store, frequency);
+
+            this.modulationMatrix.patchVoice(voice);
+            voice.connect(this.mainMix);
+            this.activeVoices[key] = voice;
+            this.activeKeys[key] = true;
+
+            voice.start(this.context.currentTime);
+
+        }
+    }
+
+    stopVoice(key) {
+        var voice = this.activeVoices[key];
+
+        if (voice) {
+
+            voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
+            if (this.stoppedVoices[key]) {
+                this.deleteVoice(this.stoppedVoices[key]);
+            }
+
+            this.stoppedVoices[key] = voice;
+            this.activeVoices[key] = null;
+            this.activeKeys[key] = null;
+
+            this.context.dispatchEvent(new CustomEvent("voice.ended", {
+                "detail": {
+                    "keyNumber": key
+                }
+            }));
+        }
+    }
+
+    deleteVoice(voice) {
+        var voiceIndex,
+            notVoice;
+
+        voiceIndex = this.stoppedVoices.indexOf(voice);
         if (voiceIndex !== -1) {
-            this.activeVoices[voiceIndex] = null;
+            this.stoppedVoices[voiceIndex] = null;
+        } else {
+            voiceIndex = this.activeVoices.indexOf(voice);
+            if (voiceIndex !== -1) {
+                this.activeVoices[voiceIndex] = null;
+            }
+        }
+        //    this.modulationMatrix.unpatchVoice(voice);
+        voice = null;
+        notVoice = function (v) {
+            return v === null;
+        };
+
+        if (this.activeVoices.every(notVoice) && this.stoppedVoices.every(notVoice)) {
+            // no active voices -> stop global lfos
+            this.context.dispatchEvent(new CustomEvent("voice.last.ended", {}));
         }
     }
-    //    this.modulationMatrix.unpatchVoice(voice);
-    const notVoice = function (v) {
-        return v === null;
-    };
+}
 
-    if (this.activeVoices.every(notVoice) && this.stoppedVoices.every(notVoice)) {
-        // no active voices -> stop global lfos
-        this.context.dispatchEvent(new CustomEvent("voice.last.ended", {}));
-    }
-};
 
-VoiceRegister.prototype.stopTone = function (key) {
-    const voice = this.activeVoices[key];
-
-    if (voice) {
-
-        voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
-        if (this.stoppedVoices[key]) {
-            this.deleteVoice(this.stoppedVoices[key]);
-        }
-
-        this.stoppedVoices[key] = voice;
-        this.activeVoices[key] = null;
-
-        this.context.dispatchEvent(new CustomEvent("voice.ended", {
-            "detail": {
-                "keyNumber": key
-            }
-        }));
-    }
-};
-
-VoiceRegister.prototype.startTone = function (key, freq) {
-    const notVoice = function (v) {
-        return v === null;
-    };
-
-    if (this.activeVoices.every(notVoice)) {
-        this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
-    }
-    if (!this.activeVoices[key]) {
-        const frequency = (typeof key === "number") ? this.tuning[key] : freq;
-        const patch = this.patchHandler.getActivePatch();
-
-        const voice = new Voice(this.context, patch, frequency, null, this.store);
-
-        this.modulationMatrix.patchVoice(voice, patch);
-        voice.connect(this.mainMix);
-        this.activeVoices[key] = voice;
-
-        voice.start(this.context.currentTime);
-
-        this.context.dispatchEvent(new CustomEvent("voice.started", {
-            "detail": {
-                "keyNumber": key
-            }
-        }));
-    }
-};
-module.exports = VoiceRegister;
+export default VoiceRegister;

@@ -98,16 +98,11 @@ export const waveforms = {
         return buffer.value;
     }
 };
-<<<<<<< Updated upstream:src/js/modules/waveforms.js
-=======
 
-export
-const noise = {
+export const noise = {
     "white": function whiteNoise(buffer) {
-        var i, j;
-        for (i = 0, j = buffer.length; i < j; i += 1) {
+        for (let i = 0, j = buffer.length; i < j; i += 1) {
             buffer[i] = Math.random() * 2 - 1;
         }
     }
 };
->>>>>>> Stashed changes:javascript/modules/waveforms.js

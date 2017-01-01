@@ -5,6 +5,7 @@ import {NOTE_NAMES} from "../constants";
 
 import RangeInput from "./RangeInput.jsx";
 
+
 class Key extends Component {
 	constructor () {
 		super();
@@ -134,49 +135,10 @@ class KeyboardView extends Component {
 	}
 }
 
+
 export default KeyboardView;
+
 /*
-<<<<<<< Updated upstream:src/js/modules/views/KeyboardView.jsx
-    keyDownHandler = function (event) {
-        case 'touchstart':
-
-    keyUpHandler = function keyUp (event) {
-        let keyReleased,
-            number;
-
-        switch (event.type) {
-            case "mouseup":
-            case "mouseout":
-                keys.forEach(isReleased);
-                break;
-        }
-    };
-
-    const voiceStartedHandler = function (event) {
-        keys.forEach(function (key, index) {
-            if (index === event.detail.keyNumber) {
-                key.DOMElement.classList.remove("dropped");
-                key.DOMElement.classList.add("pressed");
-            }
-        });
-    };
-    const voiceEndedHandler = function (event) {
-        keys.forEach(function (key, index) {
-            if (index === event.detail.keyNumber) {
-                key.DOMElement.classList.remove("pressed");
-            }
-        });
-    };
-    const voiceDroppedHandler = function (event) {
-        keys.forEach(function (key, index) {
-            if (index === event.detail.keyNumber) {
-                key.DOMElement.classList.remove("pressed");
-                key.DOMElement.classList.add("dropped");
-            }
-        });
-    };
-=======
->>>>>>> Stashed changes:javascript/modules/views/KeyboardView.jsx
 
     var setKeyStyling = function (key, amount) {
         key.style.fill = "rgba(0,0,255," + amount + ")";
@@ -204,29 +166,6 @@ export default KeyboardView;
             key.DOMElement.style.fill = null;
         }
         keys.forEach(removeChordShiftStyling);
-<<<<<<< Updated upstream:src/js/modules/views/KeyboardView.jsx
-    };
-
-    init();
-
-    keyboard.addEventListener("mousedown", keyDownHandler, false);
-    keyboard.addEventListener("mouseup", keyUpHandler, false);
-    keyboard.addEventListener("mouseout", keyUpHandler, false);
-    document.addEventListener("touchstart", keyDownHandler, false);
-    context.addEventListener("voice.started", voiceStartedHandler); // new voice started
-    context.addEventListener("voice.ended", voiceEndedHandler); // voice finished
-    context.addEventListener("chordShift.changed", chordShiftChangedHandler, false);
-    context.addEventListener("chordShift.enabled", chordShiftEnabledHandler, false);
-    context.addEventListener("chordShift.disabled", chordShiftDisabledHandler, false);
-    context.addEventListener("pitchBend.change", pitchBendHandler, false);
-
-    return view;
-};
-
-module.exports = KeyboardView;
-*/
-=======
     }
 
 */
->>>>>>> Stashed changes:javascript/modules/views/KeyboardView.jsx

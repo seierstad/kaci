@@ -1,6 +1,6 @@
 {
     "keyboard": {
-        "activeLayout": "qwerty",
+        "activeLayout": "colemak",
         "layouts": [{
             "name": "colemak",
             "offset": 36,
@@ -33,9 +33,13 @@
     },
     "tuning": {
         "baseFrequency": 440,
-        "scale": {
-            "type": "tempered"
-        }
+        "scales": [{
+            "type": "tempered",
+            "steps": 12,
+            "base": 2
+        }, {
+
+        }]
     },
     "modulation": {
         "connection": {

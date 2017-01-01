@@ -141,7 +141,7 @@ IdealOscillator.prototype.destroy = function destroyIdealOscillator () {
     this.mergedInput.disconnect();
     this.mergedInput = null;
 
-    this.generator.removeEventListener("audioprocess");
+    this.generator.onaudioprocess = null;
     this.generator.disconnect();
     this.generator = null;
 

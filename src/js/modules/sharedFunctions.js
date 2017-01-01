@@ -1,3 +1,6 @@
+import DC from "./DCGenerator";
+
+
 const mixValues = (source1, source2, ratio) => source1 * (-ratio + 1) + source2 * ratio;
 
 const vectorToLinearFunction = (vector) => {
@@ -19,8 +22,67 @@ const getDistortedPhase = (phase, envelope) => {
     return 0;
 };
 
+class PannableModule {
+
+    inputNode() {
+        const node = this.context.createGain();
+        node.gain.value = 0;
+        node.gain.setValueAtTime(1, this.context.currentTime);
+
+        return node;
+    }
+    outputNode(value) {
+        const node = this.context.createGain();
+        node.gain.value = 0;
+        node.gain.setValueAtTime(value, this.context.currentTime);
+        this.dc.connect(node);
+
+        return node;
+    }
+    connect(node) {
+        this.output.connect(node);
+    }
+    disconnect() {
+        this.output.disconnect();
+    }
+}
+
+
+class ParamLogger {
+    constructor(parameter, context, time = 1000) {
+        this.logger = context.createScriptProcessor(512, 1, 1);
+        this.logger.onaudioprocess = (evt) => {
+            if (!this.justLogged) {
+                const result = {};
+                evt.inputBuffer.getChannelData(0).map((val) => {
+                    if (result[val]) {
+                        result[val] += 1
+                    } else {
+                        result[val] = 1
+                    }
+                });
+
+                console.log(result);
+                this.justLogged = true;
+                setTimeout(() => {
+                    this.justLogged = false
+                }, time);
+            }
+        };
+        parameter.connect(this.logger);
+        this.logger.connect(context.destination);
+    }
+    disconnect() {
+        this.logger.onaudioprocess = null;
+        this.logger.disconnect();
+    }
+}
+
+
 export {
     mixValues,
     vectorToLinearFunction,
-    getDistortedPhase
-};
+    getDistortedPhase,
+    PannableModule,
+    ParamLogger
+}

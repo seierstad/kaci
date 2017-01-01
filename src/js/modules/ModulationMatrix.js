@@ -1,298 +1,305 @@
-/*global require, module */
-"use strict";
-const DCGenerator = require("./DCGenerator");
-const LFO = require("./LFO");
-const Utils = require("./Utils");
+import equal from "deep-equal";
+import LFO from "./LFO";
+import DCGenerator from "./DCGenerator";
+import Utils from "./Utils";
+import ModulationSources from "./ModulationSources.jsx";
 
-const ModulationMatrix = function (context, configuration, patch, store) {
-    let connectStaticSources,
-        dc = new DCGenerator(context),
-        lfo = [],
-        setupSources,
-        setupTargets,
-        startGlobalModulators,
-        staticParameterChangeHandler,
-        stopGlobalModulators,
-        that = this;
+import WavyJones from "../../lib/wavy-jones/wavy-jones";
 
-    this.store = store;
-    this.state = store.getState();
-    this.targets = {};
-    this.sources = {};
-    this.connections = {};
-    this.context = context;
-    this.staticValuesSet = false;
-    this.patched = false;
-    this.configuration = configuration;
 
-    setupSources = function setupSources (sources) {
-        for (let i = 0, j = sources.lfo; i < j; i += 1) {
-            if (patch.lfos[i].mode === "global" || patch.lfos[i].mode === "retrigger") { // TODO: implement voice LFOs
-                lfo[i] = new LFO(context, patch.lfos[i], "lfo" + i, { // TODO: rewrite LFO constructor to initialize without patch data
-                    syncMaster: i === 0
-                });
+import {ParamLogger} from "./sharedFunctions";
+
+class ModulationMatrix {
+
+    constructor(context, store) {
+        /*
+        constructor:
+            - initialize static parameters
+            - initialize global modulators (lfos)
+            - initial patch
+        */
+
+        this.context = context;
+        this.store = store;
+        const state = store.getState();
+
+        this.state = state.patch.modulation;
+        this.configuration = state.settings.modulation;
+        this.patch = state.patch;
+
+        this.stateChangeHandler = this.stateChangeHandler.bind(this);
+        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+
+
+        this.connectLFO = this.connectLFO.bind(this);
+
+        this.dc = new DCGenerator(context);
+
+        var sources = new ModulationSources(context, store, this.configuration);
+
+        this.sources = sources.sources;
+        this.targets = this.setupTargets(this.configuration.target, this.context, this.dc);
+
+        this.connectStaticSources(this.sources.static, this.targets);
+        this.connections = {};
+
+
+        this.state.lfos.forEach(this.connectLFO);
+
+    }
+
+
+    stateChangeHandler() {
+        const newState = this.store.getState().patch.modulation;
+
+        const compareLFOState = (newLfo, index) => {
+            for (let target in newLfo) {
+                const lfo = this.state.lfos[index] && this.state.lfos[index][target];
+                if (!equal(lfo, newLfo[target])) {
+                    if (!lfo || newLfo[target].enabled && !lfo.enabled) {
+                        // new connection
+                        this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
+                    } else {
+                        if (lfo.enabled && !newLfo[target].enabled) {
+                            // disconnect
+                            this.disconnect("lfo", index, target);
+                        } else if (lfo.polarity !== newLfo[target].polarity) {
+                            // reconnect
+                            this.disconnect("lfo", index, target);
+                            this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
+                        }
+                        if (lfo.amount !== newLfo[target].amount) {
+                            this.connections.lfo[index][target].gain.value = newLfo[target].amount;
+                        }
+                    }
+                }
+            }
+        };
+
+
+        if (!equal(this.state, newState)) {
+            newState.lfos.forEach(compareLFOState);
+
+            this.state = newState;
+        }
+    }
+
+    connectLFO(lfo, index) {
+        for (let target in lfo) {
+            const connection = lfo[target];
+            if (connection.enabled) {
+                this.connect("lfo", index, target, connection.polarity, connection.amount)
             }
         }
-    };
+    }
 
-    setupSources(configuration.modulation.source, this.sources, "");
+    validEventData(data) {
+        return data.sourceType && !isNaN(parseInt(data.sourceIndex, 10)) && data.targetModule && data.targetParameter;
+    }
 
-    this.globalModulators = {
-        "lfo": lfo
-    };
-
-    setupTargets = function setupTargets (targets, results, staticSources, path) {
+    setupTargets(targets, context, dc, path) {
+        let result = {};
 
         if (!path) {
-            setupTargets(targets, results, staticSources, []);
-            return results;
+            return this.setupTargets(targets, context, dc, []);
         }
-
         for (let key in targets) {
             if (targets.hasOwnProperty(key)) {
                 path.push(key);
                 const target = targets[key];
                 const name = path.join(".");
 
-                if (typeof target.min !== "undefined" && !isNaN(target.min)) {
-                    results[name] = {};
-                    results[name].outputNode = context.createWaveShaper();
+                if (typeof target.min !== "undefined") {
                     const curve = new Float32Array([target.min, target.max]);
-                    results[name].outputNode.curve = curve;
-
-                    // create static source node for target
-                    staticSources[name + "Node"] = context.createGain();
-                    staticSources[name] = staticSources[name + "Node"].gain;
-                    dc.connect(staticSources[name + "Node"]);
-
+                    result[name] = context.createWaveShaper();
+                    result[name].curve = curve;
                     path.pop();
                 } else {
-                    setupTargets(target, results, staticSources, path.slice());
+                    result = {
+                            ...result,
+                            ...this.setupTargets(target, context, dc, path.slice())
+                    };
                     path.pop();
                 }
             }
         }
-    };
-
-    this.sources.static = {};
-    setupTargets(configuration.modulation.target, this.targets, this.sources.static);
-
-    connectStaticSources = function connectStaticSources (staticSources, targets) {
-        for (let key in staticSources) {
-            if (staticSources.hasOwnProperty(key) && targets[key]) {
-                staticSources[key + "Node"].connect(targets[key].outputNode);
-            }
-        }
-    };
-    connectStaticSources(this.sources.static, this.targets);
-
-    startGlobalModulators = function startGlobalModulators () {
-        this.globalModulators.lfo.forEach(function (lfo) {
-            lfo.start();
-        });
-    };
-
-    stopGlobalModulators = function stopGlobalModulators () {
-        this.globalModulators.lfo.forEach(function (lfo) {
-            lfo.stop();
-        });
-    };
-    this.validEventData = function (data) {
-        return data.sourceType && !isNaN(parseInt(data.sourceIndex, 10)) && data.targetModule && data.targetParameter;
-    };
-    this.eventDataConnection = function (data) {
-        if (this.validEventData(data) && this.connections[data.sourceType] && this.connections[data.sourceType][data.sourceIndex] && this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter]) {
-            return this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
-        }
-        return null;
-    };
-
-    const disconnectHandler = function (event) {
-        const data = event.detail;
-        const connection = this.eventDataConnection(data);
-
-        if (connection) {
-            connection.disconnect();
-            connection = null;
-            delete this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
-        }
-    };
-    const connectHandler = function (event) {
-        const data = event.detail;
-        const connection = this.eventDataConnection(data);
-
-        if (!connection) {
-            this.connect(data.sourceType, data.sourceIndex, data.range, data.amount, data.targetModule + "." + data.targetParameter);
-        }
-    };
-
-    const amountHandler = function (event) {
-        const data = event.detail;
-        const connection = this.eventDataConnection(data);
-
-
-        if (connection && !isNaN(parseFloat(data.amount, 10))) {
-            connection.gain.value = data.amount;
-        }
-    };
-
-    const rangeHandler = function (event) {
-        const data = event.detail;
-        const connection = this.eventDataConnection(data);
-
-        if (connection && data.range) {
-            const amount = connection.gain.value;
-            connection.disconnect();
-            connection = null;
-            this.connect(data.sourceType, data.sourceIndex, data.range, amount, data.targetModule + "." + data.targetParameter);
-        }
-    };
-
-    context.addEventListener("voice.first.started", startGlobalModulators.bind(this), false);
-    context.addEventListener("voice.last.ended", stopGlobalModulators.bind(this), false);
-    context.addEventListener("modulation.change.connect", connectHandler.bind(this));
-    context.addEventListener("modulation.change.disconnect", disconnectHandler.bind(this));
-    context.addEventListener("modulation.change.amount", amountHandler.bind(this));
-    context.addEventListener("modulation.change.range", rangeHandler.bind(this));
-
-    staticParameterChangeHandler = function staticParameterChangeHandler (parameter) {
-        if (that.sources.static[parameter]) {
-            return function (evt) {
-                this.sources.static[parameter].setValueAtTime(evt.detail, this.context.currentTime);
-            };
-        }
-        return function (evt) {
-            console.log("call to faulty event handler: attempt to set " + parameter + " to " + evt.detail);
-        };
-    };
-    /*
-    context.addEventListener("noise.change.gain", staticParameterChangeHandler("noise.gain").bind(this));
-    context.addEventListener("noise.change.pan", staticParameterChangeHandler("noise.pan").bind(this));
-    */
-    context.addEventListener("sub.change.gain", staticParameterChangeHandler("sub.gain").bind(this));
-    context.addEventListener("sub.change.pan", staticParameterChangeHandler("sub.pan").bind(this));
-    context.addEventListener("oscillator.change.resonance", staticParameterChangeHandler("oscillator.resonance").bind(this));
-    context.addEventListener("oscillator.change.mix", staticParameterChangeHandler("oscillator.mix").bind(this));
-    context.addEventListener("oscillator.change.pan", staticParameterChangeHandler("oscillator.pan").bind(this));
-    context.addEventListener("oscillator.change.detune", staticParameterChangeHandler("oscillator.detune").bind(this));
-
-    this.update = () => {
-        const state = this.store.getState();
-        if (this.state.patch.noise.gain !== state.patch.noise.gain) {
-            this.sources.static["noise.gain"].setValueAtTime(state.patch.noise.gain, this.context.currentTime);
-        }
-        if (this.state.patch.noise.pan !== state.patch.noise.pan) {
-            this.sources.static["noise.pan"].setValueAtTime(state.patch.noise.pan, this.context.currentTime);
-        }
-        if (this.state.patch.sub.gain !== state.patch.sub.gain) {
-            this.sources.static["sub.gain"].setValueAtTime(state.patch.sub.gain, this.context.currentTime);
-        }
-        if (this.state.patch.sub.pan !== state.patch.sub.pan) {
-            this.sources.static["sub.pan"].setValueAtTime(state.patch.sub.pan, this.context.currentTime);
-        }
-
-        this.state = state;
-    };
-
-    store.subscribe(this.update);
-};
-
-ModulationMatrix.prototype.setStaticModulatorValues = function initStaticModulators (patch) {
-    const s = [
-        "noise.gain",
-        "sub.gain",
-        "noise.pan",
-        "sub.pan",
-        "oscillator.pan",
-        "oscillator.mix",
-        "oscillator.resonance",
-        "oscillator.detune"
-    ];
-
-
-    for (let i = 0, j = s.length; i < j; i += 1) {
-        const path = s[i];
-        const a = path.split(".");
-        const mod = a[0];
-        const param = a[1];
-        const limits = {
-            "out": {
-                min: -1,
-                max: 1
-            },
-            "in": {
-                min: this.configuration.modulation.target[mod][param].min,
-                max: this.configuration.modulation.target[mod][param].max
-            }
-        };
-        const scaledValue = Utils.scale(patch[mod][param], limits.in, limits.out);
-        this.sources.static[path].setValueAtTime(scaledValue, this.context.currentTime);
+        return result;
     }
-};
-ModulationMatrix.prototype.connect = function (sourceType, sourceIndex, range, amount, target) {
-    if (this.targets[target]) {
-        let source;
-        switch (range) {
-            case "full":
-                source = this.globalModulators[sourceType][sourceIndex];
+
+    connectStaticSources(sources, targets) {
+        for (let key in sources) {
+            if (sources.hasOwnProperty(key) && targets[key]) {
+                sources[key].connect(targets[key]);
+            }
+        }
+    }
+
+    connect(type, index, target, range, amount) {
+        var source;
+        if (this.targets[target]) {
+            switch (type) {
+            case "lfo":
+                switch (range) {
+                case "full":
+                    source = this.sources.lfos[index];
+                    break;
+                case "positive":
+                    source = this.sources.lfos[index].outputs.positive;
+                    break;
+                case "negative":
+                    source = this.sources.lfos[index].outputs.negative;
+                    break;
+                }
                 break;
-            case "positive":
-                source = this.globalModulators[sourceType][sourceIndex].outputs.positive;
-                break;
-            case "negative":
-                source = this.globalModulators[sourceType][sourceIndex].outputs.negative;
+            }
+
+            this.connections[type] = this.connections[type] || [];
+            this.connections[type][index] = this.connections[type][index] || {};
+            this.connections[type][index][target] = this.context.createGain();
+            this.connections[type][index][target].gain.value = amount;
+
+            source.connect(this.connections[type][index][target]);
+            this.connections[type][index][target].connect(this.targets[target]);
         }
-
-        this.connections[sourceType] = this.connections[sourceType] || [];
-        this.connections[sourceType][sourceIndex] = this.connections[sourceType][sourceIndex] || {};
-        this.connections[sourceType][sourceIndex][target] = this.context.createGain();
-        this.connections[sourceType][sourceIndex][target].gain.value = amount;
-
-        source.connect(this.connections[sourceType][sourceIndex][target]);
-        this.connections[sourceType][sourceIndex][target].connect(this.targets[target].outputNode);
     }
-};
-ModulationMatrix.prototype.patch = function (patch) {
-    for (let i = 0, j = patch.lfos.length; i < j; i += 1) {
-        const lfoPatch = patch.lfos[i];
-        for (let target in lfoPatch) {
-            if (lfoPatch.hasOwnProperty(target)) {
-                this.connect("lfo", i, lfoPatch[target].range, lfoPatch[target].amount, target);
+
+    disconnect(type, index, target) {
+        if (this.connections[type][index][target]) {
+            this.connections[type][index][target].disconnect();
+            this.connections[type][index][target] = null;
+        }
+    }
+
+    patchVoice(voice, patch) {
+        /*        var localModulators = voice.getLocalModulators(),
+            localTargets = voice.getEnvelopeTargets(),
+            split, key, envelopePatch, i, j;
+*/
+        const voiceLfos = voice.lfos;
+        const voiceEnvs = voice.envelopes;
+        const voiceParamInputs = voice.parameterInputNodes;
+        const voiceParamOutputs = voice.parameterOutputNodes;
+
+        for (let key in voiceParamOutputs) {
+            voiceParamOutputs[key].disconnect();
+            voiceParamOutputs[key] = null; // testing 
+        }
+        for (let key in voiceParamInputs) {
+            if (this.targets[key]) {
+                this.targets[key].connect(voiceParamInputs[key]);
             }
         }
-    }
-};
 
-ModulationMatrix.prototype.patchVoice = function (voice, patch) {
-    let envelopePatch,
-        localModulators = voice.getLocalModulators(),
-        localTargets = voice.getEnvelopeTargets();
-
-    if (!this.staticValuesSet) {
-        this.setStaticModulatorValues(patch);
-        this.staticValuesSet = true;
-    }
-    if (!this.patched) {
-        this.patch(patch.modulation);
-        this.patched = true;
-    }
-    for (let key in this.targets) {
-        const split = key.split(".");
-        this.targets[key].outputNode.connect(voice[split[0]][split[1]]);
-    }
-    for (let i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {
-        if (localModulators.envelope[i]) {
-            envelopePatch = patch.modulation.envelopes[i];
-            for (let key in envelopePatch) {
-                if (localTargets[key]) {
-                    localModulators.envelopes[i].connect(localTargets[key]);
+        /*
+        if (!this.patched) {
+            this.patch(patch.modulation);
+            this.patched = true;
+        }
+        for (key in this.targets) {
+            split = key.split(".");
+            this.targets[key].outputNode.connect(voice[split[0]][split[1]]);
+        }
+        for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {
+            if (localModulators.envelope[i]) {
+                envelopePatch = patch.modulation.envelopes[i];
+                for (key in envelopePatch) {
+                    if (localTargets[key]) {
+                        localModulators.envelopes[i].connect(localTargets[key]);
+                    }
                 }
             }
         }
+*/
     }
-};
-/*
-ModulationMatrix.prototype.unpatchVoice = function (voice) {
+    /*
+        this.eventDataConnection = function (data) {
+            if (this.validEventData(data) && this.connections[data.sourceType] && this.connections[data.sourceType][data.sourceIndex] && this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter]) {
+                return this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
+            } else {
+                return null;
+            }
+        };
+        var disconnectHandler = function (event) {
+            var data = event.detail,
+                connection = this.eventDataConnection(data);
+            if (connection) {
+                connection.disconnect();
+                connection = null;
+                delete this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
+            }
+        };
+        var connectHandler = function (event) {
+            var data = event.detail,
+                connection = this.eventDataConnection(data);
+            if (!connection) {
+                this.connect(data.sourceType, data.sourceIndex, data.range, data.amount, data.targetModule + "." + data.targetParameter);
+            }
+        };
+
+        var amountHandler = function (event) {
+            var data = event.detail,
+                connection = this.eventDataConnection(data);
+
+            if (connection && !isNaN(parseFloat(data.amount, 10))) {
+                connection.gain.value = data.amount;
+            }
+        };
+
+        var rangeHandler = function (event) {
+            var data = event.detail,
+                connection = this.eventDataConnection(data),
+                amount,
+                source;
+
+            if (connection && data.range) {
+                amount = connection.gain.value;
+                connection.disconnect();
+                connection = null;
+                this.connect(data.sourceType, data.sourceIndex, data.range, amount, data.targetModule + "." + data.targetParameter);
+            }
+        };
+
+        context.addEventListener('voice.first.started', this.startGlobalModulators, false);
+        context.addEventListener('voice.last.ended', this.stopGlobalModulators, false);
+        context.addEventListener("modulation.change.connect", connectHandler.bind(this));
+        context.addEventListener("modulation.change.disconnect", disconnectHandler.bind(this));
+        context.addEventListener("modulation.change.amount", amountHandler.bind(this));
+        context.addEventListener("modulation.change.range", rangeHandler.bind(this));
+
+        context.addEventListener("noise.change.gain", staticParameterChangeHandler("noise.gain").bind(this));
+        context.addEventListener("noise.change.pan", staticParameterChangeHandler("noise.pan").bind(this));
+        context.addEventListener("sub.change.gain", staticParameterChangeHandler("sub.gain").bind(this));
+        context.addEventListener("sub.change.pan", staticParameterChangeHandler("sub.pan").bind(this));
+        context.addEventListener("oscillator.change.resonance", staticParameterChangeHandler("oscillator.resonance").bind(this));
+        context.addEventListener("oscillator.change.mix", staticParameterChangeHandler("oscillator.mix").bind(this));
+        context.addEventListener("oscillator.change.pan", staticParameterChangeHandler("oscillator.pan").bind(this));
+        context.addEventListener("oscillator.change.detune", staticParameterChangeHandler("oscillator.detune").bind(this));
+
+
+
+        staticParameterChangeHandler = function staticParameterChangeHandler(parameter) {
+            if (that.sources.static[parameter]) {
+                return function (evt) {
+                    this.sources.static[parameter].setValueAtTime(evt.detail, this.context.currentTime);
+                }
+            } else {
+                return function (evt) {
+                    console.log("call to faulty event handler: attempt to set " + parameter + " to " + evt.detail);
+                }
+            }
+        };        staticParameterChangeHandler = function staticParameterChangeHandler(parameter) {
+            if (that.sources.static[parameter]) {
+                return function (evt) {
+                    this.sources.static[parameter].setValueAtTime(evt.detail, this.context.currentTime);
+                }
+            } else {
+                return function (evt) {
+                    console.log("call to faulty event handler: attempt to set " + parameter + " to " + evt.detail);
+                }
+            }
+        };
+
+unpatchVoice (voice) {
     var locals = voice.getModulators(),
         split, key;
 
@@ -302,5 +309,27 @@ ModulationMatrix.prototype.unpatchVoice = function (voice) {
     }
     console.log("voice unpatched");
 };
+        this.update = () => {
+            const state = this.store.getState();
+            if (this.state.patch.noise.gain !== state.patch.noise.gain) {
+                this.sources.static["noise.gain"].setValueAtTime(state.patch.noise.gain, this.context.currentTime);
+            }
+            if (this.state.patch.noise.pan !== state.patch.noise.pan) {
+                this.sources.static["noise.pan"].setValueAtTime(state.patch.noise.pan, this.context.currentTime);
+            }
+            if (this.state.patch.sub.gain !== state.patch.sub.gain) {
+                this.sources.static["sub.gain"].setValueAtTime(state.patch.sub.gain, this.context.currentTime);
+            }
+            if (this.state.patch.sub.pan !== state.patch.sub.pan) {
+                this.sources.static["sub.pan"].setValueAtTime(state.patch.sub.pan, this.context.currentTime);
+            }
+
+            this.state = state;
+        };
+
+
 */
-module.exports = ModulationMatrix;
+}
+
+
+export default ModulationMatrix;
