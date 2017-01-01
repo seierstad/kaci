@@ -94,6 +94,23 @@ gulp.task("lint:scripts", () => {
         .pipe(eslint.failOnError());
 });
 
+ gulp.task("build:scripts", () => {
+
+    const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babel);
+    Object.keys(dependencies).forEach(lib => b.external(lib));
+
+    return b.bundle()
+        .pipe(source("kaci.js"))
+        .pipe(buffer())
+        .pipe(rev())
+        .pipe(gulpif(isProduction, uglify()))
+        .on("error", gutil.log)
+        .pipe(gulp.dest("build/js"))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest("build"));
+
+});
+
 // Builds SCSS into CSS and minifies CSS
 gulp.task("styles", function () {
     return gulp.src("./stylesheets/*.scss")

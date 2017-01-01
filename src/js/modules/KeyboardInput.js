@@ -3,8 +3,8 @@ const CHORD_SHIFTER_TOGGLE = 32; // space bar
 const KeyboardInput = function (context, configuration, store) {
 
     const state = store.getState().settings.keyboard;
-    const activeLayoutName = state.activeLayout;
-    const activeLayout = state.layouts.find(layout => layout.name === activeLayoutName);
+    let activeLayoutName = state.activeLayout;
+    let activeLayout = state.layouts.find(layout => layout.name === activeLayoutName);
     const pressed = [];
     const pressedControlKeys = [];
 
