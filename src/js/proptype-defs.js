@@ -206,6 +206,18 @@ export const oscillatorPatchData = PropTypes.shape({
     "waveform": PropTypes.oneOf(Object.keys(waveforms))
 });
 
+export const keyViewProps = PropTypes.shape({
+    "handlers": PropTypes.shape({
+        "down": PropTypes.func.isRequired,
+        "up": PropTypes.func.isRequired
+    }).isRequired,
+    "keyNumber": PropTypes.number.isRequired,
+    "keyWidth": PropTypes.number.isRequired,
+    "noteName": PropTypes.string,
+    "playState": PropTypes.object,
+    "x": PropTypes.string.isRequired
+});
+
 export const patch = PropTypes.shape({
     "oscillator": oscillatorPatchData.isRequired,
     "noise": noisePatchData.isRequired,

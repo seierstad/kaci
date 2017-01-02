@@ -12,7 +12,7 @@ import Envelopes from "./EnvelopeView.jsx";
 import LFOs from "./LFOView.jsx";
 import ModulationMatrix from "./ModulationMatrixView.jsx";
 import Oscillator from "./OscillatorView.jsx";
-import Keyboard from "./KeyboardView.jsx";
+import Keyboard from "./keyboard/keyboard.jsx";
 
 
 class KaciReactViewPresentation extends Component {

@@ -1,63 +1,10 @@
-import ReactDOM from "react-dom";
-import React, {Component} from "react";
+import React, {Component, PropTypes} from "react";
 
 import {NOTE_NAMES} from "../constants";
 
 import RangeInput from "./RangeInput.jsx";
-
-
-class Key extends Component {
-    constructor () {
-        super();
-        this.keyDownHandler = this.keyDownHandler.bind(this);
-        this.keyUpHandler = this.keyUpHandler.bind(this);
-    }
-
-    keyDownHandler (event) {
-        const {handlers, keyNumber} = this.props;
-        handlers.down(event, keyNumber);
-    }
-
-    keyUpHandler (event) {
-        const {handlers, keyNumber} = this.props;
-        handlers.up(event, keyNumber);
-    }
-
-}
-
-class WhiteKey extends Key {
-    render () {
-        const {x, keyWidth, noteName, keyNumber, playState} = this.props;
-        return (
-            <rect
-                className={"key " + noteName + (playState && playState.down ? " down" : "")}
-                height="100%"
-                onMouseDown={this.keyDownHandler}
-                onMouseUp={this.keyUpHandler}
-                width={keyWidth + "%"}
-                x={x}
-                y="0"
-            />
-        );
-    }
-}
-
-class BlackKey extends Key {
-    render () {
-        const {x, keyWidth, noteName, keyNumber, playState} = this.props;
-        return (
-            <rect
-                className={"key " + noteName + (playState && playState.down ? " down" : "")}
-                height="60%"
-                onMouseDown={this.keyDownHandler}
-                onMouseUp={this.keyUpHandler}
-                width={(keyWidth * 0.7) + "%"}
-                x={x}
-                y="0"
-            />
-        );
-    }
-}
+import BlackKey from "./black-key.jsx";
+import WhiteKey from "./white-key.jsx";
 
 
 class KeyboardView extends Component {
@@ -136,6 +83,11 @@ class KeyboardView extends Component {
         );
     }
 }
+KeyboardView.propTypes = {
+    "configuration": PropTypes.object,
+    "handlers": PropTypes.object.isRequired,
+    "playState": PropTypes.object
+};
 
 
 export default KeyboardView;

@@ -94,7 +94,7 @@ gulp.task("lint:scripts", () => {
         .pipe(eslint.failOnError());
 });
 
- gulp.task("build:scripts", () => {
+gulp.task("build:scripts", () => {
 
     const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babel);
     Object.keys(dependencies).forEach(lib => b.external(lib));
