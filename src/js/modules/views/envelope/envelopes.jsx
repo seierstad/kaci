@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
 import SustainEnvelope from "./sustain-envelope.jsx";
 
@@ -30,7 +30,7 @@ Envelopes.propTypes = {
     "configuration": PropDefs.modulationEnvelopeSources.isRequired,
     "handlers": PropTypes.object,
     "patch": PropDefs.envelopesPatchData,
-    "viewState": PropTypes.arrayOf(PropDefs.envelopeViewState)
+    "viewState": PropTypes.arrayOf(PropDefs.sustainEnvelopeViewState)
 };
 
 

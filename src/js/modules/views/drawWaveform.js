@@ -2,33 +2,27 @@ const drawWaveform = function (waveGenerator, canvas, params) {
     "use strict";
 
     let canvasElement,
-        context,
-        coordinates,
-        halfHeight,
-        height,
-        i,
         phase = 0,
-        phaseIncrement,
-        width,
-        xOffset = params.xOffset || 0,
-        yOffset = params.yOffset || 0,
-        yValue;
+        xOffset = params && params.xOffset || 0,
+        yOffset = params && params.yOffset || 0;
 
     if (typeof canvas === "string") {
         canvasElement = document.getElementById(canvas);
+    } else {
+        canvasElement = canvas;
     }
 
-    height = params.height || canvasElement.height || 100;
-    width = params.width || canvasElement.width || 100;
-    halfHeight = height / 2;
+    const height = params && params.height || canvasElement.height || 100;
+    const width = params && params.width || canvasElement.width || 100;
+    const halfHeight = height / 2;
 
-    context = canvasElement.getContext("2d");
+    const context = canvasElement.getContext("2d");
     context.lineJoin = "miter";
 
-    if (!params.noClear) {
+    if (params && !params.noClear) {
         context.clearRect(xOffset, yOffset, width, height);
     }
-    if (params.drawGuides) {
+    if (params && params.drawGuides) {
         context.beginPath();
         context.moveTo(xOffset, halfHeight + yOffset);
         context.lineTo(xOffset + width, halfHeight + yOffset);
@@ -37,10 +31,10 @@ const drawWaveform = function (waveGenerator, canvas, params) {
 
     context.beginPath();
 
-    phaseIncrement = 1.0 / width;
-    for (i = 0; i < width; i += 1) {
-        yValue = waveGenerator(phase);
-        coordinates = {
+    const phaseIncrement = 1.0 / width;
+    for (let i = 0; i < width; i += 1) {
+        const yValue = waveGenerator(phase);
+        const coordinates = {
             "x": i + xOffset,
             "y": yValue * (halfHeight) + halfHeight + yOffset
         };
@@ -52,7 +46,9 @@ const drawWaveform = function (waveGenerator, canvas, params) {
         phase += phaseIncrement;
     }
     context.stroke();
+
     return this;
 };
 
-module.exports = drawWaveform;
+
+export default drawWaveform;

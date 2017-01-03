@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
-import drawWaveform from "./drawWaveform";
-import * as PropDefs from "../../proptype-defs";
+import drawWaveform from "../drawWaveform";
+import * as PropDefs from "../../../proptype-defs";
 
 import Envelope from "../envelope/envelope.jsx";
 
@@ -13,6 +13,14 @@ class PhaseDistortion extends Component {
 
     componentDidUpdate () {
         this.updateWaveform();
+    }
+
+    shouldComponentUpdate (nextProps, nextState) {
+        return (
+            nextProps.waveformName !== this.props.waveformName
+            || nextProps.patch.steps !== this.props.patch.steps
+            || nextProps.viewState !== this.props.viewState
+        );
     }
 
     updateWaveform () {
@@ -29,7 +37,7 @@ class PhaseDistortion extends Component {
                     handlers={handlers}
                     index={index}
                     module="oscillator"
-                    patch={patch}
+                    patch={patch.steps}
                     viewState={viewState}
                 />
             </div>
@@ -39,8 +47,9 @@ class PhaseDistortion extends Component {
 PhaseDistortion.propTypes = {
     "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
     "index": PropTypes.number.isRequired,
-    "patch": PropDefs.oscillatorPdPatchData.isRequired,
+    "patch": PropDefs.pdPatchData.isRequired,
     "viewState": PropTypes.array,
+    "waveformName": PropTypes.string.isRequired,
     "waveFunction": PropTypes.func.isRequired
 };
 

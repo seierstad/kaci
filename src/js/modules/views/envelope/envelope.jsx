@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
 import EnvelopeLines from "./envelope-lines.jsx";
 import EnvelopeCircles from "./envelope-circles.jsx";
@@ -14,7 +14,7 @@ class Envelope extends Component {
     }
     handleBackgroundClick (event) {
         const {module, index, part, patch, handlers} = this.props;
-        handlers.handleBackgroundClick(event, module, patch.steps, index, part);
+        handlers.handleBackgroundClick(event, module, patch, index, part);
     }
     handleMouseOut (event) {
         const {module, index, part, handlers} = this.props;
@@ -43,7 +43,7 @@ class Envelope extends Component {
             >
                 {background}
                 <EnvelopeLines
-                    steps={patch.steps}
+                    steps={patch}
                 />
                 <EnvelopeCircles
                     activeIndex={activeIndex}
@@ -52,7 +52,7 @@ class Envelope extends Component {
                     handlers={handlers}
                     module={module}
                     part={part}
-                    steps={patch.steps}
+                    steps={patch}
                     viewState={viewState}
                 />
             </svg>

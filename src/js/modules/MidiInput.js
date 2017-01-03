@@ -1,198 +1,126 @@
 import * as Actions from "./Actions.jsx";
 import c from "./midiConstants";
 
-const MidiInput = function (context, settings, store) {
-    let that = this;
+class MidiInput {
+    constructor (store) {
+        this.midiAccessSuccess = this.midiAccessSuccess.bind(this);
+        this.midiAccessFailure = this.midiAccessFailure.bind(this);
+        this.activeChannelMessageHandler = this.activeChannelMessageHandler.bind(this);
+        this.isActiveChannel = this.isActiveChannel.bind(this);
+        this.midiMessageHandler = this.midiMessageHandler.bind(this);
+        this.removeInputListeners = this.removeInputListeners.bind(this);
+        this.addInputListeners = this.addInputListeners.bind(this);
+        this.selectInputPort = this.selectInputPort.bind(this);
 
-    const state = store.getState().settings.midi;
+        this.store = store;
+        this.state = store.getState().settings.midi;
 
-    this.access = null;
-    this.inputs = {};
-    this.outputs = {};
-    this.activeInputId = state.portId || null;
-    this.activeInput = null;
-    this.activeChannel = (typeof state.channel === "number" || (typeof state.channel === "string" && state.channel === "all")) ? state.channel : null;
-    this.runningStatusBuffer = null;
-    this.valuePairs = {
-        "BANK_SELECT": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "bankSelect"
-        },
-        "MODULATION_WHEEL": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "modulationWheel"
-        },
-        "BREATH_CONTROLLER": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "breathController"
-        },
-        "FOOT_PEDAL": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "footPedal"
-        },
-        "PORTAMENTO_TIME": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "portamentoTime"
-        },
-        "DATA_ENTRY": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "dataEntry"
-        },
-        "VOLUME": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "volume"
-        },
-        "BALANCE": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "balance"
-        },
-        "PAN_POSITION": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "panPosition"
-        },
-        "EXPRESSION": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "expression"
-        },
-        "EFFECT_CONTROL_1": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "effectControl1"
-        },
-        "EFFECT_CONTROL_2": {
-            "coarse": null,
-            "fine": null,
-            "eventName": "effectControl2"
+        const update = () => {
+            const state = store.getState().settings.midi;
+
+            if (this.activeInputId !== state.portId) {
+                this.selectInputPort(state.portId);
+            }
+        };
+
+        this.store.subscribe(update);
+        this.access = null;
+        this.inputs = {};
+        this.outputs = {};
+        this.activeInputId = this.state.portId || null;
+        this.activeInput = null;
+        this.activeChannel = (typeof this.state.channel === "number" || (typeof this.state.channel === "string" && this.state.channel === "all")) ? this.state.channel : null;
+        this.runningStatusBuffer = null;
+        this.valuePairs = {
+            "BANK_SELECT": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_BANK_SELECT
+            },
+            "MODULATION_WHEEL": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_MODULATION_WHEEL
+            },
+            "BREATH_CONTROLLER": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_BREATH_CONTROLLER
+            },
+            "FOOT_PEDAL": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_FOOT_PEDAL
+            },
+            "PORTAMENTO_TIME": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_PORTAMENTO_TIME
+            },
+            "DATA_ENTRY": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_DATA_ENTRY
+            },
+            "VOLUME": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_VOLUME
+            },
+            "BALANCE": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_BALANCE
+            },
+            "PAN_POSITION": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_PAN_POSITION
+            },
+            "EXPRESSION": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_EXPRESSION
+            },
+            "EFFECT_CONTROL_1": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_EFFECT_CONTROL_1
+            },
+            "EFFECT_CONTROL_2": {
+                "coarse": null,
+                "fine": null,
+                "action": Actions.MIDI_EFFECT_CONTROL_2
+            }
+        };
+
+        if (navigator && navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess({
+                "sysex": true
+            }).then(this.midiAccessSuccess, this.midiAccessFailure);
+        } else {
+            this.store.dispatch({
+                type: Actions.MIDI_UNAVAILABLE
+            });
         }
-    };
+    }
 
-    const activeChannelMessageHandler = function activeChannelMessageHandler (data, overrideType) {
-        let type = data[0];
-        let index = 0;
+    midiAccessFailure (exception) {
+        throw new Error("MIDI failure: " + exception);
+    }
 
-        if (overrideType) {
-            type = overrideType;
-            index = -1;
-        }
+    midiAccessSuccess (access) {
+        let input,
+            inputIterator;
 
-        const byte1 = data[index + 1];
-        const byte2 = data[index + 2];
-
-        switch (type & 0xF0) {
-            case c.MESSAGE_TYPE.NOTE_OFF: // note off
-                that.runningStatusBuffer = type;
-                context.dispatchEvent(new CustomEvent("keyboard.keyup", {
-                    "detail": {
-                        "keyNumber": byte1,
-                        "velocity": byte2,
-                        "source": "midi"
-                    }
-                }));
-                break;
-            case c.MESSAGE_TYPE.NOTE_ON: // note on
-                that.runningStatusBuffer = type;
-                context.dispatchEvent(new CustomEvent("keyboard.keydown", {
-                    "detail": {
-                        "keyNumber": byte1,
-                        "velocity": byte2,
-                        "source": "midi"
-                    }
-                }));
-                break;
-            case c.MESSAGE_TYPE.POLY_PRESSURE: // poly pressure
-                that.runningStatusBuffer = type;
-                break;
-            case c.MESSAGE_TYPE.CONTROL_CHANGE: // control change
-                that.runningStatusBuffer = type;
-                that.controlChangeHandler(byte1, byte2);
-                break;
-            case c.MESSAGE_TYPE.PROGRAM_CHANGE: // program change
-                that.runningStatusBuffer = type;
-                break;
-            case c.MESSAGE_TYPE.CHANNEL_PRESSURE: // channel pressure
-                that.runningStatusBuffer = type;
-                break;
-            case c.MESSAGE_TYPE.PITCH_BEND: // pitch bend
-
-                // TODO: scale values above 0x2000 so that coarse=127, fine=127 => value=1
-                that.runningStatusBuffer = type;
-                const value = data[index + 2] << 7 | data[index + 1];
-
-                context.dispatchEvent(new CustomEvent("pitchBend.change", {
-                    "detail": {
-                        "fine": byte1,
-                        "coarse": byte2,
-                        "MIDIvalue": value,
-                        "value": value <= 0x2000 ? value / 0x2000 - 1 : 2 * value / 0x3FFF - 1,
-                        "source": "midi"
-                    }
-                }));
-
-                break;
-            case c.MESSAGE_TYPE.SYSTEM_EXCLUSIVE: // system exclusive
-                if (type < 0xF8) {
-                    that.runningStatusBuffer = null;
-                }
-                break;
-            default: // same as last message (running status)
-                if (that.runningStatusBuffer) {
-                    activeChannelMessageHandler(data, type);
-                }
-        }
-
-    };
-    const isActiveChannel = function isActiveChannel (firstByte) {
-        return (that.activeChannel === firstByte & 0x0F) || (typeof that.activeChannel === "string" && that.activeChannel === "all");
-    };
-
-    const midiMessageHandler = function (event) {
-        if (isActiveChannel(event.data[0])) {
-            activeChannelMessageHandler(event.data);
-        }
-    };
-    const midiHandler = midiMessageHandler.bind(this);
-
-    const removeInputListeners = function (port) {
-        port.removeEventListener("midimessage", midiHandler);
-    };
-    const addInputListeners = function (port) {
-        port.addEventListener("midimessage", midiHandler, false);
-    };
-    const selectInputPort = function (portId) {
-        if (that.activeInput && that.activeInput.id !== portId) {
-            removeInputListeners(that.activeInput);
-        }
-        if (portId && that.inputs[portId]) {
-            that.activeInputId = portId;
-            that.activeInput = that.inputs[portId];
-            addInputListeners(that.activeInput);
-        }
-    };
-
-    const midiAccessFailure = function (exception) {
-        console.log("MIDI failure: " + exception);
-    };
-
-    const midiAccessSuccess = function (access) {
-        const inputIterator = access.inputs.entries();
-        let input = inputIterator.next();
-
+        inputIterator = access.inputs.entries();
+        input = inputIterator.next();
         while (!input.done) {
             let id = input.value[0];
             let port = input.value[1];
-            that.inputs[id] = port;
+            this.inputs[id] = port;
 
-            store.dispatch({
+            this.store.dispatch({
                 type: Actions.MIDI_ADD_INPUT_PORT,
                 value: {
                     "name": port.name,
@@ -203,10 +131,12 @@ const MidiInput = function (context, settings, store) {
             input = inputIterator.next();
         }
 
-        selectInputPort.call(this, that.activeInputId);
-    };
-    this.updatePair = function (pair, coarse, fine) {
-        let changed = false;
+        this.selectInputPort(this.activeInputId);
+    }
+
+    updatePair (pair, coarse, fine) {
+        let changed = false,
+            combinedValue;
 
         if (!isNaN(coarse) && pair.coarse !== coarse) {
             pair.coarse = coarse;
@@ -217,21 +147,18 @@ const MidiInput = function (context, settings, store) {
             changed = true;
         }
         if (changed && !isNaN(pair.coarse)) {
-            const combinedValue = pair.coarse << 7 | (pair.fine || 0);
-
-            context.dispatchEvent(new CustomEvent(pair.eventName + ".change", {
-                "detail": {
-                    "coarse": pair.coarse,
-                    "fine": pair.fine,
-                    "MIDIvalue": combinedValue,
-                    "value": pair.fine === null ? pair.coarse / 0x7f : combinedValue / 0x3FFF,
-                    "source": "midi"
-                }
-            }));
+            combinedValue = pair.coarse << 7 | (pair.fine || 0);
+            this.store.dispatch({
+                "type": pair.action,
+                "coarse": pair.coarse,
+                "fine": pair.fine,
+                "MIDIvalue": combinedValue,
+                "value": pair.fine === null ? pair.coarse / 0x7f : combinedValue / 0x3FFF
+            });
         }
-    };
+    }
 
-    this.controlChangeHandler = function controlChangeHandler (type, data) {
+    controlChangeHandler (type, data) {
         const p = this.valuePairs;
         const cc = c.CONTROL;
 
@@ -309,29 +236,109 @@ const MidiInput = function (context, settings, store) {
                 this.updatePair(p.EFFECT_CONTROL, null, data);
                 break;
             default:
-                console.log("unimplemented MIDI control change message received: " + type);
+                throw new Error("unimplemented MIDI control change message received: " + type);
         }
-    };
-
-    if (navigator && navigator.requestMIDIAccess) {
-        navigator.requestMIDIAccess({
-            "sysex": true
-        }).then(midiAccessSuccess, midiAccessFailure);
-    } else {
-        store.dispatch({
-            type: Actions.MIDI_UNAVAILABLE
-        });
     }
 
-    const update = () => {
-        const state = store.getState().settings.midi;
+    isActiveChannel (firstByte) {
+        return (this.activeChannel === firstByte & 0x0F) || (typeof this.activeChannel === "string" && this.activeChannel === "all");
+    }
 
-        if (this.activeInputId !== state.portId) {
-            selectInputPort(state.portId);
+    activeChannelMessageHandler (data, overrideType) {
+        let type = data[0];
+        let index = 0;
+
+        if (overrideType) {
+            type = overrideType;
+            index = -1;
         }
-    };
 
-    store.subscribe(update);
-};
+        const byte1 = data[index + 1];
+        const byte2 = data[index + 2];
 
-module.exports = MidiInput;
+        switch (type & 0xF0) {
+            case c.MESSAGE_TYPE.NOTE_OFF: // note off
+                this.runningStatusBuffer = type;
+                this.store.dispatch({
+                    "type": Actions.MIDI_KEY_UP,
+                    "keyNumber": byte1,
+                    "velocity": byte2
+                });
+                break;
+            case c.MESSAGE_TYPE.NOTE_ON: // note on
+                this.runningStatusBuffer = type;
+                this.store.dispatch({
+                    "type": Actions.MIDI_KEY_DOWN,
+                    "keyNumber": byte1,
+                    "velocity": byte2
+                });
+                break;
+            case c.MESSAGE_TYPE.POLY_PRESSURE: // poly pressure
+                this.runningStatusBuffer = type;
+                break;
+            case c.MESSAGE_TYPE.CONTROL_CHANGE: // control change
+                this.runningStatusBuffer = type;
+                this.controlChangeHandler(byte1, byte2);
+                break;
+            case c.MESSAGE_TYPE.PROGRAM_CHANGE: // program change
+                this.runningStatusBuffer = type;
+                break;
+            case c.MESSAGE_TYPE.CHANNEL_PRESSURE: // channel pressure
+                this.runningStatusBuffer = type;
+                break;
+            case c.MESSAGE_TYPE.PITCH_BEND: // pitch bend
+
+                // TODO: scale values above 0x2000 so that coarse=127, fine=127 => value=1
+                this.runningStatusBuffer = type;
+                const value = data[index + 2] << 7 | data[index + 1];
+
+                this.store.dispatch({
+                    "type": Actions.MIDI_PITCHBEND,
+                    "fine": byte1,
+                    "coarse": byte2,
+                    "MIDIvalue": value,
+                    "value": value <= 0x2000 ? value / 0x2000 - 1 : 2 * value / 0x3FFF - 1,
+                    "source": "midi"
+                });
+
+                break;
+            case c.MESSAGE_TYPE.SYSTEM_EXCLUSIVE: // system exclusive
+                if (type < 0xF8) {
+                    this.runningStatusBuffer = null;
+                }
+                break;
+            default: // same as last message (running status)
+                if (this.runningStatusBuffer) {
+                    this.activeChannelMessageHandler(data, type);
+                }
+        }
+    }
+
+    midiMessageHandler (event) {
+        if (this.isActiveChannel(event.data[0])) {
+            this.activeChannelMessageHandler(event.data);
+        }
+    }
+
+    removeInputListeners (port) {
+        port.removeEventListener("midimessage", this.midiMessageHandler);
+    }
+
+    addInputListeners (port) {
+        port.addEventListener("midimessage", this.midiMessageHandler, false);
+    }
+
+    selectInputPort (portId) {
+        if (this.activeInput && this.activeInput.id !== portId) {
+            this.removeInputListeners(this.activeInput);
+        }
+        if (portId && this.inputs[portId]) {
+            this.activeInputId = portId;
+            this.activeInput = this.inputs[portId];
+            this.addInputListeners(this.activeInput);
+        }
+    }
+}
+
+
+export default MidiInput;

@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
 import PolaritySelector from "../polarity-selector.jsx";
 import RangeInput from "../RangeInput.jsx";

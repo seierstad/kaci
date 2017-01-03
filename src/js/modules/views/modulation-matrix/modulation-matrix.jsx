@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDef from "../../proptype-defs";
+import * as PropDef from "../../../proptype-defs";
 
 import TargetModule from "./modulation-target-module.jsx";
 
@@ -56,7 +56,7 @@ class ModulationMatrix extends Component {
 }
 
 ModulationMatrix.propTypes = {
-    "configuration": PropDef.configuration.isRequired,
+    "configuration": PropDef.modulation.isRequired,
     "handlers": PropTypes.object,
     "patch": PropTypes.object
 };

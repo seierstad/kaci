@@ -40,7 +40,7 @@ WaveformButton.propTypes = {
     "index": PropTypes.number,
     "module": PropTypes.string.isRequired,
     "onChange": PropTypes.func.isRequired,
-    "selected": PropTypes.boolean,
+    "selected": PropTypes.bool,
     "waveform": PropTypes.func.isRequired,
     "waveformName": PropTypes.string.isRequired
 };

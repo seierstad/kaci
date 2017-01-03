@@ -5,13 +5,13 @@ import * as Actions from "../Actions.jsx";
 import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
 import * as PropDefs from "../../proptype-defs";
 
-import SystemSettingsView from "./SystemSettingsView.jsx";
-import NoiseView from "./NoiseView.jsx";
-import SubView from "./SubView.jsx";
-import Envelopes from "./EnvelopeView.jsx";
-import LFOs from "./LFOView.jsx";
-import ModulationMatrix from "./ModulationMatrixView.jsx";
-import Oscillator from "./OscillatorView.jsx";
+import SystemSettings from "./system-settings.jsx";
+import Noise from "./noise.jsx";
+import Sub from "./sub.jsx";
+import Envelopes from "./envelope/envelopes.jsx";
+import LFOs from "./lfos.jsx";
+import ModulationMatrix from "./modulation-matrix/modulation-matrix.jsx";
+import Oscillator from "./oscillator/oscillator.jsx";
 import Keyboard from "./keyboard/keyboard.jsx";
 
 
@@ -58,6 +58,8 @@ class KaciReactViewPresentation extends Component {
                 />
                 <ModulationMatrix
                     configuration={configuration.modulation}
+                    handlers={handlers.modulation} 
+                    patch={patch.modulation}
                 />
                 <Keyboard
                     configuration={configuration.keyboard}

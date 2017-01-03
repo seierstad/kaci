@@ -1,9 +1,13 @@
 import Utils from "./Utils";
+import patch from "./patch";
+
 
 const PatchHandler = function (context, configuration) {
     const that = this;
 
-    this.patch = require("./patch");
+    this.patch = {
+        ...patch
+    };
 
     const getEnvelopeEventListener = function (envelopeData, envelopeId) {
         return function (event) {

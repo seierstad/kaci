@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 import {toPercent} from "./envelope-commons";
 
 class EnvelopeLines extends Component {

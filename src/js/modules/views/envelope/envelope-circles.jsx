@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 import {toPercent} from "./envelope-commons";
 
 import Circle from "./circle.jsx";
@@ -51,7 +51,7 @@ class EnvelopeCircles extends Component {
 }
 EnvelopeCircles.propTypes = {
     "activeIndex": PropTypes.number,
-    "background": PropTypes.element.isRequired,
+    "background": PropTypes.element,
     "envelopeIndex": PropTypes.number,
     "handlers": PropTypes.object,
     "module": PropTypes.string.isRequired,

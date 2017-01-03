@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
 import Envelope from "./envelope.jsx";
 import Sustain from "./sustain.jsx";
@@ -49,7 +49,7 @@ class SustainEnvelope extends Component {
                         index={index}
                         module={module}
                         part="attack"
-                        patch={patch.attack}
+                        patch={patch.attack.steps}
                         viewState={viewState.attack}
                         width={attackWidth + "%"}
                     />
@@ -60,7 +60,7 @@ class SustainEnvelope extends Component {
                         index={index}
                         module={module}
                         part="release"
-                        patch={patch.release}
+                        patch={patch.release.steps}
                         viewState={viewState.release}
                         width={releaseWidth + "%"}
                         x={(attackWidth + sustainWidth) + "%"}

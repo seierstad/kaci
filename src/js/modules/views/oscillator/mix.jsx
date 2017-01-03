@@ -1,12 +1,20 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
+import DependentComponent from "./dependent-component.jsx";
 import WaveformCanvas from "./waveform-canvas.jsx";
 import RangeInput from "../RangeInput.jsx";
 
 
-class Mix extends Component {
+class Mix extends DependentComponent {
+
+    shouldComponentUpdate (nextProps, nextState) {
+        return (
+            super.shouldComponentUpdate(nextProps, nextState)
+            || nextProps.patch !== this.props.patch
+        );
+    }
     render () {
         const {configuration, patch, changeHandler, waveFunction} = this.props;
 

@@ -21,7 +21,7 @@ export const keyboard = PropTypes.shape({
 
 export const midi = PropTypes.shape({
     "portId": PropTypes.string,
-    "channel": PropTypes.oneOf("all", PropTypes.number),
+    "channel": PropTypes.oneOf(["all", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]),
     "ports": PropTypes.arrayOf(PropTypes.string)
 });
 
@@ -35,7 +35,7 @@ export const tuning = PropTypes.shape({
 export const connection = PropTypes.shape({
     "default": PropTypes.shape({
         "enabled": PropTypes.bool.isRequired,
-        "polarity": PropTypes.oneOf("positive", "negative"),
+        "polarity": polarity,
         "amount": PropTypes.number.isRequired
     })
 });
@@ -65,14 +65,14 @@ export const modulationPatchData = PropTypes.shape({
 });
 
 export const subPatchData = PropTypes.shape({
-    "active": PropTypes.boolean.isRequired,
+    "active": PropTypes.bool.isRequired,
     "depth": PropTypes.number.isRequired,
     "gain": PropTypes.number.isRequired,
     "pan": PropTypes.number.isRequired
 });
 
 export const noisePatchData = PropTypes.shape({
-    "active": PropTypes.boolean.isRequired,
+    "active": PropTypes.bool.isRequired,
     "gain": PropTypes.number.isRequired,
     "pan": PropTypes.number.isRequired
 });
@@ -84,11 +84,13 @@ export const syncPatchData = PropTypes.shape({
     "numerator": PropTypes.number.isRequired
 });
 
+const modulationSourceMode = PropTypes.oneOf(["global", "voice"]);
+
 export const lfoPatchData = PropTypes.shape({
     "active": PropTypes.bool.isRequired,
     "amount": PropTypes.number.isRequired,
     "frequency": PropTypes.number.isRequired,
-    "mode": PropTypes.string.required,
+    "mode": modulationSourceMode.required,
     "sync": syncPatchData,
     "waveform": PropTypes.string.isRequired
 });
@@ -112,13 +114,16 @@ const envelopePoint = (props, propName, componentName) => {
             " `" + componentName + "`. Validation failed."
         );
     }
+    return true;
 };
 
 export const envelopePatchData = PropTypes.arrayOf(envelopePoint);
 
-export const oscillatorPdPatchData = PropTypes.shape({
+export const pdPatchData = PropTypes.shape({
     "steps": envelopePatchData.isRequired
 });
+
+export const oscillatorPdPatchData = PropTypes.arrayOf(pdPatchData);
 
 export const envelopeStagePatchData = PropTypes.shape({
     "steps": envelopePatchData.isRequired,
@@ -128,22 +133,23 @@ export const envelopeStagePatchData = PropTypes.shape({
 export const sustainEnvelopePatchData = PropTypes.shape({
     "attack": envelopeStagePatchData.isRequired,
     "release": envelopeStagePatchData.isRequired,
-    "mode": "local"
+    "mode": modulationSourceMode.isRequired
 });
 
 export const envelopesPatchData = PropTypes.arrayOf(sustainEnvelopePatchData);
 
-export const envelopeViewState = PropTypes.shape({
-    "attack": PropTypes.array.isRequired,
-    "editSustain": PropTypes.bool.isRequired,
-    "release": PropTypes.array.isRequired
-});
+export const envelopeViewState = PropTypes.array;
 
+export const sustainEnvelopeViewState = PropTypes.shape({
+    "attack": envelopeViewState.isRequired,
+    "editSustain": PropTypes.bool.isRequired,
+    "release": envelopeViewState.isRequired
+});
 
 export const modulationEnvelopeSources = PropTypes.shape({
     "count": PropTypes.number.isRequired,
     "default": sustainEnvelopePatchData.isRequired,
-    "defaultState": envelopeViewState.isRequired
+    "defaultState": sustainEnvelopeViewState.isRequired
 });
 
 export const modulationLfoSourcesSync = PropTypes.shape({
@@ -191,19 +197,16 @@ export const configuration = PropTypes.shape({
     "tuning": tuning.isRequired
 });
 
-export const resonancePatchData = PropTypes.shape({
-    "active": PropTypes.bool.isRequired,
-    "factor": PropTypes.number.isRequired,
-    "wrapper": PropTypes.oneOf(Object.keys(wrappers))
-});
 
 export const oscillatorPatchData = PropTypes.shape({
     "detune": PropTypes.number.isRequired,
     "mix": PropTypes.number.isRequired,
     "pan": PropTypes.number.isRequired,
     "pd": oscillatorPdPatchData.isRequired,
-    "resonance": resonancePatchData.isRequired,
-    "waveform": PropTypes.oneOf(Object.keys(waveforms))
+    "resonance": PropTypes.number.isRequired,
+    "resonanceActive": PropTypes.bool.isRequired,
+    "waveform": PropTypes.oneOf(Object.keys(waveforms)),
+    "wrapper": PropTypes.oneOf(Object.keys(wrappers))
 });
 
 export const keyViewProps = PropTypes.shape({
@@ -213,7 +216,7 @@ export const keyViewProps = PropTypes.shape({
     }).isRequired,
     "keyNumber": PropTypes.number.isRequired,
     "keyWidth": PropTypes.number.isRequired,
-    "noteName": PropTypes.string,
+    "noteName": PropTypes.string.isRequired,
     "playState": PropTypes.object,
     "x": PropTypes.string.isRequired
 });

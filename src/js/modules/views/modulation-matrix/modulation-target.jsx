@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
 import Connection from "./modulation-connection.jsx";
 
@@ -20,7 +20,7 @@ class ModulationTarget extends Component {
                 <Connection
                     handlers={handlers}
                     index={i}
-                    key={i}
+                    key={"lfo" + i}
                     module={module}
                     parameter={parameter}
                     patch={patch}
@@ -34,7 +34,7 @@ class ModulationTarget extends Component {
                 <Connection
                     handlers={handlers}
                     index={i}
-                    key={i}
+                    key={"env" + i}
                     module={module}
                     parameter={parameter}
                     patch={patch}
@@ -53,7 +53,7 @@ class ModulationTarget extends Component {
                 {envCount > 0 ?
                     <Connection
                         handlers={handlers}
-                        index={null}
+                        index={-1}
                         key={envCount}
                         module={module}
                         noConnection={noConnection}

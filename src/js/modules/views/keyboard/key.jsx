@@ -19,10 +19,10 @@ class Key extends Component {
     }
 
 }
-Key.propTypes = {
+Key.propTypes = PropTypes.shape({
     "handlers": PropTypes.object.isRequired,
     "keyNumber": PropTypes.number.isRequired
-};
+});
 
 
 export default Key;

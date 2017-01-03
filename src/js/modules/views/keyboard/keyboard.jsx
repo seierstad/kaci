@@ -1,8 +1,8 @@
 import React, {Component, PropTypes} from "react";
 
-import {NOTE_NAMES} from "../constants";
+import {NOTE_NAMES} from "../../constants";
 
-import RangeInput from "./RangeInput.jsx";
+import RangeInput from "../RangeInput.jsx";
 import BlackKey from "./black-key.jsx";
 import WhiteKey from "./white-key.jsx";
 

@@ -37,7 +37,7 @@ class WaveformSelector extends Component {
 WaveformSelector.propTypes = {
     "changeHandler": PropTypes.func.isRequired,
     "index": PropTypes.number,
-    "module": PropTypes.string,
+    "module": PropTypes.string.isRequired,
     "selected": PropTypes.string,
     "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
 };

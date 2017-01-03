@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import * as PropDef from "../../proptype-defs";
+import * as PropDef from "../../../proptype-defs";
 
 import Target from "./modulation-target.jsx";
 

@@ -2,11 +2,12 @@ import React, {Component, PropTypes} from "react";
 
 import {getWrapperFunction} from "./oscillator-commons";
 import {waveforms, wrappers} from "../../waveforms";
-import * as PropDefs from "../../proptype-defs";
+import * as PropDefs from "../../../proptype-defs";
 
+import DependentComponent from "./dependent-component.jsx";
 import RangeInput from "../RangeInput.jsx";
 import WaveformSelector from "../WaveformSelector.jsx";
-import WaveformCanvas from "../waveform-canvas.jsx";
+import WaveformCanvas from "./waveform-canvas.jsx";
 
 const wrapWaveform = (wrappers, waveform, resonance) => {
     let wrappedWaveforms = {};
@@ -20,13 +21,19 @@ const wrapWaveform = (wrappers, waveform, resonance) => {
 };
 
 
-class Resonance extends Component {
+class Resonance extends DependentComponent {
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return (
+            super.shouldComponentUpdate(nextProps, nextState)
+            || nextProps.patch.wrapper !== this.props.patch.wrapper
+            || nextProps.patch.resonance  !== this.props.patch.resonance
+            || nextProps.patch.resonanceActive  !== this.props.patch.resonanceActive
+        );
+    }
 
     componentWillMount () {
-        this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus, 5);
-    }
-    componentWillUnmount () {
-        this.wrappedWaveforms = null;
+        this.setState({"wrappedWaveforms": wrapWaveform(wrappers, waveforms.sinus, 5)});
     }
 
     render () {
@@ -35,32 +42,29 @@ class Resonance extends Component {
         return (
             <div className="oscillator-resonance-view">
                 <WaveformCanvas waveFunction={waveFunction} />
-                <input
-                    checked={patch.active}
-                    onChange={handlers.toggle}
-                    type="checkbox"
-                />
+                <input type="checkbox" checked={patch.resonanceActive} onChange={handlers.toggle} />
                 <RangeInput
                     changeHandler={handlers.factorChange}
                     label="Resonance"
                     max={configuration.max}
                     min={configuration.min}
                     step={0.01}
-                    value={patch.factor}
+                    value={patch.resonance}
                 />
                 <WaveformSelector
                     changeHandler={handlers.wrapperChange}
+                    module="oscillator"
                     selected={patch.wrapper}
-                    waveforms={this.wrappedWaveforms}
+                    waveforms={this.state.wrappedWaveforms}
                 />
             </div>
         );
     }
 }
 Resonance.propTypes = {
-    "configuration": PropDefs.modulationTarget.isRequired,
+    "configuration": PropDefs.inputRange.isRequired,
     "handlers": PropTypes.object.isRequired,
-    "patch": PropDefs.resonancePatchData,
+    "patch": PropDefs.oscillatorPatchData,
     "waveFunction": PropTypes.func.isRequired
 };
 

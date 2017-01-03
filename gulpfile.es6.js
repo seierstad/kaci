@@ -19,9 +19,11 @@ import autoprefixer from "gulp-autoprefixer";
 import sourcemaps from "gulp-sourcemaps";
 import rev from "gulp-rev";
 import revReplace from "gulp-rev-replace";
+import htmllint from "gulp-htmllint";
 
 import eslint from "gulp-eslint";
 import gutil from "gulp-util";
+
 
 const BROWSERIFY_LIBS = [
     "react",
@@ -38,7 +40,7 @@ const BROWSERIFY_DEVLIBS = [
 
 import {dependencies} from "./package.json";
 
-const isDevelopment = false;
+const isDevelopment = true;
 const isProduction = !isDevelopment;
 
 const REV_MANIFEST_CONFIG = {
@@ -47,17 +49,9 @@ const REV_MANIFEST_CONFIG = {
     merge: true
 };
 
-// Builds the app file using Browserify
-// with the React(ify) transform for React.js
-gulp.task("browserify", function () {
-    const b = browserify();
+const FILENAMES = {
 
-    //    b.transform(reactify);
-    b.add("./javascript/kaci.js");
-    return b.bundle()
-        .pipe(source("kaci.js"))
-        .pipe(gulp.dest("./build/"));
-});
+};
 
 gulp.task("build:libs", () => {
     let b = browserify().transform(babel);
@@ -111,8 +105,7 @@ gulp.task("build:scripts", () => {
 
 });
 
-// Builds SCSS into CSS and minifies CSS
-gulp.task("styles", function () {
+gulp.task("build:styles", function () {
     return gulp.src("./stylesheets/*.scss")
         .pipe(sourcemaps.init())
         .pipe(sass({
@@ -127,23 +120,27 @@ gulp.task("styles", function () {
         .pipe(gulp.dest("./build/css"));
 });
 
-gulp.task("copyIndex", function () {
-    return gulp.src("./markup/template.html")
-        .pipe(rename("index.html"))
-        .pipe(gulp.dest("./build"));
+gulp.task("lint:markup", () => {
+    return gulp.src("src/**/*.html")
+    .pipe(htmllint());
 });
 
-gulp.task("lint", function () {
-    return gulp.src(["**/*.js", "!node_modules/**"])
-        .pipe(eslint())
-        .pipe(eslint.format())
-        .pipe(eslint.failAfterError());
+
+// Generate build index.html
+gulp.task("build:markup", () => {
+    const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
+
+    gulp.src(["src/index.html"])
+        .pipe(revReplace({manifest: revManifest}))
+        .pipe(gulp.dest("build"));
 });
 
-gulp.task("webserver", function () {
-    connect.server({
+
+gulp.task("server", function () {
+    return connect.server({
         livereload: true,
-        root: [".", "build"]
+        root: ["build"],
+        debug: true
     });
 });
 
@@ -153,27 +150,6 @@ gulp.task("default", [
     "styles",
     "copyIndex"
 ]);
-
-gulp.task("reactfiler", () => {
-
-    let b = browserify("./javascript/kaci.jsx").transform(babel);
-    BROWSERIFY_LIBS.forEach(function (lib) {
-        b.external(lib);
-    });
-    BROWSERIFY_DEVLIBS.forEach(function (lib) {
-        b.external(lib);
-    });
-    return b.bundle()
-        .pipe(source("kaci.js"))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({
-            loadMaps: true
-        }))
-        //        .pipe(uglify())
-        .on("error", gutil.log)
-        .pipe(sourcemaps.write("./maps"))
-        .pipe(gulp.dest("build"));
-});
 
 
 gulp.task("env:production", () => {
