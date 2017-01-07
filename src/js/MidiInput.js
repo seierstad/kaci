@@ -363,11 +363,13 @@ class MidiInput {
 
     selectInputPort (portId) {
         if (this.activeInput && this.activeInput.id !== portId) {
+            this.activeInput.close();
             this.removeInputListeners(this.activeInput);
         }
         if (portId && this.inputs[portId]) {
             this.activeInputId = portId;
             this.activeInput = this.inputs[portId];
+            this.activeInput.open();
             this.addInputListeners(this.activeInput);
         }
     }
