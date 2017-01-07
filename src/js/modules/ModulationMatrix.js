@@ -6,17 +6,11 @@ import DCGenerator from "./DCGenerator";
 import Utils from "./Utils";
 import ModulationSources from "./ModulationSources.jsx";
 
-import WavyJones from "../../lib/wavy-jones/wavy-jones";
-
-
-import {
-    ParamLogger
-}
-from "./sharedFunctions";
+import {ParamLogger} from "./sharedFunctions";
 
 class ModulationMatrix {
 
-    constructor(context, store) {
+    constructor (context, store) {
         /*
         constructor:
             - initialize static parameters
@@ -40,7 +34,7 @@ class ModulationMatrix {
 
         this.dc = new DCGenerator(context);
 
-        var sources = new ModulationSources(context, store, this.configuration);
+        let sources = new ModulationSources(context, store, this.configuration);
 
         this.sources = sources.sources;
         this.targets = this.setupTargets(this.configuration.target, this.context, this.dc);
@@ -54,7 +48,7 @@ class ModulationMatrix {
     }
 
 
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState().patch.modulation;
 
         const compareLFOState = (newLfo, index) => {
@@ -90,20 +84,20 @@ class ModulationMatrix {
 
     }
 
-    connectLFO(lfo, index) {
+    connectLFO (lfo, index) {
         for (let target in lfo) {
             const connection = lfo[target];
             if (connection.enabled) {
-                this.connect("lfo", index, target, connection.polarity, connection.amount)
+                this.connect("lfo", index, target, connection.polarity, connection.amount);
             }
         }
     }
 
-    validEventData(data) {
+    validEventData (data) {
         return data.sourceType && !isNaN(parseInt(data.sourceIndex, 10)) && data.targetModule && data.targetParameter;
     }
 
-    setupTargets(targets, context, dc, path) {
+    setupTargets (targets, context, dc, path) {
         let result = {};
 
         if (!path) {
@@ -122,8 +116,8 @@ class ModulationMatrix {
                     path.pop();
                 } else {
                     result = {
-                            ...result,
-                            ...this.setupTargets(target, context, dc, path.slice())
+                        ...result,
+                        ...this.setupTargets(target, context, dc, path.slice())
                     };
                     path.pop();
                 }
@@ -132,7 +126,7 @@ class ModulationMatrix {
         return result;
     }
 
-    connectStaticSources(sources, targets) {
+    connectStaticSources (sources, targets) {
         for (let key in sources) {
             if (sources.hasOwnProperty(key) && targets[key]) {
                 sources[key].connect(targets[key]);
@@ -140,23 +134,23 @@ class ModulationMatrix {
         }
     }
 
-    connect(type, index, target, range, amount) {
-        var source;
+    connect (type, index, target, range, amount) {
+        let source;
         if (this.targets[target]) {
             switch (type) {
-            case "lfo":
-                switch (range) {
-                case "full":
-                    source = this.sources.lfos[index];
+                case "lfo":
+                    switch (range) {
+                        case "full":
+                            source = this.sources.lfos[index];
+                            break;
+                        case "positive":
+                            source = this.sources.lfos[index].outputs.positive;
+                            break;
+                        case "negative":
+                            source = this.sources.lfos[index].outputs.negative;
+                            break;
+                    }
                     break;
-                case "positive":
-                    source = this.sources.lfos[index].outputs.positive;
-                    break;
-                case "negative":
-                    source = this.sources.lfos[index].outputs.negative;
-                    break;
-                }
-                break;
             }
 
             this.connections[type] = this.connections[type] || [];
@@ -169,7 +163,7 @@ class ModulationMatrix {
         }
     }
 
-    disconnect(type, index, target) {
+    disconnect (type, index, target) {
         if (this.connections[type][index][target]) {
             this.connections[type][index][target].disconnect();
             this.connections[type][index][target] = null;
@@ -177,7 +171,7 @@ class ModulationMatrix {
     }
 
 
-    patchVoice(voice, patch) {
+    patchVoice (voice, patch) {
         /*        var localModulators = voice.getLocalModulators(),
             localTargets = voice.getEnvelopeTargets(),
             split, key, envelopePatch, i, j;
@@ -281,7 +275,6 @@ class ModulationMatrix {
         context.addEventListener("oscillator.change.mix", staticParameterChangeHandler("oscillator.mix").bind(this));
         context.addEventListener("oscillator.change.pan", staticParameterChangeHandler("oscillator.pan").bind(this));
         context.addEventListener("oscillator.change.detune", staticParameterChangeHandler("oscillator.detune").bind(this));
-
 
 
         staticParameterChangeHandler = function staticParameterChangeHandler(parameter) {

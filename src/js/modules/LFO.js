@@ -11,7 +11,7 @@ import IdealOscillator from "./IdealOscillator";
 */
 
 class LFO {
-    constructor(context, store, index, isSyncMaster) {
+    constructor (context, store, index, isSyncMaster) {
 
         this.context = context;
         this.index = index;
@@ -57,7 +57,7 @@ class LFO {
 */
 
     }
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState().patch.lfos[this.index];
         if (newState !== this.state) {
             if (this.state.amount !== newState.amount) {
@@ -78,11 +78,11 @@ class LFO {
                 }
                 if ((!this.state.sync || this.state.sync && !this.state.sync.enabled) && newState.sync.enabled) {
                     // sync enabled
-                    this.syncMasterState = store.getState().patch.lfos[newState.sync.master];
+                    this.syncMasterState = this.store.getState().patch.lfos[newState.sync.master];
                 }
                 if (this.state.sync && this.state.sync.enabled) {
                     if (this.state.sync.numerator !== newState.sync.numerator) {
-
+                        console.log("update numerator!");
                     }
                 }
             }
@@ -100,19 +100,14 @@ class LFO {
 "lfo.master.reset",
 'lfo.master.zeroPhase'
     */
-    setFrequency(frequency) {
+    setFrequency (frequency) {
         this.frequency.setValueAtTime(frequency, this.context.currentTime);
     }
-    syncToMaster() {
-        var that = this;
+    syncToMaster () {
+        let that = this;
 
-        const masterZeroPhaseHandler = (event) => {
-            masterFrequencyHandler(event);
-            that.oscillator.resetPhase();
-            that.context.removeEventListener('lfo.master.zeroPhase', masterZeroPhaseHandler);
-        }
         const masterFrequencyHandler = (event) => {
-            var syncedFrequency;
+            let syncedFrequency;
 
             if (!isNaN(event.detail)) {
                 if (that.sync.enabled) {
@@ -120,20 +115,24 @@ class LFO {
                     that.setFrequency(syncedFrequency);
                 }
             }
-            that.context.removeEventListener('lfo.master.frequency', masterFrequencyHandler);
+            that.context.removeEventListener("lfo.master.frequency", masterFrequencyHandler);
         };
-
+        const masterZeroPhaseHandler = (event) => {
+            masterFrequencyHandler(event);
+            that.oscillator.resetPhase();
+            that.context.removeEventListener("lfo.master.zeroPhase", masterZeroPhaseHandler);
+        };
     }
-    updateOutputRanges(amount) {
+    updateOutputRanges (amount) {
         if (this.outputs.positive) {
             this.outputs.positive.curve = new Float32Array([0, amount]);
         }
         if (this.outputs.negative) {
             this.outputs.negative.curve = new Float32Array([-amount, 0]);
         }
-    };
-    setValueAtTime(value, time) {
-        var delay = 0;
+    }
+    setValueAtTime (value, time) {
+        let delay = 0;
 
         this.postGain.gain.setValueAtTime(value, time);
 
@@ -142,16 +141,16 @@ class LFO {
         }
         setTimeout(this.updateOutputRanges(value), delay);
     }
-    setWaveform(waveformName) {
+    setWaveform (waveformName) {
         this.oscillator.setWaveform(waveformName);
     }
-    start(time) {
+    start (time) {
         this.oscillator.start(time);
     }
-    stop() {
+    stop () {
         this.oscillator.stop();
     }
-    destroy() {
+    destroy () {
         this.unsubscribe();
 
         this.context = null;
@@ -165,18 +164,18 @@ class LFO {
         this.oscillator.destroy();
         this.oscillator = null;
     }
-    disconnect() {
+    disconnect () {
         this.postGain.disconnect();
     }
-    connect(node) {
-        if (node.hasOwnProperty('input')) {
+    connect (node) {
+        if (node.hasOwnProperty("input")) {
             this.postGain.connect(node.input);
         } else {
             this.postGain.connect(node);
         }
     }
-    addOutput(name, range) {
-        var shaper,
+    addOutput (name, range) {
+        let shaper,
             out;
 
         if (this.outputs[name]) {

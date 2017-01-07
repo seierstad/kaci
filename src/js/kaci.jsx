@@ -1,16 +1,12 @@
-/** Require React itself */
-/*globals require, console, window, document, CustomEvent */
-"use strict";
-
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { createStore } from "redux";
+import {Provider} from "react-redux";
+import {createStore} from "redux";
 import reducer from "./modules/reducers/kaci.jsx";
 import KaciView from "./modules/views/KaciView.jsx";
 
 import VoiceRegister from "./modules/VoiceRegister";
-import WavyJones from "../lib/wavy-jones/wavy-jones";
+// import WavyJones from "../lib/wavy-jones/wavy-jones";
 import ModulationMatrix from "./modules/ModulationMatrix";
 import KeyboardInput from "./modules/KeyboardInput";
 import patch from "./modules/patch";
@@ -19,7 +15,7 @@ import SystemSettings from "./modules/SystemSettings";
 import defaultSettings from "./configuration.json";
 import PatchHandler from "./modules/PatchHandler";
 
-var ctx, mainMix;
+let ctx, mainMix;
 
 if (window.AudioContext) {
     ctx = new window.AudioContext();
@@ -33,17 +29,17 @@ if (window.AudioContext) {
     }
     settings = settings || defaultSettings;
 
-    var store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
+    let store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
 /*
     var system = new SystemSettings(ctx, settings, store);
 */
 
-    var midi = new MidiInput(store);
-    var keyboardInput = new KeyboardInput(store);
+    let midi = new MidiInput(store);
+    let keyboardInput = new KeyboardInput(store);
 
 
-    var modulationMatrix = new ModulationMatrix(ctx, store);
-    var reg = new VoiceRegister(store, ctx, modulationMatrix);
+    let modulationMatrix = new ModulationMatrix(ctx, store);
+    let reg = new VoiceRegister(store, ctx, modulationMatrix);
 
     const kaciWrapper = document.getElementById("kaci");
 

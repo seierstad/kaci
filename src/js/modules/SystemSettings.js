@@ -1,7 +1,7 @@
 /* global localStorage */
-var SystemSettings = function (context, defaultSettings, store) {
+let SystemSettings = function (context, defaultSettings, store) {
     "use strict";
-    var settingsString,
+    let settingsString,
         keyboardLayoutChangedHandler,
         midiInputPortChangedHandler,
         baseFrequencyChangedHandler;
@@ -17,7 +17,7 @@ var SystemSettings = function (context, defaultSettings, store) {
         }
     }
     this.storeSettings = function () {
-        var string;
+        let string;
         if (localStorage) {
             string = JSON.stringify(this.settings);
             localStorage.setItem("kaciSystemSettings", string);

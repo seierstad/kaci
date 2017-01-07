@@ -21,47 +21,50 @@ class KaciReactViewPresentation extends Component {
         return (
             <div>
                 <SystemSettingsView
-                    midiHandlers={handlers.midi}
-                    midiConfiguration={configuration.midi}
                     keyboardConfiguration={configuration.keyboard}
-                    keyboardHandlers={handlers.keyboard} />
+                    keyboardHandlers={handlers.keyboard}
+                    midiConfiguration={configuration.midi}
+                    midiHandlers={handlers.midi}
+                />
                 <Oscillator
-                    patch={patch.oscillator}
-                    handlers={handlers.oscillator}
-                    envelopeHandlers={handlers.envelope}
                     configuration={configuration.modulation.target.oscillator}
+                    envelopeHandlers={handlers.envelope}
+                    handlers={handlers.oscillator}
+                    patch={patch.oscillator}
                     viewState={viewState.oscillator}
-                    />
+                />
                 <NoiseView
-                    patch={patch.noise}
+                    configuration={configuration.modulation.target.noise}
                     handlers={handlers.noise}
-                    configuration={configuration.modulation.target.noise} />
+                    patch={patch.noise}
+                />
                 <SubView
-                    patch={patch.sub}
+                    configuration={configuration.modulation.target.sub}
                     handlers={handlers.sub}
-                    configuration={configuration.modulation.target.sub} />
+                    patch={patch.sub}
+                />
                 <Envelopes
-                    patch={patch.envelopes}
-                    handlers={handlers.envelope}
                     configuration={configuration.modulation.source.envelopes}
+                    handlers={handlers.envelope}
+                    patch={patch.envelopes}
                     viewState={viewState.envelopes}
-                    />
+                />
                 <LFOs
-                    patch={patch.lfos}
-                    handlers={handlers.lfos}
-                    syncHandlers={handlers.sync}
                     configuration={configuration.modulation.source.lfos}
-                    />
+                    handlers={handlers.lfos}
+                    patch={patch.lfos}
+                    syncHandlers={handlers.sync}
+                />
                 <ModulationMatrix
-                    patch={patch.modulation}
-                    handlers={handlers.modulation}
                     configuration={configuration.modulation}
-                    />
+                    handlers={handlers.modulation}
+                    patch={patch.modulation}
+                />
                 <Keyboard
+                    configuration={configuration.keyboard}
                     handlers={handlers.keyboard}
                     playState={playState}
-                    configuration={configuration.keyboard}
-                    />
+                />
             </div>
         );
     }
@@ -106,7 +109,7 @@ const mapDispatchToProps = (dispatch) => {
                     const value = parseFloat(event.target.value);
                     dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});
                 }
-             },
+            },
             envelope: {
                 circleClick: (event, module, envelopeIndex, envelopePart, index, first, last) => {
                     if (event.shiftKey) {
@@ -142,7 +145,7 @@ const mapDispatchToProps = (dispatch) => {
                         envelopeIndex,
                         envelopePart,
                         index
-                    })
+                    });
                 },
                 circleBlur: (event, module, envelopeIndex, envelopePart, index, first, last) => {
                     if ((envelopePart === "sustain") || (envelopePart === "release" && first) || envelopePart === "attack" && first) {
@@ -184,7 +187,7 @@ const mapDispatchToProps = (dispatch) => {
                         envelopeIndex,
                         envelopePart,
                         value: parseFloat(event.target.value)
-                    })
+                    });
                 }
 
             },

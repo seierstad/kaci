@@ -3,7 +3,7 @@ import * as Actions from "./Actions.jsx";
 
 class KeyboardInput {
 
-    constructor(store) {
+    constructor (store) {
         this.changeLayout = this.changeLayout.bind(this);
         this.keyDownHandler = this.keyDownHandler.bind(this);
         this.keyUpHandler = this.keyUpHandler.bind(this);
@@ -12,7 +12,7 @@ class KeyboardInput {
         this.state = store.getState().settings.keyboard;
         this.pressed = [];
         this.pressedControlKeys = [];
-        this.layout = this.state.layouts.find(layout => layout.name === this.state.activeLayout)
+        this.layout = this.state.layouts.find(layout => layout.name === this.state.activeLayout);
 
         const update = () => {
             const newState = store.getState().settings.keyboard;
@@ -23,12 +23,12 @@ class KeyboardInput {
         };
         store.subscribe(update);
 
-        document.addEventListener('keydown', this.keyDownHandler, false);
-        document.addEventListener('keyup', this.keyUpHandler, false);
+        document.addEventListener("keydown", this.keyDownHandler, false);
+        document.addEventListener("keyup", this.keyUpHandler, false);
     }
 
-    keyDownHandler(event) {
-        var index,
+    keyDownHandler (event) {
+        let index,
             key;
 
         if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey) {
@@ -64,8 +64,8 @@ class KeyboardInput {
         }
     }
 
-    keyUpHandler(event) {
-        var index,
+    keyUpHandler (event) {
+        let index,
             key;
 
         index = this.layout.map.indexOf(event.keyCode);
@@ -89,12 +89,12 @@ class KeyboardInput {
         }
     }
 
-    changeLayout(layout) {
+    changeLayout (layout) {
         if (layout !== this.layout.name) {
             this.layout = this.state.layouts.find(l => l.name === layout);
         }
     }
 
-};
+}
 
 module.exports = KeyboardInput;

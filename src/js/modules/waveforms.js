@@ -1,7 +1,6 @@
 const DOUBLE_PI = require("./constants").DOUBLE_PI;
 
-export
-const wrappers = {
+export const wrappers = {
     sync: function () {
         return 1;
     },
@@ -11,73 +10,70 @@ const wrappers = {
     halfSinus: function (phase) {
         return Math.sin(phase * Math.PI);
     },
-    gaussian: function (phase) {
+    gaussian: function () {
         // dummy function to be replaced by constructor
         // added for static enumeration purposes
     }
 };
 
-export
-const waveforms = {
-    zero: function zero() {
+export const waveforms = {
+    zero: function zero () {
         return 0;
     },
-    sinus: function sinus(phase) {
+    sinus: function sinus (phase) {
         return Math.sin(phase * DOUBLE_PI);
     },
-    square: function square(phase) {
+    square: function square (phase) {
         if ((phase % 1) > 0.5) {
             return -1;
-        } else {
-            return 1;
         }
+        return 1;
     },
-    additiveSquare: function additiveSquare(phase, maxHarmonic) {
-        var value = 0,
-            i = 1;
+    additiveSquare: function additiveSquare (phase, maxHarmonic) {
+        const h = maxHarmonic || 8;
+        let value = 0;
 
-        maxHarmonic = maxHarmonic || 8;
-
-        for (i = 1; i < maxHarmonic; i += 2) {
+        for (let i = 1; i < h; i += 2) {
             value += Math.sin(phase * DOUBLE_PI * i) / i;
         }
+
         return value * (4 / Math.PI);
     },
-    saw: function saw(phase) {
+    saw: function saw (phase) {
         return ((phase % 1) - 0.5) * 2;
     },
-    additiveSaw: function additiveSaw(phase, maxHarmonic) {
-        var value = 0,
-            i;
+    additiveSaw: function additiveSaw (phase, maxHarmonic) {
+        const h = maxHarmonic || 8;
+        let value = 0;
 
-        maxHarmonic = maxHarmonic || 8;
-
-        for (i = 1; i < maxHarmonic; i += 1) {
+        for (let i = 1; i < h; i += 1) {
             value += Math.sin(phase * DOUBLE_PI * i) / i;
         }
 
         return value * (2 / Math.PI);
     },
-    saw_inverse: function saw_inverse(phase) {
+
+    saw_inverse: function saw_inverse (phase) {
         return 1 - ((phase % 1) * 2);
     },
-    triangle: function triangle(phase) {
-        var p = phase % 1;
+
+    triangle: function triangle (phase) {
+        const p = phase % 1;
+
         if (p < 0.25) {
             return p * 4;
         } else if (p < 0.75) {
             return (p - 0.5) * -4;
-        } else {
-            return (p - 1) * 4;
         }
+        return (p - 1) * 4;
     },
-    additiveTriangle: function additiveTriangle(phase, maxHarmonic) {
-        var value = 0,
-            i = 1,
-            odd = true;
 
-        maxHarmonic = maxHarmonic || 5;
-        for (i = 1; i < maxHarmonic; i += 2) {
+    additiveTriangle: function additiveTriangle (phase, maxHarmonic) {
+        const h = maxHarmonic || 5;
+        let odd = true,
+            value = 0;
+
+        for (let i = 1; i < h; i += 2) {
             if (odd) {
                 value += Math.sin(phase * DOUBLE_PI * i) / (i * i);
             } else {
@@ -87,11 +83,10 @@ const waveforms = {
         }
         return value * (8 / Math.pow(Math.PI, 2));
     },
-    sampleAndHold: function sampleAndHold(phase, buffer, steps) {
 
-        var fraction;
-        steps = steps || 2;
-        fraction = 1 / steps;
+    sampleAndHold: function sampleAndHold (phase, buffer, steps) {
+        const s = steps || 2;
+        const fraction = 1 / s;
 
         if (!buffer.hasOwnProperty("value") || buffer.value === null) {
             buffer.value = (Math.random() - 0.5) * 2;
@@ -104,11 +99,9 @@ const waveforms = {
     }
 };
 
-export
-const noise = {
-    "white": function whiteNoise(buffer) {
-        var i, j;
-        for (i = 0, j = buffer.length; i < j; i += 1) {
+export const noise = {
+    "white": function whiteNoise (buffer) {
+        for (let i = 0, j = buffer.length; i < j; i += 1) {
             buffer[i] = Math.random() * 2 - 1;
         }
     }

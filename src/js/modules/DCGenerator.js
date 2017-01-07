@@ -1,6 +1,6 @@
 "use strict";
-var DCGenerator = function (context) {
-    var gen,
+let DCGenerator = function (context) {
+    let gen,
         real,
         imag;
 
@@ -18,13 +18,13 @@ var DCGenerator = function (context) {
 };
 
 DCGenerator.prototype.connect = function (node) {
-    if (node.hasOwnProperty('input')) {
+    if (node.hasOwnProperty("input")) {
         this.generator.connect(node.input);
     } else {
         this.generator.connect(node);
     }
 };
-DCGenerator.prototype.destroy = function destroyDCGenerator() {
+DCGenerator.prototype.destroy = function destroyDCGenerator () {
     this.generator.stop();
     this.generator.disconnect();
     this.generator = null;

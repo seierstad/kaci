@@ -16,5 +16,6 @@ const debugReducer = (state, action) => { // set this as default export to debug
     const result = reducer(state, action);
     console.log(result);
     return result;
-}
+};
+
 export default reducer;

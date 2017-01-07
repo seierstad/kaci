@@ -48,12 +48,12 @@ const lfo = (state = [], action) => {
                 ...state,
                 sync: {
                     ...state.sync,
-                    "enabled": !!!state.sync.enabled
+                    "enabled": !state.sync.enabled
                 }
             };
     }
     return state;
-}
+};
 
 const lfos = (state = [], action) => {
     if (action.module === "lfos") {

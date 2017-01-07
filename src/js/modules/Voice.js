@@ -7,9 +7,6 @@ import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
 
-
-import WavyJones from "../../lib/wavy-jones/wavy-jones";
-
 const prefixKeys = (object, prefix) => {
     const result = {};
     Object.keys(object).forEach(key => {
@@ -19,7 +16,7 @@ const prefixKeys = (object, prefix) => {
 };
 
 class Voice {
-    constructor(context, store, frequency) {
+    constructor (context, store, frequency) {
 
         this.store = store;
         this.state = store.getState().patch;
@@ -54,18 +51,18 @@ class Voice {
 
 
         this.outputs = {
-                ...(prefixKeys(this.oscillator.parameters.outputs, "oscillator.")),
-                ...(prefixKeys(this.noise.parameters.outputs, "noise.")),
-                ...(prefixKeys(this.sub.parameters.outputs, "sub."))
+            ...(prefixKeys(this.oscillator.parameters.outputs, "oscillator.")),
+            ...(prefixKeys(this.noise.parameters.outputs, "noise.")),
+            ...(prefixKeys(this.sub.parameters.outputs, "sub."))
         };
         this.inputs = {
-                ...(prefixKeys(this.oscillator.parameters.outputs, "oscillator.")),
-                ...(prefixKeys(this.noise.parameters.inputs, "noise.")),
-                ...(prefixKeys(this.sub.parameters.inputs, "sub."))
+            ...(prefixKeys(this.oscillator.parameters.outputs, "oscillator.")),
+            ...(prefixKeys(this.noise.parameters.inputs, "noise.")),
+            ...(prefixKeys(this.sub.parameters.inputs, "sub."))
         };
 
-        //* start scope
-        var scope = new WavyJones(context, "oscilloscope");
+        /* start scope
+        let scope = new WavyJones(context, "oscilloscope");
         scope.lineColor = "black";
         scope.lineThickness = 1;
 
@@ -73,15 +70,15 @@ class Voice {
         //*/
 
     }
-    get parameterOutputNodes() {
+    get parameterOutputNodes () {
         return this.outputs;
     }
 
-    get parameterInputNodes() {
+    get parameterInputNodes () {
         return this.inputs;
     }
 
-    connect(node) {
+    connect (node) {
         if (node.hasOwnProperty("input")) {
             this.vca.connect(node.input);
         } else {
@@ -89,11 +86,11 @@ class Voice {
         }
     }
 
-    disconnect() {
+    disconnect () {
         this.vca.disconnect();
     }
 
-    destroy() {
+    destroy () {
         this.sub.stop(this.stopTime);
         this.sub.disconnect();
         this.sub.destroy();
@@ -103,13 +100,12 @@ class Voice {
 
         this.envelopes.forEach(envelope => {
             envelope.disconnect();
-            envelope = null;
+            envelope.destroy();
         });
 
         this.lfos.forEach(lfo => {
             lfo.disconnect();
             lfo.destroy();
-            lfo = null;
         });
 
         this.oscillator.destroy();
@@ -117,12 +113,12 @@ class Voice {
 
         this.disconnect();
         this.vca = null;
-        if (typeof this.destroyCallback === 'function') {
+        if (typeof this.destroyCallback === "function") {
             this.destroyCallback(this);
         }
     }
 
-    start(time) {
+    start (time) {
 
         this.startTime = time;
         this.sub.start(time);
@@ -132,7 +128,7 @@ class Voice {
         this.envelopes.forEach(envelope => envelope.trigger(time));
     }
 
-    stop(time, callback) {
+    stop (time, callback) {
         this.stopTime = time;
 
         this.envelopes.forEach(function (envelope) {
@@ -143,7 +139,7 @@ class Voice {
         this.destroyTimer = setTimeout(this.destroy.bind(this), 0);
     }
 
-    set frequency(frequency) {
+    set frequency (frequency) {
         this.oscillator.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
         this.sub.frequency.setValueAtTime(frequency, this.context.currentTime);
     }

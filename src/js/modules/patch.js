@@ -1,6 +1,6 @@
 /*global module */
 "use strict";
-var patch = {
+let patch = {
     "oscillator": {
         "waveform": "triangle",
         "pd": [{
@@ -144,9 +144,9 @@ var patch = {
     }
 };
 
-var rpatch = {
+let rpatch = {
     oscillator: {
-        waveform: 'triangle',
+        waveform: "triangle",
         pdEnvelope0: [
             [0, 0],
             [1, 1]
@@ -159,7 +159,7 @@ var rpatch = {
         ],
         resonanceActive: true,
         resonance: 1.1,
-        wrapper: 'saw',
+        wrapper: "saw",
         mix: 0,
         detune: 0
     },

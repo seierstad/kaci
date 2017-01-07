@@ -69,7 +69,7 @@ const oscillator = (state = {}, action) => {
 
     }
     return state;
-}
+};
 
 
 const noise = (state = {}, action) => {

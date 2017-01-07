@@ -8,15 +8,15 @@ import {getDistortedPhase, mixValues} from "../sharedFunctions";
 import {Envelope} from "./EnvelopeView.jsx";
 import RangeInput from "./RangeInput.jsx";
 import WaveformSelector from "./WaveformSelector.jsx";
-
+import DependentComponent from "./dependent-component.jsx";
 import PDOscillator from "../PDOscillator";
 
 
 const getWrapperFunction = (wrapper, waveform, resonance) => (phase) => {
     return wrapper(phase) * waveform(phase * resonance);
-}
+};
 const wrapWaveform = (wrappers, waveform, resonance) => {
-    var wrapperName,
+    let wrapperName,
         wrappedWaveforms = {};
 
     for (wrapperName in wrappers) {
@@ -49,13 +49,13 @@ class WaveformCanvas extends Component {
     }
 }
 WaveformCanvas.propTypes = {
-    waveFunction: PropTypes.func.isRequired,
-    update: PropTypes.bool
-}
+    update: PropTypes.bool,
+    waveFunction: PropTypes.func.isRequired
+};
 
 class PhaseDistortion extends Component {
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return (
             nextProps.waveformName !== this.props.waveformName
             || nextProps.patch.steps !== this.props.patch.steps
@@ -67,10 +67,10 @@ class PhaseDistortion extends Component {
         drawWaveform(this.props.waveFunction, this.waveform);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateWaveform();
     }
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate (prevProps, prevState) {
         this.updateWaveform();
     }
 
@@ -81,32 +81,32 @@ class PhaseDistortion extends Component {
             <div className="oscillator-pd-view">
                 <canvas ref={c => this.waveform = c} />
                 <Envelope
-                    module="oscillator"
+                    handlers={handlers}
                     index={index}
+                    module="oscillator"
                     patch={patch}
                     viewState={viewState}
-                    handlers={handlers}
-                    />
+                />
             </div>
         );
     }
 }
 PhaseDistortion.propTypes = {
+    handlers: PropTypes.objectOf(PropTypes.func).isRequired,
+    index: PropTypes.number.isRequired,
+    module: PropTypes.string.isRequired,
     patch: PropTypes.shape({
         "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))
     }),
     viewState: PropTypes.array,
-    index: PropTypes.number.isRequired,
-    module: PropTypes.string.isRequired,
-    handlers: PropTypes.objectOf(PropTypes.func).isRequired,
     waveFunction: PropTypes.func.isRequired,
     waveformName: PropTypes.string.isRequired
-}
+};
 
 
 class Mix extends DependentComponent {
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return (
             super.shouldComponentUpdate(nextProps, nextState)
             || nextProps.patch !== this.props.patch
@@ -119,13 +119,13 @@ class Mix extends DependentComponent {
             <div className="oscillator-mix-view">
                 <WaveformCanvas waveFunction={waveFunction} />
                 <RangeInput
-                    label="Mix"
-                    min={configuration.min}
-                    max={configuration.max}
-                    step={0.01}
                     changeHandler={changeHandler}
+                    label="Mix"
+                    max={configuration.max}
+                    min={configuration.min}
+                    step={0.01}
                     value={patch}
-                    />
+                />
             </div>
         );
     }
@@ -134,17 +134,17 @@ class Mix extends DependentComponent {
 
 class Resonance extends DependentComponent {
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return (
             super.shouldComponentUpdate(nextProps, nextState)
             || nextProps.patch.wrapper !== this.props.patch.wrapper
-            || nextProps.patch.resonance  !== this.props.patch.resonance
-            || nextProps.patch.resonanceActive  !== this.props.patch.resonanceActive
+            || nextProps.patch.resonance !== this.props.patch.resonance
+            || nextProps.patch.resonanceActive !== this.props.patch.resonanceActive
         );
     }
 
     componentWillMount () {
-        var wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus, 5);
+        let wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus, 5);
         this.setState({"wrappedWaveforms": wrappedWaveforms});
     }
 
@@ -155,25 +155,26 @@ class Resonance extends DependentComponent {
         return (
             <div className="oscillator-resonance-view">
                 <WaveformCanvas waveFunction={waveFunction} />
-                <input type="checkbox" checked={patch.resonanceActive} onChange={handlers.toggle} />
+                <input checked={patch.resonanceActive} onChange={handlers.toggle} type="checkbox" />
                 <RangeInput
-                    label="Resonance"
-                    min={configuration.min}
-                    max={configuration.max}
-                    step={0.01}
                     changeHandler={handlers.factorChange}
+                    label="Resonance"
+                    max={configuration.max}
+                    min={configuration.min}
+                    step={0.01}
                     value={patch.resonance}
-                    />
+                />
                 <WaveformSelector
-                    waveforms={this.state.wrappedWaveforms}
-                    selected={patch.wrapper}
                     changeHandler={handlers.wrapperChange}
-                    />
+                    selected={patch.wrapper}
+                    waveforms={this.state.wrappedWaveforms}
+                />
             </div>
         );
     }
 }
 
+import {oscillatorPatchDataShape, modulationTargetShape} from "../propdefs";
 
 class Oscillator extends Component {
     constructor () {
@@ -210,76 +211,83 @@ class Oscillator extends Component {
             waveform: patch.waveform,
             pd0steps: patch.pd[0].steps,
             pd0viewState: viewState.pd[0]
-        }
+        };
 
         const pd1Props = {
             waveform: patch.waveform,
             pd1steps: patch.pd[1].steps,
             pd1viewState: viewState.pd[1]
-        }
+        };
 
         const mixDependencies = {
             ...pd0Props,
             ...pd1Props
-        }
+        };
         const resonanceDependencies = {
             ...mixDependencies,
             mix: this.props.patch.mix
-        }
+        };
 
         return (
             <section className="oscillator-view">
                 <WaveformSelector
-                    waveforms={waveforms}
                     changeHandler={handlers.waveformChange}
                     selected={patch.waveform}
-                    />
+                    waveforms={waveforms}
+                />
                 <PhaseDistortion
-                    key="pdEnvelope0"
-                    patch={patch.pd[0]}
+                    handlers={envelopeHandlers}
                     index={0}
+                    key="pdEnvelope0"
                     module="oscillator"
-                    waveFunction={this.pdFunction0}
+                    patch={patch.pd[0]}
                     viewState={viewState.pd[0]}
-                    handlers={envelopeHandlers}
+                    waveFunction={this.pdFunction0}
                     waveformName={patch.waveform}
-                    />
+                />
                 <PhaseDistortion
-                    key="pdEnvelope1"
-                    patch={patch.pd[1]}
-                    index={1}
-                    module="oscillator"
-                    waveFunction={this.pdFunction1}
-                    viewState={viewState.pd[1]}
                     handlers={envelopeHandlers}
+                    index={1}
+                    key="pdEnvelope1"
+                    module="oscillator"
+                    patch={patch.pd[1]}
+                    viewState={viewState.pd[1]}
+                    waveFunction={this.pdFunction1}
                     waveformName={patch.waveform}
-                    />
+                />
                 <Mix
-                    patch={patch.mix}
-                    configuration={configuration.mix}
                     changeHandler={handlers.mix}
-                    waveFunction={this.mixFunction}
+                    configuration={configuration.mix}
                     dependencies={mixDependencies}
-                    />
+                    patch={patch.mix}
+                    waveFunction={this.mixFunction}
+                />
                 <Resonance
-                    patch={patch}
                     configuration={configuration.resonance}
-                    handlers={handlers.resonance}
-                    waveFunction={this.resonanceFunction}
                     dependencies={resonanceDependencies}
-                    />
+                    handlers={handlers.resonance}
+                    patch={patch}
+                    waveFunction={this.resonanceFunction}
+                />
                 <RangeInput
-                    label="Detune"
-                    min={configuration.detune.min}
-                    max={configuration.detune.max}
-                    step={0.01}
                     changeHandler={handlers.detune}
+                    label="Detune"
+                    max={configuration.detune.max}
+                    min={configuration.detune.min}
+                    step={0.01}
                     value={patch.detune}
-                    />
+                />
             </section>
         );
     }
 }
+Oscillator.propTypes = {
+    "configuration": modulationTargetShape.isRequired,
+    "envelopeHandlers": PropTypes.object.isRequired,
+    "handlers": PropTypes.object.isRequired,
+    "patch": oscillatorPatchDataShape.isRequired,
+    "viewState": PropTypes.object.isRequired
+};
 
 
 export default Oscillator;

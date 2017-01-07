@@ -1,9 +1,5 @@
-/*global require, module, document */
-
-"use strict";
 import Tunings from "./Tunings";
 import Voice from "./Voice";
-import DCGenerator from "./DCGenerator";
 
 /**
  *  class VoiceRegister
@@ -12,7 +8,7 @@ import DCGenerator from "./DCGenerator";
  **/
 
 class VoiceRegister {
-    constructor(store, context, modulationMatrix) {
+    constructor (store, context, modulationMatrix) {
         this.appKeyDownHandler = this.appKeyDownHandler.bind(this);
         this.appKeyUpHandler = this.appKeyUpHandler.bind(this);
         this.chordShiftHandler = this.chordShiftHandler.bind(this);
@@ -53,7 +49,7 @@ class VoiceRegister {
         this.store.subscribe(this.stateChangeHandler);
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState();
         const newKeyState = newState.playState.keys;
         if (this.activeKeys !== newKeyState) {
@@ -81,18 +77,17 @@ class VoiceRegister {
         }
     }
 
-    getIndexes(keyarray) {
+    getIndexes (keyarray) {
         return keyarray.map(function (value, index) {
-            if (value !== null && value !== undefined) return index;
+            if (value !== null && value !== undefined) {return index;}
         }).filter(function (value) {
-            return value !== undefined
+            return value !== undefined;
         });
     }
 
-    appKeyDownHandler(event) {
-        var k = event.detail.keyNumber,
-            lastChord,
-            chords = this.chordShifter.chords;
+    appKeyDownHandler (event) {
+        const k = event.detail.keyNumber;
+        const chords = this.chordShifter.chords;
 
         if (!this.chordShifter.enabled) {
             this.startTone(k);
@@ -102,7 +97,7 @@ class VoiceRegister {
                 chords.push([k]);
                 console.log("starting chord " + chords.length);
             } else {
-                lastChord = chords[chords.length - 1];
+                const lastChord = chords[chords.length - 1];
                 if (lastChord.indexOf(k) === -1) {
                     // add key to last chord
                     lastChord.push(k);
@@ -120,26 +115,26 @@ class VoiceRegister {
         }
     }
 
-    appKeyUpHandler(event) {
-        var k = event.detail.keyNumber,
-            activeIndex;
+    appKeyUpHandler (event) {
+        const k = event.detail.keyNumber;
+
         if (!this.chordShifter.enabled) {
             this.stopTone(k);
         } else {
             // register key as released in chordShifter
-            activeIndex = this.chordShifter.activeKeys.indexOf(k);
+            const activeIndex = this.chordShifter.activeKeys.indexOf(k);
             if (activeIndex !== -1) {
                 this.chordShifter.activeKeys.splice(activeIndex, 1);
             }
         }
     }
 
-    enableChordShiftHandler(event) {
+    enableChordShiftHandler () {
         // enable
         this.chordShifter.enabled = true;
 
         // add current chord (if any)
-        var activeKeys = getIndexes(this.activeVoices);
+        let activeKeys = this.getIndexes(this.activeVoices);
         if (activeKeys.length > 0) {
             this.chordShifter.chords.push(activeKeys);
             this.chordShifter.activeKeys = activeKeys.slice();
@@ -148,7 +143,7 @@ class VoiceRegister {
         }
     }
 
-    disableChordShiftHandler(event) {
+    disableChordShiftHandler () {
         this.chordShifter = {
             enabled: false,
             chords: [],
@@ -156,49 +151,38 @@ class VoiceRegister {
         };
         // TODO: handle held keys/active voices
 
-        context.dispatchEvent(new CustomEvent("chordShift.disabled", {
+        this.context.dispatchEvent(new CustomEvent("chordShift.disabled", {
             "detail": {}
         }));
     }
 
-    chordShiftHandler(event) {
-        var value = event.detail.value,
-            i,
-            j,
-            voice,
-            voiceIndexes,
-            chordIndex,
-            chordRatio,
-            key1,
-            key2,
-            keys = [],
-            frequency1,
-            frequency2,
-            q,
-            frequency,
-            chords = this.chordShifter.chords;
+    chordShiftHandler (event) {
+        const chords = this.chordShifter.chords;
+        const value = event.detail.value;
+        const keys = [];
 
         if (this.chordShifter.enabled) {
 
-            q = value * (chords.length - 1);
-            chordIndex = Math.floor(q);
-            chordRatio = q - chordIndex;
+            const q = value * (chords.length - 1);
+            const chordIndex = Math.floor(q);
+            const chordRatio = q - chordIndex;
 
-            voiceIndexes = getIndexes(this.activeVoices);
+            const voiceIndexes = this.getIndexes(this.activeVoices);
 
             // console.log("chord index: " + chordIndex + "\tchord1:\t" + chords[chordIndex].length + "\tchord2:\t" + chords[chordIndex + 1].length + " ratio: " + chordRatio);
-            for (i = 0, j = voiceIndexes.length; i < j; i += 1) {
-                voice = this.activeVoices[voiceIndexes[i]];
-                key1 = chords[chordIndex][i];
+            for (let i = 0, j = voiceIndexes.length; i < j; i += 1) {
+                const voice = this.activeVoices[voiceIndexes[i]];
+                const key1 = chords[chordIndex][i];
+                let frequency;
 
                 /* contious shift between frequencies: */
-                frequency1 = this.tuning[key1];
+                const frequency1 = this.tuning[key1];
                 if (chordIndex === chords.length - 1) {
                     // handle edge case
                     frequency = frequency1;
                 } else {
-                    key2 = chords[chordIndex + 1][i];
-                    frequency2 = this.tuning[key2];
+                    const key2 = chords[chordIndex + 1][i];
+                    const frequency2 = this.tuning[key2];
                     frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
                     keys.push({
                         "from": key1,
@@ -234,7 +218,7 @@ class VoiceRegister {
                     voice.setFrequency(frequency);
                 }
             }
-            context.dispatchEvent(new CustomEvent("chordShift.changed", {
+            this.context.dispatchEvent(new CustomEvent("chordShift.changed", {
                 "detail": {
                     "keys": keys,
                     "balance": chordRatio,
@@ -244,30 +228,23 @@ class VoiceRegister {
         }
     }
 
-    pitchBendHandler(event) {
+    pitchBendHandler (event) {
         console.log("PITCH coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
     }
 
-    modulationWheelHandler(event) {
+    modulationWheelHandler (event) {
         console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
     }
 
-    startVoice(key, freq) {
-        var frequency,
-            patch,
-            voice,
-            notVoice = function (v) {
-                return v === null;
-            };
+    startVoice (key, freq) {
 
-        if (this.activeVoices.every(notVoice)) {
+        if (this.activeVoices.every(v => v === null)) {
             this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
         }
         if (!this.activeVoices[key]) {
-            frequency = (typeof key === "number") ? this.tuning[key] : freq;
-            patch = this.store.getState().patch;
-
-            voice = new Voice(this.context, this.store, frequency);
+            const frequency = (typeof key === "number") ? this.tuning[key] : freq;
+            const patch = this.store.getState().patch;
+            const voice = new Voice(this.context, this.store, frequency);
 
             this.modulationMatrix.patchVoice(voice);
             voice.connect(this.mainMix);
@@ -279,8 +256,8 @@ class VoiceRegister {
         }
     }
 
-    stopVoice(key) {
-        var voice = this.activeVoices[key];
+    stopVoice (key) {
+        let voice = this.activeVoices[key];
 
         if (voice) {
 
@@ -301,11 +278,10 @@ class VoiceRegister {
         }
     }
 
-    deleteVoice(voice) {
-        var voiceIndex,
-            notVoice;
+    deleteVoice (voice) {
+        const notVoice = (v) => v === null;
+        let voiceIndex = this.stoppedVoices.indexOf(voice);
 
-        voiceIndex = this.stoppedVoices.indexOf(voice);
         if (voiceIndex !== -1) {
             this.stoppedVoices[voiceIndex] = null;
         } else {
@@ -315,10 +291,8 @@ class VoiceRegister {
             }
         }
         //    this.modulationMatrix.unpatchVoice(voice);
-        voice = null;
-        notVoice = function (v) {
-            return v === null;
-        };
+        voice.disconnect();
+        voice.destroy();
 
         if (this.activeVoices.every(notVoice) && this.stoppedVoices.every(notVoice)) {
             // no active voices -> stop global lfos

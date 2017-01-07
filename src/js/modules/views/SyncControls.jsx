@@ -1,4 +1,6 @@
-import React, {Component} from "react";
+import React, {Component, PropTypes} from "react";
+
+import {modulationLfoSourcesSyncShape, syncPatchDataShape} from "../propdefs";
 
 class SyncControls extends Component {
 
@@ -29,31 +31,39 @@ class SyncControls extends Component {
             <fieldset>
                 <legend>sync</legend>
                 <input
-                    type="checkbox"
                     checked={!!patch.enabled}
                     onChange={this.toggle}
+                    type="checkbox"
                 />
                 <input
-                    type="number"
                     disabled={!patch.enabled}
-                    value={patch.numerator}
-                    min={configuration.numerator.min}
                     max={configuration.numerator.max}
-                    onInput={this.numeratorChange}
+                    min={configuration.numerator.min}
                     onChange={this.numeratorChange}
+                    onInput={this.numeratorChange}
+                    type="number"
+                    value={patch.numerator}
                 />
                 <input
-                    type="number"
                     disabled={!patch.enabled}
-                    value={patch.denominator}
-                    min={configuration.denominator.min}
                     max={configuration.denominator.max}
-                    onInput={this.denominatorChange}
+                    min={configuration.denominator.min}
                     onChange={this.denominatorChange}
+                    onInput={this.denominatorChange}
+                    type="number"
+                    value={patch.denominator}
                 />
             </fieldset>
         );
     }
 }
+SyncControls.propTypes = {
+    "configuration": modulationLfoSourcesSyncShape.isRequired,
+    "handlers": PropTypes.object.isRequired,
+    "index": PropTypes.number.isRequired,
+    "module": PropTypes.string.isRequired,
+    "patch": syncPatchDataShape.isRequired
+};
+
 
 export default SyncControls;

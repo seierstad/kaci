@@ -1,4 +1,4 @@
-var midiConstants = {
+let midiConstants = {
     "MESSAGE_TYPE": {
         "NOTE_OFF": 0x80,
         "NOTE_ON": 0x90,

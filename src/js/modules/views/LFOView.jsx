@@ -1,6 +1,7 @@
 /*global document, module, require, CustomEvent */
 import React, {Component, PropTypes} from "react";
 
+import {lfoPatchDataShape, modulationLfoSourcesShape} from "../propdefs";
 import {waveforms} from "../waveforms";
 
 import RangeInput from "./RangeInput.jsx";
@@ -35,48 +36,57 @@ class LFO extends Component {
         const syncPossible = patch.sync;
 
         return (
-            <section id={"lfo-" + index + "-view"} className="lfo">
+            <section className="lfo" id={"lfo-" + index + "-view"}>
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
                 <button onClick={this.reset}>reset</button>
                 <WaveformSelector
+                    changeHandler={handlers.changeWaveform}
+                    index={index}
                     module="lfos"
                     parameter="waveform"
                     selected={patch.waveform}
-                    index={index}
                     waveforms={waveforms}
-                    changeHandler={handlers.changeWaveform}
-                    />
+                />
                 <RangeInput
-                    label="amount"
-                    min={configuration.amount.min}
-                    max={configuration.amount.max}
-                    step={configuration.amount.step}
                     changeHandler={this.amountChange}
+                    label="amount"
+                    max={configuration.amount.max}
+                    min={configuration.amount.min}
+                    step={configuration.amount.step}
                     value={patch.amount}
                 />
                 <RangeInput
-                    label="frequency"
-                    disabled={syncPossible && patch.sync.enabled}
-                    min={configuration.frequency.min}
-                    max={configuration.frequency.max}
-                    step={configuration.frequency.step}
                     changeHandler={this.frequencyChange}
+                    disabled={syncPossible && patch.sync.enabled}
+                    label="frequency"
+                    max={configuration.frequency.max}
+                    min={configuration.frequency.min}
+                    step={configuration.frequency.step}
                     value={patch.frequency}
                 />
                 {syncPossible ?
                     <SyncControls
-                        patch={patch.sync}
-                        module="lfos"
-                        index={index}
-                        handlers={syncHandlers}
                         configuration={configuration.sync}
+                        handlers={syncHandlers}
+                        index={index}
+                        module="lfos"
+                        patch={patch.sync}
                     />
                 : null}
             </section>
         );
     }
 }
+LFO.propTypes = {
+    "configuration": modulationLfoSourcesShape.isRequired,
+    "handlers": PropTypes.objectOf(PropTypes.func),
+    "index": PropTypes.number.isRequired,
+    "module": PropTypes.string.isRequired,
+    "patch": lfoPatchDataShape.isRequired,
+    "syncHandlers": PropTypes.object
+};
 
+import {lfosPatchDataShape} from "../propdefs";
 class LFOs extends Component {
     render () {
         const {patch, configuration, handlers, syncHandlers} = this.props;
@@ -85,20 +95,27 @@ class LFOs extends Component {
         for (let i = 0; i < configuration.count; i += 1) {
             lfos.push(
                 <LFO
-                    key={i}
+                    configuration={configuration}
+                    handlers={handlers}
                     index={i}
+                    key={i}
                     module="lfos"
                     patch={patch[i] || configuration["default"]}
-                    handlers={handlers}
                     syncHandlers={syncHandlers}
-                    configuration={configuration}
-                    />
+                />
             );
         }
 
         return <div>{lfos}</div>;
     }
 }
+LFOs.propTypes = {
+    "configuration": modulationLfoSourcesShape.isRequired,
+    "handlers": PropTypes.object.isRequired,
+    "patch": lfosPatchDataShape,
+    "syncHandlers": PropTypes.object
+};
+
 
 export default LFOs;
 /*

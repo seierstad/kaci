@@ -1,18 +1,9 @@
-/*global module, require */
-/* global document, module, CustomEvent */
-"use strict";
-import {
-    Component
-}
-from "react";
+import {SVGNS} from "../constants";
 
-var svg = function (elementType, attributes) {
-    var element,
-        svgns = "http://www.w3.org/2000/svg",
-        attribute;
+export const svg = function (elementType, attributes) {
+    const element = document.createElementNS(SVGNS, elementType);
 
-    element = document.createElementNS(svgns, elementType);
-    for (attribute in attributes) {
+    for (let attribute in attributes) {
         if (attributes.hasOwnProperty(attribute)) {
             element.setAttributeNS(null, attribute, attributes[attribute]);
         }
@@ -20,22 +11,20 @@ var svg = function (elementType, attributes) {
     return element;
 };
 
-var getOffsetElement = function (svgElement) {
+export const getOffsetElement = function (svgElement) {
     // returns the fillRect rectangle.
-    var offsetElement;
+    let offsetElement = svgElement;
 
-    for (offsetElement = svgElement; offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains("controller"); offsetElement = offsetElement.parentNode) {}
+    while (offsetElement && offsetElement.tagName !== "svg" && !offsetElement.classList.contains("controller")) {
+        offsetElement = offsetElement.parentNode;
+    }
     return offsetElement.firstChild;
 };
 
-var cursorPosition = function (event, touch) {
-    var x,
-        y,
-        offsetElement,
-        bcr,
-        p;
-
-    p = touch || event;
+export const cursorPosition = function (event, touch) {
+    let p = touch || event,
+        x,
+        y;
 
     if (p.pageX && p.pageY) {
         x = p.pageX;
@@ -47,12 +36,12 @@ var cursorPosition = function (event, touch) {
 
     if (event.currentTarget.getBoundingClientRect) {
 
-        bcr = getOffsetElement(event.currentTarget).getBoundingClientRect();
+        const bcr = getOffsetElement(event.currentTarget).getBoundingClientRect();
         x -= bcr.left + (document.body.scrollLeft + document.documentElement.scrollLeft);
         y -= bcr.top + (document.body.scrollTop + document.documentElement.scrollTop);
 
     } else {
-        offsetElement = event.currentTarget.parentNode;
+        let offsetElement = event.currentTarget.parentNode;
         while (offsetElement) {
             x -= offsetElement.offsetLeft;
             y -= offsetElement.offsetTop;
@@ -65,30 +54,34 @@ var cursorPosition = function (event, touch) {
     };
 };
 
-var sizeInPixels = function (svgElement) {
-    var unit, height, width, e;
-    e = getOffsetElement(svgElement);
-    unit = e.height.baseVal.SVG_LENGTHTYPE_PX;
+export const sizeInPixels = function (svgElement) {
+    const e = getOffsetElement(svgElement);
+    const unit = e.height.baseVal.SVG_LENGTHTYPE_PX;
     e.height.baseVal.convertToSpecifiedUnits(unit);
     e.width.baseVal.convertToSpecifiedUnits(unit);
-    height = e.height.baseVal.valueInSpecifiedUnits;
-    width = e.width.baseVal.valueInSpecifiedUnits;
+    const height = e.height.baseVal.valueInSpecifiedUnits;
+    const width = e.width.baseVal.valueInSpecifiedUnits;
+
     return {
         "width": width,
         "height": height
     };
 };
-var rangeInputId = 0;
-var createRangeInput = function (params) {
-    var elementId = "range_" + rangeInputId++;
-    var element = document.createElement("input");
+
+let rangeInputId = 0;
+export const createRangeInput = function (params) {
+    const elementId = "range_" + rangeInputId;
+    rangeInputId += 1;
+
+    const element = document.createElement("input");
     element.setAttribute("type", "range");
     element.min = params.min;
     element.max = params.max;
     element.step = params.step;
     element.value = params.value;
     element.setAttribute("id", elementId);
-    var label = document.createElement("label");
+
+    const label = document.createElement("label");
     label.innerHTML = params.label;
     label.setAttribute("for", elementId);
 
@@ -101,7 +94,7 @@ var createRangeInput = function (params) {
         input: element
     };
 };
-var getCheckboxInputHandler = function (eventName, eventContext) {
+export const getCheckboxInputHandler = function (eventName, eventContext) {
     return function (event) {
         event.stopPropagation();
         eventContext.dispatchEvent(new CustomEvent(eventName, {
@@ -109,10 +102,12 @@ var getCheckboxInputHandler = function (eventName, eventContext) {
         }));
     };
 };
-var checkboxInputId = 0;
-var createCheckboxInput = function (params, eventContext) {
-    var id = params.id || "checkbox_" + checkboxInputId++;
-    var cb = document.createElement("input");
+
+let checkboxInputId = 0;
+export const createCheckboxInput = function (params, eventContext) {
+    const id = params.id || "checkbox_" + (checkboxInputId += 1);
+
+    const cb = document.createElement("input");
     cb.type = "checkbox";
     if (params.className) {
         cb.classList.add(params.className);
@@ -125,21 +120,12 @@ var createCheckboxInput = function (params, eventContext) {
     }
     return cb;
 };
-const getValuePair = (evt, element) => {
+
+export const getValuePair = (evt, element) => {
     const pos = element.getBoundingClientRect();
     const x = (evt.clientX - pos.left) / pos.width;
     const y = 1 - (evt.clientY - pos.top) / pos.height;
     return {
         x, y
     };
-}
-
-module.exports = {
-    sizeInPixels,
-    svg,
-    getOffsetElement,
-    cursorPosition,
-    createRangeInput,
-    createCheckboxInput,
-    getValuePair
 };

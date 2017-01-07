@@ -5,6 +5,7 @@ import fs from "fs";
 import mkdirp from "mkdirp";
 
 import gulp from "gulp";
+import runSequence from "run-sequence";
 import babel from "babelify";
 import buffer from "vinyl-buffer";
 import uglify from "gulp-uglify";
@@ -57,14 +58,14 @@ gulp.task("lint:scripts", () => {
     mkdirp("./reports");
     mkdirp("./reports/lint");
 
-    return gulp.src(["gulpfile.js", "gulpfile.es6.js", "javascript/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"])
+    return gulp.src(["gulpfile.js", "gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"])
         .pipe(eslint())
         .pipe(eslint.format("checkstyle", fs.createWriteStream("reports/lint/checkstyle-eslint.xml")))
         .pipe(eslint.format("stylish", process.stdout))
         .pipe(eslint.failOnError());
 });
 
-gulp.task("build:scripts", () => {
+gulp.task("build:scripts", ["build:libs"], () => {
 
     const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babel);
     Object.keys(dependencies).forEach(lib => b.external(lib));
@@ -82,7 +83,7 @@ gulp.task("build:scripts", () => {
 });
 
 gulp.task("build:styles", function () {
-    return gulp.src("./stylesheets/*.scss")
+    return gulp.src("./src/styles/*.scss")
         .pipe(sourcemaps.init())
         .pipe(sass({
             style: "expanded",
@@ -106,11 +107,10 @@ gulp.task("lint:markup", () => {
 gulp.task("build:markup", () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
-    gulp.src(["src/index.html"])
+    gulp.src(["src/markup/index.html"])
         .pipe(revReplace({manifest: revManifest}))
         .pipe(gulp.dest("build"));
 });
-
 
 gulp.task("server", function () {
     return connect.server({
@@ -120,12 +120,9 @@ gulp.task("server", function () {
     });
 });
 
-gulp.task("default", [
-    "lint",
-    "browserify",
-    "styles",
-    "copyIndex"
-]);
+gulp.task("default", () => {
+    runSequence("lint:scripts", "build:scripts", "build:styles", "build:markup", "server");
+});
 
 
 gulp.task("env:production", () => {

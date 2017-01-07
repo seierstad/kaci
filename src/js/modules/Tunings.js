@@ -2,7 +2,7 @@
 "use strict";
 
 // TODO: experiment with scales where base = the golden ratio, pi, e etc...
-var scales,
+let scales,
     getTemperedScale,
     getScale;
 
@@ -12,7 +12,7 @@ scales = {
     halvannen: [(1 / 1), (5 / 4), (3 / 2)]
 };
 getTemperedScale = function (fromKey, toKey, referenceKey, referenceFrequency, steps, base) {
-    var i, j, scale = [],
+    let i, j, scale = [],
         keyOffset,
         s = steps || 12,
         b = base || 2;
@@ -25,10 +25,10 @@ getTemperedScale = function (fromKey, toKey, referenceKey, referenceFrequency, s
 };
 
 getScale = function (intervals) {
-    var base = intervals.pop();
+    let base = intervals.pop();
 
     return function (fromKey, toKey, referenceKey, referenceFrequency) {
-        var i, j, scale = [],
+        let i, j, scale = [],
             keyOffset, index;
 
         for (i = fromKey, j = toKey; i < j; i += 1) {

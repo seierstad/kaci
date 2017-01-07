@@ -17,7 +17,7 @@ from "./waveforms";
 
 
 class Noise extends PannableModule {
-    constructor(context, store) {
+    constructor (context, store) {
         super();
         /* start common constructor code */
 
@@ -84,7 +84,7 @@ class Noise extends PannableModule {
 
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState().patch.noise;
         if (newState !== this.state) {
             if (this.state.pan !== newState.pan) {
@@ -99,17 +99,17 @@ class Noise extends PannableModule {
             this.state = newState;
         }
     }
-    start() {
+    start () {
         this.generator.addEventListener("audioprocess", this.audioProcessHandler);
     }
-    stop() {
+    stop () {
         this.generator.removeEventListener("audioprocess", this.audioProcessHandler);
     }
-    audioProcessHandler(event) {
-        var output = event.outputBuffer.getChannelData(0);
+    audioProcessHandler (event) {
+        let output = event.outputBuffer.getChannelData(0);
         this.generatorFunction(output);
     }
-    destroy() {
+    destroy () {
         this.unsubscribe();
         this.stateChangeHandler = null;
         this.audioProcessHandler = null;

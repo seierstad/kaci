@@ -8,7 +8,7 @@ import StaticSources from "./StaticSources.jsx";
 
 class ModulationSources {
 
-    constructor(context, store, configuration) {
+    constructor (context, store, configuration) {
 
         this.context = context;
         this.store = store;
@@ -29,7 +29,7 @@ class ModulationSources {
 
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState();
 
         // TODO:
@@ -39,8 +39,8 @@ class ModulationSources {
         this.state = newState;
     }
 
-    setupLFOs(configuration, patch) {
-        var i, j;
+    setupLFOs (configuration, patch) {
+        let i, j;
         const result = [];
 
         for (i = 0, j = configuration.count; i < j; i += 1) {
@@ -53,11 +53,11 @@ class ModulationSources {
         return result;
     }
 
-    startGlobalModulators() {
+    startGlobalModulators () {
         this.sources.lfos.forEach(lfo => lfo.start());
     }
 
-    stopGlobalModulators() {
+    stopGlobalModulators () {
         this.sources.lfos.forEach(lfo => lfo.stop());
     }
 

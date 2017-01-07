@@ -8,7 +8,7 @@ import {
 from "./SharedFunctions";
 
 class SubOscillator extends PannableModule {
-    constructor(context, store, frequency, scaleBaseNumber = 2) {
+    constructor (context, store, frequency, scaleBaseNumber = 2) {
 
         super();
         /* start common constructor code */
@@ -84,14 +84,14 @@ class SubOscillator extends PannableModule {
 
         this.generator.connect(this.gainNode);
     }
-    start() {
+    start () {
         this.generator.start();
     }
-    stop() {
+    stop () {
         this.generator.stop();
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
 
         const newState = this.store.getState().patch.sub;
 
@@ -109,7 +109,7 @@ class SubOscillator extends PannableModule {
         }
     }
 
-    destroy() {
+    destroy () {
         this.unsubscribe();
         this.panner = null;
         this.generator = null;

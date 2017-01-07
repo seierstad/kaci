@@ -5,7 +5,7 @@ import {scale} from "./Utils";
 
 class StaticSources {
 
-    constructor(context, store, configuration) {
+    constructor (context, store, configuration) {
 
         this.context = context;
         this.store = store;
@@ -16,7 +16,7 @@ class StaticSources {
 
 
         this.dc = new DCGenerator(context);
-        var init = this.init(configuration, this.state);
+        let init = this.init(configuration, this.state);
         this.parameters = init.params;
         this.nodes = init.nodes;
         this.limits = init.limits;
@@ -47,7 +47,7 @@ class StaticSources {
         if (!path) {
             return this.init(targets, patch, []);
         }
-        var name = "";
+        let name = "";
         for (let key in targets) {
             if (targets.hasOwnProperty(key)) {
                 path.push(key);

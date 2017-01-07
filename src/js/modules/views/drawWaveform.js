@@ -1,35 +1,28 @@
-var drawWaveform = function (waveGenerator, canvas, params) {
+const drawWaveform = function (waveGenerator, canvas, params) {
     "use strict";
-    if (!params) {
-        params = {};
-    }
-    var context,
-        phaseIncrement,
-        coordinates,
-        yValue,
-        i,
+
+    let canvasElement,
         phase = 0,
-        xOffset = params.xOffset || 0,
-        yOffset = params.yOffset || 0,
-        width,
-        height,
-        halfHeight;
+        xOffset = params && params.xOffset || 0,
+        yOffset = params && params.yOffset || 0;
 
-    if (typeof canvas === 'string') {
-        canvas = document.getElementById(canvas);
+    if (typeof canvas === "string") {
+        canvasElement = document.getElementById(canvas);
+    } else {
+        canvasElement = canvas;
     }
 
-    height = params.height || canvas.height || 100;
-    width = params.width || canvas.width || 100;
-    halfHeight = height / 2;
+    const height = params && params.height || canvasElement.height || 100;
+    const width = params && params.width || canvasElement.width || 100;
+    const halfHeight = height / 2;
 
-    context = canvas.getContext("2d");
+    const context = canvasElement.getContext("2d");
     context.lineJoin = "miter";
 
-    if (!params.noClear) {
+    if (params && !params.noClear) {
         context.clearRect(xOffset, yOffset, width, height);
     }
-    if (params.drawGuides) {
+    if (params && params.drawGuides) {
         context.beginPath();
         context.moveTo(xOffset, halfHeight + yOffset);
         context.lineTo(xOffset + width, halfHeight + yOffset);
@@ -38,12 +31,12 @@ var drawWaveform = function (waveGenerator, canvas, params) {
 
     context.beginPath();
 
-    phaseIncrement = 1.0 / width;
-    for (i = 0; i < width; i += 1) {
-        yValue = waveGenerator(phase);
-        coordinates = {
-            'x': i + xOffset,
-            'y': yValue * (halfHeight) + halfHeight + yOffset
+    const phaseIncrement = 1.0 / width;
+    for (let i = 0; i < width; i += 1) {
+        const yValue = waveGenerator(phase);
+        const coordinates = {
+            "x": i + xOffset,
+            "y": yValue * (halfHeight) + halfHeight + yOffset
         };
         if (i === 0) {
             context.moveTo(coordinates.x, coordinates.y);
@@ -53,7 +46,9 @@ var drawWaveform = function (waveGenerator, canvas, params) {
         phase += phaseIncrement;
     }
     context.stroke();
+
     return this;
 };
 
-module.exports = drawWaveform;
+
+export default drawWaveform;

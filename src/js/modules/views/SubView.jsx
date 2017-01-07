@@ -10,26 +10,53 @@ class SubView extends Component {
         return (
             <section className="sub-view">
                 <h1>Sub oscillator</h1>
-                <input type="checkbox" onChange={toggle} checked={patch.active} />
+                <input
+                    checked={patch.active}
+                    onChange={toggle}
+                    type="checkbox"
+                />
                 <RangeInput
-                    label="Sub gain"
-                    min={configuration.gain.min}
-                    max={configuration.gain.max}
-                    step={0.01}
                     changeHandler={gainInput}
-                    value={patch.gain} />
-                <RangeInput
-                    label="Sub pan"
-                    min={configuration.pan.min}
-                    max={configuration.pan.max}
+                    label="Sub gain"
+                    max={configuration.gain.max}
+                    min={configuration.gain.min}
                     step={0.01}
+                    value={patch.gain}
+                />
+                <RangeInput
                     changeHandler={panInput}
-                    value={patch.pan} />
+                    label="Sub pan"
+                    max={configuration.pan.max}
+                    min={configuration.pan.min}
+                    step={0.01}
+                    value={patch.pan}
+                />
                 <fieldset>
                     <legend>Sub depth</legend>
-                    <input type="radio" name="sub-depth-selector" onChange={depthChange} value={0} id="sub-0" checked={patch.depth === 0} />
-                    <input type="radio" name="sub-depth-selector" onChange={depthChange} value={-1} id="sub-1" checked={patch.depth === -1} />
-                    <input type="radio" name="sub-depth-selector" onChange={depthChange} value={-2} id="sub-2" checked={patch.depth === -2} />
+                    <input
+                        hecked={patch.depth === 0}
+                        id="sub-0"
+                        name="sub-depth-selector"
+                        onChange={depthChange}
+                        type="radio"
+                        value={0}
+                    />
+                    <input
+                        checked={patch.depth === -1}
+                        id="sub-1"
+                        name="sub-depth-selector"
+                        onChange={depthChange}
+                        type="radio"
+                        value={-1}
+                    />
+                    <input
+                        checked={patch.depth === -2}
+                        id="sub-2"
+                        name="sub-depth-selector"
+                        onChange={depthChange}
+                        type="radio"
+                        value={-2}
+                    />
                 </fieldset>
             </section>
         );

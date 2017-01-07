@@ -1,4 +1,4 @@
-import {Component} from "react";
+import {Component, PropTypes} from "react";
 import React from "react";
 let rangeInputId = 0;
 
@@ -8,11 +8,31 @@ class RangeInput extends Component {
         const id = "range_" + (rangeInputId += 1);
         return (
             <div>
-                <input id={id} type="range" disabled={disabled} onInput={changeHandler} onChange={changeHandler} min={min} max={max} step={step} value={value} />
+                <input
+                    disabled={disabled}
+                    id={id}
+                    max={max}
+                    min={min}
+                    onChange={changeHandler}
+                    onInput={changeHandler}
+                    step={step}
+                    type="range"
+                    value={value}
+                />
                 <label htmlFor={id}>{label}</label>
             </div>
         );
     }
 }
+RangeInput.propTypes = {
+    "changeHandler": PropTypes.func.isRequired,
+    "disabled": PropTypes.bool,
+    "label": PropTypes.string.isRequired,
+    "max": PropTypes.number.isRequired,
+    "min": PropTypes.number.isRequired,
+    "step": PropTypes.number,
+    "value": PropTypes.number.isRequired
+};
+
 
 export default RangeInput;

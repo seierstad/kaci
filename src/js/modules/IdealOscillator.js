@@ -1,6 +1,6 @@
 /*globals require, module, CustomEvent */
 "use strict";
-var DCGenerator = require("./DCGenerator"),
+let DCGenerator = require("./DCGenerator"),
     BUFFER_LENGTH = require("./constants").BUFFER_LENGTH;
 
 import {
@@ -8,8 +8,8 @@ import {
 }
 from "./waveforms";
 
-var IdealOscillator = function (context) {
-    var i,
+let IdealOscillator = function (context) {
+    let i,
         j,
         def,
         key,
@@ -47,9 +47,9 @@ var IdealOscillator = function (context) {
 };
 IdealOscillator.waveforms = waveforms;
 IdealOscillator.prototype.getGenerator = function (oscillator) {
-    return function audioprocessHandler(evt) {
+    return function audioprocessHandler (evt) {
 
-        var frequency = evt.inputBuffer.getChannelData(0),
+        let frequency = evt.inputBuffer.getChannelData(0),
             detune = evt.inputBuffer.getChannelData(1),
             output = evt.outputBuffer.getChannelData(0),
             i, j,
@@ -75,8 +75,8 @@ IdealOscillator.prototype.getGenerator = function (oscillator) {
         }
     };
 };
-IdealOscillator.prototype.getIncrementedPhase = function getIncrementedPhase(frequency) {
-    var increment = frequency / this.context.sampleRate;
+IdealOscillator.prototype.getIncrementedPhase = function getIncrementedPhase (frequency) {
+    let increment = frequency / this.context.sampleRate;
     this.phase += increment;
     if (this.phase > 1) {
         while (this.phase > 1) {
@@ -86,7 +86,7 @@ IdealOscillator.prototype.getIncrementedPhase = function getIncrementedPhase(fre
     }
     return this.phase;
 };
-IdealOscillator.prototype.requestZeroPhaseEvent = function requestZeroPhaseEvent(eventName) {
+IdealOscillator.prototype.requestZeroPhaseEvent = function requestZeroPhaseEvent (eventName) {
 
     if (!this.zeroPhaseEventRequested) {
         this.zeroPhaseEventRequested = [];
@@ -96,7 +96,7 @@ IdealOscillator.prototype.requestZeroPhaseEvent = function requestZeroPhaseEvent
     }
 };
 IdealOscillator.prototype.zeroPhaseActions = function () {
-    var i, j,
+    let i, j,
         event,
         that = this;
 
@@ -142,8 +142,8 @@ IdealOscillator.prototype.setWaveform = function (waveformName) {
         this.selectedWaveform = IdealOscillator.waveforms[waveformName];
     }
 };
-IdealOscillator.prototype.destroy = function destroyIdealOscillator() {
-    var i, j, def;
+IdealOscillator.prototype.destroy = function destroyIdealOscillator () {
+    let i, j, def;
     this.dc.destroy();
     this.dc = null;
 

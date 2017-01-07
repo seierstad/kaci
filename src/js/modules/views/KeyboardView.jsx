@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import React, {Component} from "react";
+import React, {Component, PropTypes} from "react";
 
 import {NOTE_NAMES} from "../constants";
 
@@ -28,13 +28,13 @@ class WhiteKey extends Key {
         return (
             <rect
                 className={"key " + noteName + (playState && playState.down ? " down" : "")}
-                y="0"
-                x={x}
-                width={keyWidth + "%"}
                 height="100%"
                 onMouseDown={this.keyDownHandler}
                 onMouseUp={this.keyUpHandler}
-                />
+                width={keyWidth + "%"}
+                x={x}
+                y="0"
+            />
         );
     }
 }
@@ -44,17 +44,16 @@ class BlackKey extends Key {
         return (
             <rect
                 className={"key " + noteName + (playState && playState.down ? " down" : "")}
-                y="0"
-                x={x}
-                width={(keyWidth * 0.7) + "%"}
                 height="60%"
                 onMouseDown={this.keyDownHandler}
                 onMouseUp={this.keyUpHandler}
-                />
+                width={(keyWidth * 0.7) + "%"}
+                x={x}
+                y="0"
+            />
         );
     }
 }
-
 
 
 class KeyboardView extends Component {
@@ -77,26 +76,26 @@ class KeyboardView extends Component {
             if (black) {
                 blackKeys.push(
                     <BlackKey
-                        playState={playState.keys[i]}
-                        key={i + "-" + noteName}
-                        noteName={noteName}
-                        keyNumber={i}
-                        x={(nextKeyX - keyWidth * 0.35) + "%"}
-                        keyWidth={keyWidth}
                         handlers={handlers.key}
-                        />
+                        key={i + "-" + noteName}
+                        keyNumber={i}
+                        keyWidth={keyWidth}
+                        noteName={noteName}
+                        playState={playState.keys[i]}
+                        x={(nextKeyX - keyWidth * 0.35) + "%"}
+                    />
                 );
             } else {
                 whiteKeys.push(
                     <WhiteKey
-                        playState={playState.keys[i]}
-                        key={i + "-" + noteName}
-                        noteName={noteName}
-                        keyNumber={i}
-                        x={nextKeyX + "%"}
-                        keyWidth={keyWidth}
                         handlers={handlers.key}
-                        />
+                        key={i + "-" + noteName}
+                        keyNumber={i}
+                        keyWidth={keyWidth}
+                        noteName={noteName}
+                        playState={playState.keys[i]}
+                        x={nextKeyX + "%"}
+                    />
                 );
                 nextKeyX += keyWidth;
             }
@@ -104,8 +103,8 @@ class KeyboardView extends Component {
 
 
         return (
-            <section id="keyboard-view" className="controller keyboard">
-                <svg width="100%" height="180px">
+            <section className="controller keyboard" id="keyboard-view">
+                <svg height="180px" width="100%">
                     <g className="white">
                         {whiteKeys}
                     </g>
@@ -114,25 +113,31 @@ class KeyboardView extends Component {
                     </g>
                 </svg>
                 <RangeInput
-                    label="Pitch shift"
-                    min={-1}
-                    max={1}
-                    step={0.01}
                     changeHandler={handlers.pitchShift}
-                    value={playState.pitchShift}
-                    />
-                <RangeInput
-                    label="Chord shift"
-                    min={0}
+                    label="Pitch shift"
                     max={1}
+                    min={-1}
                     step={0.01}
+                    value={playState.pitchShift}
+                />
+                <RangeInput
                     changeHandler={handlers.chordShift}
+                    label="Chord shift"
+                    max={1}
+                    min={0}
+                    step={0.01}
                     value={playState.chordShift}
-                    />
+                />
             </section>
         );
     }
 }
+
+KeyboardView.propTypes = {
+    "configuration": PropTypes.object,
+    "handlers": PropTypes.object.isRequired,
+    "playState": PropTypes.object
+};
 
 export default KeyboardView;
 /*

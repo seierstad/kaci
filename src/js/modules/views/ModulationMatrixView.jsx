@@ -1,4 +1,6 @@
-import React, {Component} from "react";
+import React, {Component, PropTypes} from "react";
+
+import {modulationShape, modulationPatchDataShape, modulationSourceTypeShape} from "../propdefs";
 
 import RangeInput from "./RangeInput.jsx";
 
@@ -13,9 +15,9 @@ class PolaritySelector extends Component {
                     {
                         [
                             { value: "positive", label: "+", title: "positive"},
-                            { value: "full",     label: "±", title: "full"},
+                            { value: "full", label: "±", title: "full"},
                             { value: "negative", label: "-", title: "negative"}
-                        ].map((item, i) => <option key={i} value={item.value} title={item.title}>{item.label}</option>)
+                        ].map((item, i) => <option key={i} title={item.title} value={item.value}>{item.label}</option>)
                     }
                 </select>
                 <label htmlFor={prefix + "-polarity"}>polarity</label>
@@ -23,7 +25,6 @@ class PolaritySelector extends Component {
         );
     }
 }
-
 
 
 class Connection extends Component {
@@ -75,7 +76,7 @@ class Connection extends Component {
 
         let polarity;
         let amount;
-        let name = [type, module, parameter].join("-") + "-connection"
+        let name = [type, module, parameter].join("-") + "-connection";
 
         polarity = patch && patch[type] && patch[type][index] && patch[type][index][target] && patch[type][index][target].polarity || "full";
         amount = patch && patch[type] && patch[type][index] && patch[type][index][target] && patch[type][index][target].amount || 0;
@@ -86,34 +87,42 @@ class Connection extends Component {
             <td>
                 <label htmlFor={id}>connect {type + " " + index + " to " + module + " " + parameter}</label>
                 <input
-                    type={isLFO ? "checkbox" : "radio"}
                     checked={checked}
-                    onChange={isLFO ? this.toggleLfo : this.toggleEnvelope}
                     id={id}
                     name={isLFO ? null : name}
-                    />
+                    onChange={isLFO ? this.toggleLfo : this.toggleEnvelope}
+                    type={isLFO ? "checkbox" : "radio"}
+                />
                 {index !== null ?
                     <PolaritySelector
-                        prefix={prefix}
-                        patch={polarity}
                         changeHandler={isLFO ? this.polarityChangeLfo : this.polarityChangeEnvelope}
-                        />
+                        patch={polarity}
+                        prefix={prefix}
+                    />
                 : null}
                 {index !== null ?
                     <RangeInput
-                        label="amount"
-                        min={0}
-                        max={1}
-                        step={0.01}
                         changeHandler={isLFO ? this.amountChangeLfo : this.amountChangeEnvelope}
+                        label="amount"
+                        max={1}
+                        min={0}
+                        step={0.01}
                         value={amount}
-                        />
+                    />
                 : null}
             </td>
-        )
+        );
     }
 }
-
+Connection.propTypes = {
+    "handlers": PropTypes.object,
+    "index": PropTypes.number.isRequired,
+    "module": PropTypes.string.isRequired,
+    "noConnection": PropTypes.bool,
+    "parameter": PropTypes.string.isRequired,
+    "patch": modulationPatchDataShape.isRequired,
+    "type": modulationSourceTypeShape.isRequired
+};
 
 class Target extends Component {
     render () {
@@ -127,41 +136,39 @@ class Target extends Component {
         return (
             <tr>
                 {firstInModule ?
-                    <th scope="rowgroup" rowSpan={moduleParameterCount}><span>{module}</span></th>
+                    <th rowSpan={moduleParameterCount} scope="rowgroup"><span>{module}</span></th>
                 : null }
                 <th scope="row">{parameter}</th>
 
                 {arr(lfoCount).map((a, i) => <Connection
+                    handlers={handlers}
+                    index={i}
                     key={i}
+                    module={module}
+                    parameter={parameter}
+                    patch={patch}
                     type="lfos"
-                    index={i}
-                    module={module}
-                    parameter={parameter}
-                    patch={patch}
-                    handlers={handlers}
-                    />
-                )}
+                />)}
                 {arr(envCount).map((a, i) => <Connection
-                    key={i}
-                    type="envelopes"
+                    handlers={handlers}
                     index={i}
+                    key={i}
                     module={module}
                     parameter={parameter}
                     patch={patch}
-                    handlers={handlers}
-                    />
-                )}
+                    type="envelopes"
+                />)}
                 {envCount > 0 ?
                     <Connection
-                        key={envCount}
-                        type="envelopes"
+                        handlers={handlers}
                         index={null}
+                        key={envCount}
                         module={module}
+                        noConnection={noConnection}
                         parameter={parameter}
                         patch={patch}
-                        handlers={handlers}
-                        noConnection={noConnection}
-                        />
+                        type="envelopes"
+                    />
                 : null}
             </tr>
         );
@@ -175,17 +182,16 @@ class ModuleTargets extends Component {
         return (
             <tbody>
                 {parameters.map((parameter, index) => <Target
-                    patch={patch}
+                    envCount={envCount}
                     firstInModule={index === 0}
+                    handlers={handlers}
+                    key={index}
+                    lfoCount={lfoCount}
                     module={module}
                     moduleParameterCount={parameters.length}
-                    lfoCount={lfoCount}
-                    envCount={envCount}
                     parameter={parameter}
-                    key={index}
-                    handlers={handlers}
-                    />
-                )}
+                    patch={patch}
+                />)}
             </tbody>
         );
     }
@@ -193,7 +199,7 @@ class ModuleTargets extends Component {
 
 class ModulationMatrix extends Component {
 
-    render() {
+    render () {
         const {configuration, patch, handlers} = this.props;
         const lfoCount = configuration.source.lfos.count;
         const envCount = configuration.source.envelopes.count;
@@ -207,9 +213,19 @@ class ModulationMatrix extends Component {
                     </colgroup>
                     <thead>
                         <tr>
-                            <td scope="col" colSpan="2" rowSpan="2" />
-                            <th scope="colspan" colSpan={lfoCount}>LFO</th>
-                            <th scope="colspan" colSpan={envCount + 1}>Envelope</th>
+                            <td
+                                colSpan="2"
+                                rowSpan="2"
+                                scope="col"
+                            />
+                            <th
+                                colSpan={lfoCount}
+                                scope="colspan"
+                            >LFO</th>
+                            <th
+                                colSpan={envCount + 1}
+                                scope="colspan"
+                            >Envelope</th>
                         </tr>
                         <tr>
                             {arr(lfoCount).map((z, i) => <th key={"lfo" + i} scope="col">{i + 1}</th>)}
@@ -218,19 +234,24 @@ class ModulationMatrix extends Component {
                         </tr>
                     </thead>
                     {Object.keys(configuration.target).map((module, i) => <ModuleTargets
-                        patch={patch}
-                        key={i}
-                        handlers={handlers}
-                        module={module}
-                        targetConfig={configuration.target[module]}
-                        lfoCount={lfoCount}
                         envCount={envCount}
-                        />
+                        handlers={handlers}
+                        key={i}
+                        lfoCount={lfoCount}
+                        module={module}
+                        patch={patch}
+                        targetConfig={configuration.target[module]}
+                                                                          />
                     )}
                 </table>
             </section>
         );
     }
 }
+ModulationMatrix.propTypes = {
+    "configuration": modulationShape.isRequired,
+    "handlers": PropTypes.object,
+    "patch": PropTypes.object
+};
 
 export default ModulationMatrix;

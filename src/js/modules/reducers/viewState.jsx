@@ -9,7 +9,6 @@ const envelope = (state = [], action) => {
                 ...state.map(el => (el >= action.index ? el + 1 : el)),
                 action.index
             ];
-            break;
         case Actions.ENVELOPE_BLUR:
             return [];
         case Actions.ENVELOPE_POINT_EDIT_START:
@@ -29,7 +28,7 @@ const envelope = (state = [], action) => {
 
     }
     return state;
-}
+};
 
 const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
     switch (action.type) {
@@ -76,9 +75,9 @@ const envelopes = (state = new Array(config.modulation.source.envelopes.count).f
     }
 
     return state;
-}
+};
 
-const oscillator = (state = {"pd": [[],[]]}, action) => {
+const oscillator = (state = {"pd": [[], []]}, action) => {
     if (action.module === "oscillator" && action.hasOwnProperty("envelopeIndex")) {
         switch (action.type) {
             case Actions.ENVELOPE_POINT_ADD:
@@ -94,7 +93,7 @@ const oscillator = (state = {"pd": [[],[]]}, action) => {
         }
     }
     return state;
-}
+};
 const viewState = combineReducers({
     envelopes,
     oscillator

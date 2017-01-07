@@ -1,30 +1,16 @@
 /*global require, module, document */
 "use strict";
-import {
-    waveforms,
-    wrappers
-}
-from "./waveforms";
+import {waveforms, wrappers} from "./waveforms";
 
-import {
-    mixValues,
-    vectorToLinearFunction,
-    getDistortedPhase,
-    PannableModule
-}
-from "./sharedFunctions";
+import {mixValues, vectorToLinearFunction, getDistortedPhase, PannableModule} from "./sharedFunctions";
 
 import DC from "./DCGenerator";
 import IdealOscillator from "./IdealOscillator";
-import {
-    BUFFER_LENGTH
-}
-from "./constants";
+import {BUFFER_LENGTH} from "./constants";
 
-import WavyJones from "../../lib/wavy-jones/wavy-jones";
 
 class PDOscillator extends PannableModule {
-    constructor(context, store, frequency) {
+    constructor (context, store, frequency) {
         super();
         /* start common constructor code */
 
@@ -74,7 +60,7 @@ class PDOscillator extends PannableModule {
         /* end common constructor code */
 
 
-        var inputDefs = [{
+        let inputDefs = [{
                 name: "frequency",
                 defaultValue: frequency || 440
             }, {
@@ -120,7 +106,7 @@ class PDOscillator extends PannableModule {
         this.resonanceActive = this.state.resonanceActive;
 
         if (!this.dc) {
-            this.dc = new DCGenerator(context);
+            this.dc = new DC(context);
         }
         this.mergedInput = context.createChannelMerger(inputDefs.length);
 
@@ -163,7 +149,7 @@ class PDOscillator extends PannableModule {
 
     }
 
-    stateChangeHandler() {
+    stateChangeHandler () {
         const newState = this.store.getState().patch.oscillator;
         if (newState !== this.state) {
             if (this.panner && this.state.pan !== newState.pan) {
@@ -199,7 +185,7 @@ class PDOscillator extends PannableModule {
         }
     }
 
-    setPDEnvelope0(data) {
+    setPDEnvelope0 (data) {
         this.pdEnvelope0 = [];
         data.forEach(function (point) {
             this.pdEnvelope0.push([point[0], point[1]]);
@@ -207,7 +193,7 @@ class PDOscillator extends PannableModule {
         this.pdEnvelope0.functions = [];
     }
 
-    setPDEnvelope1(data) {
+    setPDEnvelope1 (data) {
         this.pdEnvelope1 = [];
         data.forEach(function (point) {
             this.pdEnvelope1.push([point[0], point[1]]);
@@ -215,28 +201,28 @@ class PDOscillator extends PannableModule {
         this.pdEnvelope1.functions = [];
     }
 
-    addPDEnvelopePoint(id, index, data) {
+    addPDEnvelopePoint (id, index, data) {
         this["pdEnvelope" + id].splice(index, 0, data);
         this["pdEnvelope" + id].functions = [];
     }
 
-    movePDEnvelopePoint(id, index, data) {
+    movePDEnvelopePoint (id, index, data) {
         this["pdEnvelope" + id][index] = data;
         this["pdEnvelope" + id].functions = [];
     }
 
-    deletePDEnvelopePoint(id, index) {
+    deletePDEnvelopePoint (id, index) {
         this["pdEnvelope" + id].splice(index, 1);
         this["pdEnvelope" + id].functions = [];
     }
 
-    getChangeWaveformHandler(osc) {
+    getChangeWaveformHandler (osc) {
         return function (evt) {
             osc.setWaveform(evt.detail);
         };
     }
 
-    destroy() {
+    destroy () {
         this.parameters.inputs.frequency.disconnect();
         this.parameters.inputs.frequency = null;
         this.parameters.inputs.detune.disconnect();
@@ -256,9 +242,9 @@ class PDOscillator extends PannableModule {
         }
     }
 
-    getGenerator(oscillator) {
-        return function audioprocessHandler(evt) {
-            var frequency = evt.inputBuffer.getChannelData(0),
+    getGenerator (oscillator) {
+        return function audioprocessHandler (evt) {
+            let frequency = evt.inputBuffer.getChannelData(0),
                 detune = evt.inputBuffer.getChannelData(1),
                 resonance = evt.inputBuffer.getChannelData(2),
                 mix = evt.inputBuffer.getChannelData(3),
@@ -320,22 +306,22 @@ class PDOscillator extends PannableModule {
         };
     }
 
-    set waveform(waveformName) {
+    set waveform (waveformName) {
         if (waveformName && IdealOscillator.waveforms[waveformName] && typeof IdealOscillator.waveforms[waveformName] === "function") {
             this.selectedWaveform = IdealOscillator.waveforms[waveformName];
         }
         return this;
     }
 
-    set wrapper(wrapperName) {
+    set wrapper (wrapperName) {
         if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === "function") {
             this.selectedWrapper = this.wrappers[wrapperName];
         }
         return this;
     }
 
-    getIncrementedPhase(frequency) {
-        var increment = frequency / this.context.sampleRate;
+    getIncrementedPhase (frequency) {
+        let increment = frequency / this.context.sampleRate;
         this.phase += increment;
         while (this.phase > 1) {
             this.phase -= 1;
@@ -344,8 +330,8 @@ class PDOscillator extends PannableModule {
         return this.phase;
     }
 
-    getIncrementedResonancePhase(frequency) {
-        var increment = frequency / this.context.sampleRate;
+    getIncrementedResonancePhase (frequency) {
+        let increment = frequency / this.context.sampleRate;
         this.resonancePhase += increment;
         while (this.resonancePhase > 1) {
             this.resonancePhase -= 1;
@@ -353,12 +339,12 @@ class PDOscillator extends PannableModule {
         return this.resonancePhase;
     }
 
-    getComputedFrequency(frequency, detune) {
+    getComputedFrequency (frequency, detune) {
         return frequency * Math.pow(2, detune / 1200);
     }
 
-    gaussianFunction(mu, sig) {
-        var twoSigSquared = 2 * Math.pow(sig, 2),
+    gaussianFunction (mu, sig) {
+        let twoSigSquared = 2 * Math.pow(sig, 2),
             muSquared = mu * mu;
 
         return function (phase) {
@@ -366,7 +352,7 @@ class PDOscillator extends PannableModule {
         };
     }
 
-    getStaticParameters() {
+    getStaticParameters () {
 
         const result = {
             "gain": this.gainNode,
@@ -374,9 +360,9 @@ class PDOscillator extends PannableModule {
             "frequency": this.frequencyNode,
             "resonance": this.resonanceNode,
             "mix": this.mixNode
-        }
+        };
         if (this.pan) {
-            result.pan = this.panNode
+            result.pan = this.panNode;
         }
         return result;
     }

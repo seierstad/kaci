@@ -1,5 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
+import {envelopePatchDataShape} from "../propdefs";
+
 const toPercent = (number) => {
     return (number * 100).toString() + "%";
 };
@@ -15,12 +17,12 @@ class EnvelopeLines extends Component {
                 <line
                     key={"line-" + index + "_of_" + arr.length}
                     x1={toPercent(arr[index - 1][0])}
-                    y1={toPercent(1 - arr[index - 1][1])}
                     x2={toPercent(arr[index][0])}
+                    y1={toPercent(1 - arr[index - 1][1])}
                     y2={toPercent(1 - arr[index][1])}
                 />
             );
-        }
+        };
 
         return (
             <g className="lines">
@@ -29,6 +31,10 @@ class EnvelopeLines extends Component {
         );
     }
 }
+EnvelopeLines.propTypes = {
+    "steps": envelopePatchDataShape.isRequired
+};
+
 class Circle extends Component {
     constructor () {
         super();
@@ -52,37 +58,39 @@ class Circle extends Component {
         const {cx, cy, r, active, first, last} = this.props;
         return (
             <circle
+                className={(active ? "active" : "") + (first ? " first" : "") + (last ? " last" : "")}
                 cx={cx}
                 cy={cy}
-                r={r}
-                className={(active ? "active" : "") + (first ? " first" : "") + (last ? " last" : "") }
-                onMouseMove={active ? this.mouseDrag : null}
                 onMouseDown={this.click}
-                onMouseUp={active ? this.blur : null}
+                onMouseMove={active ? this.mouseDrag : null}
                 onMouseOut={active ? this.blur : null}
+                onMouseUp={active ? this.blur : null}
+                r={r}
             />
         );
     }
 }
 Circle.propTypes = {
-    cx: PropTypes.string.isRequired,
-    cy: PropTypes.string.isRequired,
-    r: PropTypes.number.isRequired,
-    active: PropTypes.bool,
-    first: PropTypes.bool,
-    last: PropTypes.bool,
-    handlers: PropTypes.shape({
-        circleClick: PropTypes.func.isRequired,
-        circleBlur: PropTypes.func.isRequired,
-        circleMouseDrag: PropTypes.func.isRequired
+    "active": PropTypes.bool,
+    "background": PropTypes.element,
+    "cx": PropTypes.string.isRequired,
+    "cy": PropTypes.string.isRequired,
+    "envelopeIndex": PropTypes.number,
+    "first": PropTypes.bool,
+    "handlers": PropTypes.shape({
+        "circleBlur": PropTypes.func.isRequired,
+        "circleClick": PropTypes.func.isRequired,
+        "circleMouseDrag": PropTypes.func.isRequired
     }),
-    module: PropTypes.string.isRequired,
-    envelopeIndex: PropTypes.number,
-    part: PropTypes.string,
-    index: PropTypes.number.isRequired,
+    "index": PropTypes.number.isRequired,
+    "last": PropTypes.bool,
+    "module": PropTypes.string.isRequired,
+    "part": PropTypes.string,
+    "r": PropTypes.number.isRequired
 };
 
 
+import {envelopeViewStateShape} from "../propdefs";
 class EnvelopeCircles extends Component {
 
     render () {
@@ -94,27 +102,27 @@ class EnvelopeCircles extends Component {
             const isActive = viewState.indexOf(index) !== -1 || index === activeIndex;
             const c = (
                 <Circle
+                    active={isActive}
+                    background={background}
                     cx={toPercent(arr[index][0])}
                     cy={toPercent(1 - arr[index][1])}
-                    r={10}
                     envelopeIndex={envelopeIndex}
-                    key={index + "_" + point[0]}
-                    active={isActive}
                     first={index === 0}
+                    handlers={handlers}
+                    index={index}
+                    key={index + "_" + point[0]}
                     last={index === arr.length - 1}
                     module={module}
-                    index={index}
                     part={part}
-                    background={background}
-                    handlers={handlers}
-                    />
+                    r={10}
+                />
             );
             if (isActive) {
                 active.push(c);
             } else {
                 inactive.push(c);
             }
-        }
+        };
         steps.map(circle);
 
         return (
@@ -125,6 +133,17 @@ class EnvelopeCircles extends Component {
         );
     }
 }
+EnvelopeCircles.propTypes = {
+    "activeIndex": PropTypes.number,
+    "background": PropTypes.element,
+    "envelopeIndex": PropTypes.number,
+    "handlers": PropTypes.object,
+    "module": PropTypes.string.isRequired,
+    "part": PropTypes.string,
+    "steps": envelopePatchDataShape.isRequired,
+    "viewState": envelopeViewStateShape.isRequired
+};
+
 
 class Sustain extends Component {
     constructor () {
@@ -152,56 +171,59 @@ class Sustain extends Component {
     }
     render () {
         const {value, width, active, x} = this.props;
-        const background = (<rect
-            ref={(bg) => this.background = bg}
-            onMouseDown={this.backgroundClick}
-            width="100%"
-            height="100%"
-            opacity="0"
-        />);
+        const background = (
+            <rect
+                height="100%"
+                onMouseDown={this.backgroundClick}
+                opacity="0"
+                ref={(bg) => this.background = bg}
+                width="100%"
+            />
+        );
         const y = toPercent(1 - value);
 
         return (
             <svg
-                x={x ? x : 0}
                 className="controller"
                 height="100%"
-                width={width ? width : "100%"}>
+                width={width ? width : "100%"}
+                x={x ? x : 0}
+            >
                 {background}
                 <line
-                    onMouseMove={active ? this.mouseDrag : null}
-                    onMouseUp={active ? this.blur : null}
-                    onMouseOut={active ? this.blur : null}
+                    className={"sustain-bar" + (active ? " active" : "")}
                     onMouseDown={active ? null : this.click}
+                    onMouseMove={active ? this.mouseDrag : null}
+                    onMouseOut={active ? this.blur : null}
+                    onMouseUp={active ? this.blur : null}
                     strokeWidth={10}
-                    y1={y}
-                    y2={y}
                     x1="0%"
                     x2="100%"
-                    className={"sustain-bar" + (active ? " active" : "")}
+                    y1={y}
+                    y2={y}
                 />
             </svg>
         );
     }
 }
 Sustain.propTypes = {
-    value: PropTypes.number.isRequired,
-    module: PropTypes.string.isRequired,
-    envelopeIndex: PropTypes.number,
-    part: PropTypes.string,
-    width: PropTypes.string,
-    active: PropTypes.bool,
-    viewState: PropTypes.object.isRequired,
-    x: PropTypes.string,
-    handlers: PropTypes.shape({
-        circleClick: PropTypes.func.isRequired,
-        activeCircleMouseUp: PropTypes.func.isRequired,
-        mouseOut: PropTypes.func.isRequired,
-        circleBlur: PropTypes.func.isRequired,
-        sustainBackgroundClick: PropTypes.func.isRequired,
-        circleMouseDrag: PropTypes.func.isRequired
-    }).isRequired
-}
+    "active": PropTypes.bool,
+    "envelopeIndex": PropTypes.number,
+    "handlers": PropTypes.shape({
+        "activeCircleMouseUp": PropTypes.func.isRequired,
+        "circleBlur": PropTypes.func.isRequired,
+        "circleClick": PropTypes.func.isRequired,
+        "circleMouseDrag": PropTypes.func.isRequired,
+        "mouseOut": PropTypes.func.isRequired,
+        "sustainBackgroundClick": PropTypes.func.isRequired
+    }).isRequired,
+    "module": PropTypes.string.isRequired,
+    "part": PropTypes.string,
+    "value": PropTypes.number.isRequired,
+    "viewState": PropTypes.object.isRequired,
+    "width": PropTypes.string,
+    "x": PropTypes.string
+};
 
 
 class Envelope extends Component {
@@ -215,7 +237,7 @@ class Envelope extends Component {
         handlers.backgroundClick(event, module, patch.steps, index, part);
     }
     mouseOut (event) {
-        const {module,index, part, patch, handlers} = this.props;
+        const {module, index, part, patch, handlers} = this.props;
         handlers.mouseOut(event, module, index, part);
     }
     render () {
@@ -223,52 +245,58 @@ class Envelope extends Component {
         const {backgroundClick, envelopeBlur} = handlers;
 
         this.patch = patch;
-        const background = (<rect
-            ref={(bg) => this.background = bg}
-            onMouseDown={this.backgroundClick}
-            width="100%"
-            height="100%"
-            opacity="0"
-        />);
+        const background = (
+            <rect
+                height="100%"
+                onMouseDown={this.backgroundClick}
+                opacity="0"
+                ref={(bg) => this.background = bg}
+                width="100%"
+            />
+        );
 
         return (
             <svg
+                className={"controller envelope" + (part ? " " + part : "")}
                 height="100%"
+                onMouseOut={this.mouseOut}
                 width={width ? width : "100%"}
                 x={x}
-                className={"controller envelope" + (part ? " " + part : "")}
-                onMouseOut={this.mouseOut}
-                >
+            >
                 {background}
                 <EnvelopeLines
-                    steps={patch.steps} />
+                    steps={patch.steps}
+                />
                 <EnvelopeCircles
-                    module={module}
+                    activeIndex={activeIndex}
+                    background={this.background}
                     envelopeIndex={index}
+                    handlers={handlers}
+                    module={module}
                     part={part}
                     steps={patch.steps}
-                    handlers={handlers}
                     viewState={viewState}
-                    activeIndex={activeIndex}
-                    background={this.background}/>
+                />
             </svg>
         );
     }
-};
-Envelope.propTypes = {
-    patch: PropTypes.shape({
-        steps: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
-    }).isRequired,
-    module: PropTypes.string.isRequired,
-    part: PropTypes.string,
-    index: PropTypes.number,
-    handlers: PropTypes.objectOf(PropTypes.func).isRequired,
-    viewState: PropTypes.array,
-    width: PropTypes.string,
-    x: PropTypes.string,
-    activeIndex: PropTypes.number
 }
+Envelope.propTypes = {
+    "activeIndex": PropTypes.number,
+    "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+    "index": PropTypes.number,
+    "module": PropTypes.string.isRequired,
+    "part": PropTypes.string,
+    "patch": PropTypes.shape({
+        "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
+    }).isRequired,
+    "viewState": PropTypes.array,
+    "width": PropTypes.string,
+    "x": PropTypes.string
+};
 
+
+import {sustainEnvelopePatchDataShape} from "../propdefs";
 
 class SustainEnvelope extends Component {
     constructor () {
@@ -305,65 +333,75 @@ class SustainEnvelope extends Component {
                 <h1><abbr title="envelope">Env</abbr> {index + 1}</h1>
                 <svg
                     className="sustain-envelope controller"
-                    onMouseOut={viewState.editSustain ? this.mouseOut : null}>
+                    onMouseOut={viewState.editSustain ? this.mouseOut : null}
+                >
 
                     <Envelope
-                        patch={patch.attack}
+                        activeIndex={viewState.editSustain ? patch.attack.steps.length - 1 : null}
+                        handlers={handlers}
+                        index={index}
                         module={module}
                         part="attack"
-                        index={index}
-                        handlers={handlers}
+                        patch={patch.attack}
                         viewState={viewState.attack}
                         width={attackWidth + "%"}
-                        activeIndex={viewState.editSustain ? patch.attack.steps.length - 1 : null}
                     />
 
                     <Envelope
-                        patch={patch.release}
+                        activeIndex={viewState.editSustain ? 0 : null}
+                        handlers={handlers}
+                        index={index}
                         module={module}
                         part="release"
-                        index={index}
-                        handlers={handlers}
+                        patch={patch.release}
                         viewState={viewState.release}
                         width={releaseWidth + "%"}
                         x={(attackWidth + sustainWidth) + "%"}
-                        activeIndex={viewState.editSustain ? 0 : null}
                     />
                     <Sustain
-                        value={patch.attack.steps.slice(-1)[0][1]}
-                        module={module}
-                        envelopeIndex={index}
-                        part="sustain"
                         active={!!viewState.editSustain}
-                        width={sustainWidth + "%"}
-                        viewState={viewState}
-                        x={attackWidth + "%"}
+                        envelopeIndex={index}
                         handlers={handlers}
+                        module={module}
+                        part="sustain"
+                        value={patch.attack.steps.slice(-1)[0][1]}
+                        viewState={viewState}
+                        width={sustainWidth + "%"}
+                        x={attackWidth + "%"}
                     />
                 </svg>
                 <label htmlFor={"env-" + index + "-attack-duration"}>attack duration</label>
                 <input
                     id={"env-" + index + "-attack-duration"}
-                    type="number"
                     min={0}
-                    value={patch.attack.duration}
-                    onInput={this.attackDurationChange}
                     onChange={this.attackDurationChange}
+                    onInput={this.attackDurationChange}
+                    type="number"
+                    value={patch.attack.duration}
                 />
                 <label htmlFor={"env-" + index + "-release-duration"}>release duration</label>
                 <input
                     id={"env-" + index + "-release-duration"}
-                    type="number"
                     min={0}
-                    value={patch.release.duration}
-                    onInput={this.releaseDurationChange}
                     onChange={this.releaseDurationChange}
+                    onInput={this.releaseDurationChange}
+                    type="number"
+                    value={patch.release.duration}
                 />
             </section>
         );
     }
 }
+SustainEnvelope.propTypes = {
+    "handlers": PropTypes.object.isRequired,
+    "index": PropTypes.number.isRequired,
+    "module": PropTypes.string.isRequired,
+    "patch": sustainEnvelopePatchDataShape.isRequired,
+    "viewState": PropTypes.object
+};
 
+
+import {modulationEnvelopeSourcesShape, envelopesPatchDataShape, sustainEnvelopeViewStateShape} from "../propdefs";
 
 class Envelopes extends Component {
     render () {
@@ -371,19 +409,27 @@ class Envelopes extends Component {
         let envelopes = [];
 
         for (let i = 0; i < configuration.count; i += 1) {
-            envelopes.push(<SustainEnvelope
-                key={i}
-                index={i}
-                module="envelopes"
-                handlers={handlers}
-                patch={patch[i] || configuration["default"]}
-                viewState={viewState[i]} />
+            envelopes.push(
+                <SustainEnvelope
+                    handlers={handlers}
+                    index={i}
+                    key={i}
+                    module="envelopes"
+                    patch={patch[i] || configuration["default"]}
+                    viewState={viewState[i]}
+                />
             );
         }
 
         return <div>{envelopes}</div>;
     }
 }
+Envelopes.propTypes = {
+    "configuration": modulationEnvelopeSourcesShape.isRequired,
+    "handlers": PropTypes.object,
+    "patch": envelopesPatchDataShape,
+    "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)
+};
 
 /*
     this.controller.addEventListener('touchstart', this.touchHandler.bind(this), false);

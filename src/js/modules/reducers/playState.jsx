@@ -1,7 +1,7 @@
 import * as Actions from "../Actions.jsx";
 import config from "../../configuration.json";
 
-const key  = (state = {down: false}, action) => {
+const key = (state = {down: false}, action) => {
     switch (action.type) {
         case Actions.MIDI_KEY_DOWN:
         case Actions.KEYBOARD_KEY_DOWN:
@@ -16,7 +16,7 @@ const key  = (state = {down: false}, action) => {
                 down: false
             };
     }
-}
+};
 
 const keys = (state = [], action) => {
     switch (action.type) {
@@ -32,7 +32,7 @@ const keys = (state = [], action) => {
             return result;
     }
     return state;
-}
+};
 
 const playState = (state = {keys: [], pitchShift: 0, chordShift: 0, hold: 0}, action) => {
     switch (action.type) {
@@ -57,6 +57,6 @@ const playState = (state = {keys: [], pitchShift: 0, chordShift: 0, hold: 0}, ac
 
     }
     return state;
-}
+};
 
 export default playState;
