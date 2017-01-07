@@ -7,6 +7,7 @@ class MidiInput {
     constructor (store) {
         this.midiAccessSuccess = this.midiAccessSuccess.bind(this);
         this.midiAccessFailure = this.midiAccessFailure.bind(this);
+        this.accessStateChangeHandler = this.accessStateChangeHandler.bind(this);
         this.activeChannelMessageHandler = this.activeChannelMessageHandler.bind(this);
         this.isActiveChannel = this.isActiveChannel.bind(this);
         this.midiMessageHandler = this.midiMessageHandler.bind(this);
@@ -28,10 +29,11 @@ class MidiInput {
         this.store.subscribe(update);
         this.access = null;
         this.inputs = {};
+        this.inputState = [];
         this.outputs = {};
         this.activeInputId = this.state.portId || null;
         this.activeInput = null;
-        this.activeChannel = (typeof this.state.channel === "number" || (typeof this.state.channel === "string" && this.state.channel === "all")) ? this.state.channel : null;
+        this.activeChannel = this.state.channel || null;
         this.runningStatusBuffer = null;
         this.valuePairs = {
             "BANK_SELECT": {
@@ -107,6 +109,33 @@ class MidiInput {
         }
     }
 
+    accessStateChangeHandler (event) {
+        console.log(event);
+        const {port} = event;
+        const {connection, name, id, manufacturer, state} = port;
+        const e = {connection, name, id, manufacturer, state};
+
+        const [is] = this.inputState.filter(p => p.id === e.id);
+        if (is) {
+            if (e.connection !== is.connection) {
+                this.store.dispatch({type: Actions.MIDI_PORT_CONNECTION_CHANGE, value: {id, connection}});
+                is.connection = e.connection;
+            }
+            if (e.state !== is.state) {
+                this.store.dispatch({type: Actions.MIDI_PORT_STATE_CHANGE, value: {id, state}});
+                is.state = e.state;
+            }
+        } else {
+            if (port.type === "input") {
+                this.inputState.push(e);
+                this.store.dispatch({
+                    type: Actions.MIDI_ADD_INPUT_PORT,
+                    value: e
+                });
+            }
+        }
+    }
+
     midiAccessFailure (exception) {
         console.log("MIDI failure: " + exception);
         this.store.dispatch({
@@ -116,20 +145,20 @@ class MidiInput {
 
     midiAccessSuccess (access) {
         this.midiAccess = access;
-        this.midiAccess.addEventListener("statechange", (event) => console.log(event));
+        this.midiAccess.addEventListener("statechange", this.accessStateChangeHandler);
 
         const inputIterator = access.inputs.entries();
 
-        for (let [id, port] of inputIterator) {
-            this.inputs[id] = port;
+        for (let [i, port] of inputIterator) {
+            this.inputs[port.id] = port;
+
+            const {connection, name, id, manufacturer, state} = port;
+            const value = {connection, name, id, manufacturer, state};
+            this.inputState.push(value);
 
             this.store.dispatch({
                 type: Actions.MIDI_ADD_INPUT_PORT,
-                value: {
-                    "name": port.name,
-                    "id": port.id,
-                    "manufacturer": port.manufacturer
-                }
+                value
             });
         }
 

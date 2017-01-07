@@ -1,5 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
+import {PORT} from "../../midiConstants";
+
 let midiPortSelectorCounter = 0;
 
 class MidiPortSelector extends Component {
@@ -12,7 +14,7 @@ class MidiPortSelector extends Component {
     }
     render () {
         const {portChangeHandler, ports, selectedPort} = this.props;
-        const port = p => <option key={p.id} value={p.id}>{p.name}{p.manufacturer ? " (" + p.manufacturer + ")" : ""}</option>;
+        const port = p => <option disabled={p.state === PORT.STATE.DISCONNECTED} key={p.id} value={p.id}>{p.name}{p.manufacturer ? " (" + p.manufacturer + ")" : ""}</option>;
 
         if (ports && ports.length > 0) {
             return (

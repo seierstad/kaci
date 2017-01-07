@@ -38,6 +38,16 @@ const midi = (state = {}, action) => {
                 ...state,
                 channel: action.value
             };
+        case Actions.MIDI_PORT_CONNECTION_CHANGE:
+            return {
+                ...state,
+                ports: state.ports.map(p => p.id === action.value.id ? {...p, connection: action.value.connection} : p)
+            };
+        case Actions.MIDI_PORT_STATE_CHANGE:
+            return {
+                ...state,
+                ports: state.ports.map(p => p.id === action.value.id ? {...p, state: action.value.state} : p)
+            };
     }
     return state;
 

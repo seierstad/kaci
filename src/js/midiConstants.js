@@ -1,5 +1,17 @@
 export const CHANNELS = ["all", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
+export const PORT = {
+    "STATE": {
+        "CONNECTED": "connected",
+        "DISCONNECTED": "disconnected"
+    },
+    "CONNECTION": {
+        "OPEN": "open",
+        "CLOSED": "closed",
+        "PENDING": "pending"
+    }
+};
+
 export const MESSAGE_TYPE = {
     "NOTE_OFF": 0x80,
     "NOTE_ON": 0x90,

@@ -24,7 +24,7 @@ class MidiChannelSelector extends Component {
     }
 
     render () {
-        const {channelChangeHandler, selectedChannel} = this.props;
+        const {selectedChannel} = this.props;
         const channel= c => <option key={c} value={c}>{(typeof c === "number") ? (c + 1) : c}</option>;
 
         return (
