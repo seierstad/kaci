@@ -1,5 +1,6 @@
 import {PropTypes} from "react";
 
+import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
 import {waveforms, wrappers} from "./waveforms";
 
 export const polarityShape = PropTypes.oneOf([
@@ -19,10 +20,18 @@ export const keyboardShape = PropTypes.shape({
     "layouts": PropTypes.arrayOf(keyboardLayoutShape).isRequired
 });
 
+export const midiPortShape = PropTypes.shape({
+    "id": PropTypes.string.isRequired,
+    "manufacturer": PropTypes.string.isRequired,
+    "name": PropTypes.string.isRequired
+});
+
+export const midiChannelShape = PropTypes.oneOf(MIDI_CHANNELS);
+
 export const midiShape = PropTypes.shape({
     "portId": PropTypes.string,
-    "channel": PropTypes.oneOf(["all", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]),
-    "ports": PropTypes.arrayOf(PropTypes.string)
+    "channel": midiChannelShape.isRequired,
+    "ports": PropTypes.arrayOf(midiPortShape).isRequired
 });
 
 export const tuningShape = PropTypes.shape({

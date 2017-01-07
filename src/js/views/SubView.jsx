@@ -1,4 +1,7 @@
-import React, {Component} from "react";
+import React, {Component, PropTypes} from "react";
+
+import {modulationTargetShape, subPatchDataShape} from "../propdefs";
+
 import RangeInput from "./RangeInput.jsx";
 
 class SubView extends Component {
@@ -34,7 +37,7 @@ class SubView extends Component {
                 <fieldset>
                     <legend>Sub depth</legend>
                     <input
-                        hecked={patch.depth === 0}
+                        checked={patch.depth === 0}
                         id="sub-0"
                         name="sub-depth-selector"
                         onChange={depthChange}
@@ -62,5 +65,11 @@ class SubView extends Component {
         );
     }
 }
+SubView.propTypes = {
+    "configuration": modulationTargetShape.isRequired,
+    "handlers": PropTypes.object,
+    "patch": subPatchDataShape.isRequired
+};
+
 
 export default SubView;

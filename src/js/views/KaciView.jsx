@@ -79,12 +79,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => {
     return {
         handlers: {
-            midi: {
-                portChange: (event) => {
-                    const value = event.target.value;
-                    dispatch({type: Actions.MIDI_PORT_SELECT, value});
-                }
-            },
             oscillator: {
                 resonance: {
                     factorChange: (event) => {

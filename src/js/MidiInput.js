@@ -97,7 +97,7 @@ class MidiInput {
         };
 
         if (navigator && navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess({
+            this.midiAccessRequest = navigator.requestMIDIAccess({
                 "sysex": true
             }).then(this.midiAccessSuccess, this.midiAccessFailure);
         } else {
@@ -109,17 +109,18 @@ class MidiInput {
 
     midiAccessFailure (exception) {
         console.log("MIDI failure: " + exception);
+        this.store.dispatch({
+            type: Actions.MIDI_UNAVAILABLE
+        });
     }
 
     midiAccessSuccess (access) {
-        let input,
-            inputIterator;
+        this.midiAccess = access;
+        this.midiAccess.addEventListener("statechange", (event) => console.log(event));
 
-        inputIterator = access.inputs.entries();
-        input = inputIterator.next();
-        while (!input.done) {
-            let id = input.value[0];
-            let port = input.value[1];
+        const inputIterator = access.inputs.entries();
+
+        for (let [id, port] of inputIterator) {
             this.inputs[id] = port;
 
             this.store.dispatch({
@@ -130,7 +131,6 @@ class MidiInput {
                     "manufacturer": port.manufacturer
                 }
             });
-            input = inputIterator.next();
         }
 
         this.selectInputPort(this.activeInputId);
@@ -248,18 +248,15 @@ class MidiInput {
 
     activeChannelMessageHandler (data, overrideType) {
         let type = data[0],
-            index = 0,
-            value,
-            byte1,
-            byte2;
+            index = 0;
 
         if (overrideType) {
             type = overrideType;
             index = -1;
         }
 
-        byte1 = data[index + 1];
-        byte2 = data[index + 2];
+        const byte1 = data[index + 1];
+        const byte2 = data[index + 2];
 
         switch (type & 0xF0) {
             case c.MESSAGE_TYPE.NOTE_OFF: // note off
@@ -295,7 +292,7 @@ class MidiInput {
 
             // TODO: scale values above 0x2000 so that coarse=127, fine=127 => value=1
                 this.runningStatusBuffer = type;
-                value = data[index + 2] << 7 | data[index + 1];
+                const value = data[index + 2] << 7 | data[index + 1];
 
                 this.store.dispatch({
                     "type": Actions.MIDI_PITCHBEND,
@@ -320,6 +317,7 @@ class MidiInput {
         }
 
     }
+
     midiMessageHandler (event) {
         if (this.isActiveChannel(event.data[0])) {
             this.activeChannelMessageHandler(event.data);
@@ -346,5 +344,4 @@ class MidiInput {
     }
 }
 
-export
-default MidiInput;
+export default MidiInput;

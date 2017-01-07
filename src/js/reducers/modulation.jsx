@@ -1,6 +1,6 @@
 import * as Actions from "../Actions.jsx";
 import { combineReducers } from "redux";
-import config from "../../configuration.json";
+import config from "../configuration.json";
 
 
 const connection = (state = {...config.modulation.connection["default"]}, action) => {

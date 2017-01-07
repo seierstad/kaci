@@ -1,9 +1,7 @@
 import * as Actions from "../Actions.jsx";
 import { combineReducers } from "redux";
 
-const nullReducer = (state = {}, action) => {
-    return state;
-};
+const nullReducer = (state = {}) => state;
 
 const keyboard = (state = {}, action) => {
     switch (action.type) {
@@ -35,6 +33,11 @@ const midi = (state = {}, action) => {
                 };
             }
             break;
+        case Actions.MIDI_CHANNEL_SELECT:
+            return {
+                ...state,
+                channel: action.value
+            };
     }
     return state;
 

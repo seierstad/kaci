@@ -2,18 +2,18 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Provider} from "react-redux";
 import {createStore} from "redux";
-import reducer from "./modules/reducers/kaci.jsx";
-import KaciView from "./modules/views/KaciView.jsx";
+import reducer from "./reducers/kaci.jsx";
+import KaciView from "./views/KaciView.jsx";
 
-import VoiceRegister from "./modules/VoiceRegister";
+import VoiceRegister from "./VoiceRegister";
 // import WavyJones from "../lib/wavy-jones/wavy-jones";
-import ModulationMatrix from "./modules/ModulationMatrix";
-import KeyboardInput from "./modules/KeyboardInput";
-import patch from "./modules/patch";
-import MidiInput from "./modules/MidiInput";
-import SystemSettings from "./modules/SystemSettings";
+import ModulationMatrix from "./ModulationMatrix";
+import KeyboardInput from "./KeyboardInput";
+import patch from "./patch";
+import MidiInput from "./MidiInput";
+import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration.json";
-import PatchHandler from "./modules/PatchHandler";
+import PatchHandler from "./PatchHandler";
 
 let ctx, mainMix;
 

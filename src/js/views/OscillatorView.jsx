@@ -1,4 +1,3 @@
-import ReactDOM from "react-dom";
 import React, {Component, PropTypes} from "react";
 
 import drawWaveform from "./drawWaveform";
@@ -9,7 +8,6 @@ import {Envelope} from "./EnvelopeView.jsx";
 import RangeInput from "./RangeInput.jsx";
 import WaveformSelector from "./WaveformSelector.jsx";
 import DependentComponent from "./dependent-component.jsx";
-import PDOscillator from "../PDOscillator";
 
 
 const getWrapperFunction = (wrapper, waveform, resonance) => (phase) => {
@@ -166,6 +164,7 @@ class Resonance extends DependentComponent {
                 />
                 <WaveformSelector
                     changeHandler={handlers.wrapperChange}
+                    module="oscillator"
                     selected={patch.wrapper}
                     waveforms={this.state.wrappedWaveforms}
                 />
@@ -232,6 +231,7 @@ class Oscillator extends Component {
             <section className="oscillator-view">
                 <WaveformSelector
                     changeHandler={handlers.waveformChange}
+                    module="oscillator"
                     selected={patch.waveform}
                     waveforms={waveforms}
                 />

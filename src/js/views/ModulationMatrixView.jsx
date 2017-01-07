@@ -161,7 +161,7 @@ class Target extends Component {
                 {envCount > 0 ?
                     <Connection
                         handlers={handlers}
-                        index={null}
+                        index={-1}
                         key={envCount}
                         module={module}
                         noConnection={noConnection}

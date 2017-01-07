@@ -1,5 +1,9 @@
-import React, {Component} from "react";
+import React, {Component, PropTypes} from "react";
+
+import {modulationTargetShape, noisePatchDataShape} from "../propdefs";
+
 import RangeInput from "./RangeInput.jsx";
+
 
 class NoiseView extends Component {
     render () {
@@ -31,5 +35,11 @@ class NoiseView extends Component {
         );
     }
 }
+NoiseView.propTypes = {
+    "configuration": modulationTargetShape.isRequired,
+    "handlers": PropTypes.object.isRequired,
+    "patch": noisePatchDataShape.isRequired
+};
 
-module.exports = NoiseView;
+
+export default NoiseView;
