@@ -1,64 +1,18 @@
-import ReactDOM from "react-dom";
 import React, {Component, PropTypes} from "react";
+import {connect} from "react-redux";
 
-import {NOTE_NAMES} from "../constants";
+import {NOTE_NAMES} from "../../constants";
+import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT} from "../../Actions.jsx";
 
-import RangeInput from "./RangeInput.jsx";
-
-class Key extends Component {
-    constructor () {
-        super();
-        this.keyDownHandler = this.keyDownHandler.bind(this);
-        this.keyUpHandler = this.keyUpHandler.bind(this);
-    }
-    keyDownHandler (event) {
-        const {handlers, keyNumber} = this.props;
-        handlers.down(event, keyNumber);
-    }
-    keyUpHandler (event) {
-        const {handlers, keyNumber} = this.props;
-        handlers.up(event, keyNumber);
-    }
-
-}
-
-class WhiteKey extends Key {
-    render () {
-        const {x, keyWidth, noteName, keyNumber, playState} = this.props;
-        return (
-            <rect
-                className={"key " + noteName + (playState && playState.down ? " down" : "")}
-                height="100%"
-                onMouseDown={this.keyDownHandler}
-                onMouseUp={this.keyUpHandler}
-                width={keyWidth + "%"}
-                x={x}
-                y="0"
-            />
-        );
-    }
-}
-class BlackKey extends Key {
-    render () {
-        const {x, keyWidth, noteName, keyNumber, playState} = this.props;
-        return (
-            <rect
-                className={"key " + noteName + (playState && playState.down ? " down" : "")}
-                height="60%"
-                onMouseDown={this.keyDownHandler}
-                onMouseUp={this.keyUpHandler}
-                width={(keyWidth * 0.7) + "%"}
-                x={x}
-                y="0"
-            />
-        );
-    }
-}
+import RangeInput from "../RangeInput.jsx";
+import Key from "./key.jsx";
 
 
-class KeyboardView extends Component {
+class KeyboardViewPresentation extends Component {
+
     render () {
         const {handlers, playState, configuration} = this.props;
+        const {handlePitchShift, handleChordShift} = handlers;
         const {startKey, endKey} = configuration;
         const keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5));
 
@@ -73,32 +27,24 @@ class KeyboardView extends Component {
             const black = (k === 1 || k === 3 || k === 6 || k === 8 || k === 10);
             const noteName = NOTE_NAMES[i % 12];
 
+            const key = (
+                <Key
+                    height={black ? "60%" : "100%"}
+                    key={i + "-" + noteName}
+                    noteName={noteName}
+                    number={i}
+                    playState={playState.keys[i]}
+                    width={black ? (keyWidth * 0.7) : keyWidth}
+                    x={(black ? (nextKeyX - keyWidth * 0.35) : (nextKeyX += keyWidth)) + "%"}
+                />
+            );
+
             if (black) {
-                blackKeys.push(
-                    <BlackKey
-                        handlers={handlers.key}
-                        key={i + "-" + noteName}
-                        keyNumber={i}
-                        keyWidth={keyWidth}
-                        noteName={noteName}
-                        playState={playState.keys[i]}
-                        x={(nextKeyX - keyWidth * 0.35) + "%"}
-                    />
-                );
+                blackKeys.push(key);
             } else {
-                whiteKeys.push(
-                    <WhiteKey
-                        handlers={handlers.key}
-                        key={i + "-" + noteName}
-                        keyNumber={i}
-                        keyWidth={keyWidth}
-                        noteName={noteName}
-                        playState={playState.keys[i]}
-                        x={nextKeyX + "%"}
-                    />
-                );
-                nextKeyX += keyWidth;
+                whiteKeys.push(key);
             }
+
         }
 
 
@@ -113,7 +59,7 @@ class KeyboardView extends Component {
                     </g>
                 </svg>
                 <RangeInput
-                    changeHandler={handlers.pitchShift}
+                    changeHandler={handlePitchShift}
                     label="Pitch shift"
                     max={1}
                     min={-1}
@@ -121,7 +67,7 @@ class KeyboardView extends Component {
                     value={playState.pitchShift}
                 />
                 <RangeInput
-                    changeHandler={handlers.chordShift}
+                    changeHandler={handleChordShift}
                     label="Chord shift"
                     max={1}
                     min={0}
@@ -132,14 +78,30 @@ class KeyboardView extends Component {
         );
     }
 }
-
-KeyboardView.propTypes = {
-    "configuration": PropTypes.object,
-    "handlers": PropTypes.object.isRequired,
+KeyboardViewPresentation.propTypes = {
+    "configuration": PropTypes.object.isRequired,
+    "handlers": PropTypes.shape({
+        "handleChordShift": PropTypes.func.isRequired,
+        "handlePitchShift": PropTypes.func.isRequired
+    }).isRequired,
     "playState": PropTypes.object
 };
 
+const mapState = (state) => ({
+    "configuration": state.settings.keyboard,
+    "playState": state.playState
+});
+const mapDispatch = (dispatch) => ({
+    "handlers": {
+        "handlePitchShift": (value) => {dispatch({"type": KEYBOARD_PITCH_SHIFT}, value);},
+        "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT}, value);}
+    }
+});
+const KeyboardView = connect(mapState, mapDispatch)(KeyboardViewPresentation);
+
+
 export default KeyboardView;
+
 /*
 
     var setKeyStyling = function (key, amount) {

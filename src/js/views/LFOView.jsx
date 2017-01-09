@@ -20,14 +20,14 @@ class LFO extends Component {
         const {index, module, handlers} = this.props;
         handlers.reset(event, module, index);
     }
-    amountChange (event) {
+    amountChange (value) {
         const {index, module, handlers} = this.props;
-        handlers.amountChange(event, module, index);
+        handlers.amountChange(value, module, index);
 
     }
-    frequencyChange (event) {
+    frequencyChange (value) {
         const {index, module, handlers} = this.props;
-        handlers.frequencyChange(event, module, index);
+        handlers.frequencyChange(value, module, index);
 
     }
 

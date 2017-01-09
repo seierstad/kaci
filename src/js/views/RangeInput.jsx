@@ -3,6 +3,17 @@ import React from "react";
 let rangeInputId = 0;
 
 class RangeInput extends Component {
+    constructor () {
+        super();
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.props.changeHandler(parseFloat(this.input.value, 10));
+    }
+
     render () {
         const {min, max, step, value, disabled, label, changeHandler} = this.props;
         const id = "range_" + (rangeInputId += 1);
@@ -15,6 +26,7 @@ class RangeInput extends Component {
                     min={min}
                     onChange={changeHandler}
                     onInput={changeHandler}
+                    ref={i => this.input = i}
                     step={step}
                     type="range"
                     value={value}

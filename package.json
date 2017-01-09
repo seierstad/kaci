@@ -43,6 +43,7 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.8",
     "mkdirp": "^0.5.1",
+    "react-addons-perf": "^15.4.2",
     "reactify": "^0.15.2",
     "redux-devtools": "^3.3.1",
     "run-sequence": "^1.2.2",

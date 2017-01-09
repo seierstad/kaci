@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Provider} from "react-redux";
 import {createStore} from "redux";
+import Perf from "react-addons-perf";
+
 import reducer from "./reducers/kaci.jsx";
 import KaciView from "./views/KaciView.jsx";
 
@@ -38,8 +40,8 @@ if (window.AudioContext) {
     let keyboardInput = new KeyboardInput(store);
 
 
-    let modulationMatrix = new ModulationMatrix(ctx, store);
-    let reg = new VoiceRegister(store, ctx, modulationMatrix);
+//    let modulationMatrix = new ModulationMatrix(ctx, store);
+//    let reg = new VoiceRegister(store, ctx, modulationMatrix);
 
     const kaciWrapper = document.getElementById("kaci");
 

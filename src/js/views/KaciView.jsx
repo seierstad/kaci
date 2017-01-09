@@ -11,7 +11,7 @@ import Envelopes from "./EnvelopeView.jsx";
 import LFOs from "./LFOView.jsx";
 import ModulationMatrix from "./ModulationMatrixView.jsx";
 import Oscillator from "./OscillatorView.jsx";
-import Keyboard from "./KeyboardView.jsx";
+import Keyboard from "./keyboard/keyboard.jsx";
 
 
 class KaciReactViewPresentation extends Component {
@@ -81,8 +81,7 @@ const mapDispatchToProps = (dispatch) => {
         handlers: {
             oscillator: {
                 resonance: {
-                    factorChange: (event) => {
-                        const value = parseFloat(event.target.value);
+                    factorChange: (value) => {
                         dispatch({type: Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE, value});
                     },
                     wrapperChange: (event, module) => {
@@ -95,12 +94,10 @@ const mapDispatchToProps = (dispatch) => {
                 waveformChange: (event, module) => {
                     dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": event.target.value});
                 },
-                mix: (event) => {
-                    const value = parseFloat(event.target.value);
+                mix: (value) => {
                     dispatch({"type": Actions.OSCILLATOR_MIX_CHANGE, value});
                 },
-                detune: (event) => {
-                    const value = parseFloat(event.target.value);
+                detune: (value) => {
                     dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});
                 }
             },
@@ -174,13 +171,13 @@ const mapDispatchToProps = (dispatch) => {
                         dispatch({type: Actions.ENVELOPE_POINT_CHANGE, module, envelopeIndex, envelopePart, index, x, y});
                     }
                 },
-                durationChange: (event, module, envelopeIndex, envelopePart) => {
+                durationChange: (value, module, envelopeIndex, envelopePart) => {
                     dispatch({
                         type: Actions.ENVELOPE_DURATION_CHANGE,
                         module,
                         envelopeIndex,
                         envelopePart,
-                        value: parseFloat(event.target.value)
+                        value
                     });
                 }
 
@@ -189,14 +186,14 @@ const mapDispatchToProps = (dispatch) => {
                 reset: (event, module, index) => {
                     dispatch({"type": Actions.LFO_RESET, module, index});
                 },
-                amountChange: (event, module, index) => {
-                    dispatch({"type": Actions.LFO_AMOUNT_CHANGE, index, module, "value": parseFloat(event.target.value)});
+                amountChange: (value, module, index) => {
+                    dispatch({"type": Actions.LFO_AMOUNT_CHANGE, index, module, value});
                 },
-                frequencyChange: (event, module, index) => {
-                    dispatch({"type": Actions.LFO_FREQUENCY_CHANGE, index, module, "value": parseFloat(event.target.value)});
+                frequencyChange: (value, module, index) => {
+                    dispatch({"type": Actions.LFO_FREQUENCY_CHANGE, index, module, value});
                 },
-                changeWaveform: (event, module, index) => {
-                    dispatch({"type": Actions.LFO_WAVEFORM_CHANGE, index, module, "value": event.target.value});
+                changeWaveform: (value, module, index) => {
+                    dispatch({"type": Actions.LFO_WAVEFORM_CHANGE, index, module, value});
                 }
             },
             sync: {
@@ -210,44 +207,25 @@ const mapDispatchToProps = (dispatch) => {
                     dispatch({"type": Actions.SYNC_TOGGLE, module, index});
                 }
             },
-            sub: {
-                toggle: (event) => {
-                    dispatch({type: Actions.SUB_TOGGLE});
-                },
-                panInput: (event) => {
-                    const value = parseFloat(event.target.value);
-                    dispatch({type: Actions.SUB_PAN_CHANGE, value});
-                },
-                gainInput: (event) => {
-                    const value = parseFloat(event.target.value);
-                    dispatch({type: Actions.SUB_GAIN_CHANGE, value});
-                },
-                depthChange: (event) => {
-                    const value = parseInt(event.target.value, 10);
-                    dispatch({type: Actions.SUB_DEPTH_CHANGE, value});
-                }
-            },
             noise: {
                 toggle: (event) => {
                     dispatch({type: Actions.NOISE_TOGGLE});
                 },
-                panInput: (event) => {
-                    const value = parseFloat(event.target.value);
+                panInput: (value) => {
                     dispatch({type: Actions.NOISE_PAN_CHANGE, value});
                 },
-                gainInput: (event) => {
-                    const value = parseFloat(event.target.value);
+                gainInput: (value) => {
                     dispatch({type: Actions.NOISE_GAIN_CHANGE, value});
                 }
             },
             modulation: {
-                amountChange: (event, sourceType, index, module, parameter) => {
-                    dispatch({"type": Actions.MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value: parseFloat(event.target.value)});
+                amountChange: (value, sourceType, index, module, parameter) => {
+                    dispatch({"type": Actions.MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value});
                 },
-                polarityChange: (event, sourceType, index, module, parameter) => {
-                    dispatch({"type": Actions.MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value: event.target.value});
+                polarityChange: (value, sourceType, index, module, parameter) => {
+                    dispatch({"type": Actions.MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value});
                 },
-                toggle: (event, sourceType, index, module, parameter) => {
+                toggle: (sourceType, index, module, parameter) => {
                     dispatch({"type": Actions.MODULATION_CONNECTION_TOGGLE, sourceType, index, module, parameter});
                 }
             },
@@ -255,22 +233,6 @@ const mapDispatchToProps = (dispatch) => {
                 layoutChange: (event) => {
                     const value = event.target.value;
                     dispatch({type: Actions.KEYBOARD_LAYOUT_CHANGE, value});
-                },
-                pitchShift: (event) => {
-                    const value = parseFloat(event.target.value);
-                    dispatch({"type": Actions.KEYBOARD_PITCH_SHIFT}, value);
-                },
-                chordShift: (event) => {
-                    const value = parseFloat(event.target.value);
-                    dispatch({"type": Actions.KEYBOARD_CHORD_SHIFT}, value);
-                },
-                key: {
-                    down: (event, keyNumber) => {
-                        dispatch({"type": Actions.KEYBOARD_KEY_DOWN, keyNumber});
-                    },
-                    up: (event, keyNumber) => {
-                        dispatch({"type": Actions.KEYBOARD_KEY_UP, keyNumber});
-                    }
                 }
             }
         }

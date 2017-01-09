@@ -21,7 +21,7 @@ class KeyboardInput {
                 this.changeLayout(this.state.activeLayout);
             }
         };
-        store.subscribe(update);
+//        store.subscribe(update);
 
         document.addEventListener("keydown", this.keyDownHandler, false);
         document.addEventListener("keyup", this.keyUpHandler, false);

@@ -37,29 +37,29 @@ class Connection extends Component {
         this.toggleEnvelope = this.toggleEnvelope.bind(this);
         this.toggleLfo = this.toggleLfo.bind(this);
     }
-    amountChangeEnvelope (event) {
+    amountChangeEnvelope (value) {
         const {handlers, index, module, parameter} = this.props;
-        handlers.amountChange(event, "envelope", index, module, parameter);
+        handlers.amountChange(value, "envelope", index, module, parameter);
     }
-    amountChangeLfo (event) {
+    amountChangeLfo (value) {
         const {handlers, index, module, parameter} = this.props;
-        handlers.amountChange(event, "lfo", index, module, parameter);
+        handlers.amountChange(value, "lfo", index, module, parameter);
     }
-    polarityChangeEnvelope (event) {
+    polarityChangeEnvelope (value) {
         const {handlers, index, module, parameter} = this.props;
-        handlers.polarityChange(event, "envelope", index, module, parameter);
+        handlers.polarityChange(value, "envelope", index, module, parameter);
     }
     polarityChangeLfo (event) {
         const {handlers, index, module, parameter} = this.props;
-        handlers.polarityChange(event, "lfo", index, module, parameter);
+        handlers.polarityChange(event.target.value, "lfo", index, module, parameter);
     }
-    toggleEnvelope (event) {
+    toggleEnvelope () {
         const {handlers, index, module, parameter} = this.props;
-        handlers.toggle(event, "envelope", index, module, parameter);
+        handlers.toggle("envelope", index, module, parameter);
     }
-    toggleLfo (event) {
+    toggleLfo () {
         const {handlers, index, module, parameter} = this.props;
-        handlers.toggle(event, "lfo", index, module, parameter);
+        handlers.toggle("lfo", index, module, parameter);
     }
 
     render () {

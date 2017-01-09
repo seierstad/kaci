@@ -1,10 +1,13 @@
 import React, {Component, PropTypes} from "react";
+import {connect} from "react-redux";
 
 import {modulationTargetShape, subPatchDataShape} from "../propdefs";
+import {SUB_TOGGLE, SUB_PAN_CHANGE, SUB_GAIN_CHANGE, SUB_DEPTH_CHANGE} from "../Actions.jsx";
+
 
 import RangeInput from "./RangeInput.jsx";
 
-class SubView extends Component {
+class SubViewPresentation extends Component {
     render () {
         const {patch, configuration, handlers} = this.props;
         const {panInput, gainInput, toggle, depthChange} = handlers;
@@ -65,11 +68,32 @@ class SubView extends Component {
         );
     }
 }
-SubView.propTypes = {
+SubViewPresentation.propTypes = {
     "configuration": modulationTargetShape.isRequired,
     "handlers": PropTypes.object,
     "patch": subPatchDataShape.isRequired
 };
+const mapState = (state) => ({
+    "configuration": state.settings.modulation.target.sub,
+    "patch": state.patch.sub
+});
+const mapDispatch = (dispatch) => ({
+    "handlers": {
+        "toggle": () => {
+            dispatch({type: SUB_TOGGLE});
+        },
+        "panInput": (value) => {
+            dispatch({type: SUB_PAN_CHANGE, value});
+        },
+        "gainInput": (value) => {
+            dispatch({type: SUB_GAIN_CHANGE, value});
+        },
+        "depthChange": (value) => {
+            dispatch({type: SUB_DEPTH_CHANGE, value});
+        }
+    }
+});
+const SubView = connect(mapState, mapDispatch)(SubViewPresentation);
 
 
 export default SubView;
