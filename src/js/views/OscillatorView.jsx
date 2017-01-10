@@ -4,7 +4,7 @@ import drawWaveform from "./drawWaveform";
 import {waveforms, wrappers} from "../waveforms";
 import {getDistortedPhase, mixValues} from "../sharedFunctions";
 
-import {Envelope} from "./EnvelopeView.jsx";
+import Envelope from "./envelope/envelope.jsx";
 import RangeInput from "./RangeInput.jsx";
 import WaveformSelector from "./WaveformSelector.jsx";
 import DependentComponent from "./dependent-component.jsx";

@@ -66,7 +66,6 @@ const envelopePart = combineReducers({
 });
 
 const sustainedEnvelope = (state = {}, action) => {
-    let result;
 
     switch (action.type) {
         case Actions.ENVELOPE_MODE_CHANGE:
