@@ -1,6 +1,6 @@
 import DC from "./DCGenerator";
 
-const mixValues = (source1, source2, ratio) => source1 * (-ratio + 1) + source2 * ratio;
+const mixValues = (source1, source2, ratio) => source1 * (1 - ratio) + source2 * ratio;
 
 const vectorToLinearFunction = (vector) => {
     const rate = (vector[1][1] - vector[0][1]) / (vector[1][0] - vector[0][0]);
@@ -78,6 +78,11 @@ class ParamLogger {
     }
 }
 
+export const splicedArrayCopy = (arr, index, deleteCount, ...newContent) => {
+    const result = [...arr];
+    result.splice(index, deleteCount, ...newContent);
+    return result;
+};
 
 export {
     mixValues,

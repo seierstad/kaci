@@ -4,6 +4,8 @@ import envelopes, {steps} from "./envelopes.jsx";
 import lfos from "./lfos.jsx";
 import modulation from "./modulation.jsx";
 
+import {splicedArrayCopy} from "../sharedFunctions";
+
 const nullReducer = (state = {}, action) => state;
 const vca = (state = {gain: 1}, action) => {
     switch (action.type) {
@@ -54,16 +56,15 @@ const oscillator = (state = {}, action) => {
     }
     if (action.module === "oscillator") {
         // generic actions targeting oscillator parameters
+
         switch (action.type) {
             case Actions.ENVELOPE_POINT_DELETE:
             case Actions.ENVELOPE_POINT_ADD:
             case Actions.ENVELOPE_POINT_CHANGE:
-                let pd = [...state.pd];
-                pd[action.envelopeIndex].steps = steps(state.pd[action.envelopeIndex].steps, action);
-
+                const pd = splicedArrayCopy(state.pd, action.envelopeIndex, 1, {steps: steps(state.pd[action.envelopeIndex].steps, action)});
                 return {
                     ...state,
-                    pd
+                    "pd": pd
                 };
         }
 

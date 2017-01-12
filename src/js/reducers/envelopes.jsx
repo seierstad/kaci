@@ -1,51 +1,38 @@
 import * as Actions from "../actions";
 import { combineReducers } from "redux";
 
-const deletePoint = (arr, index) => {
-    if (index > 0 && index < arr.length - 1) {
-        return [
-            ...arr.slice(0, index),
-            ...arr.slice(index + 1)
-        ];
-    }
-    return arr;
-};
+import {splicedArrayCopy} from "../sharedFunctions";
+
+
+const sortByX = (a, b) => a[0] > b[0];
 
 const steps = (state = [], action) => {
-    const sortByX = (a, b) => a[0] > b[0];
+    const {x, y} = action;
+    const point = [x, y];
 
     switch (action.type) {
         case Actions.ENVELOPE_POINT_DELETE:
-            return deletePoint([...state], action.index);
+            return splicedArrayCopy(state, action.index, 1);
         case Actions.ENVELOPE_POINT_ADD:
-            return [...state, [action.x, action.y]].sort(sortByX);
+            return [...state, point].sort(sortByX);
         case Actions.ENVELOPE_POINT_CHANGE:
             if (action.index === 0) {
-                return [
-                    [0, action.y],
-                    ...state.slice(action.index + 1)
-                ];
+                point[0] = 0;
             } else if (action.index === state.length - 1) {
-                return [
-                    ...state.slice(0, action.index),
-                    [1, action.y]
-                ];
+                point[0] = 1;
             }
-            let result = [
-                ...state.slice(0, action.index),
-                [action.x, action.y],
-                ...state.slice(action.index + 1)
-            ];
+            const result = splicedArrayCopy(state, action.index, 1, point);
+
             //all x values for steps after the changed step should be larger (and not equal)
             for (let i = action.index + 1; i < result.length; i += 1) {
                 if (result[i - 1][0] >= result[i][0]) {
-                    result[i][0] = result[i - 1][0] + Number.EPSILON;
+                    result[i] = [result[i - 1][0] + Number.EPSILON, result[i][1]];
                 }
             }
             // x values before the changed step...
             for (let i = action.index - 1; i > 0; i -= 1) {
                 if (result[i + 1][0] <= result[i][0]) {
-                    result[i][0] = result[i + 1][0] - Number.EPSILON;
+                    result[i] = [result[i + 1][0] - Number.EPSILON, result[i][1]];
                 }
             }
             return result;

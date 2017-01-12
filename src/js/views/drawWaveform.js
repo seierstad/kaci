@@ -19,9 +19,8 @@ const drawWaveform = function (waveGenerator, canvas, params) {
     const context = canvasElement.getContext("2d");
     context.lineJoin = "miter";
 
-    if (params && !params.noClear) {
-        context.clearRect(xOffset, yOffset, width, height);
-    }
+    context.clearRect(xOffset, yOffset, width, height);
+
     if (params && params.drawGuides) {
         context.beginPath();
         context.moveTo(xOffset, halfHeight + yOffset);

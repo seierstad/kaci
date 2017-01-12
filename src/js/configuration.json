@@ -104,7 +104,7 @@
                         ],
                         "duration": 1
                     },
-                    "mode": "local"
+                    "mode": "voice"
                 },
                 "defaultState": {
                     "attack": [],

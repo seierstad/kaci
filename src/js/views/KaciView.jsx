@@ -10,7 +10,7 @@ import SubView from "./SubView.jsx";
 import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./LFOView.jsx";
 import ModulationMatrix from "./ModulationMatrixView.jsx";
-import Oscillator from "./OscillatorView.jsx";
+import Oscillator from "./oscillator/oscillator.jsx";
 import Keyboard from "./keyboard/keyboard.jsx";
 
 
@@ -29,7 +29,6 @@ class KaciReactViewPresentation extends Component {
                 <Oscillator
                     configuration={configuration.modulation.target.oscillator}
                     envelopeHandlers={handlers.envelope}
-                    handlers={handlers.oscillator}
                     patch={patch.oscillator}
                     viewState={viewState.oscillator}
                 />
@@ -79,28 +78,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => {
     return {
         handlers: {
-            oscillator: {
-                resonance: {
-                    factorChange: (value) => {
-                        dispatch({type: Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE, value});
-                    },
-                    wrapperChange: (event, module) => {
-                        dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": event.target.value});
-                    },
-                    toggle: () => {
-                        dispatch({"type": Actions.OSCILLATOR_RESONANCE_TOGGLE});
-                    }
-                },
-                waveformChange: (event, module) => {
-                    dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": event.target.value});
-                },
-                mix: (value) => {
-                    dispatch({"type": Actions.OSCILLATOR_MIX_CHANGE, value});
-                },
-                detune: (value) => {
-                    dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});
-                }
-            },
             envelope: {
                 circleClick: (event, module, envelopeIndex, envelopePart, index, first, last) => {
                     if (event.shiftKey) {

@@ -79,18 +79,10 @@ const mapState = (state) => ({
 });
 const mapDispatch = (dispatch) => ({
     "handlers": {
-        "toggle": () => {
-            dispatch({type: SUB_TOGGLE});
-        },
-        "panInput": (value) => {
-            dispatch({type: SUB_PAN_CHANGE, value});
-        },
-        "gainInput": (value) => {
-            dispatch({type: SUB_GAIN_CHANGE, value});
-        },
-        "depthChange": (value) => {
-            dispatch({type: SUB_DEPTH_CHANGE, value});
-        }
+        "toggle": () => {dispatch({type: SUB_TOGGLE});},
+        "panInput": (value) => {dispatch({type: SUB_PAN_CHANGE, value});},
+        "gainInput": (value) => {dispatch({type: SUB_GAIN_CHANGE, value});},
+        "depthChange": (value) => {dispatch({type: SUB_DEPTH_CHANGE, value});}
     }
 });
 const SubView = connect(mapState, mapDispatch)(SubViewPresentation);

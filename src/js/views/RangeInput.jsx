@@ -15,7 +15,7 @@ class RangeInput extends Component {
     }
 
     render () {
-        const {min, max, step, value, disabled, label, changeHandler} = this.props;
+        const {min, max, step, value, disabled, label} = this.props;
         const id = "range_" + (rangeInputId += 1);
         return (
             <div>
@@ -24,8 +24,7 @@ class RangeInput extends Component {
                     id={id}
                     max={max}
                     min={min}
-                    onChange={changeHandler}
-                    onInput={changeHandler}
+                    onChange={this.handleChange}
                     ref={i => this.input = i}
                     step={step}
                     type="range"

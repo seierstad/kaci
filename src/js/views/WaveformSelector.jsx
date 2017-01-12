@@ -6,6 +6,16 @@ import WaveformButton from "./waveform-button.jsx";
 let waveformSelectorCounter = 0;
 
 class WaveformSelector extends Component {
+    constructor () {
+        super();
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange (waveformName) {
+        const {changeHandler, module, index} = this.props;
+        changeHandler(waveformName, module, index);
+    }
+
     render () {
         const {waveforms, selected, changeHandler, index, module} = this.props;
         const controlName = "waveform-" + waveformSelectorCounter;
@@ -16,7 +26,7 @@ class WaveformSelector extends Component {
         };
 
         return (
-            <fieldset className="waveform-selector">
+            <fieldset className="waveform-selector" onChange={this.handleChange}>
                 <legend>waveform</legend>
                 {Object.keys(waveforms).map(w => (
                     <WaveformButton
@@ -24,7 +34,7 @@ class WaveformSelector extends Component {
                         index={index}
                         key={w}
                         module={module}
-                        onChange={changeHandler}
+                        onChange={this.handleChange}
                         selected={selected === w}
                         waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]}
                         waveformName={w}
