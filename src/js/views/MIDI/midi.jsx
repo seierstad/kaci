@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
-import * as Actions from "../../Actions.jsx";
+import * as Actions from "../../actions";
 import {midiShape} from "../../propdefs";
 
 import ChannelSelector from "./channel-selector.jsx";

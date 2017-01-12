@@ -1,5 +1,5 @@
 /* global navigator */
-import * as Actions from "./Actions.jsx";
+import * as Actions from "./actions";
 
 let c = require("./midiConstants");
 

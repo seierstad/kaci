@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import {modulationTargetShape, subPatchDataShape} from "../propdefs";
-import {SUB_TOGGLE, SUB_PAN_CHANGE, SUB_GAIN_CHANGE, SUB_DEPTH_CHANGE} from "../Actions.jsx";
+import {SUB_TOGGLE, SUB_PAN_CHANGE, SUB_GAIN_CHANGE, SUB_DEPTH_CHANGE} from "../actions";
 
 
 import RangeInput from "./RangeInput.jsx";

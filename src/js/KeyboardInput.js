@@ -1,5 +1,5 @@
 "use strict";
-import * as Actions from "./Actions.jsx";
+import * as Actions from "./actions";
 
 class KeyboardInput {
 

@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import {NOTE_NAMES} from "../../constants";
-import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT} from "../../Actions.jsx";
+import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT} from "../../actions";
 
 import RangeInput from "../RangeInput.jsx";
 import Key from "./key.jsx";

@@ -1,4 +1,4 @@
-import * as Actions from "../Actions.jsx";
+import * as Actions from "../actions";
 import { combineReducers } from "redux";
 import config from "../configuration.json";
 

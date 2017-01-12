@@ -1,4 +1,4 @@
-import * as Actions from "../Actions.jsx";
+import * as Actions from "../actions";
 import { combineReducers } from "redux";
 import envelopes, {steps} from "./envelopes.jsx";
 import lfos from "./lfos.jsx";
