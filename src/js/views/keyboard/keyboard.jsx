@@ -84,7 +84,7 @@ KeyboardViewPresentation.propTypes = {
         "handleChordShift": PropTypes.func.isRequired,
         "handlePitchShift": PropTypes.func.isRequired
     }).isRequired,
-    "playState": PropTypes.object
+    "playState": PropTypes.object.isRequired
 };
 
 const mapState = (state) => ({
