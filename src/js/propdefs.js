@@ -55,22 +55,31 @@ export const steppedRangeShape = PropTypes.shape({
     "step": PropTypes.number.isRequired
 });
 
-export const modulationConnectionPatchDataShape = PropTypes.shape({
-    "amount": PropTypes.number.isRequired,
-    "enabled": PropTypes.bool.isRequired,
-    "polarity": polarityShape
-});
-
 export const modulationSourceTypeShape = PropTypes.oneOf([
-    "envelopes",
-    "lfos"
+    "env",
+    "lfo"
 ]);
 
-export const modulationSourcePatchDataShape = PropTypes.objectOf(modulationConnectionPatchDataShape);
+export const modulationSourceShape = PropTypes.shape({
+    "index": PropTypes.number.isRequired,
+    "type": modulationSourceTypeShape.isRequired
+});
+
+export const modulationConnectionPatchDataShape = PropTypes.shape({
+    "amount": PropTypes.number.isRequired,
+    "enabled": PropTypes.bool,
+    "polarity": polarityShape.isRequired,
+    "source": modulationSourceShape.isRequired
+});
+export const modulationTargetParameterShape = PropTypes.arrayOf(modulationConnectionPatchDataShape);
+
+export const modulationTargetModuleShape = PropTypes.objectOf(modulationTargetParameterShape);
 
 export const modulationPatchDataShape = PropTypes.shape({
-    "envelopes": PropTypes.arrayOf(modulationSourcePatchDataShape),
-    "lfos": PropTypes.arrayOf(modulationSourcePatchDataShape)
+    "oscillator": modulationTargetModuleShape,
+    "sub": modulationTargetModuleShape,
+    "noise": modulationTargetModuleShape,
+    "vca": modulationTargetModuleShape
 });
 
 export const subPatchDataShape = PropTypes.shape({

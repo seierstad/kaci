@@ -110,37 +110,64 @@ let patch = {
         "mode": "voice"
     }],
     "modulation": {
-        "envelopes": [{
-            "vca.gain": {
+        "oscillator": {
+            "resonance": [{
+                "amount": 1,
+                "polarity": "positive",
+                "enabled": true,
+                "source": {
+                    "type": "lfo",
+                    "index": 0
+                }
+            }, {
+                "amount": .1,
+                "polarity": "negative",
+                "enabled": false,
+                "source": {
+                    "type": "env",
+                    "index": 0
+                }
+            }, {
+                "amount": .5,
+                "polarity": "positive",
+                "enabled": true,
+                "source": {
+                    "type": "lfo",
+                    "index": 2
+                }
+            }],
+            "pan": [{
+                "amount": 0.5,
+                "polarity": "full",
+                "enabled": true,
+                "source": {
+                    "type": "lfo",
+                    "index": 1
+                }
+            }]
+        },
+        "vca": {
+            "gain": [{
                 "amount": 1.0,
                 "polarity": "positive",
-                "enabled": true
-            }
-        }, {
-            "oscillator.resonance": {
-                "amount": 1,
-                "polarity": "positive",
-                "enabled": true
-            }
-        }],
-        "lfos": [{
-            "oscillator.resonance": {
-                "amount": .1,
-                "polarity": "positive",
-                "enabled": false
-            },
-            "noise.pan": {
+                "enabled": true,
+                "source": {
+                    "type": "env",
+                    "index": 0
+                }
+            }]
+        },
+        "noise": {
+            "pan": [{
                 "amount": 1,
                 "polarity": "full",
-                "enabled": true
-            }
-        }, {
-            "oscillator.pan": {
-                "amount": .3,
-                "polarity": "negative",
-                "enabled": true
-            }
-        }]
+                "enabled": true,
+                "source": {
+                    "type": "lfo",
+                    "index": 2
+                }
+            }]
+        }
     }
 };
 

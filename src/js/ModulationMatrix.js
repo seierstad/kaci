@@ -330,5 +330,6 @@ unpatchVoice (voice) {
 
 */
 }
-export
-default ModulationMatrix;
+
+
+export default ModulationMatrix;

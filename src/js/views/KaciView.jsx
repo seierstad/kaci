@@ -9,7 +9,7 @@ import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
 import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./LFOView.jsx";
-import ModulationMatrix from "./ModulationMatrixView.jsx";
+import ModulationMatrix from "./modulation/matrix.jsx";
 import Oscillator from "./oscillator/oscillator.jsx";
 import Keyboard from "./keyboard/keyboard.jsx";
 
@@ -193,17 +193,6 @@ const mapDispatchToProps = (dispatch) => {
                 },
                 gainInput: (value) => {
                     dispatch({type: Actions.NOISE_GAIN_CHANGE, value});
-                }
-            },
-            modulation: {
-                amountChange: (value, sourceType, index, module, parameter) => {
-                    dispatch({"type": Actions.MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value});
-                },
-                polarityChange: (value, sourceType, index, module, parameter) => {
-                    dispatch({"type": Actions.MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value});
-                },
-                toggle: (sourceType, index, module, parameter) => {
-                    dispatch({"type": Actions.MODULATION_CONNECTION_TOGGLE, sourceType, index, module, parameter});
                 }
             },
             keyboard: {
