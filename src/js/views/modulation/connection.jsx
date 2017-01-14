@@ -3,53 +3,48 @@ import PolaritySelector from "./polarity-selector.jsx";
 import RangeInput from "../RangeInput.jsx";
 import {modulationSourceTypeShape, modulationPatchDataShape, modulationConnectionPatchDataShape} from "../../propdefs";
 
+import {defaultModulationConnectionParameters} from "../../configuration";
+
+
 class Connection extends Component {
     constructor () {
         super();
-        this.amountChangeEnvelope = this.amountChangeEnvelope.bind(this);
-        this.amountChangeLfo = this.amountChangeLfo.bind(this);
-        this.polarityChangeEnvelope = this.polarityChangeEnvelope.bind(this);
-        this.polarityChangeLfo = this.polarityChangeLfo.bind(this);
-        this.toggleEnvelope = this.toggleEnvelope.bind(this);
-        this.toggleLfo = this.toggleLfo.bind(this);
+        this.handleAmountChange = this.handleAmountChange.bind(this);
+        this.handlePolarityChange = this.handlePolarityChange.bind(this);
+        this.handleToggle = this.handleToggle.bind(this);
     }
-    amountChangeEnvelope (value) {
-        const {handlers, index, module, parameter} = this.props;
-        handlers.amountChange(value, "env", index, module, parameter);
+
+    componentWillMount () {
+        const {path, type, index} = this.props;
+        this.path = [...path, type, index];
     }
-    amountChangeLfo (value) {
-        const {handlers, index, module, parameter} = this.props;
-        handlers.amountChange(value, "lfo", index, module, parameter);
+
+    handleAmountChange (value) {
+        this.props.handlers.changeAmount(...this.path, value);
     }
-    polarityChangeEnvelope (value) {
-        const {handlers, index, module, parameter} = this.props;
-        handlers.polarityChange(value, "env", index, module, parameter);
+
+    handlePolarityChange (value) {
+        this.props.handlers.changePolarity(...this.path, value);
     }
-    polarityChangeLfo (event) {
-        const {handlers, index, module, parameter} = this.props;
-        handlers.polarityChange(event.target.value, "lfo", index, module, parameter);
-    }
-    toggleEnvelope () {
-        const {handlers, index, module, parameter} = this.props;
-        handlers.toggle("env", index, module, parameter);
-    }
-    toggleLfo () {
-        const {handlers, index, module, parameter} = this.props;
-        handlers.toggle("lfo", index, module, parameter);
+
+    handleToggle () {
+        this.props.handlers.toggle(...this.path);
     }
 
     render () {
-        const {type, index, module, parameter, patch = {}, handlers, noConnection} = this.props;
-        const prefix = [type, index, module, parameter].join("-");
+        const {type, index, patch = defaultModulationConnectionParameters, path, noConnection} = this.props;
+        const {polarity, amount} = patch;
+        const [module, parameter] = path;
+
+        const prefix = [...path, type, index].join("-");
         const id = prefix + "-connection";
-        const target = module + "." + parameter;
+        const name = [type, module, parameter].join("-") + "-connection";
+
         const checked = patch.enabled || (index === -1 && noConnection);
 
-        const {polarity, amount} = patch;
 
-        let name = [type, module, parameter].join("-") + "-connection";
 
-        const isLFO = type === "lfo";
+        const isLFO = (type === "lfo");
 
         return (
             <td>
@@ -58,19 +53,19 @@ class Connection extends Component {
                     checked={checked}
                     id={id}
                     name={isLFO ? null : name}
-                    onChange={isLFO ? this.toggleLfo : this.toggleEnvelope}
+                    onChange={this.handleToggle}
                     type={isLFO ? "checkbox" : "radio"}
                 />
                 {index !== -1 ?
                     <PolaritySelector
-                        changeHandler={isLFO ? this.polarityChangeLfo : this.polarityChangeEnvelope}
+                        changeHandler={this.handlePolarityChange}
                         patch={polarity || "full"}
                         prefix={prefix}
                     />
                 : null}
                 {index !== -1 ?
                     <RangeInput
-                        changeHandler={isLFO ? this.amountChangeLfo : this.amountChangeEnvelope}
+                        changeHandler={this.handleAmountChange}
                         label="amount"
                         max={1}
                         min={0}
@@ -83,12 +78,11 @@ class Connection extends Component {
     }
 }
 Connection.propTypes = {
-    "handlers": PropTypes.object,
+    "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
     "index": PropTypes.number.isRequired,
-    "module": PropTypes.string.isRequired,
     "noConnection": PropTypes.bool,
-    "parameter": PropTypes.string.isRequired,
     "patch": modulationConnectionPatchDataShape,
+    "path": PropTypes.arrayOf(PropTypes.string).isRequired,
     "type": modulationSourceTypeShape.isRequired
 };
 

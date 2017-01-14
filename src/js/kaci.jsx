@@ -14,7 +14,7 @@ import KeyboardInput from "./KeyboardInput";
 import patch from "./patch";
 import MidiInput from "./MidiInput";
 import SystemSettings from "./SystemSettings";
-import defaultSettings from "./configuration.json";
+import defaultSettings from "./configuration";
 import PatchHandler from "./PatchHandler";
 
 let ctx, mainMix;

@@ -4,22 +4,21 @@ import Target from "./target.jsx";
 import {modulationTargetShape, modulationTargetModuleShape} from "../../propdefs";
 
 class ModulationTargetModule extends Component {
+
     render () {
-        const {module, targetConfig, patch = {}, lfoCount, envCount, handlers} = this.props;
-        const parameters = Object.keys(targetConfig);
+        const {module, configuration, patch = {}} = this.props;
+        const parameters = Object.keys(configuration);
+
         return (
             <tbody>
                 {parameters.map((parameter, index) => (
                     <Target
-                        envCount={envCount}
-                        firstInModule={index === 0}
-                        handlers={handlers}
+                        {...this.props}
                         key={index}
-                        lfoCount={lfoCount}
-                        module={module}
-                        moduleParameterCount={parameters.length}
+                        moduleHead={(index === 0) ? {module: module, parameterCount: parameters.length} : null}
                         parameter={parameter}
                         patch={patch[parameter]}
+                        path={[module]}
                     />
                 ))}
             </tbody>
@@ -27,12 +26,12 @@ class ModulationTargetModule extends Component {
     }
 }
 ModulationTargetModule.propTypes = {
+    "configuration": modulationTargetShape.isRequired,
     "envCount": PropTypes.number.isRequired,
     "handlers": PropTypes.object,
     "lfoCount": PropTypes.number.isRequired,
     "module": PropTypes.string.isRequired,
-    "patch": modulationTargetModuleShape,
-    "targetConfig": modulationTargetShape.isRequired
+    "patch": modulationTargetModuleShape
 };
 
 export default ModulationTargetModule;

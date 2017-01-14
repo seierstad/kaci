@@ -6,12 +6,10 @@ import {modulationTargetParameterShape} from "../../propdefs";
 
 class ModulationTarget extends Component {
     render () {
-        const {module, moduleParameterCount, patch = [], handlers, lfoCount, envCount, firstInModule, parameter} = this.props;
+        const {moduleHead, patch = [], lfoCount, envCount, parameter, path, ...rest} = this.props;
 
         const lfoPatch = patch.filter(p => p.source.type === "lfo").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
         const envPatch = patch.filter(p => p.source.type === "env").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
-
-        const target = module + "." + parameter;
         const noEnvelope = !envPatch.some(env => env.enabled);
 
 
@@ -20,12 +18,11 @@ class ModulationTarget extends Component {
         for (let i = 0; i < lfoCount; i += 1) {
             connections.push(
                 <Connection
-                    handlers={handlers}
+                    {...rest}
                     index={i}
                     key={"lfo" + i}
-                    module={module}
-                    parameter={parameter}
                     patch={lfoPatch[i]}
+                    path={[...path, parameter]}
                     type="lfo"
                 />
             );
@@ -34,12 +31,11 @@ class ModulationTarget extends Component {
         for (let i = 0; i < envCount; i += 1) {
             connections.push(
                 <Connection
-                    handlers={handlers}
+                    {...rest}
                     index={i}
                     key={"env" + i}
-                    module={module}
-                    parameter={parameter}
                     patch={envPatch[i]}
+                    path={[...path, parameter]}
                     type="env"
                 />
             );
@@ -48,19 +44,18 @@ class ModulationTarget extends Component {
 
         return (
             <tr>
-                {firstInModule ?
-                    <th rowSpan={moduleParameterCount} scope="rowgroup"><span>{module}</span></th>
+                {moduleHead ?
+                    <th rowSpan={moduleHead.parameterCount} scope="rowgroup"><span>{moduleHead.module}</span></th>
                 : null }
                 <th scope="row">{parameter}</th>
                 {connections}
                 {envCount > 0 ?
                     <Connection
-                        handlers={handlers}
+                        {...rest}
                         index={-1}
                         key={envCount}
-                        module={module}
                         noConnection={noEnvelope}
-                        parameter={parameter}
+                        path={[...path, parameter]}
                         type="env"
                     />
                 : null}
@@ -69,12 +64,10 @@ class ModulationTarget extends Component {
     }
 }
 ModulationTarget.propTypes = {
-    "envCount": PropTypes.number,
-    "firstInModule": PropTypes.bool.isRequired,
+    "envCount": PropTypes.number.isRequired,
     "handlers": PropTypes.object.isRequired,
-    "lfoCount": PropTypes.number,
-    "module": PropTypes.string.isRequired,
-    "moduleParameterCount": PropTypes.number,
+    "lfoCount": PropTypes.number.isRequired,
+    "moduleHead": PropTypes.object,
     "parameter": PropTypes.string.isRequired,
     "patch": modulationTargetParameterShape
 };

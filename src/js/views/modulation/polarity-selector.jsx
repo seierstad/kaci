@@ -2,11 +2,21 @@ import React, {Component, PropTypes} from "react";
 import {polarityShape} from "../../propdefs";
 
 class PolaritySelector extends Component {
+    constructor () {
+        super();
+        this.handleChange = this.handleChange.bind(this);
+    }
+    handleChange (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.props.changeHandler(event.target.value);
+    }
+
     render () {
-        const {changeHandler, prefix, patch} = this.props;
+        const {prefix, patch} = this.props;
         return (
             <div>
-                <select id={prefix + "-polarity"} onChange={changeHandler} value={patch}>
+                <select id={prefix + "-polarity"} onChange={this.handleChange} value={patch}>
                     {
                         [
                             { value: "positive", label: "+", title: "positive"},

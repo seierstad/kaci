@@ -1,5 +1,5 @@
 import * as Actions from "../actions";
-import config from "../configuration.json";
+import config from "../configuration";
 
 const key = (state = {down: false}, action) => {
     switch (action.type) {

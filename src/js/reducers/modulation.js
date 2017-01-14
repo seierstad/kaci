@@ -1,24 +1,30 @@
 import * as Actions from "../actions";
 import { combineReducers } from "redux";
-import config from "../configuration.json";
-
+import config from "../configuration";
+import {splicedArrayCopy} from "../sharedFunctions";
 
 const connection = (state = {...config.modulation.connection["default"]}, action) => {
+    const result = {...state};
+
+    if (!result.source && action.source && typeof action.index === "number") {
+        const {source: type, index} = action;
+        result.source = {type, index};
+    }
 
     switch (action.type) {
         case Actions.MODULATION_CONNECTION_TOGGLE:
             return {
-                ...state,
+                ...result,
                 "enabled": !state.enabled
             };
         case Actions.MODULATION_POLARITY_CHANGE:
             return {
-                ...state,
+                ...result,
                 "polarity": action.value
             };
         case Actions.MODULATION_AMOUNT_CHANGE:
             return {
-                ...state,
+                ...result,
                 "amount": action.value
             };
     }
@@ -27,9 +33,9 @@ const connection = (state = {...config.modulation.connection["default"]}, action
 
 /*
 const envelopes = (state = [], action) => {
-    const {type, sourceType, index} = action;
+    const {type, source, index} = action;
 
-    if (sourceType === "envelope") {
+    if (source === "envelope") {
         switch (type) {
             case Actions.MODULATION_CONNECTION_TOGGLE:
                 let result = [...state];
@@ -64,24 +70,25 @@ const envelopes = (state = [], action) => {
 */
 
 const parameter = (state = [], action) => {
+    const result = [...state];
+
+    if (action.type === Actions.MODULATION_CONNECTION_TOGGLE && action.source === "env") {
+        // disable all envelopes if envelope toggle
+        result.filter(c => c.source.type === "env").forEach(c => c.enabled = false);
+    }
+
     switch (action.type) {
         case Actions.MODULATION_CONNECTION_TOGGLE:
         case Actions.MODULATION_POLARITY_CHANGE:
         case Actions.MODULATION_AMOUNT_CHANGE:
-            let index;
+            let index = Number.POSITIVE_INFINITY;
             const connectionState = state.find((element, idx) => {
-                if (element.source.type === action.sourceType && element.source.index === action.index) {
+                if (element.source.type === action.source && element.source.index === action.index) {
                     index = idx;
                     return true;
                 }
             });
-            const newState = connection(connectionState, action);
-            const result = state.map((curr, idx, arr) => {
-                if (curr.source.type === action.sourceType && curr.source.index === action.index) {
-                    return connection(curr, action);
-                }
-                return curr;
-            });
+            return splicedArrayCopy(result, index, 1, connection(connectionState, action));
     }
     return state;
 };

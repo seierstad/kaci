@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
-import {modulationShape, modulationPatchDataShape, modulationSourceTypeShape} from "../../propdefs";
+import {modulationShape, modulationPatchDataShape} from "../../propdefs";
 
 import {MODULATION_AMOUNT_CHANGE, MODULATION_POLARITY_CHANGE, MODULATION_CONNECTION_TOGGLE} from "../../actions";
 import TargetModule from "./module.jsx";
@@ -21,19 +21,7 @@ class ModulationMatrixPresentation extends Component {
         for (let i = 0; i < envCount; i += 1) {
             sourceNumbers.push(<th key={"env" + i} scope="col">{i + 1}</th>);
         }
-/*
-        const pickModuleData = (module) => (e) => {
-            const result = {};
-            const prefix = module + ".";
-            const keys = Object.keys(e).filter(k => k.indexOf(prefix) !== -1).forEach(key => result[key] = e[key]);
-            return result;
-        };
 
-        const modulePatchData = (module) => ({
-            "envelopes": patch.envelopes.map(pickModuleData(module)),
-            "lfos": patch.lfos.map(pickModuleData(module))
-        });
-*/
         return (
             <section className="modulation" >
                 <h2>Modulation</h2>
@@ -54,13 +42,13 @@ class ModulationMatrixPresentation extends Component {
                     </thead>
                     {Object.keys(configuration.target).map((module, i) => (
                         <TargetModule
+                            configuration={configuration.target[module]}
                             envCount={envCount}
                             handlers={handlers}
                             key={i}
                             lfoCount={lfoCount}
                             module={module}
                             patch={patch[module]}
-                            targetConfig={configuration.target[module]}
                         />
                     ))}
                 </table>
@@ -81,14 +69,14 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
     "handlers": {
-        "amountChange": (value, sourceType, index, module, parameter) => {
-            dispatch({"type": MODULATION_AMOUNT_CHANGE, sourceType, index, module, parameter, value});
+        "changeAmount": (module, parameter, source, index, value) => {
+            dispatch({"type": MODULATION_AMOUNT_CHANGE, source, index, module, parameter, value});
         },
-        "polarityChange": (value, sourceType, index, module, parameter) => {
-            dispatch({"type": MODULATION_POLARITY_CHANGE, sourceType, index, module, parameter, value});
+        "changePolarity": (module, parameter, source, index, value) => {
+            dispatch({"type": MODULATION_POLARITY_CHANGE, source, index, module, parameter, value});
         },
-        "toggle": (sourceType, index, module, parameter) => {
-            dispatch({"type": MODULATION_CONNECTION_TOGGLE, sourceType, index, module, parameter});
+        "toggle": (module, parameter, source, index) => {
+            dispatch({"type": MODULATION_CONNECTION_TOGGLE, source, index, module, parameter});
         }
     }
 });

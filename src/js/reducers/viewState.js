@@ -1,6 +1,6 @@
 import * as Actions from "../actions";
 import { combineReducers } from "redux";
-import config from "../configuration.json";
+import config from "../configuration";
 
 const envelope = (state = [], action) => {
     switch (action.type) {

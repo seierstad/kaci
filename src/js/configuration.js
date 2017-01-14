@@ -1,4 +1,41 @@
-{
+export const defaultModulationConnectionParameters = {
+    "enabled": false,
+    "polarity": "full",
+    "amount": 0
+};
+
+export const defaultLfoParameters = {
+    "waveform": "sinus",
+    "frequency": 1.0,
+    "amount": 1.0,
+    "active": true,
+    "sync": {
+        "enabled": false,
+        "numerator": 1,
+        "denominator": 1
+    },
+    "mode": "global" /* "voice"  TODO: implement voice LFOs */
+};
+
+export const defaultEnvParameters = {
+    "attack": {
+        "steps": [
+            [0, 0],
+            [1, 1]
+        ],
+        "duration": 1
+    },
+    "release": {
+        "steps": [
+            [0, 1],
+            [1, 0]
+        ],
+        "duration": 1
+    },
+    "mode": "voice"
+};
+
+const configuration = {
     "keyboard": {
         "activeLayout": "colemak",
         "layouts": [{
@@ -43,11 +80,7 @@
     },
     "modulation": {
         "connection": {
-            "default": {
-                "enabled": false,
-                "polarity": "positive",
-                "amount": 0
-            }
+            "default": defaultModulationConnectionParameters
         },
         "source": {
             "lfos": {
@@ -74,38 +107,11 @@
                         "step": 1
                     }
                 },
-                "default": {
-                    "waveform": "sinus",
-                    "frequency": 1.0,
-                    "amount": 1.0,
-                    "active": true,
-                    "sync": {
-                        "enabled": false,
-                        "numerator": 1,
-                        "denominator": 1
-                    },
-                    "mode": "global" /* "voice"  TODO: implement voice LFOs */
-                }
+                "default": defaultLfoParameters
             },
             "envelopes": {
                 "count": 2,
-                "default": {
-                    "attack": {
-                        "steps": [
-                            [0, 0],
-                            [1, 1]
-                        ],
-                        "duration": 1
-                    },
-                    "release": {
-                        "steps": [
-                            [0, 1],
-                            [1, 0]
-                        ],
-                        "duration": 1
-                    },
-                    "mode": "voice"
-                },
+                "default": defaultEnvParameters,
                 "defaultState": {
                     "attack": [],
                     "release": [],
@@ -160,4 +166,6 @@
             }
         }
     }
-}
+};
+
+export default configuration;
