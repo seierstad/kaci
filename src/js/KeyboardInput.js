@@ -28,14 +28,11 @@ class KeyboardInput {
     }
 
     keyDownHandler (event) {
-        let index,
-            key;
-
         if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey) {
             return true;
         }
-        index = this.layout.map.indexOf(event.keyCode);
-        key = this.layout.offset + index;
+        const index = this.layout.map.indexOf(event.keyCode);
+        const key = this.layout.offset + index;
 
         if (event.keyCode === 32 || event.keyCode === 27) {
             event.preventDefault();

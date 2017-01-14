@@ -3,18 +3,22 @@ import {connect} from "react-redux";
 
 import {NOTE_NAMES} from "../../constants";
 import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT} from "../../actions";
+import {playStateShape} from "../../propdefs";
 
 import RangeInput from "../RangeInput.jsx";
 import Key from "./key.jsx";
 
 
 class KeyboardViewPresentation extends Component {
+    componentWillMount () {
+        const {configuration: {startKey, endKey}} = this.props;
+        this.keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5));
+    }
 
     render () {
         const {handlers, playState, configuration} = this.props;
         const {handlePitchShift, handleChordShift} = handlers;
         const {startKey, endKey} = configuration;
-        const keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5));
 
         const whiteKeys = [];
         const blackKeys = [];
@@ -31,13 +35,17 @@ class KeyboardViewPresentation extends Component {
                 <Key
                     height={black ? "60%" : "100%"}
                     key={i + "-" + noteName}
-                    noteName={noteName}
+                    name={noteName}
                     number={i}
                     playState={playState.keys[i]}
-                    width={black ? (keyWidth * 0.7) : keyWidth}
-                    x={(black ? (nextKeyX - keyWidth * 0.35) : (nextKeyX += keyWidth)) + "%"}
+                    width={black ? (this.keyWidth * 0.7) : this.keyWidth}
+                    x={(black ? (nextKeyX - this.keyWidth * 0.35) : nextKeyX) + "%"}
                 />
             );
+
+            if (!black) {
+                nextKeyX += this.keyWidth;
+            }
 
             if (black) {
                 blackKeys.push(key);
@@ -50,7 +58,7 @@ class KeyboardViewPresentation extends Component {
 
         return (
             <section className="controller keyboard" id="keyboard-view">
-                <svg height="180px" width="100%">
+                <svg className="keys" height="180px" width="100%">
                     <g className="white">
                         {whiteKeys}
                     </g>
@@ -58,22 +66,26 @@ class KeyboardViewPresentation extends Component {
                         {blackKeys}
                     </g>
                 </svg>
-                <RangeInput
-                    changeHandler={handlePitchShift}
-                    label="Pitch shift"
-                    max={1}
-                    min={-1}
-                    step={0.01}
-                    value={playState.pitchShift}
-                />
-                <RangeInput
-                    changeHandler={handleChordShift}
-                    label="Chord shift"
-                    max={1}
-                    min={0}
-                    step={0.01}
-                    value={playState.chordShift}
-                />
+                <div className="sliders">
+                    <RangeInput
+                        changeHandler={handlePitchShift}
+                        className="pitch-shift"
+                        label="Pitch shift"
+                        max={1}
+                        min={-1}
+                        step={0.01}
+                        value={playState.pitchShift}
+                    />
+                    <RangeInput
+                        changeHandler={handleChordShift}
+                        className="chord-shift"
+                        label="Chord shift"
+                        max={1}
+                        min={0}
+                        step={0.01}
+                        value={playState.chordShift}
+                    />
+                </div>
             </section>
         );
     }
@@ -84,7 +96,7 @@ KeyboardViewPresentation.propTypes = {
         "handleChordShift": PropTypes.func.isRequired,
         "handlePitchShift": PropTypes.func.isRequired
     }).isRequired,
-    "playState": PropTypes.object.isRequired
+    "playState": playStateShape.isRequired
 };
 
 const mapState = (state) => ({
@@ -93,8 +105,8 @@ const mapState = (state) => ({
 });
 const mapDispatch = (dispatch) => ({
     "handlers": {
-        "handlePitchShift": (value) => {dispatch({"type": KEYBOARD_PITCH_SHIFT}, value);},
-        "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT}, value);}
+        "handlePitchShift": (value) => {dispatch({"type": KEYBOARD_PITCH_SHIFT, value});},
+        "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT, value});}
     }
 });
 const KeyboardView = connect(mapState, mapDispatch)(KeyboardViewPresentation);

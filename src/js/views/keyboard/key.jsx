@@ -37,9 +37,13 @@ class KeyPresentation extends Component {
 
     render () {
         const {x, width, height, name, playState} = this.props;
+        const classNames = ["key", name];
+        if (playState && playState.down) {
+            classNames.push("down");
+        }
         return (
             <rect
-                className={"key " + name + (playState && playState.down ? " down" : "")}
+                className={classNames.join(" ")}
                 height={height}
                 onMouseDown={this.handleKeyDown}
                 onMouseEnter={this.handleMouseEnter}
@@ -57,6 +61,7 @@ KeyPresentation.propTypes = {
         "down": PropTypes.func.isRequired,
         "up": PropTypes.func.isRequired
     }),
+    "name": PropTypes.string.isRequired,
     "number": PropTypes.number.isRequired
 };
 

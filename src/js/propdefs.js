@@ -227,6 +227,17 @@ export const oscillatorPatchDataShape = PropTypes.shape({
     "wrapper": PropTypes.oneOf(Object.keys(wrappers))
 });
 
+export const keyStateShape = PropTypes.shape({
+    "down": PropTypes.bool
+});
+
+export const playStateShape = PropTypes.shape({
+    "chordShift": PropTypes.number.isRequired,
+    "hold": PropTypes.bool,
+    "keys": PropTypes.arrayOf(keyStateShape).isRequired,
+    "pitchShift": PropTypes.number.isRequired
+});
+
 export const keyViewPropsShape = PropTypes.shape({
     "handlers": PropTypes.shape({
         "down": PropTypes.func.isRequired,
@@ -235,7 +246,7 @@ export const keyViewPropsShape = PropTypes.shape({
     "keyNumber": PropTypes.number.isRequired,
     "keyWidth": PropTypes.number.isRequired,
     "noteName": PropTypes.string.isRequired,
-    "playState": PropTypes.object,
+    "playState": keyStateShape,
     "x": PropTypes.string.isRequired
 });
 
@@ -247,3 +258,5 @@ export const patchShape = PropTypes.shape({
     "envelopes": envelopesPatchDataShape.isRequired,
     "modulation": modulationPatchDataShape.isRequired
 });
+
+
