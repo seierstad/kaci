@@ -1,13 +1,9 @@
 "use strict";
 let DCGenerator = function (context) {
-    let gen,
-        real,
-        imag;
+    const real = new Float32Array([0, 1]);
+    const imag = new Float32Array([0, 0]);
 
-    real = new Float32Array([0, 1]);
-    imag = new Float32Array([0, 0]);
-
-    gen = context.createOscillator();
+    const gen = context.createOscillator();
     gen.setPeriodicWave(context.createPeriodicWave(real, imag));
     gen.frequency.value = 0;
     if (gen.type !== "custom") {
@@ -29,4 +25,4 @@ DCGenerator.prototype.destroy = function destroyDCGenerator () {
     this.generator.disconnect();
     this.generator = null;
 };
-module.exports = DCGenerator;
+export default DCGenerator;

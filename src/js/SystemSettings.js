@@ -46,4 +46,6 @@ let SystemSettings = function (context, defaultSettings, store) {
     store.subscribe(update);
 
 };
-module.exports = SystemSettings;
+
+
+export default SystemSettings;

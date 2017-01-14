@@ -2,10 +2,7 @@
 "use strict";
 
 import DC from "./DCGenerator";
-import {
-    PannableModule
-}
-from "./SharedFunctions";
+import {PannableModule} from "./SharedFunctions";
 
 class SubOscillator extends PannableModule {
     constructor (context, store, frequency, scaleBaseNumber = 2) {
@@ -119,4 +116,5 @@ class SubOscillator extends PannableModule {
         this.output = null;
     }
 }
-module.exports = SubOscillator;
+
+export default SubOscillator;

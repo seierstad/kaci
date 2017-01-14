@@ -263,4 +263,6 @@ let rpatch = {
         }]
     }
 };
-module.exports = patch;
+
+
+export default patch;

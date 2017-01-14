@@ -161,4 +161,4 @@ IdealOscillator.prototype.destroy = function destroyIdealOscillator () {
     this.generator = null;
 
 };
-module.exports = IdealOscillator;
+export default IdealOscillator;

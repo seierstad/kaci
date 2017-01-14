@@ -97,4 +97,4 @@ class KeyboardInput {
 
 }
 
-module.exports = KeyboardInput;
+export default KeyboardInput;
