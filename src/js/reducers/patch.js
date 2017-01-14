@@ -1,8 +1,8 @@
 import * as Actions from "../actions";
 import { combineReducers } from "redux";
-import envelopes, {steps} from "./envelopes.jsx";
-import lfos from "./lfos.jsx";
-import modulation from "./modulation.jsx";
+import envelopes, {steps} from "./envelopes";
+import lfos from "./lfos";
+import modulation from "./modulation";
 
 import {splicedArrayCopy} from "../sharedFunctions";
 

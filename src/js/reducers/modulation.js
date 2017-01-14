@@ -25,22 +25,7 @@ const connection = (state = {...config.modulation.connection["default"]}, action
     return state;
 };
 
-const modulator = (state = {}, action) => {
-    switch (action.type) {
-        case Actions.MODULATION_CONNECTION_TOGGLE:
-        case Actions.MODULATION_POLARITY_CHANGE:
-        case Actions.MODULATION_AMOUNT_CHANGE:
-
-            const target = action.module + "." + action.parameter;
-
-            return {
-                ...state,
-                [target]: connection(state[target], action)
-            };
-    }
-    return state;
-};
-
+/*
 const envelopes = (state = [], action) => {
     const {type, sourceType, index} = action;
 
@@ -76,27 +61,57 @@ const envelopes = (state = [], action) => {
     }
     return state;
 };
+*/
 
-const lfos = (state = new Array(config.modulation.source.lfos.count), action) => {
-    if (action.sourceType === "lfo") {
-
-        switch (action.type) {
-            case Actions.MODULATION_CONNECTION_TOGGLE:
-            case Actions.MODULATION_POLARITY_CHANGE:
-            case Actions.MODULATION_AMOUNT_CHANGE:
-
-                const result = [...state];
-                result[action.index] = modulator(state[action.index], action);
-                return result;
-        }
+const parameter = (state = [], action) => {
+    switch (action.type) {
+        case Actions.MODULATION_CONNECTION_TOGGLE:
+        case Actions.MODULATION_POLARITY_CHANGE:
+        case Actions.MODULATION_AMOUNT_CHANGE:
+            let index;
+            const connectionState = state.find((element, idx) => {
+                if (element.source.type === action.sourceType && element.source.index === action.index) {
+                    index = idx;
+                    return true;
+                }
+            });
+            const newState = connection(connectionState, action);
+            const result = state.map((curr, idx, arr) => {
+                if (curr.source.type === action.sourceType && curr.source.index === action.index) {
+                    return connection(curr, action);
+                }
+                return curr;
+            });
     }
     return state;
 };
 
-const modulation = combineReducers({
-    envelopes,
-    lfos
-});
+
+const module = (state = {}, action) => {
+    switch (action.type) {
+        case Actions.MODULATION_CONNECTION_TOGGLE:
+        case Actions.MODULATION_POLARITY_CHANGE:
+        case Actions.MODULATION_AMOUNT_CHANGE:
+            return {
+                ...state,
+                [action.parameter]: parameter(state[action.parameter], action)
+            };
+    }
+    return state;
+};
+
+const modulation = (state = {}, action) => {
+    switch (action.type) {
+        case Actions.MODULATION_CONNECTION_TOGGLE:
+        case Actions.MODULATION_POLARITY_CHANGE:
+        case Actions.MODULATION_AMOUNT_CHANGE:
+            return {
+                ...state,
+                [action.module]: module(state[action.module], action)
+            };
+    }
+    return state;
+};
 
 
 export default modulation;

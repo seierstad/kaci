@@ -1,8 +1,8 @@
 import { combineReducers } from "redux";
-import patch from "./patch.jsx";
-import settings from "./settings.jsx";
-import viewState from "./viewState.jsx";
-import playState from "./playState.jsx";
+import patch from "./patch";
+import settings from "./settings";
+import viewState from "./viewState";
+import playState from "./playState";
 
 const reducer = combineReducers({
     patch,

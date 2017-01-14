@@ -4,7 +4,7 @@ import {Provider} from "react-redux";
 import {createStore} from "redux";
 import Perf from "react-addons-perf";
 
-import reducer from "./reducers/kaci.jsx";
+import reducer from "./reducers/kaci";
 import KaciView from "./views/KaciView.jsx";
 
 import VoiceRegister from "./VoiceRegister";
