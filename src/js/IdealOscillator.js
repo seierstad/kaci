@@ -1,12 +1,9 @@
 /*globals require, module, CustomEvent */
 "use strict";
-let DCGenerator = require("./DCGenerator"),
-    BUFFER_LENGTH = require("./constants").BUFFER_LENGTH;
+import DCGenerator from "./DCGenerator";
+import {BUFFER_LENGTH} from "./constants";
 
-import {
-    waveforms
-}
-from "./waveforms";
+import {waveforms} from "./waveforms";
 
 let IdealOscillator = function (context) {
     let i,

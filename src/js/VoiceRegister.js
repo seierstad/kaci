@@ -42,7 +42,7 @@ class VoiceRegister {
         this.mainMix = context.createGain();
         this.mainMix.connect(context.destination);
 
-        this.modulationMatrix = modulationMatrix;
+        //this.modulationMatrix = modulationMatrix;
 
         this.tuning = this.tunings.tempered;
         this.stateChangeHandler();
@@ -246,7 +246,7 @@ class VoiceRegister {
             const patch = this.store.getState().patch;
             const voice = new Voice(this.context, this.store, frequency);
 
-            this.modulationMatrix.patchVoice(voice);
+            //this.modulationMatrix.patchVoice(voice);
             voice.connect(this.mainMix);
             this.activeVoices[key] = voice;
             this.activeKeys[key] = true;

@@ -41,8 +41,9 @@ if (window.AudioContext) {
 
 /*
     const modulationMatrix = new ModulationMatrix(ctx, store);
-    const reg = new VoiceRegister(store, ctx, modulationMatrix);
 */
+    const reg = new VoiceRegister(store, ctx); //, modulationMatrix);
+
     const kaciWrapper = document.getElementById("kaci");
 
     ReactDOM.render(
