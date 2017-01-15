@@ -71,6 +71,8 @@ class OscillatorPresentation extends Component {
 
     render () {
         const {configuration, patch, viewState, handlers, envelopeHandlers} = this.props;
+        const {handleToggle} = handlers;
+
 
         const pd0Props = {
             waveform: patch.waveform,
@@ -95,6 +97,11 @@ class OscillatorPresentation extends Component {
 
         return (
             <section className="oscillator-view">
+                <input
+                    checked={patch.active}
+                    onChange={handleToggle}
+                    type="checkbox"
+                />
                 <WaveformSelector
                     changeHandler={handlers.waveformChange}
                     module="oscillator"
@@ -166,6 +173,7 @@ const mapDispatch = (dispatch) => ({
             "wrapperChange": (waveform, module) => {dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": waveform});},
             "toggle": () => {dispatch({"type": Actions.OSCILLATOR_RESONANCE_TOGGLE});}
         },
+        "handleToggle": () => {dispatch({type: Actions.OSCILLATOR_TOGGLE});},
         "waveformChange": (waveform, module) => {dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": waveform});},
         "mix": (value) => {dispatch({"type": Actions.OSCILLATOR_MIX_CHANGE, value});},
         "detune": (value) => {dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});}

@@ -1,6 +1,3 @@
-/* global module, require */
-"use strict";
-
 import DC from "./DCGenerator";
 import {PannableModule} from "./SharedFunctions";
 

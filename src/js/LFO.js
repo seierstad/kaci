@@ -1,6 +1,3 @@
-/*global require, module, document */
-"use strict";
-import DCGenerator from "./DCGenerator";
 import IdealOscillator from "./IdealOscillator";
 
 /**

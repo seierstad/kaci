@@ -269,12 +269,6 @@ class VoiceRegister {
             this.stoppedVoices[key] = voice;
             this.activeVoices[key] = null;
             this.activeKeys[key] = null;
-
-            this.context.dispatchEvent(new CustomEvent("voice.ended", {
-                "detail": {
-                    "keyNumber": key
-                }
-            }));
         }
     }
 
@@ -291,8 +285,6 @@ class VoiceRegister {
             }
         }
         //    this.modulationMatrix.unpatchVoice(voice);
-        voice.disconnect();
-        voice.destroy();
 
         if (this.activeVoices.every(notVoice) && this.stoppedVoices.every(notVoice)) {
             // no active voices -> stop global lfos

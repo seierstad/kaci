@@ -1,5 +1,3 @@
-/*global require, module, document */
-"use strict";
 import {waveforms, wrappers} from "./waveforms";
 
 import {mixValues, vectorToLinearFunction, getDistortedPhase, PannableModule} from "./sharedFunctions";
@@ -22,6 +20,7 @@ class PDOscillator extends PannableModule {
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.gainNode = context.createGain();
+        this.gainNode.gain.value = 0;
         this.pannerNode = context.createStereoPanner();
         this.pannerNode.pan.value = 0;
 
@@ -40,13 +39,17 @@ class PDOscillator extends PannableModule {
 
         // gain stage, between source and panner/output
         o.gain = this.outputNode(this.state.gain);
+        this.gain = o.gain.gain;
+
         i.gain = this.inputNode();
         o.gain.connect(i.gain);
-        i.gain.connect(this.gainNode);
-        this.gain = o.gain.gain;
+
+        i.gain.connect(this.gainNode.gain);
+
 
         o.pan = this.outputNode(this.state.pan);
         this.pan = o.pan.gain;
+
         i.pan = this.inputNode();
         o.pan.connect(i.pan);
 
@@ -60,23 +63,27 @@ class PDOscillator extends PannableModule {
         /* end common constructor code */
 
 
-        let inputDefs = [{
-                name: "frequency",
-                defaultValue: frequency || 440
-            }, {
-                name: "detune",
-                defaultValue: 0
-            }, {
-                name: "resonance",
-                defaultValue: 1
-            }, {
-                name: "mix",
-                defaultValue: 0
-            }],
-            useValue,
-            that = this;
+        const inputDefs = [{
+            name: "frequency",
+            defaultValue: frequency || 440
+        }, {
+            name: "detune",
+            defaultValue: 0
+        }, {
+            name: "resonance",
+            defaultValue: 1
+        }, {
+            name: "mix",
+            defaultValue: 0
+        }];
 
-        this.wrappers.gaussian = this.gaussianFunction(0.5, 0.1);
+        this.audioprocessHandler = this.getAudioProcessor(this);
+
+        this.generator = context.createScriptProcessor(BUFFER_LENGTH, inputDefs.length, 1);
+
+        const that = this;
+
+//        this.wrappers.gaussian = this.gaussianFunction(0.5, 0.1);
 
         this.pdEnvelope0 = [];
         this.pdEnvelope1 = [];
@@ -101,7 +108,7 @@ class PDOscillator extends PannableModule {
             this.selectedWaveform = waveforms[this.state.waveform];
         }
         if (typeof wrappers[this.state.wrapper] === "function") {
-            this.selectedWrapper = this.wrappers[this.state.wrapper];
+            this.selectedWrapper = wrappers[this.state.wrapper];
         }
         this.resonanceActive = this.state.resonanceActive;
 
@@ -132,21 +139,16 @@ class PDOscillator extends PannableModule {
         this.parameters.inputs.frequency.value = frequency || 440;
         this.frequency.setValueAtTime(frequency || 440, this.context.currentTime);
 
-        this.generatorFunction = this.getGenerator(this);
-        this.generator = context.createScriptProcessor(BUFFER_LENGTH, inputDefs.length, 1);
-        this.generator.addEventListener("audioprocess", this.generatorFunction);
-
         this.mergedInput.connect(this.generator);
+        this.generator.connect(this.gainNode);
+    }
 
-        this.parameters.inputs.gain = this.inputNode();
-        this.parameters.outputs.gain = this.outputNode(this.state.gain);
-        this.parameters.outputs.gain.connect(this.parameters.inputs.gain);
+    start () {
+        this.generator.addEventListener("audioprocess", this.audioprocessHandler);
+    }
 
-        this.gain = this.parameters.inputs.gain.gain;
-
-        this.generator.connect(this.parameters.inputs.gain);
-
-
+    stop () {
+        this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
     }
 
     stateChangeHandler () {
@@ -234,44 +236,50 @@ class PDOscillator extends PannableModule {
         this.mergedInput.disconnect();
         this.mergedInput = null;
         this.generator.disconnect();
-        this.generator.removeEventListener("audioprocess", this.generatorFunction);
+        this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
         this.generator = null;
-        this.generatorFunction = null;
         if (this.destroyCallback && typeof this.destroyCallback === "function") {
             this.destroyCallback(this);
         }
     }
 
-    getGenerator (oscillator) {
-        return function audioprocessHandler (evt) {
-            let frequency = evt.inputBuffer.getChannelData(0),
-                detune = evt.inputBuffer.getChannelData(1),
-                resonance = evt.inputBuffer.getChannelData(2),
-                mix = evt.inputBuffer.getChannelData(3),
-                output = evt.outputBuffer.getChannelData(0),
-                i, j,
-                calculatedFrequency,
-                calculatedResonanceFrequency,
-                phase,
-                wrapperPhase,
-                distortedPhase0,
-                distortedPhase1,
-                distortedPhaseMix,
-                debugVisible = true,
-                previous = {
-                    frequency: 0,
-                    detune: 0,
-                    resonance: 0,
-                    calculatedFrequency: 0,
-                    calculatedResonanceFrequency: 0
-                };
-            /*        if (debugVisible) {
-                console.log("mix: " + mix[0] + " resonance: " + resonance[0] + " detune: " + detune[0]);
+    getAudioProcessor (oscillator) {
+
+        return (evt) => {
+            console.log("arst neio");
+            const frequency = evt.inputBuffer.getChannelData(0);
+            const detune = evt.inputBuffer.getChannelData(1);
+            const resonance = evt.inputBuffer.getChannelData(2);
+            const mix = evt.inputBuffer.getChannelData(3);
+            const output = evt.outputBuffer.getChannelData(0);
+
+            const previous = {
+                frequency: 0,
+                detune: 0,
+                resonance: 0,
+                calculatedFrequency: 0,
+                calculatedResonanceFrequency: 0
+            };
+
+
+            /*
+            let debugVisible = true,
+
+            if (debugVisible) {
+                    console.log("mix: " + mix[0] + " resonance: " + resonance[0] + " detune: " + detune[0]);
 
                 debugVisible = false;
             }
-    */
-            for (i = 0, j = this.bufferSize; i < j; i += 1) {
+
+            */
+
+            for (let i = 0; i < BUFFER_LENGTH; i += 1) {
+                let calculatedFrequency,
+                    calculatedResonanceFrequency,
+                    distortedPhase0,
+                    distortedPhase1,
+                    distortedPhaseMix;
+
                 if (frequency[i] === previous.frequency && detune[i] === previous.detune) {
                     calculatedFrequency = previous.calculatedFrequency;
                 } else {
@@ -286,8 +294,8 @@ class PDOscillator extends PannableModule {
                 }
                 previous.calculatedFrequency = calculatedFrequency;
 
-                phase = oscillator.getIncrementedPhase(calculatedFrequency);
-                wrapperPhase = oscillator.getIncrementedResonancePhase(calculatedResonanceFrequency);
+                const phase = oscillator.getIncrementedPhase(calculatedFrequency);
+
 
                 if (!oscillator.resonanceActive) {
                     distortedPhase0 = getDistortedPhase(phase, oscillator.pdEnvelope0);
@@ -296,47 +304,45 @@ class PDOscillator extends PannableModule {
 
                     output[i] = oscillator.selectedWaveform.call(oscillator, distortedPhaseMix);
                 } else {
+                    const wrapperPhase = oscillator.getIncrementedResonancePhase(calculatedResonanceFrequency);
                     distortedPhase0 = getDistortedPhase(wrapperPhase, oscillator.pdEnvelope0);
                     distortedPhase1 = getDistortedPhase(wrapperPhase, oscillator.pdEnvelope1);
                     distortedPhaseMix = mixValues(distortedPhase0, distortedPhase1, mix[i]);
 
-                    output[i] = oscillator.selectedWaveform.call(oscillator, distortedPhaseMix) * oscillator.selectedWrapper.call(oscillator, phase);
+                    output[i] = oscillator.selectedWaveform(distortedPhaseMix) * oscillator.selectedWrapper(phase);
                 }
             }
         };
     }
 
     set waveform (waveformName) {
-        if (waveformName && IdealOscillator.waveforms[waveformName] && typeof IdealOscillator.waveforms[waveformName] === "function") {
-            this.selectedWaveform = IdealOscillator.waveforms[waveformName];
+        if (waveformName && waveforms[waveformName] && typeof waveforms[waveformName] === "function") {
+            this.selectedWaveform = waveforms[waveformName];
         }
         return this;
     }
 
     set wrapper (wrapperName) {
-        if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === "function") {
-            this.selectedWrapper = this.wrappers[wrapperName];
+        if (wrapperName && wrappers[wrapperName] && typeof wrappers[wrapperName] === "function") {
+            this.selectedWrapper = wrappers[wrapperName];
         }
         return this;
     }
 
     getIncrementedPhase (frequency) {
-        let increment = frequency / this.context.sampleRate;
+        const increment = frequency / this.context.sampleRate;
         this.phase += increment;
-        while (this.phase > 1) {
-            this.phase -= 1;
+
+        if (this.phase > 1) {
             this.resonancePhase = 0;
         }
-        return this.phase;
+        return this.phase %= 1;
     }
 
     getIncrementedResonancePhase (frequency) {
-        let increment = frequency / this.context.sampleRate;
+        const increment = frequency / this.context.sampleRate;
         this.resonancePhase += increment;
-        while (this.resonancePhase > 1) {
-            this.resonancePhase -= 1;
-        }
-        return this.resonancePhase;
+        return this.resonancePhase %= 1;
     }
 
     getComputedFrequency (frequency, detune) {
@@ -367,7 +373,6 @@ class PDOscillator extends PannableModule {
         return result;
     }
 }
-PDOscillator.prototype.wrappers = wrappers;
 
-export
-default PDOscillator;
+
+export default PDOscillator;

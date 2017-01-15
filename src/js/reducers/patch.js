@@ -53,6 +53,11 @@ const oscillator = (state = {}, action) => {
                 ...state,
                 detune: action.value
             };
+        case Actions.OSCILLATOR_TOGGLE:
+            return {
+                ...state,
+                active: !state.active
+            };
     }
     if (action.module === "oscillator") {
         // generic actions targeting oscillator parameters

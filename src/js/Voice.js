@@ -1,6 +1,3 @@
-/*global require, module, setTimeout */
-"use strict";
-
 import EnvelopeGenerator from "./EnvelopeGenerator";
 import PDOscillator from "./PDOscillator";
 import NoiseGenerator from "./NoiseGenerator";
@@ -86,10 +83,6 @@ class Voice {
         }
     }
 
-    disconnect () {
-        this.vca.disconnect();
-    }
-
     destroy () {
         this.sub.stop(this.stopTime);
         this.sub.disconnect();
@@ -111,8 +104,9 @@ class Voice {
         this.oscillator.destroy();
         this.oscillator = null;
 
-        this.disconnect();
+        this.vca.disconnect();
         this.vca = null;
+
         if (typeof this.destroyCallback === "function") {
             this.destroyCallback(this);
         }
@@ -123,6 +117,7 @@ class Voice {
         this.startTime = time;
         this.sub.start(time);
         this.noise.start(time);
+        this.oscillator.start(time);
 
         this.lfos.forEach(lfo => lfo.start());
         this.envelopes.forEach(envelope => envelope.trigger(time));
@@ -146,8 +141,7 @@ class Voice {
 }
 
 
-export
-default Voice;
+export default Voice;
 
 
 /*
