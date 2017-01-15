@@ -28,6 +28,7 @@ class WaveformSelector extends Component {
         return (
             <fieldset className="waveform-selector" onChange={this.handleChange}>
                 <legend>waveform</legend>
+                <div className="flex-wrapper">
                 {Object.keys(waveforms).map(w => (
                     <WaveformButton
                         controlName={controlName}
@@ -40,6 +41,7 @@ class WaveformSelector extends Component {
                         waveformName={w}
                     />
                 ))}
+                </div>
             </fieldset>
         );
     }

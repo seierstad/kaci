@@ -119,6 +119,52 @@ $envelope-circle-color: black;
     }
 }
 
+.waveform {
+    &-selector {
+        .flex-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            > label {
+                $button-bevel-shadow: 4px 4px 12px 1px rgba(255,255,255,1) inset, 0 0 9px 1px rgba(0,0,0,0.5) inset;
+
+                background-color: #eef;
+                border-radius: .5em;
+                border: none;
+                box-shadow: $button-bevel-shadow, 2px 2px 8px rgba(0,0,0,.4);
+                display: inline-block;
+                margin: .3em;
+                text-align: center;
+                transition: all 50ms ease-in;
+                transform: translateY(0);
+
+                &:active {
+                    box-shadow: $button-bevel-shadow;
+                    transform: translateY(1px);
+                }
+
+                br,
+                input {
+                    display: none;
+                }
+
+                canvas {
+                    margin: .2em;
+                }
+
+                :checked ~ canvas {
+                    box-shadow: -0.6em 1em 0.7em -0.7em #fff inset, 1em -0.6em 0.7em -0.8em #fff inset;
+                    background: rgba(30,249,255, 0.9);
+                }
+            }
+        }
+    }
+
+    &-name {
+        @extend %squish-text;
+    }
+}
 .keyboard.controller {
     background-color: $bg-and-section-bg-color;
     border-bottom-left-radius: 0;
