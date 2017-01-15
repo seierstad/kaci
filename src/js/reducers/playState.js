@@ -44,11 +44,13 @@ const playState = (state = {keys: [], pitchShift: 0, chordShift: 0, hold: false}
                 ...state,
                 keys: keys(state.keys, action)
             };
+        case Actions.MIDI_PITCHBEND:
         case Actions.KEYBOARD_PITCH_SHIFT:
             return {
                 ...state,
                 pitchShift: action.value
             };
+        case Actions.MIDI_MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
             return {
                 ...state,

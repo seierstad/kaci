@@ -47,7 +47,7 @@ class Envelope extends Component {
                 />
                 <Circles
                     activeIndex={activeIndex}
-                    background={background}
+                    background={this.background}
                     envelopeIndex={index}
                     handlers={handlers}
                     module={module}

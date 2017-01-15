@@ -17,32 +17,32 @@ import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration";
 import PatchHandler from "./PatchHandler";
 
-let ctx, mainMix;
+let mainMix;
 
 if (window.AudioContext) {
-    ctx = new window.AudioContext();
+    const ctx = new window.AudioContext();
 
     let settings;
     if (localStorage) {
-        let settingsString = localStorage.getItem("kaciSystemSettings");
+        const settingsString = localStorage.getItem("kaciSystemSettings");
         if (settingsString && settingsString !== "undefined") {
             settings = JSON.parse(settingsString);
         }
     }
     settings = settings || defaultSettings;
 
-    let store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
+    const store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
 /*
-    var system = new SystemSettings(ctx, settings, store);
+    const system = new SystemSettings(ctx, settings, store);
 */
 
-    let midi = new MidiInput(store);
-    let keyboardInput = new KeyboardInput(store);
+    const midi = new MidiInput(store);
+    const keyboardInput = new KeyboardInput(store);
 
-
-//    let modulationMatrix = new ModulationMatrix(ctx, store);
-//    let reg = new VoiceRegister(store, ctx, modulationMatrix);
-
+/*
+    const modulationMatrix = new ModulationMatrix(ctx, store);
+    const reg = new VoiceRegister(store, ctx, modulationMatrix);
+*/
     const kaciWrapper = document.getElementById("kaci");
 
     ReactDOM.render(

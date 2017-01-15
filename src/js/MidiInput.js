@@ -1,7 +1,5 @@
-/* global navigator */
 import * as Actions from "./actions";
-
-let c = require("./midiConstants");
+import c from "./midiConstants";
 
 class MidiInput {
     constructor (store) {
