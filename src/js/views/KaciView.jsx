@@ -23,13 +23,9 @@ class KaciReactViewPresentation extends Component {
                 <SystemSettingsView
                     keyboardConfiguration={configuration.keyboard}
                     keyboardHandlers={handlers.keyboard}
-                    midiConfiguration={configuration.midi}
-                    midiHandlers={handlers.midi}
                 />
                 <Oscillator
-                    configuration={configuration.modulation.target.oscillator}
                     envelopeHandlers={handlers.envelope}
-                    patch={patch.oscillator}
                     viewState={viewState.oscillator}
                 />
                 <NoiseView
@@ -54,16 +50,8 @@ class KaciReactViewPresentation extends Component {
                     patch={patch.lfos}
                     syncHandlers={handlers.sync}
                 />
-                <ModulationMatrix
-                    configuration={configuration.modulation}
-                    handlers={handlers.modulation}
-                    patch={patch.modulation}
-                />
-                <Keyboard
-                    configuration={configuration.keyboard}
-                    handlers={handlers.keyboard}
-                    playState={playState}
-                />
+                <ModulationMatrix />
+                <Keyboard />
             </div>
         );
     }
@@ -148,7 +136,7 @@ const mapDispatchToProps = (dispatch) => {
                         dispatch({type: Actions.ENVELOPE_POINT_CHANGE, module, envelopeIndex, envelopePart, index, x, y});
                     }
                 },
-                durationChange: (value, module, envelopeIndex, envelopePart) => {
+                durationChange: (module, envelopeIndex, envelopePart, value) => {
                     dispatch({
                         type: Actions.ENVELOPE_DURATION_CHANGE,
                         module,

@@ -10,20 +10,20 @@ class SustainEnvelope extends Component {
     constructor () {
         super();
         this.mouseOut = this.mouseOut.bind(this);
-        this.attackDurationChange = this.attackDurationChange.bind(this);
-        this.releaseDurationChange = this.releaseDurationChange.bind(this);
+        this.handleAttackDurationChange = this.handleAttackDurationChange.bind(this);
+        this.handleReleaseDurationChange = this.handleReleaseDurationChange.bind(this);
     }
     mouseOut (event) {
         const {module, index, handlers} = this.props;
         handlers.mouseOut(event, module, index);
     }
-    attackDurationChange (event) {
+    handleAttackDurationChange (event) {
         const {module, index, handlers} = this.props;
-        handlers.durationChange(event, module, index, "attack");
+        handlers.durationChange(module, index, "attack", parseFloat(event.target.value));
     }
-    releaseDurationChange (event) {
+    handleReleaseDurationChange (event) {
         const {module, index, handlers} = this.props;
-        handlers.durationChange(event, module, index, "release");
+        handlers.durationChange(module, index, "release", parseFloat(event.target.value));
     }
 
     render () {
@@ -82,8 +82,8 @@ class SustainEnvelope extends Component {
                 <input
                     id={"env-" + index + "-attack-duration"}
                     min={0}
-                    onChange={this.attackDurationChange}
-                    onInput={this.attackDurationChange}
+                    onChange={this.handleAttackDurationChange}
+                    onInput={this.handleAttackDurationChange}
                     type="number"
                     value={patch.attack.duration}
                 />
@@ -91,8 +91,8 @@ class SustainEnvelope extends Component {
                 <input
                     id={"env-" + index + "-release-duration"}
                     min={0}
-                    onChange={this.releaseDurationChange}
-                    onInput={this.releaseDurationChange}
+                    onChange={this.handleReleaseDurationChange}
+                    onInput={this.handleReleaseDurationChange}
                     type="number"
                     value={patch.release.duration}
                 />

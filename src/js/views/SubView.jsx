@@ -8,6 +8,16 @@ import {SUB_TOGGLE, SUB_PAN_CHANGE, SUB_GAIN_CHANGE, SUB_DEPTH_CHANGE} from "../
 import RangeInput from "./RangeInput.jsx";
 
 class SubViewPresentation extends Component {
+    constructor () {
+        super();
+        this.handleChangeDepth = this.handleChangeDepth.bind(this);
+    }
+
+    handleChangeDepth (event) {
+        event.stopPropagation();
+        this.props.handlers.depthChange(parseInt(event.target.value));
+    }
+
     render () {
         const {patch, configuration, handlers} = this.props;
         const {panInput, gainInput, toggle, depthChange} = handlers;
@@ -43,7 +53,7 @@ class SubViewPresentation extends Component {
                         checked={patch.depth === 0}
                         id="sub-0"
                         name="sub-depth-selector"
-                        onChange={depthChange}
+                        onChange={this.handleChangeDepth}
                         type="radio"
                         value={0}
                     />
@@ -51,7 +61,7 @@ class SubViewPresentation extends Component {
                         checked={patch.depth === -1}
                         id="sub-1"
                         name="sub-depth-selector"
-                        onChange={depthChange}
+                        onChange={this.handleChangeDepth}
                         type="radio"
                         value={-1}
                     />
@@ -59,7 +69,7 @@ class SubViewPresentation extends Component {
                         checked={patch.depth === -2}
                         id="sub-2"
                         name="sub-depth-selector"
-                        onChange={depthChange}
+                        onChange={this.handleChangeDepth}
                         type="radio"
                         value={-2}
                     />
