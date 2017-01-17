@@ -23,6 +23,21 @@ export const MESSAGE_TYPE = {
     "SYSTEM_EXCLUSIVE": 0xF0
 };
 
+export const SYSEX_TYPE = {
+    "SYSTEM_EXCLUSIVE_START": 0xF0,
+    "TIME_CODE": 0xF1,
+    "SONG_POSITION": 0xF2,
+    "SONG_SELECT": 0xF3,
+    "TUNE_REQUEST": 0xF6,
+    "SYSTEM_EXCLUSIVE_END": 0xF7,
+    "CLOCK": 0xF8,
+    "START": 0xFA,
+    "CONTINUE": 0xFB,
+    "STOP": 0xFC,
+    "ACTIVE_SENSING": 0xFE,
+    "RESET": 0xFF
+};
+
 export const CONTROL = {
     "BANK_SELECT_MSB": 0x00,
     "BANK_SELECT_LSB": 0x20,
@@ -116,9 +131,3 @@ export const CONTROL = {
     "POLY_OPERATION": 0x7F
 };
 
-
-export default {
-    "CHANNELS": CHANNELS,
-    "CONTROL": CONTROL,
-    "MESSAGE_TYPE": MESSAGE_TYPE
-};

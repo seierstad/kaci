@@ -1,5 +1,5 @@
 import * as Actions from "./actions";
-import c from "./midiConstants";
+import * as c from "./midiConstants";
 
 class MidiInput {
     constructor (store) {
@@ -12,6 +12,7 @@ class MidiInput {
         this.removeInputListeners = this.removeInputListeners.bind(this);
         this.addInputListeners = this.addInputListeners.bind(this);
         this.selectInputPort = this.selectInputPort.bind(this);
+        this.timeCodeHandler = this.timeCodeHandler.bind(this);
 
         this.store = store;
         this.state = store.getState().settings.midi;
@@ -31,7 +32,7 @@ class MidiInput {
         this.outputs = {};
         this.activeInputId = this.state.portId || null;
         this.activeInput = null;
-        this.activeChannel = this.state.channel || null;
+        this.activeChannel = this.state.channel || "all";
         this.runningStatusBuffer = null;
         this.valuePairs = {
             "BANK_SELECT": {
@@ -269,8 +270,12 @@ class MidiInput {
         }
     }
 
+    timeCodeHandler (data) {
+        console.log("TODO: implement timecode");
+    }
+
     isActiveChannel (firstByte) {
-        return (this.activeChannel === firstByte & 0x0F) || (typeof this.activeChannel === "string" && this.activeChannel === "all");
+        return (firstByte & 0xF0 === 0xF0) || (this.activeChannel === firstByte & 0x0F) || (typeof this.activeChannel === "string" && this.activeChannel === "all");
     }
 
     activeChannelMessageHandler (data, overrideType) {
@@ -335,6 +340,13 @@ class MidiInput {
             case c.MESSAGE_TYPE.SYSTEM_EXCLUSIVE: // system exclusive
                 if (type < 0xF8) {
                     this.runningStatusBuffer = null;
+                }
+                switch (type) {
+                    case c.SYSEX_TYPE.TIME_CODE:
+                        this.timeCodeHandler(data);
+                        break;
+                    case c.SYSEX_TYPE.CLOCK:
+                        this.clockHandler(data);
                 }
                 break;
             default: // same as last message (running status)
