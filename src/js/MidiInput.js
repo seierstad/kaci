@@ -297,20 +297,20 @@ class MidiInput {
             const diff = this.clock.ticks.reduce(averageDiff);
 
             if (diff !== this.clock.diff) {
-                // tempo changed (or unprecise clock...)
-                this.clock.tempo = 60 / diff;
                 this.clock.diff = diff;
 
-                this.store.dispatch({
-                    "type": Actions.MIDI_TEMPO_CHANGE,
-                    "tempo": this.clock.tempo,
-                    "sync": this.clock.sync
-                });
+                // tempo changed (or unprecise clock...)
+                const tempo = Math.round(25000 / diff) / 10;
+                if (tempo !== this.clock.tempo) {
+
+                    this.store.dispatch({
+                        "type": Actions.MIDI_TEMPO_CHANGE,
+                        "tempo": this.clock.tempo,
+                        "sync": this.clock.sync
+                    });
+                }
             }
         }
-
-
-
     }
 
     isActiveChannel (firstByte) {
