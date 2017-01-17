@@ -246,7 +246,6 @@ class PDOscillator extends PannableModule {
     getAudioProcessor (oscillator) {
 
         return (evt) => {
-            console.log("arst neio");
             const frequency = evt.inputBuffer.getChannelData(0);
             const detune = evt.inputBuffer.getChannelData(1);
             const resonance = evt.inputBuffer.getChannelData(2);

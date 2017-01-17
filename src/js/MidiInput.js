@@ -1,6 +1,12 @@
 import * as Actions from "./actions";
 import * as c from "./midiConstants";
 
+const averageDiff = (prev, curr, index, arr) => {
+    const diff = (index === 0) ? 0 : curr - arr[index - 1];
+    return (prev * (index - 1) + diff) / index;
+};
+
+
 class MidiInput {
     constructor (store) {
         this.midiAccessSuccess = this.midiAccessSuccess.bind(this);
@@ -13,6 +19,12 @@ class MidiInput {
         this.addInputListeners = this.addInputListeners.bind(this);
         this.selectInputPort = this.selectInputPort.bind(this);
         this.timeCodeHandler = this.timeCodeHandler.bind(this);
+        this.clock = {
+            ticks: [],
+            tempo: null,
+            sync: null,
+            diff: 0
+        };
 
         this.store = store;
         this.state = store.getState().settings.midi;
@@ -274,11 +286,39 @@ class MidiInput {
         console.log("TODO: implement timecode");
     }
 
+    clockHandler (time) {
+
+        this.clock.ticks.push(time);
+        this.clock.sync = time;
+
+        if (this.clock.ticks.length > 5) {
+            this.clock.ticks.shift();
+
+            const diff = this.clock.ticks.reduce(averageDiff);
+
+            if (diff !== this.clock.diff) {
+                // tempo changed (or unprecise clock...)
+                this.clock.tempo = 60 / diff;
+                this.clock.diff = diff;
+
+                this.store.dispatch({
+                    "type": Actions.MIDI_TEMPO_CHANGE,
+                    "tempo": this.clock.tempo,
+                    "sync": this.clock.sync
+                });
+            }
+        }
+
+
+
+    }
+
     isActiveChannel (firstByte) {
         return (firstByte & 0xF0 === 0xF0) || (this.activeChannel === firstByte & 0x0F) || (typeof this.activeChannel === "string" && this.activeChannel === "all");
     }
 
-    activeChannelMessageHandler (data, overrideType) {
+    activeChannelMessageHandler (event, overrideType) {
+        const {data, receivedTime} = event;
         let type = data[0],
             index = 0;
 
@@ -346,7 +386,7 @@ class MidiInput {
                         this.timeCodeHandler(data);
                         break;
                     case c.SYSEX_TYPE.CLOCK:
-                        this.clockHandler(data);
+                        this.clockHandler(receivedTime);
                 }
                 break;
             default: // same as last message (running status)
@@ -359,7 +399,7 @@ class MidiInput {
 
     midiMessageHandler (event) {
         if (this.isActiveChannel(event.data[0])) {
-            this.activeChannelMessageHandler(event.data);
+            this.activeChannelMessageHandler(event);
         }
     }
 
