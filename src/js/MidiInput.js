@@ -1,11 +1,6 @@
 import * as Actions from "./actions";
 import * as c from "./midiConstants";
 
-const averageDiff = (prev, curr, index, arr) => {
-    const diff = (index === 0) ? 0 : curr - arr[index - 1];
-    return (prev * (index - 1) + diff) / index;
-};
-
 
 class MidiInput {
     constructor (store) {
@@ -288,20 +283,28 @@ class MidiInput {
 
     clockHandler (time) {
 
-        this.clock.ticks.push(time);
+        if (this.clock.sync) {
+            this.clock.ticks.push(time - this.clock.sync);
+        }
         this.clock.sync = time;
 
-        if (this.clock.ticks.length > 5) {
+        const TICKS = 24;
+        const REMOVE_LOW = 4;
+        const REMOVE_HIGH = 5;
+
+        if (this.clock.ticks.length > TICKS) {
             this.clock.ticks.shift();
 
-            const diff = this.clock.ticks.reduce(averageDiff);
+            const diff = [...this.clock.ticks].sort((a, b) => a - b).slice(REMOVE_LOW, TICKS - REMOVE_HIGH).reduce((a, b) => a + b) / (TICKS - REMOVE_LOW - REMOVE_HIGH);
+
 
             if (diff !== this.clock.diff) {
                 this.clock.diff = diff;
 
                 // tempo changed (or unprecise clock...)
-                const tempo = Math.round(25000 / diff) / 10;
+                const tempo = Math.round(2500 / diff);
                 if (tempo !== this.clock.tempo) {
+                    this.clock.tempo = tempo;
 
                     this.store.dispatch({
                         "type": Actions.MIDI_TEMPO_CHANGE,
@@ -318,7 +321,7 @@ class MidiInput {
     }
 
     activeChannelMessageHandler (event, overrideType) {
-        const {data, receivedTime} = event;
+        const {data, timeStamp} = event;
         let type = data[0],
             index = 0;
 
@@ -386,7 +389,7 @@ class MidiInput {
                         this.timeCodeHandler(data);
                         break;
                     case c.SYSEX_TYPE.CLOCK:
-                        this.clockHandler(receivedTime);
+                        this.clockHandler(timeStamp);
                 }
                 break;
             default: // same as last message (running status)
