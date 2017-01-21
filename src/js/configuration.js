@@ -35,6 +35,21 @@ export const defaultEnvParameters = {
     "mode": "voice"
 };
 
+export const defaultTuning = {
+    "baseFrequency": {
+        "min": 380,
+        "max": 500,
+        "value": 440
+    },
+    "scales": [{
+        "type": "tempered",
+        "steps": 12,
+        "base": 2
+    }, {
+
+    }]
+};
+
 const configuration = {
     "keyboard": {
         "activeLayout": "qwerty",
@@ -68,16 +83,7 @@ const configuration = {
         "channel": "all",
         "ports": []
     },
-    "tuning": {
-        "baseFrequency": 440,
-        "scales": [{
-            "type": "tempered",
-            "steps": 12,
-            "base": 2
-        }, {
-
-        }]
-    },
+    "tuning": defaultTuning,
     "modulation": {
         "connection": {
             "default": defaultModulationConnectionParameters

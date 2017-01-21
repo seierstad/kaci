@@ -1,6 +1,3 @@
-/*global require, module, document */
-"use strict";
-
 // TODO: experiment with scales where base = the golden ratio, pi, e etc...
 
 const scales = {

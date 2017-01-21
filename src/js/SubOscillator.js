@@ -58,19 +58,28 @@ class SubOscillator extends PannableModule {
 
         /* end common constructor code */
 
-
+        // simple oscillator
         this.generator = context.createOscillator();
         this.generator.frequency.value = 0;
         this.generator.type = "sine";
 
+        // set frequency
         this.frequencyNode = context.createGain();
         this.dc.connect(this.frequencyNode);
         this.frequencyNode.gain.value = frequency;
         this.frequency = this.frequencyNode.gain;
 
+        // shift frequency down 0/1/2 octaves
         this.scaleBaseNumber = scaleBaseNumber;
         this.ratioNode = context.createGain();
         this.ratioNode.gain.value = Math.pow(this.scaleBaseNumber, this.state.depth);
+
+        // linear beat frequency :)
+        this.frequencyOffsetNode = context.createGain();
+        this.dc.connect(this.frequencyOffsetNode);
+        this.frequencyOffsetNode.gain.value = 4;
+        this.frequencyOffsetNode.connect(this.ratioNode);
+
         this.frequencyNode.connect(this.ratioNode);
         this.ratioNode.connect(this.generator.frequency);
         this.ratio = this.ratioNode.gain;
@@ -97,10 +106,22 @@ class SubOscillator extends PannableModule {
                 this.gain.setValueAtTime(newState.gain, this.context.currentTime);
             }
             if (this.state.depth !== newState.depth) {
-                this.ratioNode.gain.setValueAtTime(Math.pow(2, newState.depth), this.context.currentTime);
+                this.ratioNode.gain.setValueAtTime(Math.pow(this.scaleBaseNumber, newState.depth), this.context.currentTime);
+            }
+            if (this.state.active !== newState.active) {
+                this.output.gain.setValueAtTime(newState.active ? 1 : 0, this.context.currentTime);
             }
             this.state = newState;
         }
+    }
+
+    set freq (frequency) {
+        this.frequencyNode.gain.setValueAtTime(frequency, this.context.currentTime);
+    }
+
+    set scaleFactor (factor) {
+        this.scaleBaseNumber = factor;
+        this.ratioNode.gain.setValueAtTime(Math.pow(this.scaleBaseNumber, this.state.depth), this.context.currentTime);
     }
 
     destroy () {

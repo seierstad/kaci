@@ -14,6 +14,8 @@ class MidiInput {
         this.addInputListeners = this.addInputListeners.bind(this);
         this.selectInputPort = this.selectInputPort.bind(this);
         this.timeCodeHandler = this.timeCodeHandler.bind(this);
+        this.update = this.update.bind(this);
+
         this.clock = {
             ticks: [],
             tempo: null,
@@ -24,23 +26,12 @@ class MidiInput {
         this.store = store;
         this.state = store.getState().settings.midi;
 
-        const update = () => {
-            const state = store.getState().settings.midi;
-
-            if (this.activeInputId !== state.selectedPort) {
-                this.selectInputPort(state.selectedPort);
-            }
-            if (this.activeChannel !== state.channel) {
-                this.selectChannel(state.channel);
-            }
-        };
-
-        this.store.subscribe(update);
+        this.unsubscribe = this.store.subscribe(this.update);
         this.access = null;
         this.inputs = {};
         this.inputState = [];
         this.outputs = {};
-        this.activeInputId = this.state.portId || null;
+        this.activeInputId = null;
         this.activeInput = null;
         this.activeChannel = this.state.channel || "all";
         this.runningStatusBuffer = null;
@@ -118,30 +109,44 @@ class MidiInput {
         }
     }
 
+    update () {
+        const state = this.store.getState().settings.midi;
+
+        if (this.activeInputId !== state.selectedPort) {
+            this.selectInputPort(state.selectedPort);
+        }
+        if (this.activeChannel !== state.channel) {
+            this.selectChannel(state.channel);
+        }
+    }
+
     accessStateChangeHandler (event) {
-        console.log(event);
         const {port} = event;
         const {connection, name, id, manufacturer, state} = port;
-        const e = {connection, name, id, manufacturer, state};
+        const value = {connection, name, id, manufacturer, state};
+        const [is] = this.inputState.filter(p => p.id === id);
 
-        const [is] = this.inputState.filter(p => p.id === e.id);
         if (is) {
-            if (e.connection !== is.connection) {
-                this.store.dispatch({type: Actions.MIDI_PORT_CONNECTION_CHANGE, value: {id, connection}});
-                is.connection = e.connection;
+            if (connection !== is.connection) {
+                this.store.dispatch({type: Actions.MIDI_PORT_CONNECTION_CHANGE, value});
+                is.connection = connection;
             }
-            if (e.state !== is.state) {
-                this.store.dispatch({type: Actions.MIDI_PORT_STATE_CHANGE, value: {id, state}});
-                is.state = e.state;
+            if (state !== is.state) {
+                this.store.dispatch({type: Actions.MIDI_PORT_STATE_CHANGE, value});
+                is.state = state;
             }
         } else {
             if (port.type === "input") {
-                this.inputState.push(e);
+                this.inputState.push(value);
                 this.store.dispatch({
                     type: Actions.MIDI_ADD_INPUT_PORT,
-                    value: e
+                    value
                 });
             }
+        }
+
+        if (id === this.state.selecedPort && state === c.PORT.STATE.CONNECTED) {
+            this.selectInputPort(id);
         }
     }
 
@@ -171,7 +176,7 @@ class MidiInput {
             });
         }
 
-        this.selectInputPort(this.activeInputId);
+        this.selectInputPort(this.activeInputId || this.state.selectedPort);
     }
 
     updatePair (pair, coarse, fine) {

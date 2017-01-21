@@ -60,9 +60,9 @@ let patch = {
         "mode": "global" /* "voice"  TODO: implement voice LFOs */
     }, {
         "waveform": "sinus",
-        "frequency": 0.08,
+        "frequency": 0.8,
         "amount": 1.0,
-        "active": false,
+        "active": true,
         "sync": {
             "enabled": false,
             "numerator": 1,

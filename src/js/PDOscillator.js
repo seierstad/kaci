@@ -136,8 +136,8 @@ class PDOscillator extends PannableModule {
 
         //set frequency
         this.dc.connect(this.frequency);
-        this.parameters.inputs.frequency.value = frequency || 440;
-        this.frequency.setValueAtTime(frequency || 440, this.context.currentTime);
+        this.parameters.inputs.frequency.value = 0;
+        this.frequency.setValueAtTime(frequency, this.context.currentTime);
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.gainNode);
@@ -326,6 +326,10 @@ class PDOscillator extends PannableModule {
             this.selectedWrapper = wrappers[wrapperName];
         }
         return this;
+    }
+
+    set freq (frequency) {
+        this.frequency.setValueAtTime(frequency, this.context.currentTime);
     }
 
     getIncrementedPhase (frequency) {

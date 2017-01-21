@@ -25,14 +25,9 @@ class Voice {
         this.envelopes = [];
         this.lfos = [];
 
-        const createVoiceLfo = (lfoPatch, index) => {
-            if (lfoPatch.mode === "voice") {
-                this.lfos[index] = new LFO(context, store, index);
-                this.lfos[index].start();
-            }
-        };
+        this.createVoiceLfo = this.createVoiceLfo.bind(this);
 
-        this.state.lfos.forEach(createVoiceLfo);
+        this.state.lfos.forEach(this.createVoiceLfo);
 
         this.state.envelopes.forEach((envPatch, index) => {
             this.envelopes[index] = new EnvelopeGenerator(context, store, index);
@@ -67,6 +62,13 @@ class Voice {
         //*/
 
     }
+
+    createVoiceLfo (lfoPatch, index) {
+        if (lfoPatch.mode === "voice") {
+            this.lfos[index] = new LFO(this.context, this.store, index);
+        }
+    }
+
     get parameterOutputNodes () {
         return this.outputs;
     }
@@ -119,7 +121,12 @@ class Voice {
         this.noise.start(time);
         this.oscillator.start(time);
 
-        this.lfos.forEach(lfo => lfo.start());
+        const voice = this;
+
+        this.lfos.forEach(lfo => {
+            lfo.start();
+        });
+
         this.envelopes.forEach(envelope => envelope.trigger(time));
     }
 
@@ -135,8 +142,8 @@ class Voice {
     }
 
     set frequency (frequency) {
-        this.oscillator.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
-        this.sub.frequency.setValueAtTime(frequency, this.context.currentTime);
+        this.oscillator.freq = frequency;
+        this.sub.freq = frequency;
     }
 }
 

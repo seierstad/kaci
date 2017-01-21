@@ -1,6 +1,7 @@
 import React, {PropTypes} from "react";
 import MidiView from "./MIDI/midi.jsx";
 import KeyboardInputView from "./KeyboardInputView.jsx";
+import Tuning from "./tuning.jsx";
 
 import {keyboardShape} from "../propdefs";
 
@@ -8,7 +9,7 @@ const SystemSettingsView = ({keyboardConfiguration, keyboardHandlers, resetHandl
     <section className="system-settings-view">
         <MidiView />
         <KeyboardInputView configuration={keyboardConfiguration} handlers={keyboardHandlers} />
-
+        <Tuning />
         <button onClick={resetHandler}>system reset</button>
     </section>
 );

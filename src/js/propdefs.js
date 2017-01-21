@@ -41,7 +41,11 @@ export const midiClockPlayStateShape = PropTypes.shape({
 });
 
 export const tuningShape = PropTypes.shape({
-    "baseFrequency": PropTypes.number.isRequired,
+    "baseFrequency": PropTypes.shape({
+        "min": PropTypes.number.isRequired,
+        "max": PropTypes.number.isRequired,
+        "value": PropTypes.number.isRequired
+    }).isRequired,
     "scale": PropTypes.shape({
         "type": PropTypes.string
     })

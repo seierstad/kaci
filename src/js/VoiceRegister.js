@@ -24,12 +24,12 @@ class VoiceRegister {
         this.context = context;
 
         this.tunings = {
-            "tempered": Tunings.getTemperedScale(0, 120, 57, 220),
-            "tempered6": Tunings.getTemperedScale(0, 120, 57, 220, 5),
-            "tempered12_1_5": Tunings.getTemperedScale(0, 120, 57, 220, 12, 1.5),
-            "pythagorean": Tunings.getPythagoreanScale(0, 120, 57, 220),
-            "erik": Tunings.getExperimentalScale(0, 120, 57, 220),
-            "halvannen": Tunings.getHalvannenScale(0, 120, 57, 220)
+            "tempered": Tunings.getTemperedScale(0, 120, 69, 440),
+            "tempered6": Tunings.getTemperedScale(0, 120, 69, 440, 5),
+            "tempered12_1_5": Tunings.getTemperedScale(0, 120, 69, 440, 12, 1.5),
+            "pythagorean": Tunings.getPythagoreanScale(0, 120, 69, 440),
+            "erik": Tunings.getExperimentalScale(0, 120, 69, 440),
+            "halvannen": Tunings.getHalvannenScale(0, 120, 69, 440)
         };
         this.activeVoices = [];
         this.stoppedVoices = [];
@@ -52,6 +52,8 @@ class VoiceRegister {
     stateChangeHandler () {
         const newState = this.store.getState();
         const newKeyState = newState.playState.keys;
+        const newTuningState = newState.settings.tuning;
+
         if (this.activeKeys !== newKeyState) {
 
             const reduceDownKeys = (prev, current, index) => {
@@ -74,6 +76,14 @@ class VoiceRegister {
             ups.forEach(k => this.stopVoice(k));
             downs.forEach(k => this.startVoice(k));
 
+        }
+        if (newTuningState.baseFrequency.value !== this.baseFrequency) {
+            console.log("tuning changed");
+            this.baseFrequency = newTuningState.baseFrequency.value;
+            this.tuning = Tunings.getTemperedScale(0, 120, 69, this.baseFrequency);
+            this.activeVoices.forEach((v, i) => {
+                v.frequency = this.tuning[i];
+            });
         }
     }
 
@@ -238,7 +248,7 @@ class VoiceRegister {
 
     startVoice (key, freq) {
 
-        if (this.activeVoices.every(v => v === null)) {
+        if (this.activeVoices.every(v => !v)) {
             this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
         }
         if (!this.activeVoices[key]) {
@@ -257,7 +267,7 @@ class VoiceRegister {
     }
 
     stopVoice (key) {
-        let voice = this.activeVoices[key];
+        const voice = this.activeVoices[key];
 
         if (voice) {
 
@@ -267,8 +277,8 @@ class VoiceRegister {
             }
 
             this.stoppedVoices[key] = voice;
-            this.activeVoices[key] = null;
-            this.activeKeys[key] = null;
+            delete this.activeVoices[key];
+            delete this.activeKeys[key];
         }
     }
 
@@ -277,11 +287,11 @@ class VoiceRegister {
         let voiceIndex = this.stoppedVoices.indexOf(voice);
 
         if (voiceIndex !== -1) {
-            this.stoppedVoices[voiceIndex] = null;
+            delete this.stoppedVoices[voiceIndex];
         } else {
             voiceIndex = this.activeVoices.indexOf(voice);
             if (voiceIndex !== -1) {
-                this.activeVoices[voiceIndex] = null;
+                delete this.activeVoices[voiceIndex];
             }
         }
         //    this.modulationMatrix.unpatchVoice(voice);
@@ -293,5 +303,4 @@ class VoiceRegister {
     }
 }
 
-export
-default VoiceRegister;
+export default VoiceRegister;

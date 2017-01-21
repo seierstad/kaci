@@ -85,7 +85,24 @@ const midi = (state = {}, action) => {
 
 };
 
-const tuning = nullReducer;
+const tuning = (state = {}, action) => {
+    switch (action.type) {
+        case Actions.BASE_FREQUENCY_CHANGE:
+            return {
+                ...state,
+                baseFrequency: {
+                    ...state.baseFrequency,
+                    value: action.value
+                }
+            };
+        case Actions.SYSTEM_RESET:
+            return {
+                ...defaultSettings.tuning
+            };
+    }
+    return state;
+};
+
 const modulation = nullReducer;
 
 const settings = (state, action) => {
