@@ -14,18 +14,21 @@ class KeyboardInput {
         this.pressedControlKeys = [];
         this.layout = this.state.layouts.find(layout => layout.name === this.state.activeLayout);
 
-        const update = () => {
-            const newState = store.getState().settings.keyboard;
-            if (newState.activeLayout !== this.state.activeLayout) {
-                this.state = newState;
-                this.changeLayout(this.state.activeLayout);
-            }
-        };
-//        store.subscribe(update);
+        this.update = this.update.bind(this);
+        store.subscribe(this.update);
 
         document.addEventListener("keydown", this.keyDownHandler, false);
         document.addEventListener("keyup", this.keyUpHandler, false);
     }
+
+    update () {
+        const newState = this.store.getState().settings.keyboard;
+        if (newState.activeLayout !== this.state.activeLayout) {
+            this.state = newState;
+            this.changeLayout(this.state.activeLayout);
+        }
+    }
+
 
     keyDownHandler (event) {
         if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey) {
