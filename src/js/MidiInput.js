@@ -27,8 +27,11 @@ class MidiInput {
         const update = () => {
             const state = store.getState().settings.midi;
 
-            if (this.activeInputId !== state.portId) {
-                this.selectInputPort(state.portId);
+            if (this.activeInputId !== state.selectedPort) {
+                this.selectInputPort(state.selectedPort);
+            }
+            if (this.activeChannel !== state.channel) {
+                this.selectChannel(state.channel);
             }
         };
 
@@ -288,9 +291,9 @@ class MidiInput {
         }
         this.clock.sync = time;
 
-        const TICKS = 24;
-        const REMOVE_LOW = 4;
-        const REMOVE_HIGH = 5;
+        const TICKS = 48;
+        const REMOVE_LOW = 8;
+        const REMOVE_HIGH = 8;
 
         if (this.clock.ticks.length > TICKS) {
             this.clock.ticks.shift();
@@ -302,14 +305,15 @@ class MidiInput {
                 this.clock.diff = diff;
 
                 // tempo changed (or unprecise clock...)
-                const tempo = Math.round(2500 / diff);
+                const tempo = Math.floor(2500 / diff);
                 if (tempo !== this.clock.tempo) {
                     this.clock.tempo = tempo;
 
                     this.store.dispatch({
                         "type": Actions.MIDI_TEMPO_CHANGE,
                         "tempo": this.clock.tempo,
-                        "sync": this.clock.sync
+                        "sync": this.clock.sync,
+                        "quarterNoteDuration": diff * 24
                     });
                 }
             }
@@ -407,23 +411,36 @@ class MidiInput {
     }
 
     removeInputListeners (port) {
-        port.removeEventListener("midimessage", this.midiMessageHandler);
+        if (port) {
+            port.removeEventListener("midimessage", this.midiMessageHandler);
+        }
     }
 
     addInputListeners (port) {
-        port.addEventListener("midimessage", this.midiMessageHandler, false);
+        if (port) {
+            port.addEventListener("midimessage", this.midiMessageHandler, false);
+        }
     }
 
     selectInputPort (portId) {
-        if (this.activeInput && this.activeInput.id !== portId) {
+        if (this.activeInput && this.activeInputId !== portId) {
             this.activeInput.close();
             this.removeInputListeners(this.activeInput);
+            this.activeInput = null;
+            this.activeInputId = "";
+
         }
         if (portId && this.inputs[portId]) {
             this.activeInputId = portId;
             this.activeInput = this.inputs[portId];
             this.activeInput.open();
             this.addInputListeners(this.activeInput);
+        }
+    }
+
+    selectChannel (channel) {
+        if (this.activeChannel !== channel) {
+            this.activeChannel = channel;
         }
     }
 }

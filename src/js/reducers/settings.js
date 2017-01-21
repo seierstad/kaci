@@ -26,10 +26,10 @@ const midi = (state = {}, action) => {
                 ]
             };
         case Actions.MIDI_PORT_SELECT:
-            if (state.ports.some((item) => item.id === action.value)) {
+            if (state.ports.some((item) => item.id === action.value) || action.value === "") {
                 return {
                     ...state,
-                    portId: action.value
+                    selectedPort: action.value
                 };
             }
             break;

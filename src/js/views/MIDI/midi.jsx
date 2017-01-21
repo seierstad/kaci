@@ -21,10 +21,12 @@ class MidiViewPresentation extends Component {
                     ports={ports}
                     selectedPort={selectedPort}
                 />
-                <ChannelSelector
-                    channelChangeHandler={handlers.channelChange}
-                    selectedChannel={channel}
-                />
+                {ports.findIndex(p => p.id === selectedPort) !== -1 ?
+                    <ChannelSelector
+                        channelChangeHandler={handlers.channelChange}
+                        selectedChannel={channel}
+                    />
+                : null}
             </fieldset>
         );
     }

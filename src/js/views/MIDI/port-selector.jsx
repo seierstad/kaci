@@ -19,13 +19,13 @@ class MidiPortSelector extends Component {
         if (ports && ports.length > 0) {
             return (
                 <div>
-                    <label htmlFor={"midi-channel-selector-" + this.uniqeKey} key="label">port</label>
+                    <label htmlFor={"midi-port-selector-" + this.uniqeKey} key="label">port</label>
                     <select
-                        id={"midi-channel-selector-" + this.uniqeKey}
+                        id={"midi-port-selector-" + this.uniqeKey}
                         onChange={portChangeHandler}
                         value={selectedPort}
                     >
-                        <option>all</option>
+                        <option value="">none</option>
                         {ports.map(port)}
                     </select>
                 </div>
