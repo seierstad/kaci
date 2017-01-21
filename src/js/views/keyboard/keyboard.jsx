@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import {NOTE_NAMES} from "../../constants";
-import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT} from "../../actions";
+import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT, KEYBOARD_CHORD_SHIFT_TOGGLE} from "../../actions";
 import {playStateShape} from "../../propdefs";
 
 import RangeInput from "../RangeInput.jsx";
@@ -17,7 +17,7 @@ class KeyboardViewPresentation extends Component {
 
     render () {
         const {handlers, playState, configuration} = this.props;
-        const {handlePitchShift, handleChordShift} = handlers;
+        const {handlePitchShift, handleChordShift, handleChordShiftToggle} = handlers;
         const {startKey, endKey} = configuration;
 
         const whiteKeys = [];
@@ -83,7 +83,13 @@ class KeyboardViewPresentation extends Component {
                         max={1}
                         min={0}
                         step={0.01}
-                        value={playState.chordShift}
+                        value={playState.chordShift.value}
+                    />
+                    <input
+                        checked={playState.chordShift.enabled}
+                        id="chord-shift-enabled"
+                        onChange={handleChordShiftToggle}
+                        type="checkbox"
                     />
                 </div>
             </section>
@@ -106,7 +112,8 @@ const mapState = (state) => ({
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "handlePitchShift": (value) => {dispatch({"type": KEYBOARD_PITCH_SHIFT, value});},
-        "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT, value});}
+        "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT, value});},
+        "handleChordShiftToggle": (event) => {event.preventDefault(); dispatch({"type": KEYBOARD_CHORD_SHIFT_TOGGLE});}
     }
 });
 const KeyboardView = connect(mapState, mapDispatch)(KeyboardViewPresentation);

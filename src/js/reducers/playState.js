@@ -62,11 +62,30 @@ const pitchShift = (state = 0, action) => {
     return state;
 };
 
-const chordShift = (state = 0, action) => {
+const chordShift = (state = {enabled: false, value: 0}, action) => {
     switch (action.type) {
+
         case Actions.MIDI_MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
-            return action.value;
+            return {
+                ...state,
+                value: action.value
+            };
+        case Actions.CHORD_SHIFT_ENABLE:
+            return {
+                ...state,
+                enabled: true
+            };
+        case Actions.CHORD_SHIFT_DISABLE:
+            return {
+                ...state,
+                enabled: false
+            };
+        case Actions.KEYBOARD_CHORD_SHIFT_TOGGLE:
+            return {
+                ...state,
+                enabled: !state.enabled
+            };
     }
     return state;
 };

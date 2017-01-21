@@ -26,7 +26,7 @@ let patch = {
         "active": true
     },
     "noise": {
-        "gain": 0.1,
+        "gain": 0.01,
         "active": true,
         "pan": 0,
         "color": "white"
@@ -35,7 +35,7 @@ let patch = {
         "depth": -1,
         "gain": 0.5,
         "active": true,
-        "pan": 1
+        "pan": 0
     },
     "vca": {
         "gain": 1
