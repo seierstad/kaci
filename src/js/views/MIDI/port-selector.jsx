@@ -14,13 +14,14 @@ class MidiPortSelector extends Component {
     }
     render () {
         const {portChangeHandler, ports, selectedPort} = this.props;
-        const port = p => <option disabled={p.state === PORT.STATE.DISCONNECTED} key={p.id} value={p.id}>{p.name}{p.manufacturer ? " (" + p.manufacturer + ")" : ""}</option>;
+        const port = p => <option disabled={p.state === PORT.STATE.DISCONNECTED} key={p.id} value={p.id}>{p.name}{p.manufacturer ? " (" + p.manufacturer + ")" : "" }{p.id === selectedPort && p.state === PORT.STATE.DISCONNECTED ? " DISCONNECTED" : ""}</option>;
 
         if (ports && ports.length > 0) {
             return (
                 <div>
                     <label htmlFor={"midi-port-selector-" + this.uniqeKey} key="label">port</label>
                     <select
+                        className="midi-port-selector"
                         id={"midi-port-selector-" + this.uniqeKey}
                         onChange={portChangeHandler}
                         value={selectedPort}

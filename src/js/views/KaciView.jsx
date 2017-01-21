@@ -23,6 +23,7 @@ class KaciReactViewPresentation extends Component {
                 <SystemSettingsView
                     keyboardConfiguration={configuration.keyboard}
                     keyboardHandlers={handlers.keyboard}
+                    resetHandler={handlers.systemReset}
                 />
                 <Oscillator
                     envelopeHandlers={handlers.envelope}
@@ -188,6 +189,9 @@ const mapDispatchToProps = (dispatch) => {
                     const value = event.target.value;
                     dispatch({type: Actions.KEYBOARD_LAYOUT_CHANGE, value});
                 }
+            },
+            systemReset: () => {
+                dispatch({type: Actions.SYSTEM_RESET});
             }
         }
     };

@@ -1,6 +1,10 @@
 import * as Actions from "../actions";
-import { combineReducers } from "redux";
+import {combineReducers} from "redux";
 
+import {PORT} from "../midiConstants";
+import defaultSettings from "../configuration";
+
+const {STATE} = PORT;
 const nullReducer = (state = {}) => state;
 
 const keyboard = (state = {}, action) => {
@@ -10,21 +14,52 @@ const keyboard = (state = {}, action) => {
                 ...state,
                 activeLayout: action.value
             };
+
+        case Actions.SYSTEM_RESET:
+            return {
+                ...defaultSettings.keyboard
+            };
+
         default:
             return state;
     }
 };
 
+const midiPorts = (state = [], action) => {
+    switch (action.type) {
+        case Actions.MIDI_ADD_INPUT_PORT:
+        case Actions.MIDI_PORT_CONNECTION_CHANGE:
+        case Actions.MIDI_PORT_STATE_CHANGE:
+            const index = state.findIndex(p => p.id === action.value.id);
+            if (index === -1) {
+                return [
+                    ...state,
+                    action.value
+                ];
+            }
+            return [
+                ...(state.slice(0, index)),
+                action.value,
+                ...(state.slice(index + 1))
+            ];
+
+        case Actions.SYSTEM_RESET:
+            return [...state.filter(p => p.state === STATE.CONNECTED)];
+
+    }
+    return state;
+};
+
 const midi = (state = {}, action) => {
     switch (action.type) {
+        case Actions.MIDI_PORT_CONNECTION_CHANGE:
+        case Actions.MIDI_PORT_STATE_CHANGE:
         case Actions.MIDI_ADD_INPUT_PORT:
             return {
                 ...state,
-                ports: [
-                    ...state.ports,
-                    action.value
-                ]
+                ports: midiPorts(state.ports, action)
             };
+
         case Actions.MIDI_PORT_SELECT:
             if (state.ports.some((item) => item.id === action.value) || action.value === "") {
                 return {
@@ -33,20 +68,17 @@ const midi = (state = {}, action) => {
                 };
             }
             break;
+
         case Actions.MIDI_CHANNEL_SELECT:
             return {
                 ...state,
                 channel: action.value
             };
-        case Actions.MIDI_PORT_CONNECTION_CHANGE:
+
+        case Actions.SYSTEM_RESET:
             return {
-                ...state,
-                ports: state.ports.map(p => p.id === action.value.id ? {...p, connection: action.value.connection} : p)
-            };
-        case Actions.MIDI_PORT_STATE_CHANGE:
-            return {
-                ...state,
-                ports: state.ports.map(p => p.id === action.value.id ? {...p, state: action.value.state} : p)
+                ...defaultSettings.midi,
+                ports: midiPorts(state.ports, action)
             };
     }
     return state;
@@ -56,11 +88,16 @@ const midi = (state = {}, action) => {
 const tuning = nullReducer;
 const modulation = nullReducer;
 
-const settings = combineReducers({
-    keyboard,
-    midi,
-    tuning,
-    modulation
-});
+const settings = (state, action) => {
+    if (action.type === Actions.SET_SYSTEM_CONFIGURATION) {
+        return action.configuration;
+    }
+    return combineReducers({
+        keyboard,
+        midi,
+        tuning,
+        modulation
+    })(state, action);
+};
 
 export default settings;

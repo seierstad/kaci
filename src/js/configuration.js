@@ -37,7 +37,7 @@ export const defaultEnvParameters = {
 
 const configuration = {
     "keyboard": {
-        "activeLayout": "colemak",
+        "activeLayout": "qwerty",
         "layouts": [{
             "name": "colemak",
             "offset": 36,

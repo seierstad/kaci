@@ -54,6 +54,7 @@ class LFO {
 */
 
     }
+
     stateChangeHandler () {
         const newState = this.store.getState().patch.lfos[this.index];
         if (newState !== this.state) {
@@ -190,5 +191,6 @@ class LFO {
         this.outputs[name] = shaper;
     }
 }
-export
-default LFO;
+
+
+export default LFO;

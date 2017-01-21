@@ -1,14 +1,12 @@
-import DC from "./DCGenerator";
+export const mixValues = (source1, source2, ratio) => source1 * (1 - ratio) + source2 * ratio;
 
-const mixValues = (source1, source2, ratio) => source1 * (1 - ratio) + source2 * ratio;
-
-const vectorToLinearFunction = (vector) => {
+export const vectorToLinearFunction = (vector) => {
     const rate = (vector[1][1] - vector[0][1]) / (vector[1][0] - vector[0][0]);
     const constant = vector[0][1] - (rate * vector[0][0]);
     return (phase) => (phase * rate) + constant;
 };
 
-const getDistortedPhase = (phase, envelope) => {
+export const getDistortedPhase = (phase, envelope) => {
     let i;
 
     if (envelope.length > 1) {
@@ -22,7 +20,7 @@ const getDistortedPhase = (phase, envelope) => {
     return 0;
 };
 
-class PannableModule {
+export class PannableModule {
 
     inputNode () {
         const node = this.context.createGain();
@@ -48,7 +46,7 @@ class PannableModule {
 }
 
 
-class ParamLogger {
+export class ParamLogger {
     constructor (parameter, context, time = 1000) {
         this.logger = context.createScriptProcessor(512, 1, 1);
         this.logger.onaudioprocess = (evt) => {
@@ -82,12 +80,4 @@ export const splicedArrayCopy = (arr, index, deleteCount, ...newContent) => {
     const result = [...arr];
     result.splice(index, deleteCount, ...newContent);
     return result;
-};
-
-export {
-    mixValues,
-    vectorToLinearFunction,
-    getDistortedPhase,
-    PannableModule,
-    ParamLogger
 };

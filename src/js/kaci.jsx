@@ -21,20 +21,9 @@ let mainMix;
 
 if (window.AudioContext) {
     const ctx = new window.AudioContext();
+    const store = createStore(reducer, {patch: {...patch}, settings: {...defaultSettings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
 
-    let settings;
-    if (localStorage) {
-        const settingsString = localStorage.getItem("kaciSystemSettings");
-        if (settingsString && settingsString !== "undefined") {
-            settings = JSON.parse(settingsString);
-        }
-    }
-    settings = settings || defaultSettings;
-
-    const store = createStore(reducer, {patch: {...patch}, settings: {...settings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
-/*
-    const system = new SystemSettings(ctx, settings, store);
-*/
+    const system = new SystemSettings(ctx, store);
 
     const midi = new MidiInput(store);
     const keyboardInput = new KeyboardInput(store);

@@ -4,15 +4,18 @@ import KeyboardInputView from "./KeyboardInputView.jsx";
 
 import {keyboardShape} from "../propdefs";
 
-const SystemSettingsView = ({keyboardConfiguration, keyboardHandlers}) => (
+const SystemSettingsView = ({keyboardConfiguration, keyboardHandlers, resetHandler}) => (
     <section className="system-settings-view">
         <MidiView />
         <KeyboardInputView configuration={keyboardConfiguration} handlers={keyboardHandlers} />
+
+        <button onClick={resetHandler}>system reset</button>
     </section>
 );
 SystemSettingsView.propTypes = {
     "keyboardConfiguration": keyboardShape,
-    "keyboardHandlers": PropTypes.object
+    "keyboardHandlers": PropTypes.object,
+    "resetHandler": PropTypes.func
 };
 
 
