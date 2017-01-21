@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import * as Actions from "../../actions";
-import {midiShape} from "../../propdefs";
+import {midiShape, midiClockPlayStateShape} from "../../propdefs";
 
 import ChannelSelector from "./channel-selector.jsx";
 import PortSelector from "./port-selector.jsx";
@@ -10,7 +10,7 @@ import PortSelector from "./port-selector.jsx";
 
 class MidiViewPresentation extends Component {
     render () {
-        const {configuration, handlers} = this.props;
+        const {configuration, handlers, playState} = this.props;
         const {ports, selectedPort, channel} = configuration;
 
         return (
@@ -27,26 +27,31 @@ class MidiViewPresentation extends Component {
                         selectedChannel={channel}
                     />
                 : null}
+                {playState.tempo ?
+                    <dl><dt>Sync tempo:</dt><dd>{playState.tempo}</dd></dl>
+                : null}
             </fieldset>
         );
     }
 }
 MidiViewPresentation.propTypes = {
     "configuration": midiShape,
-    "handlers": PropTypes.object
+    "handlers": PropTypes.object,
+    "playState": midiClockPlayStateShape.isRequired
 };
 
 const mapState = (state) => ({
-    "configuration": state.settings.midi
+    "configuration": state.settings.midi,
+    "playState": state.playState.midiClock
 });
 
 const mapDispatch = (dispatch) => ({
-    handlers: {
-        portChange: (event) => {
+    "handlers": {
+        "portChange": (event) => {
             const value = event.target.value;
             dispatch({type: Actions.MIDI_PORT_SELECT, value});
         },
-        channelChange: (value) => {dispatch({type: Actions.MIDI_CHANNEL_SELECT, value});}
+        "channelChange": (value) => {dispatch({type: Actions.MIDI_CHANNEL_SELECT, value});}
     }
 });
 

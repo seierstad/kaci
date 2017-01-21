@@ -34,6 +34,12 @@ export const midiShape = PropTypes.shape({
     "ports": PropTypes.arrayOf(midiPortShape).isRequired
 });
 
+export const midiClockPlayStateShape = PropTypes.shape({
+    "tempo": PropTypes.number,
+    "sync": PropTypes.number,
+    "quarterNoteDuration": PropTypes.number
+});
+
 export const tuningShape = PropTypes.shape({
     "baseFrequency": PropTypes.number.isRequired,
     "scale": PropTypes.shape({
