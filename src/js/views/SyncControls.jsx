@@ -10,48 +10,57 @@ class SyncControls extends Component {
         this.denominatorChange = this.denominatorChange.bind(this);
         this.numeratorChange = this.numeratorChange.bind(this);
     }
-    toggle (event) {
-        const {module, index, handlers} = this.props;
-        handlers.toggle(event, module, index);
 
+    toggle () {
+        const {module, index, handlers} = this.props;
+        handlers.toggle(module, index);
     }
+
     denominatorChange (event) {
+        event.preventDefault();
         const {module, index, handlers} = this.props;
-        handlers.denominatorChange(event, module, index);
+        const value = parseInt(event.target.value, 10);
+        handlers.denominatorChange(value, module, index);
     }
+
     numeratorChange (event) {
+        event.preventDefault();
         const {module, index, handlers} = this.props;
-        handlers.numeratorChange(event, module, index);
+        const value = parseInt(event.target.value, 10);
+        handlers.numeratorChange(value, module, index);
     }
 
     render () {
-        const {patch, configuration, handlers} = this.props;
+        const {patch, configuration, handlers, disabled} = this.props;
+        const {enabled, numerator, denominator} = patch;
 
         return (
-            <fieldset>
+            <fieldset
+                disabled={disabled}
+            >
                 <legend>sync</legend>
                 <input
-                    checked={!!patch.enabled}
-                    onChange={this.toggle}
+                    checked={enabled}
+                    onClick={this.toggle}
                     type="checkbox"
                 />
                 <input
-                    disabled={!patch.enabled}
+                    disabled={!enabled}
                     max={configuration.numerator.max}
                     min={configuration.numerator.min}
                     onChange={this.numeratorChange}
                     onInput={this.numeratorChange}
                     type="number"
-                    value={patch.numerator}
+                    value={numerator}
                 />
                 <input
-                    disabled={!patch.enabled}
+                    disabled={!enabled}
                     max={configuration.denominator.max}
                     min={configuration.denominator.min}
                     onChange={this.denominatorChange}
                     onInput={this.denominatorChange}
                     type="number"
-                    value={patch.denominator}
+                    value={denominator}
                 />
             </fieldset>
         );
@@ -59,6 +68,7 @@ class SyncControls extends Component {
 }
 SyncControls.propTypes = {
     "configuration": modulationLfoSourcesSyncShape.isRequired,
+    "disabled": PropTypes.bool,
     "handlers": PropTypes.object.isRequired,
     "index": PropTypes.number.isRequired,
     "module": PropTypes.string.isRequired,

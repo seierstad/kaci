@@ -2,25 +2,32 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import {modulationTargetShape, subPatchDataShape} from "../propdefs";
-import {SUB_TOGGLE, SUB_PAN_CHANGE, SUB_GAIN_CHANGE, SUB_DEPTH_CHANGE} from "../actions";
+import {SUB_GAIN_CHANGE, SUB_PAN_CHANGE, SUB_TOGGLE, SUB_DEPTH_CHANGE, SUB_BEAT_FREQUENCY_CHANGE, SUB_DETUNE_CHANGE, SUB_DETUNE_MODE_CHANGE} from "../actions";
+import {defaultSyncConfiguration} from "../configuration";
 
-
+import SyncControls from "./SyncControls.jsx";
 import RangeInput from "./RangeInput.jsx";
+
 
 class SubViewPresentation extends Component {
     constructor () {
         super();
         this.handleChangeDepth = this.handleChangeDepth.bind(this);
+        this.handleDetuneModeChange = this.handleDetuneModeChange.bind(this);
     }
 
     handleChangeDepth (event) {
         event.stopPropagation();
         this.props.handlers.depthChange(parseInt(event.target.value));
     }
+    handleDetuneModeChange (event) {
+        event.stopPropagation();
+        this.props.handlers.detuneMode(event.target.value);
+    }
 
     render () {
-        const {patch, configuration, handlers} = this.props;
-        const {panInput, gainInput, toggle, depthChange} = handlers;
+        const {patch, configuration, handlers, syncHandlers} = this.props;
+        const {panInput, gainInput, toggle, depthChange, beatToggle, beatChange, detuneChange} = handlers;
 
 
         return (
@@ -74,6 +81,54 @@ class SubViewPresentation extends Component {
                         value={-2}
                     />
                 </fieldset>
+                <fieldset>
+                    <legend>detune</legend>
+                    <input
+                        checked={patch.detune.mode === "detune"}
+                        id="sub-detune-mode-detune"
+                        name="sub-detune-mode"
+                        onChange={this.handleDetuneModeChange}
+                        type="radio"
+                        value="detune"
+                    />
+                    <label htmlFor="sub-detune-mode-detune">detune</label>
+                    <input
+                        checked={patch.detune.mode === "beat"}
+                        id="sub-detune-mode-beat"
+                        name="sub-detune-mode"
+                        onChange={this.handleDetuneModeChange}
+                        type="radio"
+                        value="beat"
+                    />
+                    <label htmlFor="sub-detune-mode-beat">beat</label>
+                    {patch.detune.mode === "beat" ?
+                        <div className="sub-beat-settings">
+                            <RangeInput
+                                changeHandler={beatChange}
+                                label="freq."
+                                max={configuration.beat.max}
+                                min={configuration.beat.min}
+                                step={0.01}
+                                value={patch.detune.beat}
+                            />
+                            <SyncControls
+                                configuration={defaultSyncConfiguration}
+                                handlers={syncHandlers}
+                                module="sub"
+                                patch={patch.detune.sync}
+                            />
+                        </div>
+                    :
+                        <RangeInput
+                            changeHandler={detuneChange}
+                            label="semitone"
+                            max={configuration.detune.max}
+                            min={configuration.detune.min}
+                            step={0.01}
+                            value={patch.detune.semitone}
+                        />
+                    }
+                </fieldset>
             </section>
         );
     }
@@ -81,18 +136,25 @@ class SubViewPresentation extends Component {
 SubViewPresentation.propTypes = {
     "configuration": modulationTargetShape.isRequired,
     "handlers": PropTypes.object,
-    "patch": subPatchDataShape.isRequired
+    "patch": subPatchDataShape.isRequired,
+    "syncHandlers": PropTypes.objectOf(PropTypes.func).isRequired
 };
+
 const mapState = (state) => ({
     "configuration": state.settings.modulation.target.sub,
     "patch": state.patch.sub
 });
+
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "toggle": () => {dispatch({type: SUB_TOGGLE});},
         "panInput": (value) => {dispatch({type: SUB_PAN_CHANGE, value});},
         "gainInput": (value) => {dispatch({type: SUB_GAIN_CHANGE, value});},
-        "depthChange": (value) => {dispatch({type: SUB_DEPTH_CHANGE, value});}
+        "depthChange": (value) => {dispatch({type: SUB_DEPTH_CHANGE, value});},
+        "detuneChange": (value) => {dispatch({type: SUB_DETUNE_CHANGE, value});},
+        "beatChange": (value) => {dispatch({type: SUB_BEAT_FREQUENCY_CHANGE, value});},
+        "detuneMode": (value) => {dispatch({type: SUB_DETUNE_MODE_CHANGE, value});}
+
     }
 });
 const SubView = connect(mapState, mapDispatch)(SubViewPresentation);

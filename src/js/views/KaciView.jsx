@@ -38,6 +38,7 @@ class KaciReactViewPresentation extends Component {
                     configuration={configuration.modulation.target.sub}
                     handlers={handlers.sub}
                     patch={patch.sub}
+                    syncHandlers={handlers.sync}
                 />
                 <Envelopes
                     configuration={configuration.modulation.source.envelopes}
@@ -163,13 +164,13 @@ const mapDispatchToProps = (dispatch) => {
                 }
             },
             sync: {
-                denominatorChange: (event, module, index) => {
-                    dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, "value": parseInt(event.target.value, 10)});
+                denominatorChange: (value, module, index) => {
+                    dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, value});
                 },
-                numeratorChange: (event, module, index) => {
-                    dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, "value": parseInt(event.target.value, 10)});
+                numeratorChange: (value, module, index) => {
+                    dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, value});
                 },
-                toggle: (event, module, index) => {
+                toggle: (module, index) => {
                     dispatch({"type": Actions.SYNC_TOGGLE, module, index});
                 }
             },

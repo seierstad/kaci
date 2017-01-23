@@ -44,7 +44,7 @@ class VoiceRegister {
 
         //this.modulationMatrix = modulationMatrix;
 
-        this.tuning = this.tunings.tempered;
+        this.tuning = this.tunings.halvannen;
         this.stateChangeHandler();
         this.store.subscribe(this.stateChangeHandler);
     }

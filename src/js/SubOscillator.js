@@ -69,6 +69,13 @@ class SubOscillator extends PannableModule {
         this.frequencyNode.gain.value = frequency;
         this.frequency = this.frequencyNode.gain;
 
+        // standard detune
+        this.detuneNode = context.createGain();
+        this.dc.connect(this.detuneNode);
+        this.detuneNode.gain.value = 0;
+        this.detuneNode.gain.setValueAtTime(this.state.detune.mode === "detune" ? (this.state.detune.semitone * 100) : 0, this.context.currentTime);
+        this.detuneNode.connect(this.generator.detune);
+
         // shift frequency down 0/1/2 octaves
         this.scaleBaseNumber = scaleBaseNumber;
         this.ratioNode = context.createGain();
@@ -77,7 +84,8 @@ class SubOscillator extends PannableModule {
         // linear beat frequency :)
         this.frequencyOffsetNode = context.createGain();
         this.dc.connect(this.frequencyOffsetNode);
-        this.frequencyOffsetNode.gain.value = 4;
+        this.frequencyOffsetNode.gain.value = 0;
+        this.frequencyOffsetNode.gain.setValueAtTime(this.state.detune.mode === "beat" ? this.state.detune.beat : 0, this.context.currentTime);
         this.frequencyOffsetNode.connect(this.ratioNode);
 
         this.frequencyNode.connect(this.ratioNode);
@@ -110,6 +118,26 @@ class SubOscillator extends PannableModule {
             }
             if (this.state.active !== newState.active) {
                 this.output.gain.setValueAtTime(newState.active ? 1 : 0, this.context.currentTime);
+            }
+            if (this.state.detune.beat !== newState.detune.beat) {
+                if (this.state.detune.mode === "beat") {
+                    this.frequencyOffsetNode.gain.setValueAtTime(newState.detune.beat, this.context.currentTime);
+                }
+            }
+            if (this.state.detune.semitone !== newState.detune.semitone) {
+                if (this.state.detune.mode === "detune") {
+                    this.detuneNode.gain.setValueAtTime(newState.detune.semitone * 100, this.context.currentTime);
+                }
+            }
+            if (this.state.detune.mode !== newState.detune.mode) {
+                if (newState.detune.mode === "beat") {
+                    this.detuneNode.gain.setValueAtTime(0, this.context.currentTime);
+                    this.frequencyOffsetNode.gain.setValueAtTime(newState.detune.beat, this.context.currentTime);
+                }
+                if (newState.detune.mode === "detune") {
+                    this.frequencyOffsetNode.gain.setValueAtTime(0, this.context.currentTime);
+                    this.detuneNode.gain.setValueAtTime(newState.detune.semitone * 100, this.context.currentTime);
+                }
             }
             this.state = newState;
         }

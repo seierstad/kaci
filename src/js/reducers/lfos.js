@@ -1,6 +1,9 @@
 import * as Actions from "../actions";
 import { combineReducers } from "redux";
 
+import syncReducer from "./sync";
+
+
 const lfo = (state = [], action) => {
     switch (action.type) {
         case Actions.LFO_FREQUENCY_CHANGE:
@@ -26,30 +29,11 @@ const lfo = (state = [], action) => {
             return state;
 
         case Actions.SYNC_NUMERATOR_CHANGE:
-            return {
-                ...state,
-                sync: {
-                    ...state.sync,
-                    "numerator": action.value
-                }
-            };
-
         case Actions.SYNC_DENOMINATOR_CHANGE:
-            return {
-                ...state,
-                sync: {
-                    ...state.sync,
-                    "denominator": action.value
-                }
-            };
-
         case Actions.SYNC_TOGGLE:
             return {
                 ...state,
-                sync: {
-                    ...state.sync,
-                    "enabled": !state.sync.enabled
-                }
+                "sync": syncReducer(state.sync, action)
             };
     }
     return state;

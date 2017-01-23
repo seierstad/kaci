@@ -27,15 +27,25 @@ let patch = {
     },
     "noise": {
         "gain": 0.01,
-        "active": true,
+        "active": false,
         "pan": 0,
         "color": "white"
     },
     "sub": {
-        "depth": -1,
+        "depth": 0,
         "gain": 0.5,
         "active": true,
-        "pan": 0
+        "pan": 0,
+        "detune": {
+            "mode": "beat",
+            "semitone": 0,
+            "beat": 0,
+            "sync": {
+                "enabled": false,
+                "numerator": 16,
+                "denominator": 3
+            }
+        }
     },
     "vca": {
         "gain": 1

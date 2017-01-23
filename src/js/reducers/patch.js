@@ -3,6 +3,7 @@ import { combineReducers } from "redux";
 import envelopes, {steps} from "./envelopes";
 import lfos from "./lfos";
 import modulation from "./modulation";
+import syncReducer from "./sync";
 
 import {splicedArrayCopy} from "../sharedFunctions";
 
@@ -48,17 +49,20 @@ const oscillator = (state = {}, action) => {
                 ...state,
                 mix: action.value
             };
+
         case Actions.OSCILLATOR_DETUNE_CHANGE:
             return {
                 ...state,
                 detune: action.value
             };
+
         case Actions.OSCILLATOR_TOGGLE:
             return {
                 ...state,
                 active: !state.active
             };
     }
+
     if (action.module === "oscillator") {
         // generic actions targeting oscillator parameters
 
@@ -85,16 +89,19 @@ const noise = (state = {}, action) => {
                 ...state,
                 gain: action.value
             };
+
         case Actions.NOISE_PAN_CHANGE:
             return {
                 ...state,
                 pan: action.value
             };
+
         case Actions.NOISE_TOGGLE:
             return {
                 ...state,
                 active: !state.active
             };
+
         default:
             return state;
     }
@@ -107,24 +114,69 @@ const sub = (state = {}, action) => {
                 ...state,
                 gain: action.value
             };
+
         case Actions.SUB_PAN_CHANGE:
             return {
                 ...state,
                 pan: action.value
             };
+
         case Actions.SUB_TOGGLE:
             return {
                 ...state,
                 active: !state.active
             };
+
         case Actions.SUB_DEPTH_CHANGE:
             return {
                 ...state,
                 depth: action.value
             };
-        default:
-            return state;
+
+        case Actions.SUB_DETUNE_CHANGE:
+            return {
+                ...state,
+                detune: {
+                    ...state.detune,
+                    semitone: action.value
+                }
+            };
+
+        case Actions.SUB_DETUNE_MODE_CHANGE:
+            return {
+                ...state,
+                detune: {
+                    ...state.detune,
+                    mode: action.value
+                }
+            };
+
+        case Actions.SUB_BEAT_FREQUENCY_CHANGE:
+            return {
+                ...state,
+                detune: {
+                    ...state.detune,
+                    beat: action.value
+                }
+            };
+
+
+        case Actions.SYNC_NUMERATOR_CHANGE:
+        case Actions.SYNC_DENOMINATOR_CHANGE:
+        case Actions.SYNC_TOGGLE:
+            if (action.module === "sub") {
+                return {
+                    ...state,
+                    detune: {
+                        ...state.detune,
+                        sync: syncReducer(state.detune.sync, action)
+                    }
+                };
+            }
+            break;
     }
+
+    return state;
 };
 
 

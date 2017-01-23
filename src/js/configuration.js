@@ -50,6 +50,19 @@ export const defaultTuning = {
     }]
 };
 
+export const defaultSyncConfiguration = {
+    "numerator": {
+        "min": 1,
+        "max": 64,
+        "step": 1
+    },
+    "denominator": {
+        "min": 1,
+        "max": 64,
+        "step": 1
+    }
+};
+
 const configuration = {
     "keyboard": {
         "activeLayout": "qwerty",
@@ -101,18 +114,7 @@ const configuration = {
                     "max": 50,
                     "step": 0.001
                 },
-                "sync": {
-                    "numerator": {
-                        "min": 1,
-                        "max": 64,
-                        "step": 1
-                    },
-                    "denominator": {
-                        "min": 1,
-                        "max": 64,
-                        "step": 1
-                    }
-                },
+                sync: defaultSyncConfiguration,
                 "default": defaultLfoParameters
             },
             "envelopes": {
@@ -158,6 +160,14 @@ const configuration = {
                 "pan": {
                     "min": -1,
                     "max": 1
+                },
+                "detune": {
+                    "min": -1,
+                    "max": 1
+                },
+                "beat": {
+                    "min": 0,
+                    "max": 20
                 }
             },
             "noise": {
