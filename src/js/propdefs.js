@@ -268,5 +268,3 @@ export const patchShape = PropTypes.shape({
     "envelopes": envelopesPatchDataShape.isRequired,
     "modulation": modulationPatchDataShape.isRequired
 });
-
-

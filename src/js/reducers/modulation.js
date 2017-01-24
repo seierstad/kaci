@@ -1,5 +1,4 @@
 import * as Actions from "../actions";
-import { combineReducers } from "redux";
 import config from "../configuration";
 import {splicedArrayCopy} from "../sharedFunctions";
 

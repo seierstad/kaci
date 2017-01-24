@@ -1,9 +1,8 @@
 import {waveforms, wrappers} from "./waveforms";
 
-import {mixValues, vectorToLinearFunction, getDistortedPhase, PannableModule} from "./sharedFunctions";
+import {mixValues, getDistortedPhase, PannableModule} from "./sharedFunctions";
 
 import DC from "./DCGenerator";
-import IdealOscillator from "./IdealOscillator";
 import {BUFFER_LENGTH} from "./constants";
 
 

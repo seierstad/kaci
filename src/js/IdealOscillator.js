@@ -120,7 +120,7 @@ class IdealOscillator extends PannableModule {
 
     zeroPhaseActions () {
         if (this.zeroPhaseEventRequested) {
-            this.zeroPhaseEventRequested.forEach((evt, i) => {
+            this.zeroPhaseEventRequested.forEach((evt) => {
                 const event = new CustomEvent(evt, {
                     detail: this.frequency.value
                 });
@@ -154,7 +154,7 @@ class IdealOscillator extends PannableModule {
         this.generator.onaudioprocess = null;
         this.dc = null;
 
-        this.inputDefs.forEach((def, i) => {
+        this.inputDefs.forEach((def) => {
             this[def.name + "Node"].disconnect();
             this[def.name] = null;
             this[def.name + "Node"] = null;

@@ -14,10 +14,8 @@ class Mix extends Component {
                 <WaveformCanvas waveFunction={waveFunction} />
                 <RangeInput
                     changeHandler={changeHandler}
+                    configuration={configuration}
                     label="Mix"
-                    max={configuration.max}
-                    min={configuration.min}
-                    step={0.01}
                     value={patch}
                 />
             </div>

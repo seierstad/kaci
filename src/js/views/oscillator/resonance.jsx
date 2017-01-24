@@ -57,10 +57,8 @@ class Resonance extends Component {
                 <input checked={resonanceActive} onChange={handlers.toggle} type="checkbox" />
                 <RangeInput
                     changeHandler={handlers.factorChange}
+                    configuration={configuration}
                     label="Resonance"
-                    max={configuration.max}
-                    min={configuration.min}
-                    step={0.01}
                     value={resonance}
                 />
                 <WaveformSelector

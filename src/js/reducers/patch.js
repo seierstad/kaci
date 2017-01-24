@@ -7,7 +7,6 @@ import syncReducer from "./sync";
 
 import {splicedArrayCopy} from "../sharedFunctions";
 
-const nullReducer = (state = {}, action) => state;
 const vca = (state = {gain: 1}, action) => {
     switch (action.type) {
         case Actions.VCA_GAIN_CHANGE:

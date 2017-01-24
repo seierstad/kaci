@@ -49,19 +49,15 @@ class LFO extends Component {
                 />
                 <RangeInput
                     changeHandler={this.amountChange}
+                    configuration={configuration.amount}
                     label="amount"
-                    max={configuration.amount.max}
-                    min={configuration.amount.min}
-                    step={configuration.amount.step}
                     value={patch.amount}
                 />
                 <RangeInput
                     changeHandler={this.frequencyChange}
+                    configuration={configuration.frequency}
                     disabled={syncPossible && patch.sync.enabled}
                     label="frequency"
-                    max={configuration.frequency.max}
-                    min={configuration.frequency.min}
-                    step={configuration.frequency.step}
                     value={patch.frequency}
                 />
                 {syncPossible ?

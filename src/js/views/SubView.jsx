@@ -18,7 +18,7 @@ class SubViewPresentation extends Component {
 
     handleChangeDepth (event) {
         event.stopPropagation();
-        this.props.handlers.depthChange(parseInt(event.target.value));
+        this.props.handlers.depthChange(parseInt(event.target.value, 10));
     }
     handleDetuneModeChange (event) {
         event.stopPropagation();
@@ -40,18 +40,14 @@ class SubViewPresentation extends Component {
                 />
                 <RangeInput
                     changeHandler={gainInput}
+                    configuration={configuration.gain}
                     label="Sub gain"
-                    max={configuration.gain.max}
-                    min={configuration.gain.min}
-                    step={0.01}
                     value={patch.gain}
                 />
                 <RangeInput
                     changeHandler={panInput}
+                    configuration={configuration.pan}
                     label="Sub pan"
-                    max={configuration.pan.max}
-                    min={configuration.pan.min}
-                    step={0.01}
                     value={patch.pan}
                 />
                 <fieldset>
@@ -105,10 +101,8 @@ class SubViewPresentation extends Component {
                         <div className="sub-beat-settings">
                             <RangeInput
                                 changeHandler={beatChange}
+                                configuration={configuration.beat}
                                 label="freq."
-                                max={configuration.beat.max}
-                                min={configuration.beat.min}
-                                step={0.01}
                                 value={patch.detune.beat}
                             />
                             <SyncControls
@@ -121,10 +115,8 @@ class SubViewPresentation extends Component {
                     :
                         <RangeInput
                             changeHandler={detuneChange}
+                            configuration={configuration.detune}
                             label="semitone"
-                            max={configuration.detune.max}
-                            min={configuration.detune.min}
-                            step={0.01}
                             value={patch.detune.semitone}
                         />
                     }

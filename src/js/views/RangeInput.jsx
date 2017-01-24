@@ -11,12 +11,16 @@ class RangeInput extends Component {
     handleChange (event) {
         event.stopPropagation();
         event.preventDefault();
-        this.props.changeHandler(parseFloat(this.input.value, 10));
+        const {exponential} = this.props;
+        const value = parseFloat(this.input.value, 10);
+        this.props.changeHandler(exponential ? (value < 0 ? -Math.exp(-value) : Math.exp(value)) : value);
     }
 
     render () {
-        const {min, max, step, value, disabled, label} = this.props;
+        const {configuration, value, disabled, label} = this.props;
+        const {min, max, step = 0.001, exponential} = configuration;
         const id = "range_" + (rangeInputId += 1);
+
         return (
             <div>
                 <input
@@ -28,7 +32,7 @@ class RangeInput extends Component {
                     ref={i => this.input = i}
                     step={step}
                     type="range"
-                    value={value}
+                    value={exponential ? (value < 0 ? -Math.log(-value) : Math.log(value)) : value}
                 />
                 <label htmlFor={id}>{label}</label>
             </div>
@@ -37,11 +41,14 @@ class RangeInput extends Component {
 }
 RangeInput.propTypes = {
     "changeHandler": PropTypes.func.isRequired,
+    "configuration": PropTypes.shape({
+        "exponential": PropTypes.bool,
+        "max": PropTypes.number.isRequired,
+        "min": PropTypes.number.isRequired,
+        "step": PropTypes.number
+    }),
     "disabled": PropTypes.bool,
     "label": PropTypes.string.isRequired,
-    "max": PropTypes.number.isRequired,
-    "min": PropTypes.number.isRequired,
-    "step": PropTypes.number,
     "value": PropTypes.number.isRequired
 };
 

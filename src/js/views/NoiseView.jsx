@@ -17,18 +17,16 @@ class NoiseView extends Component {
                 <input checked={active} onChange={toggle} type="checkbox" />
                 <RangeInput
                     changeHandler={gainInput}
+                    configuration={configuration.gain}
                     label="Noise gain"
                     max={configuration.gain.max}
                     min={configuration.gain.min}
-                    step={0.01}
                     value={gain}
                 />
                 <RangeInput
                     changeHandler={panInput}
+                    configuration={configuration.pan}
                     label="Noise pan"
-                    max={configuration.pan.max}
-                    min={configuration.pan.min}
-                    step={0.01}
                     value={pan}
                 />
             </section>

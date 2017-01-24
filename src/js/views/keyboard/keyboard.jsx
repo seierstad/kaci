@@ -70,19 +70,15 @@ class KeyboardViewPresentation extends Component {
                     <RangeInput
                         changeHandler={handlePitchShift}
                         className="pitch-shift"
+                        configuration={{max: 1, min: -1, step: 0.01}}
                         label="Pitch shift"
-                        max={1}
-                        min={-1}
-                        step={0.01}
                         value={playState.pitchShift}
                     />
                     <RangeInput
                         changeHandler={handleChordShift}
                         className="chord-shift"
+                        configuration={{max: 1, min: -1, step: 0.01}}
                         label="Chord shift"
-                        max={1}
-                        min={0}
-                        step={0.01}
                         value={playState.chordShift.value}
                     />
                     <input

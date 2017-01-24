@@ -1,8 +1,4 @@
-/*global require, module */
-"use strict";
 import LFO from "./LFO";
-import DCGenerator from "./DCGenerator";
-import Utils from "./Utils";
 import StaticSources from "./StaticSources.jsx";
 
 

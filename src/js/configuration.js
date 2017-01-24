@@ -112,7 +112,8 @@ const configuration = {
                 "frequency": {
                     "min": 0.001,
                     "max": 50,
-                    "step": 0.001
+                    "step": 0.01,
+                    "exponential": true
                 },
                 sync: defaultSyncConfiguration,
                 "default": defaultLfoParameters
@@ -131,13 +132,15 @@ const configuration = {
             "vca": {
                 "gain": {
                     "min": 0,
-                    "max": 1
+                    "max": 1,
+                    "exponential": true
                 }
             },
             "oscillator": {
                 "resonance": {
                     "min": 1,
-                    "max": 40
+                    "max": 40,
+                    "exponential": true
                 },
                 "mix": {
                     "min": 0,
@@ -155,7 +158,8 @@ const configuration = {
             "sub": {
                 "gain": {
                     "min": 0,
-                    "max": 1
+                    "max": 1,
+                    "exponential": true
                 },
                 "pan": {
                     "min": -1,
@@ -167,13 +171,15 @@ const configuration = {
                 },
                 "beat": {
                     "min": 0,
-                    "max": 20
+                    "max": 20,
+                    "exponential": true
                 }
             },
             "noise": {
                 "gain": {
                     "min": 0,
-                    "max": 1
+                    "max": 1,
+                    "exponential": true
                 },
                 "pan": {
                     "min": -1,

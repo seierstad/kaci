@@ -29,18 +29,18 @@ class WaveformSelector extends Component {
             <fieldset className="waveform-selector" onChange={this.handleChange}>
                 <legend>waveform</legend>
                 <div className="flex-wrapper">
-                {Object.keys(waveforms).map(w => (
-                    <WaveformButton
-                        controlName={controlName}
-                        index={index}
-                        key={w}
-                        module={module}
-                        onChange={this.handleChange}
-                        selected={selected === w}
-                        waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]}
-                        waveformName={w}
-                    />
-                ))}
+                    {Object.keys(waveforms).map(w => (
+                        <WaveformButton
+                            controlName={controlName}
+                            index={index}
+                            key={w}
+                            module={module}
+                            onChange={this.handleChange}
+                            selected={selected === w}
+                            waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]}
+                            waveformName={w}
+                        />
+                    ))}
                 </div>
             </fieldset>
         );

@@ -144,10 +144,8 @@ class OscillatorPresentation extends Component {
                 />
                 <RangeInput
                     changeHandler={handlers.detune}
+                    configuration={configuration.detune}
                     label="Detune"
-                    max={configuration.detune.max}
-                    min={configuration.detune.min}
-                    step={0.01}
                     value={patch.detune}
                 />
             </section>

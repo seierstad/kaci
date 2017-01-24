@@ -41,9 +41,6 @@ class Connection extends Component {
         const name = [type, module, parameter].join("-") + "-connection";
 
         const checked = patch.enabled || (index === -1 && noConnection);
-
-
-
         const isLFO = (type === "lfo");
 
         return (
@@ -66,10 +63,8 @@ class Connection extends Component {
                 {index !== -1 ?
                     <RangeInput
                         changeHandler={this.handleAmountChange}
+                        configuration={{max: 1, min: 0, step: 0.01}}
                         label="amount"
-                        max={1}
-                        min={0}
-                        step={0.01}
                         value={amount || 0}
                     />
                 : null}
