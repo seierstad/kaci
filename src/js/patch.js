@@ -16,7 +16,7 @@ let patch = {
                 [1, 1]
             ]
         }],
-        "resonance": 1.1,
+        "resonance": 2,
         "resonanceActive": true,
         "wrapper": "saw",
         "mix": 0,

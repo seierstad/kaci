@@ -139,7 +139,7 @@ const configuration = {
             "oscillator": {
                 "resonance": {
                     "min": 1,
-                    "max": 40,
+                    "max": 16,
                     "exponential": true
                 },
                 "mix": {
