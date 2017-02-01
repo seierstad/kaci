@@ -92,10 +92,20 @@ export const modulationPatchDataShape = PropTypes.shape({
     "vca": modulationTargetModuleShape
 });
 
+export const syncPatchDataShape = PropTypes.shape({
+    "denominator": PropTypes.number.isRequired,
+    "enabled": PropTypes.bool.isRequired,
+    "numerator": PropTypes.number.isRequired
+});
+
 export const subPatchDataShape = PropTypes.shape({
     "active": PropTypes.bool.isRequired,
+    "beat": PropTypes.number.isRequired,
+    "beat_sync": syncPatchDataShape.isRequired,
     "depth": PropTypes.number.isRequired,
+    "detune": PropTypes.number.isRequired,
     "gain": PropTypes.number.isRequired,
+    "mode": PropTypes.oneOf(["detune", "beat"]).isRequired,
     "pan": PropTypes.number.isRequired
 });
 
@@ -103,13 +113,6 @@ export const noisePatchDataShape = PropTypes.shape({
     "active": PropTypes.bool.isRequired,
     "gain": PropTypes.number.isRequired,
     "pan": PropTypes.number.isRequired
-});
-
-
-export const syncPatchDataShape = PropTypes.shape({
-    "denominator": PropTypes.number.isRequired,
-    "enabled": PropTypes.bool.isRequired,
-    "numerator": PropTypes.number.isRequired
 });
 
 const modulationSourceModeShape = PropTypes.oneOf(["global", "voice"]);

@@ -80,7 +80,7 @@ class SubViewPresentation extends Component {
                 <fieldset>
                     <legend>detune</legend>
                     <input
-                        checked={patch.detune.mode === "detune"}
+                        checked={patch.mode === "detune"}
                         id="sub-detune-mode-detune"
                         name="sub-detune-mode"
                         onChange={this.handleDetuneModeChange}
@@ -89,7 +89,7 @@ class SubViewPresentation extends Component {
                     />
                     <label htmlFor="sub-detune-mode-detune">detune</label>
                     <input
-                        checked={patch.detune.mode === "beat"}
+                        checked={patch.mode === "beat"}
                         id="sub-detune-mode-beat"
                         name="sub-detune-mode"
                         onChange={this.handleDetuneModeChange}
@@ -97,19 +97,19 @@ class SubViewPresentation extends Component {
                         value="beat"
                     />
                     <label htmlFor="sub-detune-mode-beat">beat</label>
-                    {patch.detune.mode === "beat" ?
+                    {patch.mode === "beat" ?
                         <div className="sub-beat-settings">
                             <RangeInput
                                 changeHandler={beatChange}
                                 configuration={configuration.beat}
                                 label="freq."
-                                value={patch.detune.beat}
+                                value={patch.beat}
                             />
                             <SyncControls
                                 configuration={defaultSyncConfiguration}
                                 handlers={syncHandlers}
                                 module="sub"
-                                patch={patch.detune.sync}
+                                patch={patch.beat_sync}
                             />
                         </div>
                     :
@@ -117,7 +117,7 @@ class SubViewPresentation extends Component {
                             changeHandler={detuneChange}
                             configuration={configuration.detune}
                             label="semitone"
-                            value={patch.detune.semitone}
+                            value={patch.detune}
                         />
                     }
                 </fieldset>

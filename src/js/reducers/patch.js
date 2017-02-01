@@ -135,30 +135,20 @@ const sub = (state = {}, action) => {
         case Actions.SUB_DETUNE_CHANGE:
             return {
                 ...state,
-                detune: {
-                    ...state.detune,
-                    semitone: action.value
-                }
+                detune: action.value
             };
 
         case Actions.SUB_DETUNE_MODE_CHANGE:
             return {
                 ...state,
-                detune: {
-                    ...state.detune,
-                    mode: action.value
-                }
+                mode: action.value
             };
 
         case Actions.SUB_BEAT_FREQUENCY_CHANGE:
             return {
                 ...state,
-                detune: {
-                    ...state.detune,
-                    beat: action.value
-                }
+                beat: action.value
             };
-
 
         case Actions.SYNC_NUMERATOR_CHANGE:
         case Actions.SYNC_DENOMINATOR_CHANGE:
@@ -166,10 +156,7 @@ const sub = (state = {}, action) => {
             if (action.module === "sub") {
                 return {
                     ...state,
-                    detune: {
-                        ...state.detune,
-                        sync: syncReducer(state.detune.sync, action)
-                    }
+                    beat_sync: syncReducer(state.beat_sync, action)
                 };
             }
             break;

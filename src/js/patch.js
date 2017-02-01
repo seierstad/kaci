@@ -36,15 +36,13 @@ let patch = {
         "gain": 0.5,
         "active": true,
         "pan": 0,
-        "detune": {
-            "mode": "beat",
-            "semitone": 0,
-            "beat": 0,
-            "sync": {
-                "enabled": false,
-                "numerator": 16,
-                "denominator": 3
-            }
+        "mode": "beat",
+        "detune": 0,
+        "beat": 0,
+        "beat_sync": {
+            "enabled": false,
+            "numerator": 16,
+            "denominator": 3
         }
     },
     "vca": {
