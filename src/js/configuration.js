@@ -152,7 +152,9 @@ const configuration = {
                 },
                 "pan": {
                     "min": -1,
-                    "max": 1
+                    "mid": 0,
+                    "max": 1,
+                    "exponential": true
                 }
             },
             "sub": {
@@ -163,7 +165,9 @@ const configuration = {
                 },
                 "pan": {
                     "min": -1,
-                    "max": 1
+                    "mid": 0,
+                    "max": 1,
+                    "exponential": true
                 },
                 "detune": {
                     "min": -1,
@@ -183,7 +187,9 @@ const configuration = {
                 },
                 "pan": {
                     "min": -1,
-                    "max": 1
+                    "mid": 0,
+                    "max": 1,
+                    "exponential": true
                 }
             }
         }

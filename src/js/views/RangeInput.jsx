@@ -2,21 +2,40 @@ import {Component, PropTypes} from "react";
 import React from "react";
 let rangeInputId = 0;
 
-const fullLog = (number) => number < 0 ? -Math.log(-number) : Math.log(number);
-const fullExp = (number) => number < 0 ? -Math.exp(-number) : Math.exp(number);
-
 const logBase = (x, base) => Math.log(x) / Math.log(base);
 
-const getDownScale = (min, max) => (value) => {
-    const span = max - min;
-    return Math.pow(span + 1, (value - min)/span) + min - 1;
-};
+const getScale = (min, max, mid) => {
 
+    if (typeof mid === "number") {
+        const highOffset = 1 - mid;
+        const highSpan = max - mid;
 
-const getUpScale = (min, max) => (value) => {
+        const lowOffset = 1 - min;
+        const lowSpan = mid - min;
+
+        const up = (value) => {
+            if (value >= mid) {
+                return logBase(value - mid + 1, highSpan + 1) * highSpan + mid;
+            }
+            return logBase(mid - value + 1, lowSpan + 1) * -lowSpan - mid;
+        };
+
+        const down = (value) => {
+            if (value >= mid) {
+                return Math.pow(highSpan + 1, (value - mid) / highSpan) - 1 + mid;
+            }
+            return mid - (Math.pow(lowSpan + 1, (mid - value) / lowSpan) - 1);
+        };
+
+        return {up, down};
+    }
+
     const span = max - min;
     const offset = 1 - min;
-    return logBase(value - min + 1, span + 1) * span + min;
+    const up = (value) => logBase(value - min + 1, span + 1) * span + min;
+    const down = (value) => Math.pow(span + 1, (value - min)/span) + min - 1;
+
+    return {up, down};
 };
 
 class RangeInput extends Component {
@@ -27,10 +46,11 @@ class RangeInput extends Component {
 
     componentWillMount () {
         const {configuration} = this.props;
-        const {min, max, exponential} = configuration;
+        const {min, mid, max, exponential} = configuration;
 
-        this.downScale = getDownScale(min, max);
-        this.upScale = getUpScale(min, max);
+        if (exponential) {
+            this.scale = getScale(min, max, mid);
+        }
 
         this.id = "range_" + (rangeInputId += 1);
     }
@@ -41,7 +61,7 @@ class RangeInput extends Component {
         event.preventDefault();
         const {exponential} = this.props.configuration;
         const value = parseFloat(this.input.value, 10);
-        this.props.changeHandler(exponential ? this.downScale(value) : value);
+        this.props.changeHandler(exponential ? this.scale.down(value) : value);
     }
 
     render () {
@@ -60,9 +80,9 @@ class RangeInput extends Component {
                     ref={i => this.input = i}
                     step={step}
                     type="range"
-                    value={exponential ? this.upScale(value) : value}
+                    value={exponential ? this.scale.up(value) : value}
                 />
-                <label htmlFor={this.id}>{label}</label>
+                <label htmlFor={this.id}>{label} {value} {exponential ? this.scale.up(value) : "lin"}</label>
             </div>
         );
     }
