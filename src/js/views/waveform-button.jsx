@@ -18,6 +18,10 @@ class WaveformButton extends Component {
         onChange(waveformName);
     }
 
+    shouldComponentUpdate(nextProps) {
+        return nextProps.selected !== this.props.selected;
+    }
+
     render () {
         const {controlName, waveformName, selected} = this.props;
 

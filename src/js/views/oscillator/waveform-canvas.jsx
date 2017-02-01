@@ -14,6 +14,10 @@ class WaveformCanvas extends Component {
         this.updateWaveform();
     }
 
+    shouldComponentUpdate(nextProps) {
+        return nextProps.waveFunction !== this.props.waveFunction;
+    }
+
     updateWaveform () {
         drawWaveform(this.props.waveFunction, this.waveform);
     }

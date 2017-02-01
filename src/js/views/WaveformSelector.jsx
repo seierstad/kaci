@@ -16,6 +16,10 @@ class WaveformSelector extends Component {
         changeHandler(waveformName, module, index);
     }
 
+    shouldComponentUpdate(nextProps) {
+        return nextProps.selected !== this.props.selected;
+    }
+
     render () {
         const {waveforms, selected, changeHandler, index, module} = this.props;
         const controlName = "waveform-" + waveformSelectorCounter;
