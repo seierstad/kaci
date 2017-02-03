@@ -53,19 +53,21 @@ gulp.task("build:libs", () => {
         .pipe(gulp.dest("build"));
 });
 
+const scriptSources = ["gulpfile.js", "gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
+
 gulp.task("lint:scripts", () => {
     // ensure target directory exists
     mkdirp("./reports");
     mkdirp("./reports/lint");
 
-    return gulp.src(["gulpfile.js", "gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"])
+    return gulp.src(scriptSources)
         .pipe(eslint())
         .pipe(eslint.format("checkstyle", fs.createWriteStream("reports/lint/checkstyle-eslint.xml")))
         .pipe(eslint.format("stylish", process.stdout))
         .pipe(eslint.failOnError());
 });
 
-gulp.task("build:scripts", ["build:libs"], () => {
+gulp.task("build:scripts", () => {
 
     const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babel);
     Object.keys(dependencies).forEach(lib => b.external(lib));
@@ -81,6 +83,22 @@ gulp.task("build:scripts", ["build:libs"], () => {
         .pipe(gulp.dest("build"));
 
 });
+
+
+gulp.task("update:scripts", () => {
+    return runSequence(
+        "lint:scripts",
+        "build:scripts",
+        "build:markup"
+    );
+});
+
+
+gulp.task("watch:scripts", () => {
+    return gulp.watch(scriptSources, ["update:scripts"]);
+});
+
+
 
 gulp.task("build:styles", function () {
     return gulp.src("./src/styles/*.scss")
@@ -109,7 +127,8 @@ gulp.task("build:markup", () => {
 
     gulp.src(["src/markup/index.html"])
         .pipe(revReplace({manifest: revManifest}))
-        .pipe(gulp.dest("build"));
+        .pipe(gulp.dest("build"))
+        .pipe(connect.reload());
 });
 
 gulp.task("server", function () {
@@ -121,7 +140,7 @@ gulp.task("server", function () {
 });
 
 gulp.task("default", () => {
-    runSequence("lint:scripts", "build:scripts", "build:styles", "build:markup", "server");
+    runSequence("build:libs", "lint:scripts", "build:scripts", "build:styles", "build:markup", "server", "watch:scripts");
 });
 
 
