@@ -1,9 +1,24 @@
-$border-color: rgba(127,127,255,.4);
-$bg-and-section-bg-color: #77B3D9;
+$border-color: rgba(127, 127, 255, 0.4);
+$bg-and-section-bg-color: #77b3d9;
 $padding-section-top: 1.2rem;
-$padding-section-bottom: .5rem;
+$padding-section-bottom: 0.5rem;
 $padding-section-sides: 1rem;
 $keyboard-section-height: 20vh;
+
+$scope-color: #ff0;
+
+$envelope-circle-radius: 10;
+$envelope-circle-radius-active: 30;
+$envelope-circle-color: #000;
+$envelope-line-color: #000;
+
+$key-color-white: #fff;
+$key-color-black: #000;
+$key-color-down: #afe;
+$key-color-dropped: #888;
+$key-stroke-color: #000;
+
+$waveform-selector-phase-indicator-color: #fff;
 
 %squish-text {
     clip: rect(1px, 1px, 1px, 1px);
@@ -24,98 +39,116 @@ $keyboard-section-height: 20vh;
 * {
     box-sizing: border-box;
 }
+
 body {
     background-color: #aff;
 }
+
 button {
     min-height: 3em;
 }
 
 section {
+    background-color: rgba(2, 0, 127, 0.3);
+    background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
     border: 3px solid $border-color;
-    border-radius: .5em;
+    border-radius: 0.5em;
+    display: inline-block;
     margin: 2em 1em;
     padding: $padding-section-top $padding-section-sides $padding-section-bottom;
     position: relative;
-    background-image: -webkit-linear-gradient(left bottom, rgba(0,0,0,.1), rgba(0,0,0,0));
-    background-color: rgba(2,0,127,.3);
-    display: inline-block;
 }
-/*
-#oscilloscope {
-    width: 100vw;
-    height: 50vh;
+
+.oscilloscope {
+    background-color: $scope-color;
+    height: 25vh;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 25vw;
 }
-*/
+
 label {
     display: inline-block;
 }
+
 fieldset {
     display: inline-block;
 }
 
-#kaci {
+.kaci-wrapper {
     margin-bottom: 20vh;
 }
+
 .blink {
     display: inline-block;
     height: 30px;
     width: 30px;
 }
+
 .controller .lines {
+    stroke: $envelope-line-color;
     stroke-width: 3;
-    stroke: black;
 }
-$envelope-circle-radius: 10;
-$envelope-circle-radius-active: 30;
-$envelope-circle-color: black;
+
+
 .envelope {
     .circles {
         .active {
             cursor: move;
+            opacity: 0.5;
             r: $envelope-circle-radius-active;
-            opacity: .5;
 
             &.first,
             &.last {
                 cursor: ns-resize;
             }
-
         }
 
         circle {
-            r: $envelope-circle-radius;
-            transition-property: r;
-            transition-duration: .2s;
-            transition-timing-function: easeOutElastic;
             cursor: grab;
-
+            r: $envelope-circle-radius;
+            transition-duration: 0.2s;
+            transition-property: r;
+            transition-timing-function: easeOutElastic;
         }
     }
+
     rect {
         cursor: crosshair;
     }
 }
+
 .sustain-envelope {
-    padding: 30px;
-    margin: -20px;
-    width: calc(100% - 20px);
     box-sizing: content-box;
+    margin: -20px;
+    padding: 30px;
+    width: calc(100% - 20px);
 
     .controller {
         overflow: visible;
     }
-
 }
+
 .sustain-bar {
-    stroke: $envelope-circle-color;
-    stroke-width: $envelope-circle-radius * 2;
-    stroke-linecap: round;
     cursor: grab;
+    stroke: $envelope-circle-color;
+    stroke-linecap: round;
+    stroke-width: $envelope-circle-radius * 2;
 
     &.active {
-        stroke-width: $envelope-circle-radius-active * 2;
         cursor: ns-resize;
+        stroke-width: $envelope-circle-radius-active * 2;
+    }
+}
+
+@keyframes phase-indicator {
+    0% {
+        clip-path: inset(0 46px 0 0);
+    }
+
+    100% {
+        clip-path: inset(0 0 0 46px);
     }
 }
 
@@ -127,22 +160,78 @@ $envelope-circle-color: black;
             flex-wrap: wrap;
 
             > label {
-                $button-bevel-shadow: 4px 4px 12px 1px rgba(255,255,255,1) inset, 0 0 9px 1px rgba(0,0,0,0.5) inset;
+                $button-bevel-shadow: 4px 4px 12px 1px rgba(255, 255, 255, 1) inset, 0 0 9px 1px rgba(0, 0, 0, 0.5) inset;
+                $button-content-margin: 0.2rem;
 
                 background-color: #eef;
-                border-radius: .5em;
                 border: none;
-                box-shadow: $button-bevel-shadow, 2px 2px 8px rgba(0,0,0,.4);
+                box-shadow: $button-bevel-shadow;
                 display: inline-block;
-                margin: .3em;
+                margin: 0.3rem;
+                position: relative;
                 text-align: center;
-                transition: all 50ms ease-in;
-                transform: translateY(0);
+                transition-property: transform;
+
+                &,
+                &::before {
+                    border-radius: 0.5rem;
+                    transition-duration: 50ms;
+                    transition-timing-function: ease;
+                }
+
+                &::before {
+                    background-color: transparent;
+                    bottom: 0;
+                    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+                    content: "";
+                    display: block;
+                    left: 0;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    transition-property: opacity;
+                }
+
+                &:focus,
+                &:hover {
+                    will-change: transform;
+
+                    &::before {
+                        will-change: opacity;
+                    }
+                }
 
                 &:active {
-                    box-shadow: $button-bevel-shadow;
                     transform: translateY(1px);
+
+                    &::before {
+                        opacity: 0;
+                    }
                 }
+
+                .phase-indicator {
+                    background: $waveform-selector-phase-indicator-color;
+                    display: block;
+                    height: 50px;
+                    left: $button-content-margin;
+                    opacity: 0;
+                    position: absolute;
+                    top: $button-content-margin;
+                    width: 50px;
+
+                    .no-mask {
+                        display: none;
+                    }
+                }
+
+                &:active,
+                &:focus,
+                &:hover {
+                    .phase-indicator {
+                        will-change: opacity, clip-path;
+                    }
+                }
+
 
                 br,
                 input {
@@ -150,12 +239,19 @@ $envelope-circle-color: black;
                 }
 
                 canvas {
-                    margin: .2em;
+                    margin: $button-content-margin;
                 }
 
-                :checked ~ canvas {
-                    box-shadow: -0.6em 1em 0.7em -0.7em #fff inset, 1em -0.6em 0.7em -0.8em #fff inset;
-                    background: rgba(30,249,255, 0.9);
+                :checked {
+                    ~ canvas {
+                        background: rgba(30, 249, 255, 0.9);
+                    }
+
+                    ~ .phase-indicator {
+                        animation: phase-indicator 1000ms steps(48, start) infinite;
+                        opacity: 1;
+                        will-change: clip-path;
+                    }
                 }
             }
         }
@@ -165,11 +261,12 @@ $envelope-circle-color: black;
         @extend %squish-text;
     }
 }
+
 .keyboard.controller {
     background-color: $bg-and-section-bg-color;
+    border-bottom: none;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    border-bottom: none;
     bottom: 0;
     height: $keyboard-section-height;
     left: 0;
@@ -181,16 +278,16 @@ $envelope-circle-color: black;
     z-index: 10;
 
     .keys {
-        border-right: 1px solid black;
+        border-right: 1px solid $key-stroke-color;
         height: 100%;
     }
 
     .sliders {
+        bottom: $padding-section-bottom;
+        left: 1rem;
         position: absolute;
         transform: translateX(2rem) rotateZ(-90deg);
         transform-origin: bottom left;
-        bottom: $padding-section-bottom;
-        left: 1rem;
 
         [for] {
             @extend %squish-text;
@@ -198,61 +295,72 @@ $envelope-circle-color: black;
     }
 
     [type="range"] {
-        width: calc(#{$keyboard-section-height} - #{$padding-section-top} - #{$padding-section-bottom});
         height: 1rem;
+        width: calc(#{$keyboard-section-height} - #{$padding-section-top} - #{$padding-section-bottom});
 
         &:hover,
         &:focus {
             + [for] {
                 @extend %unsquish-text;
-                transform: rotate(90deg);
-                transform-origin: left bottom;
+
                 background-color: $bg-and-section-bg-color;
                 bottom: 100%;
+                transform: rotate(90deg);
+                transform-origin: left bottom;
             }
         }
     }
 }
+
 .black {
-    fill: #000;
+    fill: $key-color-black;
 }
+
 .white {
-    fill: #fff;
+    fill: $key-color-white;
 }
+
 .key {
-    stroke: #000;
+    stroke: $key-stroke-color;
 
     &.down {
-        fill: #afe;
+        fill: $key-color-down;
     }
+
     &.dropped {
-        fill: #888;
+        fill: $key-color-dropped;
     }
 }
+
 .oscillator-pd-view {
-    position: relative;
     display: inline-block;
+    position: relative;
     z-index: 1;
+
     canvas {
-        z-index: -1;
         position: absolute;
+        z-index: -1;
     }
 }
+
 .oscillator-mix-view,
 .oscillator-resonance-view {
-    position: relative;
     display: inline-block;
     padding-top: 2rem;
-    [type='range'] {
+    position: relative;
+
+    [type="range"] {
+        left: 0;
         position: absolute;
         top: 0;
-        left: 0;
         width: 100%;
     }
-    [type='range'] + label {
+
+    [type="range"] + label {
         position: absolute;
         top: 1.3rem;
     }
+
     fieldset {
         display: block;
     }
@@ -261,44 +369,52 @@ $envelope-circle-color: black;
 body {
     padding: 2rem;
 }
+
 .modulation-matrix {
     tbody {
         &:nth-of-type(odd) {
-            background: rgba(255,255,0,.5);
+            background: rgba(255, 255, 0, 0.5);
         }
+
         &:nth-of-type(even) {
-            background: rgba(255, 150, 0, .5);
+            background: rgba(255, 150, 0, 0.5);
         }
     }
-    th[scope='rowgroup'] {
+
+    th[scope="rowgroup"] {
         margin: 3px;
-        position: relative;
-        overflow: visible;
-        padding: .5em;
         min-height: 1em;
+        overflow: visible;
+        padding: 0.5em;
+        position: relative;
+
         &,
         span {
-            -webkit-writing-mode: vertical-lr;
             writing-mode: vertical-lr;
         }
     }
+
     col {
         &:nth-of-type(2n) {
-            background-color: rgba(0,0,0,.3);
+            background-color: rgba(0, 0, 0, 0.3);
         }
+
         &:nth-of-type(3n) {
-            background-color: rgba(255,0,0,.3);
+            background-color: rgba(255, 0, 0, 0.3);
         }
     }
+
     label {
+        color: transparent;
         font-size: 0;
         line-height: 0;
-        color: transparent;
     }
+
     td {
-        padding: .5em;
+        padding: 0.5em;
     }
-    [type='range'] {
+
+    [type="range"] {
         width: 3em;
     }
 }
