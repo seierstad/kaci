@@ -1,12 +1,12 @@
 /*global document, module, require, CustomEvent */
 import React, {Component, PropTypes} from "react";
 
-import {lfoPatchDataShape, modulationLfoSourcesShape} from "../propdefs";
-import {waveforms} from "../waveforms";
+import {lfoPatchDataShape, modulationLfoSourcesShape} from "../../propdefs";
+import {waveforms} from "../../waveforms";
 
-import RangeInput from "./RangeInput.jsx";
-import WaveformSelector from "./WaveformSelector.jsx";
-import SyncControls from "./SyncControls.jsx";
+import RangeInput from "../RangeInput.jsx";
+import WaveformSelector from "../WaveformSelector.jsx";
+import SyncControls from "../SyncControls.jsx";
 
 
 class LFO extends Component {
@@ -16,15 +16,22 @@ class LFO extends Component {
         this.amountChange = this.amountChange.bind(this);
         this.frequencyChange = this.frequencyChange.bind(this);
     }
+
+    shouldComponentUpdate (nextProps) {
+        return this.props.patch !== nextProps.patch;
+    }
+
     reset (event) {
         const {index, module, handlers} = this.props;
         handlers.reset(event, module, index);
     }
+
     amountChange (value) {
         const {index, module, handlers} = this.props;
         handlers.amountChange(value, module, index);
 
     }
+
     frequencyChange (value) {
         const {index, module, handlers} = this.props;
         handlers.frequencyChange(value, module, index);
@@ -41,6 +48,7 @@ class LFO extends Component {
                 <button onClick={this.reset}>reset</button>
                 <WaveformSelector
                     changeHandler={handlers.changeWaveform}
+                    includePhaseIndicator
                     index={index}
                     module="lfos"
                     parameter="waveform"
@@ -73,6 +81,7 @@ class LFO extends Component {
         );
     }
 }
+
 LFO.propTypes = {
     "configuration": modulationLfoSourcesShape.isRequired,
     "handlers": PropTypes.objectOf(PropTypes.func),
@@ -82,38 +91,9 @@ LFO.propTypes = {
     "syncHandlers": PropTypes.object
 };
 
-import {lfosPatchDataShape} from "../propdefs";
-class LFOs extends Component {
-    render () {
-        const {patch, configuration, handlers, syncHandlers} = this.props;
-        let lfos = [];
 
-        for (let i = 0; i < configuration.count; i += 1) {
-            lfos.push(
-                <LFO
-                    configuration={configuration}
-                    handlers={handlers}
-                    index={i}
-                    key={i}
-                    module="lfos"
-                    patch={patch[i] || configuration["default"]}
-                    syncHandlers={syncHandlers}
-                />
-            );
-        }
+export default LFO;
 
-        return <div>{lfos}</div>;
-    }
-}
-LFOs.propTypes = {
-    "configuration": modulationLfoSourcesShape.isRequired,
-    "handlers": PropTypes.object.isRequired,
-    "patch": lfosPatchDataShape,
-    "syncHandlers": PropTypes.object
-};
-
-
-export default LFOs;
 /*
     lfoToggle = new Utils.createCheckboxInput({
         "id": this.lfoId,
