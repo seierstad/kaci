@@ -9,6 +9,10 @@ import PortSelector from "./port-selector.jsx";
 
 
 class MidiViewPresentation extends Component {
+    shouldComponentUpdate (nextProps) {
+        return (this.props.playState !== nextProps.playState) || (this.props.configuration !== nextProps.configuration);
+    }
+
     render () {
         const {configuration, handlers, playState} = this.props;
         const {ports, selectedPort, channel} = configuration;

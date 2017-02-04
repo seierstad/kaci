@@ -10,14 +10,21 @@ class Envelope extends Component {
         this.backgroundClick = this.backgroundClick.bind(this);
         this.mouseOut = this.mouseOut.bind(this);
     }
+
+    shouldComponentUpdate (nextProps) {
+        return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState) || (this.props.activeIndex !== nextProps.activeIndex);
+    }
+
     backgroundClick (event) {
         const {module, index, part, patch, handlers} = this.props;
         handlers.backgroundClick(event, module, patch.steps, index, part);
     }
+
     mouseOut (event) {
         const {module, index, part, patch, handlers} = this.props;
         handlers.mouseOut(event, module, index, part);
     }
+
     render () {
         const {handlers, index, module, patch, viewState, activeIndex, width, x, part} = this.props;
         const {backgroundClick, envelopeBlur} = handlers;

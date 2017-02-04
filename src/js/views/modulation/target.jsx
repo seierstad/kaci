@@ -5,6 +5,11 @@ import {modulationTargetParameterShape} from "../../propdefs";
 
 
 class ModulationTarget extends Component {
+
+    shouldComponentUpdate (nextProps) {
+        return this.props.patch !== nextProps.patch;
+    }
+
     render () {
         const {moduleHead, patch = [], lfoCount, envCount, parameter, path, ...rest} = this.props;
 

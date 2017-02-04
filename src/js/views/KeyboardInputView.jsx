@@ -1,9 +1,15 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React, {Component, PropTypes} from "react";
+import {connect} from "react-redux";
+
+import {keyboardShape} from "../propdefs";
 import * as Actions from "../actions";
 
 
 class KeyboardInputView extends Component {
+    shouldComponentUpdate (nextProps) {
+        return (this.props.configuration !== nextProps.configuration);
+    }
+
     render () {
         const {configuration, handlers} = this.props;
         const {layouts, activeLayout} = configuration;
@@ -18,5 +24,10 @@ class KeyboardInputView extends Component {
         );
     }
 }
+
+KeyboardInputView.propTypes = {
+    "configuration": keyboardShape.isRequired,
+    "handlers": PropTypes.object.isRequired
+};
 
 export default KeyboardInputView;

@@ -5,6 +5,10 @@ import {modulationTargetShape, modulationTargetModuleShape} from "../../propdefs
 
 class ModulationTargetModule extends Component {
 
+    shouldComponentUpdate (nextProps) {
+        return this.props.patch !== nextProps.patch;
+    }
+
     render () {
         const {module, configuration, patch = {}} = this.props;
         const parameters = Object.keys(configuration);

@@ -19,6 +19,10 @@ class Connection extends Component {
         this.path = [...path, type, index];
     }
 
+    shouldComponentUpdate (nextProps) {
+        return this.props.type === "env" || this.props.patch !== nextProps.patch;
+    }
+
     handleAmountChange (value) {
         this.props.handlers.changeAmount(...this.path, value);
     }

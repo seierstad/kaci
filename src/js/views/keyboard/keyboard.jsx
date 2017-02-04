@@ -15,6 +15,10 @@ class KeyboardViewPresentation extends Component {
         this.keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5));
     }
 
+    shouldComponentUpdate (nextProps) {
+        return (this.props.playState !== nextProps.playState);
+    }
+
     render () {
         const {handlers, playState, configuration} = this.props;
         const {handlePitchShift, handleChordShift, handleChordShiftToggle} = handlers;

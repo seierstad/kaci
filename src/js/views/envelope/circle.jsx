@@ -8,18 +8,26 @@ class Circle extends Component {
         this.blur = this.blur.bind(this);
         this.mouseDrag = this.mouseDrag.bind(this);
     }
+
+    shouldComponentUpdate (nextProps) {
+        return (this.props.cx !== nextProps.cx) || (this.props.cy !== nextProps.cy) || (this.props.active !== nextProps.active);
+    }
+
     blur (event) {
         const {module, envelopeIndex, part, index, handlers, first, last} = this.props;
         handlers.circleBlur(event, module, envelopeIndex, part, index, first, last);
     }
+
     mouseDrag (event) {
         const {module, envelopeIndex, part, background, index, first, last, handlers} = this.props;
         handlers.circleMouseDrag(event, module, envelopeIndex, part, background, index, first, last);
     }
+
     click (event) {
         const {module, envelopeIndex, part, index, handlers, first, last} = this.props;
         handlers.circleClick(event, module, envelopeIndex, part, index, first, last);
     }
+
     render () {
         const {cx, cy, r, active, first, last} = this.props;
         return (

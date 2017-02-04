@@ -11,6 +11,10 @@ class SyncControls extends Component {
         this.numeratorChange = this.numeratorChange.bind(this);
     }
 
+    shouldComponentUpdate (nextProps) {
+        return (nextProps.patch !== this.props.patch) || (nextProps["disabled"] !== this.props["disabled"]);
+    }
+
     toggle () {
         const {module, index, handlers} = this.props;
         handlers.toggle(module, index);
@@ -70,7 +74,7 @@ SyncControls.propTypes = {
     "configuration": modulationLfoSourcesSyncShape.isRequired,
     "disabled": PropTypes.bool,
     "handlers": PropTypes.object.isRequired,
-    "index": PropTypes.number.isRequired,
+    "index": PropTypes.number,
     "module": PropTypes.string.isRequired,
     "patch": syncPatchDataShape.isRequired
 };

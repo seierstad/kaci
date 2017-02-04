@@ -11,22 +11,31 @@ class Sustain extends Component {
         this.mouseDrag = this.mouseDrag.bind(this);
         this.backgroundClick = this.backgroundClick.bind(this);
     }
+
+    shouldComponentUpdate (nextProps) {
+        return (this.props.value !== nextProps.value) || (this.props.active !== nextProps.active);
+    }
+
     backgroundClick (event) {
         const {module, envelopeIndex, handlers} = this.props;
         handlers.sustainBackgroundClick(event, module, envelopeIndex);
     }
+
     blur (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleBlur(event, module, envelopeIndex, part);
     }
+
     mouseDrag (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleMouseDrag(event, module, envelopeIndex, part, this.background);
     }
+
     click (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleClick(event, module, envelopeIndex, part);
     }
+
     render () {
         const {value, width, active, x} = this.props;
         const background = (

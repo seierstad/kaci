@@ -13,14 +13,21 @@ class SustainEnvelope extends Component {
         this.handleAttackDurationChange = this.handleAttackDurationChange.bind(this);
         this.handleReleaseDurationChange = this.handleReleaseDurationChange.bind(this);
     }
+
+    shouldComponentUpdate (nextProps) {
+        return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState);
+    }
+
     mouseOut (event) {
         const {module, index, handlers} = this.props;
         handlers.mouseOut(event, module, index);
     }
+
     handleAttackDurationChange (event) {
         const {module, index, handlers} = this.props;
         handlers.durationChange(module, index, "attack", parseFloat(event.target.value));
     }
+
     handleReleaseDurationChange (event) {
         const {module, index, handlers} = this.props;
         handlers.durationChange(module, index, "release", parseFloat(event.target.value));

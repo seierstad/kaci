@@ -16,12 +16,12 @@ class WaveformSelector extends Component {
         changeHandler(waveformName, module, index);
     }
 
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate (nextProps) {
         return nextProps.selected !== this.props.selected;
     }
 
     render () {
-        const {waveforms, selected, changeHandler, index, module} = this.props;
+        const {waveforms, selected, changeHandler, index, module, includePhaseIndicator} = this.props;
         const controlName = "waveform-" + waveformSelectorCounter;
         waveformSelectorCounter += 1;
         const sampleAndHoldBuffer = {
@@ -36,6 +36,7 @@ class WaveformSelector extends Component {
                     {Object.keys(waveforms).map(w => (
                         <WaveformButton
                             controlName={controlName}
+                            includePhaseIndicator={!!includePhaseIndicator}
                             index={index}
                             key={w}
                             module={module}
@@ -52,6 +53,7 @@ class WaveformSelector extends Component {
 }
 WaveformSelector.propTypes = {
     "changeHandler": PropTypes.func.isRequired,
+    "includePhaseIndicator": PropTypes.bool,
     "index": PropTypes.number,
     "module": PropTypes.string.isRequired,
     "selected": PropTypes.string,

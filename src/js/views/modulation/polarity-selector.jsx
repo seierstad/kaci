@@ -6,6 +6,11 @@ class PolaritySelector extends Component {
         super();
         this.handleChange = this.handleChange.bind(this);
     }
+
+    shouldComponentUpdate (nextProps) {
+        return this.props.patch !== nextProps.patch;
+    }
+
     handleChange (event) {
         event.stopPropagation();
         event.preventDefault();
@@ -19,9 +24,9 @@ class PolaritySelector extends Component {
                 <select id={prefix + "-polarity"} onChange={this.handleChange} value={patch}>
                     {
                         [
-                            { value: "positive", label: "+", title: "positive"},
-                            { value: "full", label: "±", title: "full"},
-                            { value: "negative", label: "-", title: "negative"}
+                            {value: "positive", label: "+", title: "positive"},
+                            {value: "full", label: "±", title: "full"},
+                            {value: "negative", label: "-", title: "negative"}
                         ].map((item, i) => <option key={i} title={item.title} value={item.value}>{item.label}</option>)
                     }
                 </select>
@@ -30,6 +35,7 @@ class PolaritySelector extends Component {
         );
     }
 }
+
 PolaritySelector.propTypes = {
     "changeHandler": PropTypes.func.isRequired,
     "patch": polarityShape.isRequired,

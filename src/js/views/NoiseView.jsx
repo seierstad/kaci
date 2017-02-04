@@ -6,6 +6,10 @@ import RangeInput from "./RangeInput.jsx";
 
 
 class NoiseView extends Component {
+    shouldComponentUpdate (nextProps) {
+        return (this.props.patch !== nextProps.patch);
+    }
+
     render () {
         const {patch, configuration, handlers} = this.props;
         const {panInput, gainInput, toggle} = handlers;

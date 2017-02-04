@@ -41,6 +41,11 @@ class Resonance extends Component {
         this.waveFunction = getWrapperFunction(wrappers[wrapper], mixFunction, resonance);
 
     }
+
+    shouldComponentUpdate (nextProps) {
+        return (this.props.patch.resonance !== nextProps.patch.resonance) || (this.props.patch.wrapper !== nextProps.patch.wrapper) || (this.props.mixFunction !== nextProps.mixFunction);
+    }
+
     componentWillUpdate (nextProps) {
         const {patch, mixFunction} = nextProps;
         const {wrapper, resonance} = patch;

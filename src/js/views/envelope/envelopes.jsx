@@ -6,6 +6,11 @@ import SustainEnvelope from "./sustain-envelope.jsx";
 import {envelopesPatchDataShape, modulationEnvelopeSourcesShape, sustainEnvelopeViewStateShape} from "../../propdefs";
 
 class Envelopes extends Component {
+
+    shouldComponentUpdate (nextProps) {
+        return this.props.patch !== nextProps.patch || this.props.viewState !== nextProps.viewState;
+    }
+
     render () {
         const {patch, configuration, viewState, handlers} = this.props;
         let envelopes = [];
@@ -26,6 +31,7 @@ class Envelopes extends Component {
         return <div>{envelopes}</div>;
     }
 }
+
 Envelopes.propTypes = {
     "configuration": modulationEnvelopeSourcesShape.isRequired,
     "handlers": PropTypes.object,

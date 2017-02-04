@@ -45,7 +45,7 @@ class ModulationMatrixPresentation extends Component {
                             configuration={configuration.target[module]}
                             envCount={envCount}
                             handlers={handlers}
-                            key={i}
+                            key={module}
                             lfoCount={lfoCount}
                             module={module}
                             patch={patch[module]}

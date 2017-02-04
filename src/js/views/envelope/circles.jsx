@@ -6,6 +6,10 @@ import {toPercent} from "./shared-functions";
 
 class EnvelopeCircles extends Component {
 
+    shouldComponentUpdate (nextProps) {
+        return (this.props.steps !== nextProps.steps) || (this.props.viewState !== nextProps.viewState) || (this.props.activeIndex !== nextProps.activeIndex);
+    }
+
     render () {
         const {module, envelopeIndex, part, steps, handlers, viewState, activeIndex, background} = this.props;
         let inactive = [];

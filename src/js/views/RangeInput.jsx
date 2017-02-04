@@ -55,6 +55,9 @@ class RangeInput extends Component {
         this.id = "range_" + (rangeInputId += 1);
     }
 
+    shouldComponentUpdate (nextProps) {
+        return this.props.value !== nextProps.value;
+    }
 
     handleChange (event) {
         event.stopPropagation();

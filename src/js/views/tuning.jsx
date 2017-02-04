@@ -12,6 +12,10 @@ class TuningPresentation extends Component {
         this.handleBaseFrequencyChange = this.handleBaseFrequencyChange.bind(this);
     }
 
+    shouldComponentUpdate (nextProps) {
+        return (this.props.configuration !== nextProps.configuration);
+    }
+
     handleBaseFrequencyChange (event) {
         event.preventDefault();
         const {min, max} = this.props.configuration.baseFrequency;
