@@ -1,30 +1,42 @@
-/**
- * Import the Gulp module
- */
+/* general libraries */
 import fs from "fs";
 import mkdirp from "mkdirp";
-
 import gulp from "gulp";
 import runSequence from "run-sequence";
+import gulpif from "gulp-if";
+import sourcemaps from "gulp-sourcemaps";
+import gutil from "gulp-util";
+
+/* script library configuration */
+import {dependencies} from "./package.json";
+
+/* scrips related libraries */
+import eslint from "gulp-eslint";
 import babel from "babelify";
 import buffer from "vinyl-buffer";
 import uglify from "gulp-uglify";
-import gulpif from "gulp-if";
-
 import browserify from "browserify";
 import source from "vinyl-source-stream";
-import connect from "gulp-connect";
+
+/* styles related libraries */
+import stylelint from "gulp-stylelint";
+import stylelintCheckstyleFormatter from "stylelint-checkstyle-formatter";
 import sass from "gulp-sass";
 import autoprefixer from "gulp-autoprefixer";
-import sourcemaps from "gulp-sourcemaps";
+
+/* markup related libraries */
 import rev from "gulp-rev";
 import revReplace from "gulp-rev-replace";
 import htmllint from "gulp-htmllint";
 
-import eslint from "gulp-eslint";
-import gutil from "gulp-util";
-import {dependencies} from "./package.json";
+/* server/build environment related libraries */
+import connect from "gulp-connect";
 
+
+
+/*
+    shared configuration
+*/
 
 const isDevelopment = true;
 const isProduction = !isDevelopment;
@@ -35,6 +47,14 @@ const REV_MANIFEST_CONFIG = {
     merge: true
 };
 
+gulp.task("env:production", () => {
+    return process.env.NODE_ENV = "production";
+});
+
+
+/*
+    script libraries tasks
+*/
 
 gulp.task("build:libs", () => {
     let b = browserify().transform(babel);
@@ -52,6 +72,11 @@ gulp.task("build:libs", () => {
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
         .pipe(gulp.dest("build"));
 });
+
+
+/*
+    scripts tasks
+*/
 
 const scriptSources = ["gulpfile.js", "gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
 
@@ -99,9 +124,31 @@ gulp.task("watch:scripts", () => {
 });
 
 
+/*
+    styles tasks
+*/
+
+const styleSources = ["./src/styles/*.scss"];
+
+gulp.task("lint:styles", () => {
+    // ensure target directory exists
+    mkdirp("./reports");
+    mkdirp("./reports/lint");
+
+    return gulp.src(styleSources)
+        .pipe(stylelint({
+            syntax: "scss",
+            failAfterError: true,
+            reportOutputDir: "reports/lint",
+            reporters: [
+                {formatter: "verbose", console: true},
+                {formatter: stylelintCheckstyleFormatter, save: "checkstyle-stylelint.xml"}
+            ]
+        }));
+});
 
 gulp.task("build:styles", function () {
-    return gulp.src("./src/styles/*.scss")
+    return gulp.src(styleSources)
         .pipe(sourcemaps.init())
         .pipe(sass({
             style: "expanded",
@@ -114,6 +161,25 @@ gulp.task("build:styles", function () {
         .pipe(sourcemaps.write())
         .pipe(gulp.dest("./build/css"));
 });
+
+gulp.task("update:styles", () => {
+    return runSequence(
+        "lint:styles",
+        "build:styles",
+        "build:markup"
+    );
+});
+
+
+gulp.task("watch:styles", () => {
+    return gulp.watch(styleSources, ["update:styles"]);
+});
+
+
+/*
+    markup tasks
+
+*/
 
 gulp.task("lint:markup", () => {
     return gulp.src("src/**/*.html")
@@ -131,6 +197,13 @@ gulp.task("build:markup", () => {
         .pipe(connect.reload());
 });
 
+
+/*
+
+    server tasks
+
+*/
+
 gulp.task("server", function () {
     return connect.server({
         livereload: true,
@@ -139,11 +212,18 @@ gulp.task("server", function () {
     });
 });
 
+
+/*
+    collection tasks
+*/
+
+gulp.task("watch", ["watch:scripts", "watch:styles"]);
+
+/*
+    command line/deployment tasks
+*/
+
 gulp.task("default", () => {
-    runSequence("build:libs", "lint:scripts", "build:scripts", "build:styles", "build:markup", "server", "watch:scripts");
+    runSequence("build:libs", "lint:scripts", "build:scripts", "build:styles", "build:markup", "server", "watch");
 });
 
-
-gulp.task("env:production", () => {
-    return process.env.NODE_ENV = "production";
-});

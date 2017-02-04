@@ -1,0 +1,28 @@
+{
+  "extends": "stylelint-config-standard",
+  "plugins": [
+    "stylelint-scss"
+  ],
+  "rules": {
+  	"indentation": 4,
+  	"declaration-block-properties-order": "alphabetical",
+  	"font-family-name-quotes": "always-unless-keyword",
+  	"function-url-quotes": "always",
+  	"string-quotes": "double",
+  	"declaration-no-important": true,
+  	"at-rule-no-vendor-prefix": true,
+    "max-empty-lines": 2,
+  	"media-feature-name-no-vendor-prefix": true,
+  	"property-no-vendor-prefix": true,
+  	"selector-no-vendor-prefix": true,
+  	"value-no-vendor-prefix": true,
+  	"color-named": "never",
+  	"comment-word-blacklist": [["TODO:"], { "severity": "warning" }],
+  	"declaration-property-unit-blacklist": {
+  	  "font-size": ["px", "%"],
+  	  "/^animation/": ["s"]
+  	},
+  	"selector-no-id": true,
+  	"scss/selector-no-redundant-nesting-selector": true
+  }
+}
