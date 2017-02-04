@@ -1,32 +1,18 @@
-/* globals require, module */
-"use strict";
-import {
-    BUFFER_LENGTH
-}
-from "./constants";
-import {
-    ParamLogger,
-    PannableModule
-}
-from "./SharedFunctions";
+import {BUFFER_LENGTH} from "./constants";
+import {ParamLogger, inputNode, outputNode} from "./SharedFunctions";
 import DC from "./DCGenerator";
-import {
-    noise as noiseFunctions
-}
-from "./waveforms";
+import {noise as noiseFunctions} from "./waveforms";
 
 
-class Noise extends PannableModule {
+class Noise {
     constructor (context, store) {
-        super();
         /* start common constructor code */
 
         this.dc = new DC(context);
-        this.context = context;
         this.store = store;
         this.state = store.getState().patch.noise;
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+//        this.stateChangeHandler = this.stateChangeHandler.bind(this);
+//        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.gainNode = context.createGain();
         this.gainNode.gain.value = 0;
@@ -35,34 +21,34 @@ class Noise extends PannableModule {
 
         // this is the output, used for muting
         this.output = context.createGain();
-        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, this.context.currentTime);
+        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, context.currentTime);
 
         // signal path: source -> gainNode -> pannerNode -> output
 
         this.parameters = {
-            "inputs": {},
-            "outputs": {}
+            "targets": {},
+            "sources": {}
         };
 
-        const i = this.parameters.inputs;
-        const o = this.parameters.outputs;
+        const t = this.parameters.targets;
+//        const s = this.parameters.sources;
 
         // gain stage, between source and panner/output
-        o.gain = this.outputNode(this.state.gain);
-        this.gain = o.gain.gain;
+//        s.gain = this.outputNode(this.state.gain);
+//        this.gain = s.gain.gain;
 
-        i.gain = this.inputNode();
-        o.gain.connect(i.gain);
+        t.gain = inputNode(context);
+//        s.gain.connect(t.gain);
 
-        i.gain.connect(this.gainNode.gain);
+        t.gain.connect(this.gainNode.gain);
 
-        o.pan = this.outputNode(this.state.pan);
-        this.pan = o.pan.gain;
+//        s.pan = outputNode(context, this.state.pan);
+//        this.pan = s.pan.gain;
 
-        i.pan = this.inputNode();
-        o.pan.connect(i.pan);
+        t.pan = inputNode(context);
+//        s.pan.connect(t.pan);
 
-        i.pan.connect(this.pannerNode.pan);
+        t.pan.connect(this.pannerNode.pan);
 
         //connect signal path
         this.gainNode.connect(this.pannerNode);
@@ -79,38 +65,59 @@ class Noise extends PannableModule {
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
 
         this.generator.connect(this.gainNode);
-
-        //        this.logger = new ParamLogger(this.parameters.inputs.gain, this.context);
-
     }
 
     stateChangeHandler () {
         const newState = this.store.getState().patch.noise;
         if (newState !== this.state) {
+            /*
             if (this.state.pan !== newState.pan) {
                 this.pan.setValueAtTime(newState.pan, this.context.currentTime);
             }
             if (this.state.gain !== newState.gain) {
                 this.gain.setValueAtTime(newState.gain, this.context.currentTime);
             }
+            */
             if (this.state.color !== newState.color && noiseFunctions[newState.color]) {
                 this.generatorFunction = noiseFunctions[newState.color];
             }
             this.state = newState;
         }
     }
+
+    set color (color) {
+        if (color !== this.state.color && typeof noiseFunctions[color] === "function") {
+            this.generatorFunction = noiseFunctions[color];
+            this.state.color = color;
+        }
+    }
+
+    get color () {
+        return this.state.color;
+    }
+
     start () {
         this.generator.addEventListener("audioprocess", this.audioProcessHandler);
     }
+
     stop () {
         this.generator.removeEventListener("audioprocess", this.audioProcessHandler);
     }
+
     audioProcessHandler (event) {
         let output = event.outputBuffer.getChannelData(0);
         this.generatorFunction(output);
     }
+
+    connect (node) {
+        this.output.connect(node);
+    }
+
+    disconnect () {
+        this.output.disconnect();
+    }
+
     destroy () {
-        this.unsubscribe();
         this.stateChangeHandler = null;
         this.audioProcessHandler = null;
         this.generatorFunction = null;
@@ -123,5 +130,6 @@ class Noise extends PannableModule {
         //        this.logger.disconnect();
     }
 }
-export
-default Noise;
+
+
+export default Noise;

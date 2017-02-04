@@ -183,6 +183,10 @@ export const modulationEnvelopeSourcesShape = PropTypes.shape({
     "defaultState": sustainEnvelopeViewStateShape.isRequired
 });
 
+export const viewStateShape = PropTypes.shape({
+
+});
+
 export const modulationLfoSourcesSyncShape = PropTypes.shape({
     "numerator": steppedRangeShape.isRequired,
     "denominator": steppedRangeShape.isRequired

@@ -1,11 +1,10 @@
 import * as Actions from "../actions";
-import { combineReducers } from "redux";
+import {combineReducers} from "redux";
 import envelopes, {steps} from "./envelopes";
 import lfos from "./lfos";
 import modulation from "./modulation";
 import syncReducer from "./sync";
 
-import {splicedArrayCopy} from "../sharedFunctions";
 
 const vca = (state = {gain: 1}, action) => {
     switch (action.type) {
@@ -69,14 +68,21 @@ const oscillator = (state = {}, action) => {
             case Actions.ENVELOPE_POINT_DELETE:
             case Actions.ENVELOPE_POINT_ADD:
             case Actions.ENVELOPE_POINT_CHANGE:
-                const pd = splicedArrayCopy(state.pd, action.envelopeIndex, 1, {steps: steps(state.pd[action.envelopeIndex].steps, action)});
+                const pd = [
+                    ...state.pd
+                ];
+
+                pd[action.envelopeIndex] = {
+                    steps: steps(state.pd[action.envelopeIndex].steps, action)
+                };
+
                 return {
                     ...state,
                     "pd": pd
                 };
         }
-
     }
+
     return state;
 };
 
@@ -100,10 +106,9 @@ const noise = (state = {}, action) => {
                 ...state,
                 active: !state.active
             };
-
-        default:
-            return state;
     }
+
+    return state;
 };
 
 const sub = (state = {}, action) => {

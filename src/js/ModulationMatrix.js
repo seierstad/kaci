@@ -1,16 +1,13 @@
-/*global require, module */
-"use strict";
 import equal from "deep-equal";
-import LFO from "./LFO";
-import DCGenerator from "./DCGenerator";
 import Utils from "./Utils";
-import ModulationSources from "./ModulationSources.jsx";
+import LFOs from "./LFOs";
+import StaticSources from "./static-sources";
 
 import {ParamLogger} from "./sharedFunctions";
 
 class ModulationMatrix {
 
-    constructor (context, store) {
+    constructor (context, store, dc) {
         /*
         constructor:
             - initialize static parameters
@@ -27,61 +24,41 @@ class ModulationMatrix {
         this.patch = state.patch;
 
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
+        this.connectLFO = this.connectLFO.bind(this);
+
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
 
-        this.connectLFO = this.connectLFO.bind(this);
+        this.sources = {
+            static: new StaticSources(context, store, this.configuration.target, dc).nodes,
+            lfos: new LFOs(context, store, this.configuration)
+        };
 
-        this.dc = new DCGenerator(context);
 
-        let sources = new ModulationSources(context, store, this.configuration);
-
-        this.sources = sources.sources;
-        this.targets = this.setupTargets(this.configuration.target, this.context, this.dc);
+        this.targets = this.setupTargets(this.configuration.target, this.context, dc);
 
         this.connectStaticSources(this.sources.static, this.targets);
         this.connections = {};
 
-
-        this.state.lfos.forEach(this.connectLFO);
+        //this.state.forEach(this.connectLFO);
+        this.initPatch();
 
     }
 
+    initPatch () {
+        const activeLfoConnection = pc => pc.enabled && pc.source.type === "lfo";
 
-    stateChangeHandler () {
-        const newState = this.store.getState().patch.modulation;
+        const moduleNames = Object.keys(this.state);
+        for (const moduleName of moduleNames) {
+            const module = this.state[moduleName];
+            const parameterNames = Object.keys(module);
 
-        const compareLFOState = (newLfo, index) => {
-            for (let target in newLfo) {
-                const lfo = this.state.lfos[index] && this.state.lfos[index][target];
-                if (!equal(lfo, newLfo[target])) {
-                    if (!lfo || newLfo[target].enabled && !lfo.enabled) {
-                        // new connection
-                        this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
-                    } else {
-                        if (lfo.enabled && !newLfo[target].enabled) {
-                            // disconnect
-                            this.disconnect("lfo", index, target);
-                        } else if (lfo.polarity !== newLfo[target].polarity) {
-                            // reconnect
-                            this.disconnect("lfo", index, target);
-                            this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
-                        }
-                        if (lfo.amount !== newLfo[target].amount) {
-                            this.connections.lfo[index][target].gain.value = newLfo[target].amount;
-                        }
-                    }
-                }
+            for (const parameterName of parameterNames) {
+                const parameterConnections = module[parameterName];
+
+                parameterConnections.filter(activeLfoConnection).forEach(pc => console.log(pc));
             }
-        };
-
-
-        if (!equal(this.state, newState)) {
-            newState.lfos.forEach(compareLFOState);
-
-            this.state = newState;
         }
-
     }
 
     connectLFO (lfo, index) {
@@ -89,47 +66,6 @@ class ModulationMatrix {
             const connection = lfo[target];
             if (connection.enabled) {
                 this.connect("lfo", index, target, connection.polarity, connection.amount);
-            }
-        }
-    }
-
-    validEventData (data) {
-        return data.sourceType && !isNaN(parseInt(data.sourceIndex, 10)) && data.targetModule && data.targetParameter;
-    }
-
-    setupTargets (targets, context, dc, path) {
-        let result = {};
-
-        if (!path) {
-            return this.setupTargets(targets, context, dc, []);
-        }
-        for (let key in targets) {
-            if (targets.hasOwnProperty(key)) {
-                path.push(key);
-                const target = targets[key];
-                const name = path.join(".");
-
-                if (typeof target.min !== "undefined") {
-                    const curve = new Float32Array([target.min, target.max]);
-                    result[name] = context.createWaveShaper();
-                    result[name].curve = curve;
-                    path.pop();
-                } else {
-                    result = {
-                        ...result,
-                        ...this.setupTargets(target, context, dc, path.slice())
-                    };
-                    path.pop();
-                }
-            }
-        }
-        return result;
-    }
-
-    connectStaticSources (sources, targets) {
-        for (let key in sources) {
-            if (sources.hasOwnProperty(key) && targets[key]) {
-                sources[key].connect(targets[key]);
             }
         }
     }
@@ -170,27 +106,107 @@ class ModulationMatrix {
         }
     }
 
+    stateChangeHandler () {
+        /*
+        const newState = this.store.getState().patch.modulation;
+
+        const compareLFOState = (newLfo, index) => {
+            for (let target in newLfo) {
+                const lfo = this.state.lfos[index] && this.state.lfos[index][target];
+                if (!equal(lfo, newLfo[target])) {
+                    if (!lfo || newLfo[target].enabled && !lfo.enabled) {
+                        // new connection
+                        this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
+                    } else {
+                        if (lfo.enabled && !newLfo[target].enabled) {
+                            // disconnect
+                            this.disconnect("lfo", index, target);
+                        } else if (lfo.polarity !== newLfo[target].polarity) {
+                            // reconnect
+                            this.disconnect("lfo", index, target);
+                            this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
+                        }
+                        if (lfo.amount !== newLfo[target].amount) {
+                            this.connections.lfo[index][target].gain.value = newLfo[target].amount;
+                        }
+                    }
+                }
+            }
+        };
+
+
+        if (!equal(this.state, newState)) {
+            newState.lfos.forEach(compareLFOState);
+
+            this.state = newState;
+        }
+        */
+
+    }
+
+    setupTargets (targets, context, dc, path) {
+        let result = {};
+
+        if (!path) {
+            return this.setupTargets(targets, context, dc, []);
+        }
+        for (let key in targets) {
+            if (targets.hasOwnProperty(key)) {
+                path.push(key);
+                const target = targets[key];
+                const name = path.join(".");
+
+                if (typeof target.min !== "undefined") {
+                    const curve = new Float32Array([target.min, target.max]);
+                    result[name] = context.createWaveShaper();
+                    result[name].curve = curve;
+                    path.pop();
+                } else {
+                    result = {
+                        ...result,
+                        ...this.setupTargets(target, context, dc, path.slice())
+                    };
+                    path.pop();
+                }
+            }
+        }
+        return result;
+    }
+
+    connectStaticSources (sources, targets) {
+        for (let key in sources) {
+            if (sources.hasOwnProperty(key) && targets[key]) {
+                sources[key].connect(targets[key]);
+            }
+        }
+    }
 
     patchVoice (voice, patch) {
-        /*        var localModulators = voice.getLocalModulators(),
-            localTargets = voice.getEnvelopeTargets(),
-            split, key, envelopePatch, i, j;
-*/
+
         const voiceLfos = voice.lfos;
         const voiceEnvs = voice.envelopes;
-        const voiceParamInputs = voice.parameterInputNodes;
-        const voiceParamOutputs = voice.parameterOutputNodes;
-
-        for (let key in voiceParamOutputs) {
-            voiceParamOutputs[key].disconnect();
-            voiceParamOutputs[key] = null; // testing
+        const voiceParamTargets = voice.parameterTargetNodes;
+        const voiceParamSources = voice.parameterSourceNodes;
+/*
+        for (let key in voiceParamSources) {
+            voiceParamSources[key].disconnect();
+            // voiceParamSources[key] = null; // testing
         }
-        for (let key in voiceParamInputs) {
+
+*/
+        for (let key in voiceParamTargets) {
             if (this.targets[key]) {
-                this.targets[key].connect(voiceParamInputs[key]);
+                this.targets[key].connect(voiceParamTargets[key]);
             }
         }
 
+//        this.targets["oscillator.resonance"].connect(voiceParamTargets["oscillator.resonance"]);
+/*
+        new ParamLogger(this.targets["oscillator.resonance"], this.context, "mm osc.res target");
+        new ParamLogger(voiceParamTargets["oscillator.resonance"], this.context, "voice osc.res input");
+        new ParamLogger(voiceParamSources["oscillator.resonance"], this.context, "voice osc.res output");
+*/
+//        this.sources.lfos.lfos[0].connect(voiceParamTargets["sub.gain"]);
         /*
         if (!this.patched) {
             this.patch(patch.modulation);

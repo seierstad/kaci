@@ -4,6 +4,8 @@ import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
 
+// import WavyJones from "../../lib/wavy-jones";
+
 const prefixKeys = (object, prefix) => {
     const result = {};
     Object.keys(object).forEach(key => {
@@ -17,40 +19,38 @@ class Voice {
 
         this.store = store;
         this.state = store.getState().patch;
-
         this.context = context;
+
         this.vca = context.createGain();
         this.vca.gain.value = 1;
 
-        this.envelopes = [];
         this.lfos = [];
-
         this.createVoiceLfo = this.createVoiceLfo.bind(this);
-
         this.state.lfos.forEach(this.createVoiceLfo);
 
+        this.envelopes = [];
         this.state.envelopes.forEach((envPatch, index) => {
             this.envelopes[index] = new EnvelopeGenerator(context, store, index);
         });
 
         this.noise = new NoiseGenerator(context, store);
         this.sub = new SubOscillator(context, store, frequency);
-        this.oscillator = new PDOscillator(context, store, frequency);
+        this.oscillator = new PDOscillator(context, this.state.oscillator, frequency);
 
         this.sub.connect(this.vca);
         this.oscillator.connect(this.vca);
         this.noise.connect(this.vca);
 
 
-        this.outputs = {
-            ...(prefixKeys(this.oscillator.parameters.outputs, "oscillator.")),
-            ...(prefixKeys(this.noise.parameters.outputs, "noise.")),
-            ...(prefixKeys(this.sub.parameters.outputs, "sub."))
+        this.sources = {
+//            ...(prefixKeys(this.oscillator.parameters.sources, "oscillator.")),
+//            ...(prefixKeys(this.noise.parameters.sources, "noise.")) //,
+//            ...(prefixKeys(this.sub.parameters.sources, "sub."))
         };
-        this.inputs = {
-            ...(prefixKeys(this.oscillator.parameters.outputs, "oscillator.")),
-            ...(prefixKeys(this.noise.parameters.inputs, "noise.")),
-            ...(prefixKeys(this.sub.parameters.inputs, "sub."))
+        this.targets = {
+            ...(prefixKeys(this.oscillator.parameters.targets, "oscillator.")),
+            ...(prefixKeys(this.noise.parameters.targets, "noise.")),
+            ...(prefixKeys(this.sub.parameters.targets, "sub."))
         };
 
         /* start scope
@@ -58,7 +58,8 @@ class Voice {
         scope.lineColor = "black";
         scope.lineThickness = 1;
 
-        this.oscillator.connect(scope);
+        this.noise.connect(scope);
+//        this.targets["noise.gain"].connect(scope);
         //*/
 
     }
@@ -69,12 +70,12 @@ class Voice {
         }
     }
 
-    get parameterOutputNodes () {
-        return this.outputs;
+    get parameterSourceNodes () {
+        return this.sources;
     }
 
-    get parameterInputNodes () {
-        return this.inputs;
+    get parameterTargetNodes () {
+        return this.targets;
     }
 
     connect (node) {
@@ -121,8 +122,6 @@ class Voice {
         this.noise.start(time);
         this.oscillator.start(time);
 
-        const voice = this;
-
         this.lfos.forEach(lfo => {
             lfo.start();
         });
@@ -142,8 +141,8 @@ class Voice {
     }
 
     set frequency (frequency) {
-        this.oscillator.freq = frequency;
-        this.sub.freq = frequency;
+//        this.oscillator.freq = frequency;
+//        this.sub.freq = frequency;
     }
 }
 

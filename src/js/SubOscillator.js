@@ -1,10 +1,9 @@
 import DC from "./DCGenerator";
-import {PannableModule} from "./SharedFunctions";
+import {inputNode, outputNode} from "./SharedFunctions";
 
-class SubOscillator extends PannableModule {
+class SubOscillator {
     constructor (context, store, frequency, scaleBaseNumber = 2) {
 
-        super();
         /* start common constructor code */
 
         this.dc = new DC(context);
@@ -26,30 +25,19 @@ class SubOscillator extends PannableModule {
         // signal path: source -> gainNode -> pannerNode -> output
 
         this.parameters = {
-            "inputs": {},
-            "outputs": {}
+            "targets": {},
+            "sources": {}
         };
 
-        const i = this.parameters.inputs;
-        const o = this.parameters.outputs;
+        const t = this.parameters.targets;
 
         // gain stage, between source and panner/output
-        o.gain = this.outputNode(this.state.gain);
-        this.gain = o.gain.gain;
-
-        i.gain = this.inputNode();
-        o.gain.connect(i.gain);
-
-        i.gain.connect(this.gainNode.gain);
+        t.gain = inputNode(context);
+        t.gain.connect(this.gainNode.gain);
 
 
-        o.pan = this.outputNode(this.state.pan);
-        this.pan = o.pan.gain;
-
-        i.pan = this.inputNode();
-        o.pan.connect(i.pan);
-
-        i.pan.connect(this.pannerNode.pan);
+        t.pan = inputNode(context);
+        t.pan.connect(this.pannerNode.pan);
 
         //connect signal path
         this.gainNode.connect(this.pannerNode);
@@ -107,6 +95,7 @@ class SubOscillator extends PannableModule {
         const newState = this.store.getState().patch.sub;
 
         if (newState !== this.state) {
+            /*
             if (this.state.pan !== newState.pan) {
                 this.pan.setValueAtTime(newState.pan, this.context.currentTime);
             }
@@ -116,27 +105,28 @@ class SubOscillator extends PannableModule {
             if (this.state.depth !== newState.depth) {
                 this.ratioNode.gain.setValueAtTime(Math.pow(this.scaleBaseNumber, newState.depth), this.context.currentTime);
             }
+            */
             if (this.state.active !== newState.active) {
                 this.output.gain.setValueAtTime(newState.active ? 1 : 0, this.context.currentTime);
             }
-            if (this.state.detune.beat !== newState.detune.beat) {
-                if (this.state.detune.mode === "beat") {
-                    this.frequencyOffsetNode.gain.setValueAtTime(newState.detune.beat, this.context.currentTime);
+            if (this.state.beat !== newState.beat) {
+                if (this.state.mode === "beat") {
+                    this.frequencyOffsetNode.gain.setValueAtTime(newState.beat, this.context.currentTime);
                 }
             }
-            if (this.state.detune.semitone !== newState.detune.semitone) {
-                if (this.state.detune.mode === "detune") {
-                    this.detuneNode.gain.setValueAtTime(newState.detune.semitone * 100, this.context.currentTime);
+            if (this.state.detune !== newState.detune) {
+                if (this.state.mode === "detune") {
+                    this.detuneNode.gain.setValueAtTime(newState.detune * 100, this.context.currentTime);
                 }
             }
-            if (this.state.detune.mode !== newState.detune.mode) {
-                if (newState.detune.mode === "beat") {
+            if (this.state.mode !== newState.mode) {
+                if (newState.mode === "beat") {
                     this.detuneNode.gain.setValueAtTime(0, this.context.currentTime);
-                    this.frequencyOffsetNode.gain.setValueAtTime(newState.detune.beat, this.context.currentTime);
+                    this.frequencyOffsetNode.gain.setValueAtTime(newState.beat, this.context.currentTime);
                 }
-                if (newState.detune.mode === "detune") {
+                if (newState.mode === "detune") {
                     this.frequencyOffsetNode.gain.setValueAtTime(0, this.context.currentTime);
-                    this.detuneNode.gain.setValueAtTime(newState.detune.semitone * 100, this.context.currentTime);
+                    this.detuneNode.gain.setValueAtTime(newState.detune * 100, this.context.currentTime);
                 }
             }
             this.state = newState;
@@ -150,6 +140,14 @@ class SubOscillator extends PannableModule {
     set scaleFactor (factor) {
         this.scaleBaseNumber = factor;
         this.ratioNode.gain.setValueAtTime(Math.pow(this.scaleBaseNumber, this.state.depth), this.context.currentTime);
+    }
+
+    connect (node) {
+        this.output.connect(node);
+    }
+
+    disconnect () {
+        this.output.disconnect();
     }
 
     destroy () {

@@ -20,34 +20,26 @@ export const getDistortedPhase = (phase, envelope) => {
     return 0;
 };
 
-export class PannableModule {
 
-    inputNode () {
-        const node = this.context.createGain();
-        node.gain.value = 0;
-        node.gain.setValueAtTime(1, this.context.currentTime);
+export const inputNode = (context) => {
+    const node = context.createGain();
+    node.gain.value = 0;
+    node.gain.setValueAtTime(1, context.currentTime);
 
-        return node;
-    }
-    outputNode (value) {
-        const node = this.context.createGain();
-        node.gain.value = 0;
-        node.gain.setValueAtTime(value, this.context.currentTime);
-        this.dc.connect(node);
+    return node;
+};
 
-        return node;
-    }
-    connect (node) {
-        this.output.connect(node);
-    }
-    disconnect () {
-        this.output.disconnect();
-    }
-}
+export const outputNode = (context, value) => {
+    const node = context.createGain();
+    node.gain.value = 0;
+    node.gain.setValueAtTime(value, context.currentTime);
+    this.dc.connect(node);
 
+    return node;
+};
 
 export class ParamLogger {
-    constructor (parameter, context, time = 1000) {
+    constructor (parameter, context, label, time = 1000) {
         this.logger = context.createScriptProcessor(512, 1, 1);
         this.logger.onaudioprocess = (evt) => {
             if (!this.justLogged) {
@@ -60,7 +52,7 @@ export class ParamLogger {
                     }
                 });
 
-                console.log(result);
+                console.log(label ? label : "", result);
                 this.justLogged = true;
                 setTimeout(() => {
                     this.justLogged = false;

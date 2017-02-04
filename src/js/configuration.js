@@ -137,6 +137,11 @@ const configuration = {
                 }
             },
             "oscillator": {
+                "gain": {
+                    "min": 0,
+                    "max": 1,
+                    "exponential": true
+                },
                 "resonance": {
                     "min": 1,
                     "max": 16,

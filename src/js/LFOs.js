@@ -1,10 +1,8 @@
 import LFO from "./LFO";
-import StaticSources from "./StaticSources.jsx";
 
+class LFOs {
 
-class ModulationSources {
-
-    constructor (context, store, configuration) {
+    constructor (context, store, configuration, dc) {
 
         this.context = context;
         this.store = store;
@@ -13,16 +11,7 @@ class ModulationSources {
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-
-        this.staticSources = new StaticSources(context, store, configuration.target);
-
-
-        this.sources = {
-            "lfos": this.setupLFOs(configuration.source.lfos, this.state.patch.lfos),
-            "static": this.staticSources.nodes
-        };
-
-
+        this.lfos = this.setupLFOs(configuration.source.lfos, this.state.patch.lfos, dc);
     }
 
     stateChangeHandler () {
@@ -35,7 +24,7 @@ class ModulationSources {
         this.state = newState;
     }
 
-    setupLFOs (configuration, patch) {
+    setupLFOs (configuration, patch, dc) {
         let i, j;
         const result = [];
 
@@ -60,4 +49,4 @@ class ModulationSources {
 }
 
 
-export default ModulationSources;
+export default LFOs;

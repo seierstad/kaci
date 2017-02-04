@@ -1,11 +1,9 @@
-"use strict";
-import DCGenerator from "./DCGenerator";
 import {scale} from "./Utils";
 
 
 class StaticSources {
 
-    constructor (context, store, configuration) {
+    constructor (context, store, configuration, dc) {
 
         this.context = context;
         this.store = store;
@@ -15,11 +13,13 @@ class StaticSources {
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
 
-        this.dc = new DCGenerator(context);
+        this.dc = dc;
         let init = this.init(configuration, this.state);
         this.parameters = init.params;
         this.nodes = init.nodes;
         this.limits = init.limits;
+
+        Object.values(this.nodes).map(n => this.dc.connect(n));
 
     }
 
@@ -47,26 +47,27 @@ class StaticSources {
         if (!path) {
             return this.init(targets, patch, []);
         }
+
         let name = "";
-        for (let key in targets) {
+
+        for (const key in targets) {
             if (targets.hasOwnProperty(key)) {
                 path.push(key);
                 const target = targets[key];
                 name = path.join(".");
 
                 if (typeof target.min !== "undefined") {
-
                     // create static source node
-                    result.nodes[name] = this.context.createGain();
-                    this.dc.connect(result.nodes[name]);
 
-
-                    result.limits[name] = target;
                     const scaledValue = scale(patch[key], target, {min: -1, max: 1});
+                    const node = this.context.createGain();
+                    node.gain.value = scaledValue;
+                    node.gain.setValueAtTime(scaledValue, this.context.currentTime);
 
-                    result.params[name] = result.nodes[name].gain;
-                    result.params[name].value = 0;
-                    result.params[name].setValueAtTime(scaledValue, this.context.currentTime);
+                    result.nodes[name] = node;
+                    result.limits[name] = target;
+                    result.params[name] = node.gain;
+
 
                     path.pop();
                 } else {

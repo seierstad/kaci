@@ -4,9 +4,8 @@ import {waveforms} from "./waveforms";
 import {PannableModule} from "./sharedFunctions";
 
 
-class IdealOscillator extends PannableModule {
+class IdealOscillator {
     constructor (context, dc) {
-        super();
 
         this.context = context;
 

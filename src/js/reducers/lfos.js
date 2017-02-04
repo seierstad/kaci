@@ -34,6 +34,7 @@ const lfo = (state = [], action) => {
                 "sync": syncReducer(state.sync, action)
             };
     }
+
     return state;
 };
 
@@ -49,5 +50,6 @@ const lfos = (state = [], action) => {
     }
     return state;
 };
+
 
 export default lfos;

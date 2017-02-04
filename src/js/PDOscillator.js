@@ -1,22 +1,18 @@
 import {waveforms, wrappers} from "./waveforms";
 
-import {mixValues, getDistortedPhase, PannableModule} from "./sharedFunctions";
+import {ParamLogger, mixValues, getDistortedPhase, inputNode, outputNode} from "./sharedFunctions";
 
 import DC from "./DCGenerator";
 import {BUFFER_LENGTH} from "./constants";
 
 
-class PDOscillator extends PannableModule {
-    constructor (context, store, frequency) {
-        super();
+class PDOscillator {
+    constructor (context, patch, frequency) {
         /* start common constructor code */
 
         this.dc = new DC(context);
         this.context = context;
-        this.store = store;
-        this.state = store.getState().patch.oscillator;
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+        this.state = patch;
 
         this.gainNode = context.createGain();
         this.gainNode.gain.value = 0;
@@ -30,29 +26,13 @@ class PDOscillator extends PannableModule {
         // signal path: source -> gainNode -> pannerNode -> output
 
         this.parameters = {
-            "inputs": {},
-            "outputs": {}
+            "targets": {}
         };
-        const i = this.parameters.inputs;
-        const o = this.parameters.outputs;
-
-        // gain stage, between source and panner/output
-        o.gain = this.outputNode(this.state.gain);
-        this.gain = o.gain.gain;
-
-        i.gain = this.inputNode();
-        o.gain.connect(i.gain);
-
-        i.gain.connect(this.gainNode.gain);
-
-
-        o.pan = this.outputNode(this.state.pan);
-        this.pan = o.pan.gain;
-
-        i.pan = this.inputNode();
-        o.pan.connect(i.pan);
-
-        i.pan.connect(this.pannerNode.pan);
+        const targets = this.parameters.targets;
+        targets.gain = inputNode(context);
+        targets.gain.connect(this.gainNode.gain);
+        targets.pan = inputNode(context);
+        targets.pan.connect(this.pannerNode.pan);
 
         //connect signal path
         this.gainNode.connect(this.pannerNode);
@@ -60,6 +40,9 @@ class PDOscillator extends PannableModule {
 
 
         /* end common constructor code */
+
+        this.waveforms = {...waveforms};
+        this.wrappers = {...wrappers};
 
 
         const inputDefs = [{
@@ -82,7 +65,7 @@ class PDOscillator extends PannableModule {
 
         const that = this;
 
-//        this.wrappers.gaussian = this.gaussianFunction(0.5, 0.1);
+        this.wrappers.gaussian = this.gaussianFunction(0.5, 0.1);
 
         this.pdEnvelope0 = [];
         this.pdEnvelope1 = [];
@@ -103,12 +86,15 @@ class PDOscillator extends PannableModule {
             value: null,
             phase: 0
         };
-        if (typeof waveforms[this.state.waveform] === "function") {
-            this.selectedWaveform = waveforms[this.state.waveform];
+
+        if (typeof this.waveforms[this.state.waveform] === "function") {
+            this.selectedWaveform = this.waveforms[this.state.waveform];
         }
-        if (typeof wrappers[this.state.wrapper] === "function") {
-            this.selectedWrapper = wrappers[this.state.wrapper];
+
+        if (typeof this.wrappers[this.state.wrapper] === "function") {
+            this.selectedWrapper = this.wrappers[this.state.wrapper];
         }
+
         this.resonanceActive = this.state.resonanceActive;
 
         if (!this.dc) {
@@ -118,25 +104,17 @@ class PDOscillator extends PannableModule {
 
         inputDefs.forEach((def, i) => {
             const nodeName = def.name + "Node";
-
-            // output node
-            this.parameters.outputs[nodeName] = this.outputNode(this.state[def.name] || def.defaultValue);
-            this[def.name] = this.parameters.outputs[nodeName].gain;
-
-            // input node
-            this.parameters.inputs[def.name] = this.inputNode();
-
-            //connect output to input
-            this.parameters.outputs[nodeName].connect(this.parameters.inputs[def.name]);
+            const targets = this.parameters.targets;
+            targets[def.name] = inputNode(context);
 
             //connect input to merge node
-            this.parameters.inputs[def.name].connect(this.mergedInput, null, i);
+            targets[def.name].connect(this.mergedInput, null, i);
         });
 
         //set frequency
-        this.dc.connect(this.frequency);
-        this.parameters.inputs.frequency.value = 0;
-        this.frequency.setValueAtTime(frequency, this.context.currentTime);
+        this.dc.connect(targets.frequency);
+        targets.frequency.gain.value = 0;
+        targets.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.gainNode);
@@ -153,21 +131,6 @@ class PDOscillator extends PannableModule {
     stateChangeHandler () {
         const newState = this.store.getState().patch.oscillator;
         if (newState !== this.state) {
-            if (this.panner && this.state.pan !== newState.pan) {
-                this.pan.setValueAtTime(newState.pan, this.context.currentTime);
-            }
-            if (this.state.gain !== newState.gain) {
-                this.gain.setValueAtTime(newState.gain, this.context.currentTime);
-            }
-            if (this.state.detune !== newState.detune) {
-                this.detune.setValueAtTime(newState.detune, this.context.currentTime);
-            }
-            if (this.state.resonance !== newState.resonance) {
-                this.resonance.setValueAtTime(newState.resonance, this.context.currentTime);
-            }
-            if (this.state.mix !== newState.mix) {
-                this.mix.setValueAtTime(newState.mix, this.context.currentTime);
-            }
             if (this.state.wrapper !== newState.wrapper) {
                 if (typeof wrappers[newState.wrapper] === "function") {
                     this.selectedWrapper = this.wrappers[newState.wrapper];
@@ -221,25 +184,6 @@ class PDOscillator extends PannableModule {
         return function (evt) {
             osc.setWaveform(evt.detail);
         };
-    }
-
-    destroy () {
-        this.parameters.inputs.frequency.disconnect();
-        this.parameters.inputs.frequency = null;
-        this.parameters.inputs.detune.disconnect();
-        this.parameters.inputs.detune = null;
-        this.parameters.inputs.resonance.disconnect();
-        this.parameters.inputs.resonance = null;
-        this.parameters.inputs.mix.disconnect();
-        this.parameters.inputs.mix = null;
-        this.mergedInput.disconnect();
-        this.mergedInput = null;
-        this.generator.disconnect();
-        this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
-        this.generator = null;
-        if (this.destroyCallback && typeof this.destroyCallback === "function") {
-            this.destroyCallback(this);
-        }
     }
 
     getAudioProcessor (oscillator) {
@@ -314,15 +258,15 @@ class PDOscillator extends PannableModule {
     }
 
     set waveform (waveformName) {
-        if (waveformName && waveforms[waveformName] && typeof waveforms[waveformName] === "function") {
-            this.selectedWaveform = waveforms[waveformName];
+        if (waveformName && this.waveforms[waveformName] && typeof this.waveforms[waveformName] === "function") {
+            this.selectedWaveform = this.waveforms[waveformName];
         }
         return this;
     }
 
     set wrapper (wrapperName) {
-        if (wrapperName && wrappers[wrapperName] && typeof wrappers[wrapperName] === "function") {
-            this.selectedWrapper = wrappers[wrapperName];
+        if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === "function") {
+            this.selectedWrapper = this.wrappers[wrapperName];
         }
         return this;
     }
@@ -360,19 +304,31 @@ class PDOscillator extends PannableModule {
         };
     }
 
-    getStaticParameters () {
+    connect (node) {
+        this.output.connect(node);
+    }
 
-        const result = {
-            "gain": this.gainNode,
-            "detune": this.detuneNode,
-            "frequency": this.frequencyNode,
-            "resonance": this.resonanceNode,
-            "mix": this.mixNode
-        };
-        if (this.pan) {
-            result.pan = this.panNode;
+    disconnect () {
+        this.output.disconnect();
+    }
+
+    destroy () {
+        this.parameters.targets.frequency.disconnect();
+        this.parameters.targets.frequency = null;
+        this.parameters.targets.detune.disconnect();
+        this.parameters.targets.detune = null;
+        this.parameters.targets.resonance.disconnect();
+        this.parameters.targets.resonance = null;
+        this.parameters.targets.mix.disconnect();
+        this.parameters.targets.mix = null;
+        this.mergedInput.disconnect();
+        this.mergedInput = null;
+        this.generator.disconnect();
+        this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
+        this.generator = null;
+        if (this.destroyCallback && typeof this.destroyCallback === "function") {
+            this.destroyCallback(this);
         }
-        return result;
     }
 }
 

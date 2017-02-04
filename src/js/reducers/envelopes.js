@@ -1,8 +1,5 @@
 import * as Actions from "../actions";
-import { combineReducers } from "redux";
-
-import {splicedArrayCopy} from "../sharedFunctions";
-
+import {combineReducers} from "redux";
 
 const sortByX = (a, b) => a[0] > b[0];
 
@@ -12,16 +9,26 @@ const steps = (state = [], action) => {
 
     switch (action.type) {
         case Actions.ENVELOPE_POINT_DELETE:
-            return splicedArrayCopy(state, action.index, 1);
+            return [
+                ...state.slice(0, action.index),
+                ...state.slice(action.index + 1)
+            ];
+
         case Actions.ENVELOPE_POINT_ADD:
             return [...state, point].sort(sortByX);
+
         case Actions.ENVELOPE_POINT_CHANGE:
             if (action.index === 0) {
                 point[0] = 0;
             } else if (action.index === state.length - 1) {
                 point[0] = 1;
             }
-            const result = splicedArrayCopy(state, action.index, 1, point);
+
+            const result = [
+                ...state.slice(0, action.index),
+                point,
+                ...state.slice(action.index + 1)
+            ];
 
             //all x values for steps after the changed step should be larger (and not equal)
             for (let i = action.index + 1; i < result.length; i += 1) {
@@ -29,6 +36,7 @@ const steps = (state = [], action) => {
                     result[i] = [result[i - 1][0] + Number.EPSILON, result[i][1]];
                 }
             }
+
             // x values before the changed step...
             for (let i = action.index - 1; i > 0; i -= 1) {
                 if (result[i + 1][0] <= result[i][0]) {
@@ -37,6 +45,7 @@ const steps = (state = [], action) => {
             }
             return result;
     }
+
     return state;
 };
 
@@ -47,6 +56,7 @@ const duration = (state = 0, action) => {
     }
     return state;
 };
+
 const envelopePart = combineReducers({
     steps,
     duration
@@ -60,6 +70,7 @@ const sustainedEnvelope = (state = {}, action) => {
                 ...state,
                 mode: action.value
             };
+
         case Actions.ENVELOPE_SUSTAIN_CHANGE:
             const a = state.attack.steps;
             const r = state.release.steps;
@@ -82,32 +93,49 @@ const sustainedEnvelope = (state = {}, action) => {
                 }
             };
     }
+
     switch (action.envelopePart) {
         case "attack":
             return {
                 ...state,
                 attack: envelopePart(state.attack, action)
             };
+
         case "release":
             return {
                 ...state,
                 release: envelopePart(state.release, action)
             };
     }
+
     return state;
 };
 
-const envelope = (state = {}, action) => {
-    const index = action.envelopeIndex;
+const envelopes = (state = [], action) => {
+    switch (action.type) {
+        case Actions.ENVELOPE_POINT_DELETE:
+        case Actions.ENVELOPE_POINT_ADD:
+        case Actions.ENVELOPE_POINT_EDIT_START:
+        case Actions.ENVELOPE_POINT_EDIT_END:
+        case Actions.ENVELOPE_POINT_CHANGE:
+        case Actions.ENVELOPE_SUSTAIN_EDIT_START:
+        case Actions.ENVELOPE_SUSTAIN_EDIT_END:
+        case Actions.ENVELOPE_SUSTAIN_CHANGE:
+        case Actions.ENVELOPE_MODE_CHANGE:
+        case Actions.ENVELOPE_DURATION_CHANGE:
+            const index = action.envelopeIndex;
 
-    let result = [
-        ...state
-    ];
-    result[index] = sustainedEnvelope(state[index], action);
+            let result = [
+                ...state
+            ];
+            result[index] = sustainedEnvelope(state[index], action);
 
-    return result;
+            return result;
+    }
+
+    return state;
 };
 
 
 export {steps};
-export default envelope;
+export default envelopes;
