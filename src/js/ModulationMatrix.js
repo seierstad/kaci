@@ -16,22 +16,26 @@ class ModulationMatrix {
         */
 
         this.context = context;
+
         this.store = store;
+        this.stateChangeHandler = this.stateChangeHandler.bind(this);
+        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+
         const state = store.getState();
 
         this.state = state.patch.modulation;
         this.configuration = state.settings.modulation;
         this.patch = state.patch;
+        this.playState = state.playState;
 
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
-        this.connectLFO = this.connectLFO.bind(this);
+        this.connect = this.connect.bind(this);
 
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
+        this.lfos = new LFOs(context, store, this.configuration);
 
         this.sources = {
             static: new StaticSources(context, store, this.configuration.target, dc).nodes,
-            lfos: new LFOs(context, store, this.configuration)
+            lfos: this.lfos.lfos
         };
 
 
@@ -40,13 +44,12 @@ class ModulationMatrix {
         this.connectStaticSources(this.sources.static, this.targets);
         this.connections = {};
 
-        //this.state.forEach(this.connectLFO);
         this.initPatch();
 
     }
 
     initPatch () {
-        const activeLfoConnection = pc => pc.enabled && pc.source.type === "lfo";
+        const activeGlobalLfoConnection = pc => pc.enabled && pc.source.type === "lfo" && this.sources.lfos[pc.source.index];
 
         const moduleNames = Object.keys(this.state);
         for (const moduleName of moduleNames) {
@@ -56,16 +59,9 @@ class ModulationMatrix {
             for (const parameterName of parameterNames) {
                 const parameterConnections = module[parameterName];
 
-                parameterConnections.filter(activeLfoConnection).forEach(pc => console.log(pc));
-            }
-        }
-    }
-
-    connectLFO (lfo, index) {
-        for (let target in lfo) {
-            const connection = lfo[target];
-            if (connection.enabled) {
-                this.connect("lfo", index, target, connection.polarity, connection.amount);
+                parameterConnections.filter(activeGlobalLfoConnection).forEach(c => {
+                    this.connect(c.source.type, c.source.index, [moduleName, parameterName].join("."), c.polarity, c.amount);
+                });
             }
         }
     }
@@ -107,9 +103,24 @@ class ModulationMatrix {
     }
 
     stateChangeHandler () {
-        /*
-        const newState = this.store.getState().patch.modulation;
+        const newState = this.store.getState();
 
+        const keyDown = k => !!k && k.down;
+
+        if (newState.playState.keys !== this.playState.keys) {
+            const currentKeyCount = this.playState.keys.filter(keyDown).length;
+            const nextKeyCount = newState.playState.keys.filter(keyDown).length;
+
+            if (currentKeyCount === 0 && nextKeyCount > 0) {
+                this.lfos.start();
+            } else if (currentKeyCount > 0 && nextKeyCount === 0) {
+                this.lfos.stop();
+            }
+
+            this.playState.keys = newState.playState.keys;
+        }
+
+        /*
         const compareLFOState = (newLfo, index) => {
             for (let target in newLfo) {
                 const lfo = this.state.lfos[index] && this.state.lfos[index][target];
@@ -187,35 +198,15 @@ class ModulationMatrix {
         const voiceEnvs = voice.envelopes;
         const voiceParamTargets = voice.parameterTargetNodes;
         const voiceParamSources = voice.parameterSourceNodes;
-/*
-        for (let key in voiceParamSources) {
-            voiceParamSources[key].disconnect();
-            // voiceParamSources[key] = null; // testing
-        }
 
-*/
+
         for (let key in voiceParamTargets) {
             if (this.targets[key]) {
                 this.targets[key].connect(voiceParamTargets[key]);
             }
         }
 
-//        this.targets["oscillator.resonance"].connect(voiceParamTargets["oscillator.resonance"]);
-/*
-        new ParamLogger(this.targets["oscillator.resonance"], this.context, "mm osc.res target");
-        new ParamLogger(voiceParamTargets["oscillator.resonance"], this.context, "voice osc.res input");
-        new ParamLogger(voiceParamSources["oscillator.resonance"], this.context, "voice osc.res output");
-*/
-//        this.sources.lfos.lfos[0].connect(voiceParamTargets["sub.gain"]);
         /*
-        if (!this.patched) {
-            this.patch(patch.modulation);
-            this.patched = true;
-        }
-        for (key in this.targets) {
-            split = key.split(".");
-            this.targets[key].outputNode.connect(voice[split[0]][split[1]]);
-        }
         for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {
             if (localModulators.envelope[i]) {
                 envelopePatch = patch.modulation.envelopes[i];
@@ -236,84 +227,9 @@ class ModulationMatrix {
                 return null;
             }
         };
-        var disconnectHandler = function (event) {
-            var data = event.detail,
-                connection = this.eventDataConnection(data);
-            if (connection) {
-                connection.disconnect();
-                connection = null;
-                delete this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
-            }
-        };
-        var connectHandler = function (event) {
-            var data = event.detail,
-                connection = this.eventDataConnection(data);
-            if (!connection) {
-                this.connect(data.sourceType, data.sourceIndex, data.range, data.amount, data.targetModule + "." + data.targetParameter);
-            }
-        };
-
-        var amountHandler = function (event) {
-            var data = event.detail,
-                connection = this.eventDataConnection(data);
-
-            if (connection && !isNaN(parseFloat(data.amount, 10))) {
-                connection.gain.value = data.amount;
-            }
-        };
-
-        var rangeHandler = function (event) {
-            var data = event.detail,
-                connection = this.eventDataConnection(data),
-                amount,
-                source;
-
-            if (connection && data.range) {
-                amount = connection.gain.value;
-                connection.disconnect();
-                connection = null;
-                this.connect(data.sourceType, data.sourceIndex, data.range, amount, data.targetModule + "." + data.targetParameter);
-            }
-        };
 
         context.addEventListener('voice.first.started', this.startGlobalModulators, false);
         context.addEventListener('voice.last.ended', this.stopGlobalModulators, false);
-        context.addEventListener("modulation.change.connect", connectHandler.bind(this));
-        context.addEventListener("modulation.change.disconnect", disconnectHandler.bind(this));
-        context.addEventListener("modulation.change.amount", amountHandler.bind(this));
-        context.addEventListener("modulation.change.range", rangeHandler.bind(this));
-
-        context.addEventListener("noise.change.gain", staticParameterChangeHandler("noise.gain").bind(this));
-        context.addEventListener("noise.change.pan", staticParameterChangeHandler("noise.pan").bind(this));
-        context.addEventListener("sub.change.gain", staticParameterChangeHandler("sub.gain").bind(this));
-        context.addEventListener("sub.change.pan", staticParameterChangeHandler("sub.pan").bind(this));
-        context.addEventListener("oscillator.change.resonance", staticParameterChangeHandler("oscillator.resonance").bind(this));
-        context.addEventListener("oscillator.change.mix", staticParameterChangeHandler("oscillator.mix").bind(this));
-        context.addEventListener("oscillator.change.pan", staticParameterChangeHandler("oscillator.pan").bind(this));
-        context.addEventListener("oscillator.change.detune", staticParameterChangeHandler("oscillator.detune").bind(this));
-
-
-        staticParameterChangeHandler = function staticParameterChangeHandler(parameter) {
-            if (that.sources.static[parameter]) {
-                return function (evt) {
-                    this.sources.static[parameter].setValueAtTime(evt.detail, this.context.currentTime);
-                }
-            } else {
-                return function (evt) {
-                    console.log("call to faulty event handler: attempt to set " + parameter + " to " + evt.detail);
-                }
-            }
-        };        staticParameterChangeHandler = function staticParameterChangeHandler(parameter) {
-            if (that.sources.static[parameter]) {
-                return function (evt) {
-                    this.sources.static[parameter].setValueAtTime(evt.detail, this.context.currentTime);
-                }
-            } else {
-                return function (evt) {
-                    console.log("call to faulty event handler: attempt to set " + parameter + " to " + evt.detail);
-                }
-            }
-        };
 
 unpatchVoice (voice) {
     var locals = voice.getModulators(),

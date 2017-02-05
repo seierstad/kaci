@@ -101,6 +101,7 @@ class LFO {
     setFrequency (frequency) {
         this.frequency.setValueAtTime(frequency, this.context.currentTime);
     }
+
     syncToMaster () {
         let that = this;
 
@@ -121,6 +122,7 @@ class LFO {
             that.context.removeEventListener("lfo.master.zeroPhase", masterZeroPhaseHandler);
         };
     }
+
     updateOutputRanges (amount) {
         if (this.outputs.positive) {
             this.outputs.positive.curve = new Float32Array([0, amount]);
@@ -129,6 +131,7 @@ class LFO {
             this.outputs.negative.curve = new Float32Array([-amount, 0]);
         }
     }
+
     setValueAtTime (value, time) {
         let delay = 0;
 
@@ -139,39 +142,11 @@ class LFO {
         }
         setTimeout(this.updateOutputRanges(value), delay);
     }
+
     setWaveform (waveformName) {
         this.oscillator.setWaveform(waveformName);
     }
-    start (time) {
-        this.oscillator.start(time);
-    }
-    stop () {
-        this.oscillator.stop();
-    }
-    destroy () {
-        this.unsubscribe();
 
-        this.context = null;
-        this.index = null;
-        this.store = null;
-        this.state = null;
-        this.stateChangeHandler = null;
-        this.unsubscribe = null;
-        this.postGain.disconnect();
-        this.postGain = null;
-        this.oscillator.destroy();
-        this.oscillator = null;
-    }
-    disconnect () {
-        this.postGain.disconnect();
-    }
-    connect (node) {
-        if (node.hasOwnProperty("input")) {
-            this.postGain.connect(node.input);
-        } else {
-            this.postGain.connect(node);
-        }
-    }
     addOutput (name, range) {
         let shaper,
             out;
@@ -189,6 +164,41 @@ class LFO {
 
         this.oscillator.connect(shaper);
         this.outputs[name] = shaper;
+    }
+
+    start (time) {
+        this.oscillator.start(time);
+    }
+
+    stop () {
+        this.oscillator.stop();
+    }
+
+    connect (node) {
+        if (node.hasOwnProperty("input")) {
+            this.postGain.connect(node.input);
+        } else {
+            this.postGain.connect(node);
+        }
+    }
+
+    disconnect () {
+        this.postGain.disconnect();
+    }
+
+    destroy () {
+        this.unsubscribe();
+
+        this.context = null;
+        this.index = null;
+        this.store = null;
+        this.state = null;
+        this.stateChangeHandler = null;
+        this.unsubscribe = null;
+        this.postGain.disconnect();
+        this.postGain = null;
+        this.oscillator.destroy();
+        this.oscillator = null;
     }
 }
 

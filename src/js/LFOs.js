@@ -38,12 +38,12 @@ class LFOs {
         return result;
     }
 
-    startGlobalModulators () {
-        this.sources.lfos.forEach(lfo => lfo.start());
+    start () {
+        this.lfos.forEach(lfo => lfo.start());
     }
 
-    stopGlobalModulators () {
-        this.sources.lfos.forEach(lfo => lfo.stop());
+    stop () {
+        this.lfos.forEach(lfo => lfo.stop());
     }
 
 }
