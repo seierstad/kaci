@@ -5,21 +5,18 @@ import {noise as noiseFunctions} from "./waveforms";
 
 
 class Noise {
-    constructor (context, store) {
+    constructor (context, patch) {
         /* start common constructor code */
 
         this.dc = new DC(context);
-        this.store = store;
-        this.state = store.getState().patch.noise;
-//        this.stateChangeHandler = this.stateChangeHandler.bind(this);
-//        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+        this.state = patch;
 
         this.gainNode = context.createGain();
         this.gainNode.gain.value = 0;
         this.pannerNode = context.createStereoPanner();
         this.pannerNode.pan.value = 0;
 
-        // this is the output, used for muting
+        // this is the output stage, used for muting
         this.output = context.createGain();
         this.output.gain.setValueAtTime(this.state.active ? 1 : 0, context.currentTime);
 
@@ -31,23 +28,11 @@ class Noise {
         };
 
         const t = this.parameters.targets;
-//        const s = this.parameters.sources;
-
-        // gain stage, between source and panner/output
-//        s.gain = this.outputNode(this.state.gain);
-//        this.gain = s.gain.gain;
 
         t.gain = inputNode(context);
-//        s.gain.connect(t.gain);
-
         t.gain.connect(this.gainNode.gain);
 
-//        s.pan = outputNode(context, this.state.pan);
-//        this.pan = s.pan.gain;
-
         t.pan = inputNode(context);
-//        s.pan.connect(t.pan);
-
         t.pan.connect(this.pannerNode.pan);
 
         //connect signal path
@@ -57,33 +42,12 @@ class Noise {
 
         /* end common constructor code */
 
-
-        const now = context.currentTime;
-
         this.audioProcessHandler = this.audioProcessHandler.bind(this);
         this.generatorFunction = noiseFunctions[this.state.color];
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
-
         this.generator.connect(this.gainNode);
     }
 
-    stateChangeHandler () {
-        const newState = this.store.getState().patch.noise;
-        if (newState !== this.state) {
-            /*
-            if (this.state.pan !== newState.pan) {
-                this.pan.setValueAtTime(newState.pan, this.context.currentTime);
-            }
-            if (this.state.gain !== newState.gain) {
-                this.gain.setValueAtTime(newState.gain, this.context.currentTime);
-            }
-            */
-            if (this.state.color !== newState.color && noiseFunctions[newState.color]) {
-                this.generatorFunction = noiseFunctions[newState.color];
-            }
-            this.state = newState;
-        }
-    }
 
     set color (color) {
         if (color !== this.state.color && typeof noiseFunctions[color] === "function") {
@@ -127,7 +91,6 @@ class Noise {
         this.gainNode.disconnect();
         this.gainNode = null;
         this.state = null;
-        //        this.logger.disconnect();
     }
 }
 

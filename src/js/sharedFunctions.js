@@ -29,11 +29,11 @@ export const inputNode = (context) => {
     return node;
 };
 
-export const outputNode = (context, value) => {
+export const outputNode = (context, dc, value) => {
     const node = context.createGain();
     node.gain.value = 0;
     node.gain.setValueAtTime(value, context.currentTime);
-    this.dc.connect(node);
+    dc.connect(node);
 
     return node;
 };

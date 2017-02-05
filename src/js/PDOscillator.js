@@ -13,6 +13,7 @@ class PDOscillator {
         this.dc = new DC(context);
         this.context = context;
         this.state = patch;
+        this.state.frequency = frequency;
 
         this.gainNode = context.createGain();
         this.gainNode.gain.value = 0;
@@ -271,8 +272,8 @@ class PDOscillator {
         return this;
     }
 
-    set freq (frequency) {
-        this.frequency.setValueAtTime(frequency, this.context.currentTime);
+    set frequency (frequency) {
+        this.parameters.targets.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
     }
 
     getIncrementedPhase (frequency) {

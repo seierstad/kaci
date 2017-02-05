@@ -33,8 +33,8 @@ class Voice {
             this.envelopes[index] = new EnvelopeGenerator(context, store, index);
         });
 
-        this.noise = new NoiseGenerator(context, store);
-        this.sub = new SubOscillator(context, store, frequency);
+        this.noise = new NoiseGenerator(context, this.state.noise);
+        this.sub = new SubOscillator(context, this.state.sub, frequency);
         this.oscillator = new PDOscillator(context, this.state.oscillator, frequency);
 
         this.sub.connect(this.vca);
@@ -141,8 +141,8 @@ class Voice {
     }
 
     set frequency (frequency) {
-//        this.oscillator.freq = frequency;
-//        this.sub.freq = frequency;
+        this.oscillator.frequency = frequency;
+        this.sub.frequency = frequency;
     }
 }
 

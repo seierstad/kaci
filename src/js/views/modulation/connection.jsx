@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import PolaritySelector from "./polarity-selector.jsx";
 import RangeInput from "../RangeInput.jsx";
-import {modulationSourceTypeShape, modulationPatchDataShape, modulationConnectionPatchDataShape} from "../../propdefs";
+import {modulationSourceTypeShape, modulationConnectionPatchDataShape} from "../../propdefs";
 
 import {defaultModulationConnectionParameters} from "../../configuration";
 

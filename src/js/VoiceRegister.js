@@ -77,10 +77,12 @@ class VoiceRegister {
             downs.forEach(k => this.startVoice(k));
 
         }
+
         if (newTuningState.baseFrequency.value !== this.baseFrequency) {
-            console.log("tuning changed");
+
             this.baseFrequency = newTuningState.baseFrequency.value;
             this.tuning = Tunings.getTemperedScale(0, 120, 69, this.baseFrequency);
+
             this.activeVoices.forEach((v, i) => {
                 v.frequency = this.tuning[i];
             });
@@ -88,6 +90,7 @@ class VoiceRegister {
     }
 
     getIndexes (keyarray) {
+
         return keyarray.map(function (value, index) {
             if (value !== null && value !== undefined) {return index;}
         }).filter(function (value) {
@@ -101,13 +104,18 @@ class VoiceRegister {
 
         if (!this.chordShifter.enabled) {
             this.startTone(k);
+
         } else {
+
             if (this.chordShifter.activeKeys.length === 0) {
                 // first pressed key -> start new chord
                 chords.push([k]);
                 console.log("starting chord " + chords.length);
+
             } else {
+
                 const lastChord = chords[chords.length - 1];
+
                 if (lastChord.indexOf(k) === -1) {
                     // add key to last chord
                     lastChord.push(k);
@@ -117,7 +125,9 @@ class VoiceRegister {
                     console.log("added note " + lastChord.length + " to chord " + chords.length);
                 }
             }
+
             this.chordShifter.activeKeys.push(k);
+
             if (chords.length === 1) {
                 // add tones to initial chord after chordShift is enabled
                 this.startTone(k);
@@ -130,9 +140,12 @@ class VoiceRegister {
 
         if (!this.chordShifter.enabled) {
             this.stopTone(k);
+
         } else {
+
             // register key as released in chordShifter
             const activeIndex = this.chordShifter.activeKeys.indexOf(k);
+
             if (activeIndex !== -1) {
                 this.chordShifter.activeKeys.splice(activeIndex, 1);
             }
@@ -145,10 +158,13 @@ class VoiceRegister {
 
         // add current chord (if any)
         let activeKeys = this.getIndexes(this.activeVoices);
+
         if (activeKeys.length > 0) {
             this.chordShifter.chords.push(activeKeys);
             this.chordShifter.activeKeys = activeKeys.slice();
+
         } else {
+
             this.chordShifter.activeKeys = [];
         }
     }
@@ -187,10 +203,13 @@ class VoiceRegister {
 
                 /* contious shift between frequencies: */
                 const frequency1 = this.tuning[key1];
+
                 if (chordIndex === chords.length - 1) {
                     // handle edge case
                     frequency = frequency1;
+
                 } else {
+
                     const key2 = chords[chordIndex + 1][i];
                     const frequency2 = this.tuning[key2];
                     frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
@@ -251,6 +270,7 @@ class VoiceRegister {
         if (this.activeVoices.every(v => !v)) {
             this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
         }
+
         if (!this.activeVoices[key]) {
             const frequency = (typeof key === "number") ? this.tuning[key] : freq;
             const patch = this.store.getState().patch;
@@ -289,8 +309,11 @@ class VoiceRegister {
 
         if (voiceIndex !== -1) {
             delete this.stoppedVoices[voiceIndex];
+
         } else {
+
             voiceIndex = this.activeVoices.indexOf(voice);
+
             if (voiceIndex !== -1) {
                 delete this.activeVoices[voiceIndex];
             }
