@@ -13,7 +13,6 @@ class PDOscillator {
         this.dc = new DC(context);
         this.context = context;
         this.state = patch;
-        this.state.frequency = frequency;
 
         this.gainNode = context.createGain();
         this.gainNode.gain.value = 0;
@@ -22,7 +21,6 @@ class PDOscillator {
 
         // this is the output, used for muting
         this.output = context.createGain();
-        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, this.context.currentTime);
 
         // signal path: source -> gainNode -> pannerNode -> output
 
@@ -41,9 +39,6 @@ class PDOscillator {
 
 
         /* end common constructor code */
-
-        this.waveforms = {...waveforms};
-        this.wrappers = {...wrappers};
 
 
         const inputDefs = [{
@@ -86,19 +81,7 @@ class PDOscillator {
             phase: 0
         };
 
-        if (typeof this.waveforms[this.state.waveform] === "function") {
-            this.selectedWaveform = this.waveforms[this.state.waveform]();
-        }
 
-        if (typeof this.wrappers[this.state.wrapper] === "function") {
-            this.selectedWrapper = this.wrappers[this.state.wrapper]();
-        }
-
-        this.resonanceActive = this.state.resonanceActive;
-
-        if (!this.dc) {
-            this.dc = new DC(context);
-        }
         this.mergedInput = context.createChannelMerger(inputDefs.length);
 
         inputDefs.forEach((def, i) => {
@@ -112,11 +95,16 @@ class PDOscillator {
 
         //set frequency
         this.dc.connect(targets.frequency);
-        targets.frequency.gain.value = 0;
-        targets.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
+        targets.frequency.gain.value = 440;
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.gainNode);
+
+        this.frequency = frequency;
+        this.active = patch.active;
+        this.waveform = patch.waveform;
+        this.resonanceActive = patch.resonanceActive;
+        this.wrapper = patch.wrapper;
     }
 
     start () {
@@ -125,42 +113,27 @@ class PDOscillator {
 
     stop () {
         this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
-    }
-
-    stateChangeHandler () {
-        const newState = this.store.getState().patch.oscillator;
-        if (newState !== this.state) {
-            if (this.state.wrapper !== newState.wrapper) {
-                if (typeof wrappers[newState.wrapper] === "function") {
-                    this.selectedWrapper = this.wrappers[newState.wrapper]();
-                }
-            }
-            if (this.state.waveform !== newState.waveform) {
-                if (typeof waveforms[newState.waveform] === "function") {
-                    this.selectedWaveform = waveforms[newState.waveform]();
-                }
-            }
-            if (this.state.resonanceActive !== newState.resonanceActive) {
-                this.resonanceActive = newState.resonanceActive;
-            }
-
-            this.state = newState;
-        }
+        this.phase = 0;
+        this.resonancePhase = 0;
     }
 
     setPDEnvelope0 (data) {
         this.pdEnvelope0 = [];
+
         data.forEach(function (point) {
             this.pdEnvelope0.push([point[0], point[1]]);
         }, this);
+
         this.pdEnvelope0.functions = [];
     }
 
     setPDEnvelope1 (data) {
         this.pdEnvelope1 = [];
+
         data.forEach(function (point) {
             this.pdEnvelope1.push([point[0], point[1]]);
         }, this);
+
         this.pdEnvelope1.functions = [];
     }
 
@@ -201,18 +174,6 @@ class PDOscillator {
                 calculatedFrequency: 0,
                 calculatedResonanceFrequency: 0
             };
-
-
-            /*
-            let debugVisible = true,
-
-            if (debugVisible) {
-                    console.log("mix: " + mix[0] + " resonance: " + resonance[0] + " detune: " + detune[0]);
-
-                debugVisible = false;
-            }
-
-            */
 
             for (let i = 0; i < BUFFER_LENGTH; i += 1) {
                 let calculatedFrequency,
@@ -256,18 +217,20 @@ class PDOscillator {
         };
     }
 
+    set active (active) {
+        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, this.context.currentTime);
+    }
+
     set waveform (waveformName) {
-        if (waveformName && this.waveforms[waveformName] && typeof this.waveforms[waveformName] === "function") {
-            this.selectedWaveform = this.waveforms[waveformName]();
+        if (typeof waveforms[waveformName] === "function") {
+            this.selectedWaveform = waveforms[waveformName]();
         }
-        return this;
     }
 
     set wrapper (wrapperName) {
-        if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === "function") {
-            this.selectedWrapper = this.wrappers[wrapperName]();
+        if (typeof wrappers[wrapperName] === "function") {
+            this.selectedWrapper = wrappers[wrapperName]();
         }
-        return this;
     }
 
     set frequency (frequency) {

@@ -4,7 +4,7 @@ import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
 
-// import WavyJones from "../../lib/wavy-jones";
+import WavyJones from "../../lib/wavy-jones";
 
 const prefixKeys = (object, prefix) => {
     const result = {};
@@ -19,6 +19,10 @@ class Voice {
 
         this.store = store;
         this.state = store.getState().patch;
+
+        this.stateChangeHandler = this.stateChangeHandler.bind(this);
+        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+
         this.context = context;
 
         this.vca = context.createGain();
@@ -47,7 +51,7 @@ class Voice {
 //            ...(prefixKeys(this.noise.parameters.sources, "noise.")) //,
 //            ...(prefixKeys(this.sub.parameters.sources, "sub."))
         };
-        this.targets = {
+        this.targetNodes = {
             ...(prefixKeys(this.oscillator.parameters.targets, "oscillator.")),
             ...(prefixKeys(this.noise.parameters.targets, "noise.")),
             ...(prefixKeys(this.sub.parameters.targets, "sub."))
@@ -58,8 +62,7 @@ class Voice {
         scope.lineColor = "black";
         scope.lineThickness = 1;
 
-        this.noise.connect(scope);
-//        this.targets["noise.gain"].connect(scope);
+        this.oscillator.connect(scope);
         //*/
 
     }
@@ -70,12 +73,100 @@ class Voice {
         }
     }
 
-    get parameterSourceNodes () {
-        return this.sources;
+    stateChangeHandler () {
+        const newState = this.store.getState().patch;
+
+        if (this.state !== newState) {
+            const {oscillator: o, noise: n, sub: s} = this.state;
+            const {oscillator: oNew, noise: nNew, sub: sNew} = newState;
+
+            if (o !== oNew) {
+                const {active: a, waveform: wa, pd, resonanceActive: ra, wrapper: wr} = o;
+                const {active: aNew, waveform: waNew, pd: pdNew, resonanceActive: raNew, wrapper: wrNew} = oNew;
+
+                if (a !== aNew) {
+                    this.oscillator.active = aNew;
+                }
+
+                if (wa !== waNew) {
+                    this.oscillator.waveform = waNew;
+                }
+
+                if (wr !== wrNew) {
+                    this.oscillator.wrapper = wrNew;
+                }
+
+                if (ra !== raNew) {
+                    this.oscillator.resonanceActive = raNew;
+                }
+            }
+
+            if (n !== nNew) {
+                console.log("noise change!");
+            }
+
+            if (s !== sNew) {
+                console.log("sub change!");
+            }
+/*
+        "active": true,
+        "waveform": "triangle",
+        "pd": [{
+            "steps": [
+                [0, 0],
+                [1, 1]
+            ]
+        }, {
+            "steps": [
+                [0, 0],
+                [0.45, 0.25],
+                [0.5733333333333334, 0.8433333333333333],
+                [1, 1]
+            ]
+        }],
+        "resonanceActive": true,
+        "wrapper": "saw",
+
+            if (this.state. !== newState.) {
+
+            }
+*/
+            this.state = newState;
+        }
     }
 
-    get parameterTargetNodes () {
-        return this.targets;
+    get targets () {
+        return this.targetNodes;
+    }
+
+    set frequency (frequency) {
+        this.oscillator.frequency = frequency;
+        this.sub.frequency = frequency;
+    }
+
+    start (time) {
+
+        this.startTime = time;
+        this.sub.start(time);
+        this.noise.start(time);
+        this.oscillator.start(time);
+
+        this.lfos.forEach(lfo => {
+            lfo.start();
+        });
+
+        this.envelopes.forEach(envelope => envelope.trigger(time));
+    }
+
+    stop (time, callback) {
+        this.stopTime = time;
+
+        this.envelopes.forEach(function (envelope) {
+            envelope.release(time);
+        });
+
+        this.destroyCallback = callback;
+        this.destroyTimer = setTimeout(this.destroy.bind(this), 0);
     }
 
     connect (node) {
@@ -110,39 +201,11 @@ class Voice {
         this.vca.disconnect();
         this.vca = null;
 
+        this.unsubscribe();
+
         if (typeof this.destroyCallback === "function") {
             this.destroyCallback(this);
         }
-    }
-
-    start (time) {
-
-        this.startTime = time;
-        this.sub.start(time);
-        this.noise.start(time);
-        this.oscillator.start(time);
-
-        this.lfos.forEach(lfo => {
-            lfo.start();
-        });
-
-        this.envelopes.forEach(envelope => envelope.trigger(time));
-    }
-
-    stop (time, callback) {
-        this.stopTime = time;
-
-        this.envelopes.forEach(function (envelope) {
-            envelope.release(time);
-        });
-
-        this.destroyCallback = callback;
-        this.destroyTimer = setTimeout(this.destroy.bind(this), 0);
-    }
-
-    set frequency (frequency) {
-        this.oscillator.frequency = frequency;
-        this.sub.frequency = frequency;
     }
 }
 

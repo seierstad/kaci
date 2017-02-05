@@ -196,8 +196,7 @@ class ModulationMatrix {
 
         const voiceLfos = voice.lfos;
         const voiceEnvs = voice.envelopes;
-        const voiceParamTargets = voice.parameterTargetNodes;
-        const voiceParamSources = voice.parameterSourceNodes;
+        const voiceParamTargets = voice.targets;
 
 
         for (let key in voiceParamTargets) {
