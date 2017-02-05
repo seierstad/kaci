@@ -1,7 +1,7 @@
 import {PropTypes} from "react";
 
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
-import {waveforms, wrappers} from "./waveforms";
+import {waveforms, wrappers, noise} from "./waveforms";
 
 export const polarityShape = PropTypes.oneOf([
     "positive",
@@ -100,21 +100,29 @@ export const syncPatchDataShape = PropTypes.shape({
     "numerator": PropTypes.number.isRequired
 });
 
-export const subPatchDataShape = PropTypes.shape({
+export const patchOutputStage = {
     "active": PropTypes.bool.isRequired,
+    "gain": PropTypes.number.isRequired,
+    "pan": PropTypes.number.isRequired
+};
+
+export const patchOutputStageShape = PropTypes.shape({
+    ...patchOutputStage
+});
+
+
+export const subPatchDataShape = PropTypes.shape({
     "beat": PropTypes.number.isRequired,
     "beat_sync": syncPatchDataShape.isRequired,
     "depth": PropTypes.number.isRequired,
     "detune": PropTypes.number.isRequired,
-    "gain": PropTypes.number.isRequired,
-    "mode": PropTypes.oneOf(["detune", "beat"]).isRequired,
-    "pan": PropTypes.number.isRequired
+    "mode": PropTypes.oneOf(["semitone", "beat"]).isRequired,
+    ...patchOutputStage
 });
 
 export const noisePatchDataShape = PropTypes.shape({
-    "active": PropTypes.bool.isRequired,
-    "gain": PropTypes.number.isRequired,
-    "pan": PropTypes.number.isRequired
+    "color": PropTypes.oneOf(Object.keys(noise)),
+    ...patchOutputStage
 });
 
 const modulationSourceModeShape = PropTypes.oneOf(["global", "voice"]);
@@ -207,7 +215,12 @@ export const modulationSourcesShape = PropTypes.shape({
     "lfos": modulationLfoSourcesShape.isRequired
 });
 
-export const modulationTargetShape = PropTypes.objectOf(rangeShape.isRequired);
+export const outputTargetShape = PropTypes.shape({
+    "gain": rangeShape.isRequired,
+    "pan": rangeShape.isRequired
+});
+
+export const modulationTargetShape = PropTypes.objectOf(PropTypes.oneOfType([rangeShape, outputTargetShape]));
 
 export const modulationTargetsShape = PropTypes.shape({
     "noise": modulationTargetShape.isRequired,
@@ -233,12 +246,12 @@ export const configurationShape = PropTypes.shape({
 export const oscillatorPatchDataShape = PropTypes.shape({
     "detune": PropTypes.number.isRequired,
     "mix": PropTypes.number.isRequired,
-    "pan": PropTypes.number.isRequired,
     "pd": oscillatorPdPatchDataShape.isRequired,
     "resonance": PropTypes.number.isRequired,
     "resonanceActive": PropTypes.bool.isRequired,
     "waveform": PropTypes.oneOf(Object.keys(waveforms)),
-    "wrapper": PropTypes.oneOf(Object.keys(wrappers))
+    "wrapper": PropTypes.oneOf(Object.keys(wrappers)),
+    ...patchOutputStage
 });
 
 export const keyStateShape = PropTypes.shape({

@@ -1,5 +1,8 @@
 import DC from "./DCGenerator";
-import {inputNode, outputNode} from "./SharedFunctions";
+import {inputNode, outputNodeexport, ParamLogger} from "./SharedFunctions";
+
+
+import OutputStage from "./output-stage";
 
 class SubOscillator {
     constructor (context, patch, frequency, scaleBaseNumber = 2) {
@@ -8,40 +11,14 @@ class SubOscillator {
 
         this.dc = new DC(context);
         this.context = context;
-        this.state = patch;
+        this.state = {...patch};
 
-        this.gainNode = context.createGain();
-        this.gainNode.gain.value = 0;
-        this.pannerNode = context.createStereoPanner();
-        this.pannerNode.pan.value = 0;
-
-        // this is the output stage, used for muting
-        this.output = context.createGain();
-        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, this.context.currentTime);
-
-        // signal path: source -> gainNode -> pannerNode -> output
+        // gain, pan and mute
+        this.outputStage = new OutputStage(context, this.dc, !!patch.active);
 
         this.parameters = {
-            "targets": {},
-            "sources": {}
+            "targets": {...this.outputStage.targets}
         };
-
-        const t = this.parameters.targets;
-
-        // gain stage, between source and panner/output
-        t.gain = inputNode(context);
-        t.gain.connect(this.gainNode.gain);
-
-
-        t.pan = inputNode(context);
-        t.pan.connect(this.pannerNode.pan);
-
-        //connect signal path
-        this.gainNode.connect(this.pannerNode);
-        this.pannerNode.connect(this.output);
-
-
-        /* end common constructor code */
 
         // simple oscillator
         this.generator = context.createOscillator();
@@ -50,43 +27,51 @@ class SubOscillator {
 
         // set frequency
         this.frequencyNode = context.createGain();
+        this.frequencyNode.gain.value = 0;
         this.dc.connect(this.frequencyNode);
-        this.frequencyNode.gain.value = frequency;
 
 
-        // standard detune
+        // multiply semitones by 100 to get cents
         this.detuneNode = context.createGain();
-        this.dc.connect(this.detuneNode);
         this.detuneNode.gain.value = 0;
-        this.detuneNode.gain.setValueAtTime(this.state.mode === "detune" ? (this.state.detune * 100) : 0, this.context.currentTime);
-        this.detuneNode.connect(this.generator.detune);
+        this.detuneNode.gain.setValueAtTime(100, context.currentTime);
 
-        // shift frequency down 0/1/2 octaves
-        this.scaleBaseNumber = scaleBaseNumber;
-        this.ratioNode = context.createGain();
-        this.ratioNode.gain.value = Math.pow(this.scaleBaseNumber, this.state.depth);
+        // detune, in semitones
+        this.semitoneNode = context.createGain();
+        this.semitoneNode.gain.value = 0;
+        this.dc.connect(this.semitoneNode);
+        this.semitoneNode.connect(this.detuneNode);
+
 
         // linear beat frequency :)
         this.frequencyOffsetNode = context.createGain();
-        this.dc.connect(this.frequencyOffsetNode);
         this.frequencyOffsetNode.gain.value = 0;
-        this.frequencyOffsetNode.gain.setValueAtTime(this.state.mode === "beat" ? this.state.beat : 0, this.context.currentTime);
-        this.frequencyOffsetNode.connect(this.ratioNode);
+        this.dc.connect(this.frequencyOffsetNode);
+
+        // shift frequency down 0/1/2 octaves
+        this.ratioNode = context.createGain();
+        this.ratioNode.gain.value = 0;
 
         this.frequencyNode.connect(this.ratioNode);
         this.ratioNode.connect(this.generator.frequency);
-        this.ratio = this.ratioNode.gain;
+        this.generator.connect(this.outputStage.input);
 
 
+        const t = this.parameters.targets;
         t.beat = inputNode(context);
         t.beat.connect(this.frequencyOffsetNode.gain);
 
         t.detune = inputNode(context);
-        t.detune.connect(this.detuneNode.gain);
+        t.detune.connect(this.semitoneNode.gain);
 
 
+        this.logger = new ParamLogger(this.frequencyNode, this.context, "frequencyNode: ");
 
-        this.generator.connect(this.gainNode);
+        this.frequency = frequency;
+        this.scaleBaseNumber = scaleBaseNumber;
+        this.depth = patch.depth;
+        this.mode = patch.mode;
+        this.active = patch.active;
     }
 
     start () {
@@ -98,74 +83,48 @@ class SubOscillator {
     }
 
     set active (active) {
-        if (this.state.active !== active) {
-            this.output.gain.setValueAtTime(active ? 1 : 0, this.context.currentTime);
-            this.state.active = active;
-        }
+        this.outputStage.active = active;
     }
 
     set frequency (frequency) {
         this.frequencyNode.gain.setValueAtTime(frequency, this.context.currentTime);
     }
 
-    set scaleFactor (factor) {
-        this.scaleBaseNumber = factor;
-        this.ratioNode.gain.setValueAtTime(Math.pow(this.scaleBaseNumber, this.state.depth), this.context.currentTime);
+    set scaleBaseNumber (scaleBaseNumber) {
+        this.ratioNode.gain.setValueAtTime(Math.pow(scaleBaseNumber, this.state.depth), this.context.currentTime);
+        this.state.scaleBaseNumber = scaleBaseNumber;
+    }
+
+    set depth (depth) {
+        this.ratioNode.gain.setValueAtTime(Math.pow(this.state.scaleBaseNumber, depth), this.context.currentTime);
+        this.state.depth = depth;
     }
 
     set mode (mode) {
-        if (this.state.mode !== mode) {
+        if (mode === "beat") {
+            this.frequencyOffsetNode.connect(this.ratioNode);
+            this.detuneNode.disconnect();
 
-            if (mode === "beat") {
-
-                this.detuneNode.gain.setValueAtTime(0, this.context.currentTime);
-                this.frequencyOffsetNode.gain.setValueAtTime(this.state.beat, this.context.currentTime);
-
-            } else if (mode === "detune") {
-
-                this.frequencyOffsetNode.gain.setValueAtTime(0, this.context.currentTime);
-                this.detuneNode.gain.setValueAtTime(this.state.detune * 100, this.context.currentTime);
-            }
-
-            this.state.mode = mode;
+        } else if (mode === "semitone") {
+            this.frequencyOffsetNode.disconnect();
+            this.detuneNode.connect(this.generator.detune);
         }
-    }
 
-    set beat (beat) {
-        if (this.state.beat !== beat) {
-
-            if (this.state.mode === "beat") {
-                this.frequencyOffsetNode.gain.setValueAtTime(beat, this.context.currentTime);
-            }
-
-            this.state.beat = beat;
-        }
-    }
-
-    set detune (detune) {
-        if (this.state.detune !== detune) {
-
-            if (this.state.mode === "detune") {
-                this.detuneNode.gain.setValueAtTime(detune * 100, this.context.currentTime);
-            }
-
-            this.state.detune = detune;
-        }
+        this.state.mode = mode;
     }
 
     connect (node) {
-        this.output.connect(node);
+        this.outputStage.connect(node);
     }
 
     disconnect () {
-        this.output.disconnect();
+        this.outputStage.disconnect();
     }
 
     destroy () {
-        this.pannerNode.disconnect();
-        this.pannerNode = null;
-        this.gainNode.disconnect();
-        this.gainNode = null;
+        this.logger.disconnect();
+        this.logger.destroy();
+        this.logger = null;
         this.frequencyNode.disconnect();
         this.frequencyNode = null;
         this.ratioNode.disconnect();
@@ -174,7 +133,8 @@ class SubOscillator {
         this.frequencyOffsetNode = null;
         this.generator.disconnect();
         this.generator = null;
-        this.output = null;
+        this.outputStage.destroy();
+        this.outputStage = null;
     }
 }
 

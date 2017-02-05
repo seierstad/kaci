@@ -4,7 +4,7 @@ import {ParamLogger, mixValues, getDistortedPhase, inputNode, outputNode} from "
 
 import DC from "./DCGenerator";
 import {BUFFER_LENGTH} from "./constants";
-
+import OutputStage from "./output-stage";
 
 class PDOscillator {
     constructor (context, patch, frequency) {
@@ -14,31 +14,13 @@ class PDOscillator {
         this.context = context;
         this.state = patch;
 
-        this.gainNode = context.createGain();
-        this.gainNode.gain.value = 0;
-        this.pannerNode = context.createStereoPanner();
-        this.pannerNode.pan.value = 0;
+        // gain, pan and mute
+        this.outputStage = new OutputStage(context, this.dc, !!patch.active);
 
-        // this is the output, used for muting
-        this.output = context.createGain();
-
-        // signal path: source -> gainNode -> pannerNode -> output
 
         this.parameters = {
-            "targets": {}
+            "targets": {...this.outputStage.targets}
         };
-        const targets = this.parameters.targets;
-        targets.gain = inputNode(context);
-        targets.gain.connect(this.gainNode.gain);
-        targets.pan = inputNode(context);
-        targets.pan.connect(this.pannerNode.pan);
-
-        //connect signal path
-        this.gainNode.connect(this.pannerNode);
-        this.pannerNode.connect(this.output);
-
-
-        /* end common constructor code */
 
 
         const inputDefs = [{
@@ -54,6 +36,20 @@ class PDOscillator {
             name: "mix",
             defaultValue: 0
         }];
+
+        this.mergedInput = context.createChannelMerger(inputDefs.length);
+
+        const targets = this.parameters.targets;
+
+        inputDefs.forEach((def, i) => {
+            const nodeName = def.name + "Node";
+            const targets = this.parameters.targets;
+            targets[def.name] = inputNode(context);
+
+            //connect input to merge node
+            targets[def.name].connect(this.mergedInput, null, i);
+        });
+
 
         this.audioprocessHandler = this.getAudioProcessor(this);
 
@@ -76,29 +72,14 @@ class PDOscillator {
 
         this.phase = 0;
         this.resonancePhase = 0;
-        this.sampleAndHoldBuffer = {
-            value: null,
-            phase: 0
-        };
 
-
-        this.mergedInput = context.createChannelMerger(inputDefs.length);
-
-        inputDefs.forEach((def, i) => {
-            const nodeName = def.name + "Node";
-            const targets = this.parameters.targets;
-            targets[def.name] = inputNode(context);
-
-            //connect input to merge node
-            targets[def.name].connect(this.mergedInput, null, i);
-        });
 
         //set frequency
         this.dc.connect(targets.frequency);
         targets.frequency.gain.value = 440;
 
         this.mergedInput.connect(this.generator);
-        this.generator.connect(this.gainNode);
+        this.generator.connect(this.outputStage.input);
 
         this.frequency = frequency;
         this.active = patch.active;
@@ -218,7 +199,7 @@ class PDOscillator {
     }
 
     set active (active) {
-        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, this.context.currentTime);
+        this.outputStage.active = active;
     }
 
     set waveform (waveformName) {
@@ -258,11 +239,11 @@ class PDOscillator {
     }
 
     connect (node) {
-        this.output.connect(node);
+        this.outputStage.connect(node);
     }
 
     disconnect () {
-        this.output.disconnect();
+        this.outputStage.disconnect();
     }
 
     destroy () {

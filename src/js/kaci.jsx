@@ -8,7 +8,7 @@ import reducer from "./reducers/kaci";
 import KaciView from "./views/KaciView.jsx";
 
 import VoiceRegister from "./VoiceRegister";
-// import WavyJones from "../lib/wavy-jones/wavy-jones";
+import WavyJones from "../../lib/wavy-jones";
 import DCGenerator from "./DCGenerator";
 import ModulationMatrix from "./ModulationMatrix";
 import KeyboardInput from "./KeyboardInput";
@@ -17,7 +17,6 @@ import MidiInput from "./MidiInput";
 import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration";
 
-let mainMix;
 
 // window.Perf = Perf;
 
@@ -50,10 +49,10 @@ if (window.AudioContext) {
     //    shaper.curve = shaperCurve;
     //    shaper.connect(scope);
 
-    /* start scope
-        var scope = new WavyJones(ctx, "oscilloscope");
-        scope.lineColor = "black";
-        scope.lineThickness = 1;
+    //* start scope
+    const scope = new WavyJones(ctx, "oscilloscope");
+    scope.lineColor = "black";
+    scope.lineThickness = 1;
 
     reg.mainMix.connect(scope);
     //*/

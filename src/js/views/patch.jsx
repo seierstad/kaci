@@ -176,14 +176,16 @@ const mapDispatchToProps = (dispatch) => ({
             }
         },
         "noise": {
-            "toggle": (event) => {
-                dispatch({type: Actions.NOISE_TOGGLE});
-            },
-            "panInput": (value) => {
-                dispatch({type: Actions.NOISE_PAN_CHANGE, value});
-            },
-            "gainInput": (value) => {
-                dispatch({type: Actions.NOISE_GAIN_CHANGE, value});
+            "outputHandlers": {
+                "handleToggle": (event) => {
+                    dispatch({type: Actions.OUTPUT_TOGGLE, module: "noise"});
+                },
+                "handlePanInput": (value) => {
+                    dispatch({type: Actions.OUTPUT_PAN_CHANGE, value, module: "noise"});
+                },
+                "handleGainInput": (value) => {
+                    dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "noise"});
+                }
             }
         }
     }

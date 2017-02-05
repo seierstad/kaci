@@ -86,25 +86,37 @@ const oscillator = (state = {}, action) => {
     return state;
 };
 
-
-const noise = (state = {}, action) => {
+const output = (state, action) => {
     switch (action.type) {
-        case Actions.NOISE_GAIN_CHANGE:
+        case Actions.OUTPUT_GAIN_CHANGE:
             return {
                 ...state,
                 gain: action.value
             };
 
-        case Actions.NOISE_PAN_CHANGE:
+        case Actions.OUTPUT_PAN_CHANGE:
             return {
                 ...state,
                 pan: action.value
             };
 
-        case Actions.NOISE_TOGGLE:
+        case Actions.OUTPUT_TOGGLE:
             return {
                 ...state,
                 active: !state.active
+            };
+    }
+
+    return state;
+};
+
+
+const noise = (state = {}, action) => {
+    switch (action.type) {
+        case Actions.NOISE_COLOR_CHANGE:
+            return {
+                ...state,
+                color: action.value
             };
     }
 
@@ -171,14 +183,28 @@ const sub = (state = {}, action) => {
 };
 
 
-const patch = combineReducers({
-    vca,
-    oscillator,
-    noise,
-    sub,
-    lfos,
-    envelopes,
-    modulation
-});
+const patch = (state, action) => {
+
+    switch (action.type) {
+        case Actions.OUTPUT_GAIN_CHANGE:
+        case Actions.OUTPUT_PAN_CHANGE:
+        case Actions.OUTPUT_TOGGLE:
+            return {
+                ...state,
+                [action.module]: output(state[action.module], action)
+            };
+    }
+
+    return combineReducers({
+        vca,
+        oscillator,
+        noise,
+        sub,
+        lfos,
+        envelopes,
+        modulation
+    })(state, action);
+};
+
 
 export default patch;

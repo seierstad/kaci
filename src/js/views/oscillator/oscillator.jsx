@@ -6,6 +6,7 @@ import {waveforms} from "../../waveforms";
 import {getDistortedPhase, mixValues} from "../../sharedFunctions";
 import {oscillatorPatchDataShape, modulationTargetShape} from "../../propdefs";
 
+import OutputStage from "../output-stage.jsx";
 import RangeInput from "../RangeInput.jsx";
 import WaveformSelector from "../WaveformSelector.jsx";
 import PhaseDistortion from "./phase-distortion.jsx";
@@ -88,7 +89,7 @@ class OscillatorPresentation extends Component {
 
     render () {
         const {configuration, patch, viewState, handlers, envelopeHandlers} = this.props;
-        const {handleToggle} = handlers;
+        const {outputStageHandlers} = handlers;
 
 
         const pd0Props = {
@@ -114,10 +115,10 @@ class OscillatorPresentation extends Component {
 
         return (
             <section className="oscillator-view">
-                <input
-                    checked={patch.active}
-                    onChange={handleToggle}
-                    type="checkbox"
+                <OutputStage
+                    configuration={configuration}
+                    handlers={outputStageHandlers}
+                    patch={patch}
                 />
                 <WaveformSelector
                     changeHandler={handlers.waveformChange}
@@ -175,6 +176,7 @@ const mapState = (state) => ({
     "configuration": state.settings.modulation.target.oscillator,
     "patch": state.patch.oscillator
 });
+
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "resonance": {
@@ -182,7 +184,11 @@ const mapDispatch = (dispatch) => ({
             "wrapperChange": (waveform, module) => {dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": waveform});},
             "toggle": () => {dispatch({"type": Actions.OSCILLATOR_RESONANCE_TOGGLE});}
         },
-        "handleToggle": () => {dispatch({type: Actions.OSCILLATOR_TOGGLE});},
+        "outputStageHandlers": {
+            "handleToggle": () => {dispatch({type: Actions.OUTPUT_TOGGLE, module: "oscillator"});},
+            "handleGainInput": (value) => {dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "oscillator"});},
+            "handlePanInput": (value) => {dispatch({type: Actions.OUTPUT_PAN_CHANGE, value, module: "oscillator"});}
+        },
         "waveformChange": (waveform, module) => {dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": waveform});},
         "mix": (value) => {dispatch({"type": Actions.OSCILLATOR_MIX_CHANGE, value});},
         "detune": (value) => {dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});}

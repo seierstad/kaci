@@ -2,9 +2,10 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import {modulationTargetShape, subPatchDataShape} from "../propdefs";
-import {SUB_GAIN_CHANGE, SUB_PAN_CHANGE, SUB_TOGGLE, SUB_DEPTH_CHANGE, SUB_BEAT_FREQUENCY_CHANGE, SUB_DETUNE_CHANGE, SUB_DETUNE_MODE_CHANGE} from "../actions";
+import {OUTPUT_GAIN_CHANGE, OUTPUT_PAN_CHANGE, OUTPUT_TOGGLE, SUB_DEPTH_CHANGE, SUB_BEAT_FREQUENCY_CHANGE, SUB_DETUNE_CHANGE, SUB_DETUNE_MODE_CHANGE} from "../actions";
 import {defaultSyncConfiguration} from "../configuration";
 
+import OutputStage from "./output-stage.jsx";
 import SyncControls from "./SyncControls.jsx";
 import RangeInput from "./RangeInput.jsx";
 
@@ -36,28 +37,15 @@ class SubViewPresentation extends Component {
 
     render () {
         const {patch, configuration, handlers, syncHandlers} = this.props;
-        const {panInput, gainInput, toggle, depthChange, beatToggle, beatChange, detuneChange} = handlers;
-
+        const {outputStageHandlers, depthChange, beatToggle, beatChange, detuneChange} = handlers;
 
         return (
             <section className="sub-view">
                 <h1>Sub oscillator</h1>
-                <input
-                    checked={patch.active}
-                    onChange={toggle}
-                    type="checkbox"
-                />
-                <RangeInput
-                    changeHandler={gainInput}
-                    configuration={configuration.gain}
-                    label="Sub gain"
-                    value={patch.gain}
-                />
-                <RangeInput
-                    changeHandler={panInput}
-                    configuration={configuration.pan}
-                    label="Sub pan"
-                    value={patch.pan}
+                <OutputStage
+                    configuration={configuration}
+                    handlers={outputStageHandlers}
+                    patch={patch}
                 />
                 <fieldset>
                     <legend>Sub depth</legend>
@@ -89,14 +77,14 @@ class SubViewPresentation extends Component {
                 <fieldset>
                     <legend>detune</legend>
                     <input
-                        checked={patch.mode === "detune"}
+                        checked={patch.mode === "semitone"}
                         id="sub-detune-mode-detune"
                         name="sub-detune-mode"
                         onChange={this.handleDetuneModeChange}
                         type="radio"
-                        value="detune"
+                        value="semitone"
                     />
-                    <label htmlFor="sub-detune-mode-detune">detune</label>
+                    <label htmlFor="sub-detune-mode-detune">semitone</label>
                     <input
                         checked={patch.mode === "beat"}
                         id="sub-detune-mode-beat"
@@ -125,7 +113,7 @@ class SubViewPresentation extends Component {
                         <RangeInput
                             changeHandler={detuneChange}
                             configuration={configuration.detune}
-                            label="semitone"
+                            label="offset"
                             value={patch.detune}
                         />
                     }
@@ -143,14 +131,15 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
     "handlers": {
-        "toggle": () => {dispatch({type: SUB_TOGGLE});},
-        "panInput": (value) => {dispatch({type: SUB_PAN_CHANGE, value});},
-        "gainInput": (value) => {dispatch({type: SUB_GAIN_CHANGE, value});},
         "depthChange": (value) => {dispatch({type: SUB_DEPTH_CHANGE, value});},
         "detuneChange": (value) => {dispatch({type: SUB_DETUNE_CHANGE, value});},
         "beatChange": (value) => {dispatch({type: SUB_BEAT_FREQUENCY_CHANGE, value});},
-        "detuneMode": (value) => {dispatch({type: SUB_DETUNE_MODE_CHANGE, value});}
-
+        "detuneMode": (value) => {dispatch({type: SUB_DETUNE_MODE_CHANGE, value});},
+        "outputStageHandlers": {
+            "handleToggle": () => {dispatch({type: OUTPUT_TOGGLE, module: "sub"});},
+            "handlePanInput": (value) => {dispatch({type: OUTPUT_PAN_CHANGE, value, module: "sub"});},
+            "handleGainInput": (value) => {dispatch({type: OUTPUT_GAIN_CHANGE, value, module: "sub"});}
+        }
     }
 });
 

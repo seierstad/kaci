@@ -2,9 +2,6 @@
 "use strict";
 let patch = {
     "oscillator": {
-        "active": true,
-        "gain": 1,
-        "pan": 0,
         "waveform": "triangle",
         "pd": [{
             "steps": [
@@ -23,18 +20,18 @@ let patch = {
         "resonanceActive": true,
         "wrapper": "saw",
         "mix": 0,
-        "detune": 0
+        "detune": 0,
+        "active": true,
+        "gain": 0.1,
+        "pan": 0
     },
     "noise": {
+        "color": "white",
         "active": true,
-        "gain": 0.02,
-        "pan": 0,
-        "color": "white"
+        "gain": 0.2,
+        "pan": 0
     },
     "sub": {
-        "active": true,
-        "gain": 0.5,
-        "pan": 0,
         "depth": 0,
         "mode": "beat",
         "detune": 0,
@@ -43,7 +40,10 @@ let patch = {
             "enabled": false,
             "numerator": 16,
             "denominator": 3
-        }
+        },
+        "active": true,
+        "gain": 0.5,
+        "pan": 0
     },
     "vca": {
         "gain": 1

@@ -4,7 +4,7 @@ import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
 
-import WavyJones from "../../lib/wavy-jones";
+//import WavyJones from "../../lib/wavy-jones";
 
 const prefixKeys = (object, prefix) => {
     const result = {};
@@ -45,26 +45,11 @@ class Voice {
         this.oscillator.connect(this.vca);
         this.noise.connect(this.vca);
 
-
-        this.sources = {
-//            ...(prefixKeys(this.oscillator.parameters.sources, "oscillator.")),
-//            ...(prefixKeys(this.noise.parameters.sources, "noise.")) //,
-//            ...(prefixKeys(this.sub.parameters.sources, "sub."))
-        };
         this.targetNodes = {
             ...(prefixKeys(this.oscillator.parameters.targets, "oscillator.")),
             ...(prefixKeys(this.noise.parameters.targets, "noise.")),
             ...(prefixKeys(this.sub.parameters.targets, "sub."))
         };
-
-        /* start scope
-        let scope = new WavyJones(context, "oscilloscope");
-        scope.lineColor = "black";
-        scope.lineThickness = 1;
-
-        this.oscillator.connect(scope);
-        //*/
-
     }
 
     createVoiceLfo (lfoPatch, index) {
@@ -102,35 +87,41 @@ class Voice {
             }
 
             if (n !== nNew) {
-                console.log("noise change!");
+                const {active: a, color: c} = n;
+                const {active: aNew, color: cNew} = nNew;
+
+                if (a !== aNew) {
+                    this.noise.active = aNew;
+                }
+
+                if (c !== cNew) {
+                    this.noise.color = cNew;
+                }
+
             }
 
             if (s !== sNew) {
-                console.log("sub change!");
-            }
-/*
-        "active": true,
-        "waveform": "triangle",
-        "pd": [{
-            "steps": [
-                [0, 0],
-                [1, 1]
-            ]
-        }, {
-            "steps": [
-                [0, 0],
-                [0.45, 0.25],
-                [0.5733333333333334, 0.8433333333333333],
-                [1, 1]
-            ]
-        }],
-        "resonanceActive": true,
-        "wrapper": "saw",
+                const {active: a, mode: m, depth: d, beat_sync: bs} = s;
+                const {active: aNew, mode: mNew, depth: dNew, beat_sync: bsNew} = sNew;
 
-            if (this.state. !== newState.) {
+                if (a !== aNew) {
+                    this.sub.active = aNew;
+                }
+
+                if (m !== mNew) {
+                    this.sub.mode = mNew;
+                }
+
+                if (d !== dNew) {
+                    this.sub.depth = dNew;
+                }
+
+                if (bs !== bsNew) {
+                    console.log("TODO: implement sub beat sync");
+                }
 
             }
-*/
+
             this.state = newState;
         }
     }

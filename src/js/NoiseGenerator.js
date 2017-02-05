@@ -1,8 +1,8 @@
 import {BUFFER_LENGTH} from "./constants";
-import {ParamLogger, inputNode, outputNode} from "./SharedFunctions";
+import {inputNode} from "./SharedFunctions";
 import DC from "./DCGenerator";
-import {noise as noiseFunctions} from "./waveforms";
-
+import {noise} from "./waveforms";
+import OutputStage from "./output-stage";
 
 class Noise {
     constructor (context, patch) {
@@ -11,53 +11,32 @@ class Noise {
         this.dc = new DC(context);
         this.state = patch;
 
-        this.gainNode = context.createGain();
-        this.gainNode.gain.value = 0;
-        this.pannerNode = context.createStereoPanner();
-        this.pannerNode.pan.value = 0;
+        // gain, pan and mute
+        this.outputStage = new OutputStage(context, this.dc, !!patch.active);
 
-        // this is the output stage, used for muting
-        this.output = context.createGain();
-        this.output.gain.setValueAtTime(this.state.active ? 1 : 0, context.currentTime);
-
-        // signal path: source -> gainNode -> pannerNode -> output
 
         this.parameters = {
-            "targets": {},
-            "sources": {}
+            "targets": {...this.outputStage.targets}
         };
 
-        const t = this.parameters.targets;
-
-        t.gain = inputNode(context);
-        t.gain.connect(this.gainNode.gain);
-
-        t.pan = inputNode(context);
-        t.pan.connect(this.pannerNode.pan);
-
-        //connect signal path
-        this.gainNode.connect(this.pannerNode);
-        this.pannerNode.connect(this.output);
-
-
-        /* end common constructor code */
 
         this.audioProcessHandler = this.audioProcessHandler.bind(this);
-        this.generatorFunction = noiseFunctions[this.state.color];
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
-        this.generator.connect(this.gainNode);
+        this.generator.connect(this.outputStage.input);
+
+        this.active = patch.active;
+        this.color = patch.color;
     }
 
 
     set color (color) {
-        if (color !== this.state.color && typeof noiseFunctions[color] === "function") {
-            this.generatorFunction = noiseFunctions[color];
-            this.state.color = color;
+        if (typeof noise[color] === "function") {
+            this.generatorFunction = noise[color];
         }
     }
 
-    get color () {
-        return this.state.color;
+    set active (active) {
+        this.outputStage.active = active;
     }
 
     start () {
@@ -74,23 +53,21 @@ class Noise {
     }
 
     connect (node) {
-        this.output.connect(node);
+        this.outputStage.connect(node);
     }
 
     disconnect () {
-        this.output.disconnect();
+        this.outputStage.disconnect();
     }
 
     destroy () {
-        this.stateChangeHandler = null;
         this.audioProcessHandler = null;
         this.generatorFunction = null;
         this.generator.disconnect();
         this.generator = null;
-        this.gain = null;
-        this.gainNode.disconnect();
-        this.gainNode = null;
         this.state = null;
+        this.outputStage.destroy();
+        this.outputStage = null;
     }
 }
 

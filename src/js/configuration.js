@@ -50,6 +50,19 @@ export const defaultTuning = {
     }]
 };
 
+export const outputStageTargets = {
+    "gain": {
+        "min": 0,
+        "max": 1,
+        "exponential": true
+    },
+    "pan": {
+        "min": -1,
+        "mid": 0,
+        "max": 1
+    }
+};
+
 export const defaultSyncConfiguration = {
     "numerator": {
         "min": 1,
@@ -137,11 +150,6 @@ const configuration = {
                 }
             },
             "oscillator": {
-                "gain": {
-                    "min": 0,
-                    "max": 1,
-                    "exponential": true
-                },
                 "resonance": {
                     "min": 1,
                     "max": 16,
@@ -156,23 +164,9 @@ const configuration = {
                     "mid": 0,
                     "max": 1200
                 },
-                "pan": {
-                    "min": -1,
-                    "mid": 0,
-                    "max": 1
-                }
+                ...outputStageTargets
             },
             "sub": {
-                "gain": {
-                    "min": 0,
-                    "max": 1,
-                    "exponential": true
-                },
-                "pan": {
-                    "min": -1,
-                    "mid": 0,
-                    "max": 1
-                },
                 "detune": {
                     "min": -1,
                     "max": 1
@@ -181,19 +175,11 @@ const configuration = {
                     "min": 0,
                     "max": 20,
                     "exponential": true
-                }
+                },
+                ...outputStageTargets
             },
             "noise": {
-                "gain": {
-                    "min": 0,
-                    "max": 1,
-                    "exponential": true
-                },
-                "pan": {
-                    "min": -1,
-                    "mid": 0,
-                    "max": 1
-                }
+                ...outputStageTargets
             }
         }
     }

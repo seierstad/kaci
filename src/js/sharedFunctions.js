@@ -54,7 +54,7 @@ export class ParamLogger {
 
                 console.log(label ? label : "", result);
                 this.justLogged = true;
-                setTimeout(() => {
+                this.timer = setTimeout(() => {
                     this.justLogged = false;
                 }, time);
             }
@@ -62,9 +62,15 @@ export class ParamLogger {
         parameter.connect(this.logger);
         this.logger.connect(context.destination);
     }
+
     disconnect () {
         this.logger.onaudioprocess = null;
         this.logger.disconnect();
+    }
+
+    destroy () {
+        clearTimeout(this.timer);
+        this.logger = null;
     }
 }
 

@@ -1,9 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
 import {modulationTargetShape, noisePatchDataShape} from "../propdefs";
-
-import RangeInput from "./RangeInput.jsx";
-
+import OutputStage from "./output-stage.jsx";
 
 class NoiseView extends Component {
 
@@ -19,26 +17,16 @@ class NoiseView extends Component {
 
     render () {
         const {patch, configuration, handlers} = this.props;
-        const {panInput, gainInput, toggle} = handlers;
-        const {active, gain, pan} = patch;
+        const {outputHandlers} = handlers;
+        const {color} = patch;
 
         return (
             <section className="noise-view">
-                <h1>Noise</h1>
-                <input checked={active} onChange={toggle} type="checkbox" />
-                <RangeInput
-                    changeHandler={gainInput}
-                    configuration={configuration.gain}
-                    label="Noise gain"
-                    max={configuration.gain.max}
-                    min={configuration.gain.min}
-                    value={gain}
-                />
-                <RangeInput
-                    changeHandler={panInput}
-                    configuration={configuration.pan}
-                    label="Noise pan"
-                    value={pan}
+                <h1>{color} noise</h1>
+                <OutputStage
+                    configuration={configuration}
+                    handlers={outputHandlers}
+                    patch={patch}
                 />
             </section>
         );
