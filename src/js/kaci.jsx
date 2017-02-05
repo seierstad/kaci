@@ -16,7 +16,6 @@ import patch from "./patch";
 import MidiInput from "./MidiInput";
 import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration";
-import PatchHandler from "./PatchHandler";
 
 let mainMix;
 
