@@ -2,6 +2,13 @@ import React, {Component, PropTypes} from "react";
 import {polarityShape} from "../../propdefs";
 
 class PolaritySelector extends Component {
+
+    static propTypes = {
+        "changeHandler": PropTypes.func.isRequired,
+        "patch": polarityShape.isRequired,
+        "prefix": PropTypes.string.isRequired
+    }
+
     constructor () {
         super();
         this.handleChange = this.handleChange.bind(this);
@@ -36,10 +43,5 @@ class PolaritySelector extends Component {
     }
 }
 
-PolaritySelector.propTypes = {
-    "changeHandler": PropTypes.func.isRequired,
-    "patch": polarityShape.isRequired,
-    "prefix": PropTypes.string.isRequired
-};
 
 export default PolaritySelector;

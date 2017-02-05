@@ -4,6 +4,16 @@ import {connect} from "react-redux";
 import * as Actions from "../../actions";
 
 class KeyPresentation extends Component {
+
+    static propTypes = {
+        "handlers": PropTypes.shape({
+            "down": PropTypes.func.isRequired,
+            "up": PropTypes.func.isRequired
+        }),
+        "name": PropTypes.string.isRequired,
+        "number": PropTypes.number.isRequired
+    }
+
     constructor () {
         super();
         this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -56,14 +66,7 @@ class KeyPresentation extends Component {
         );
     }
 }
-KeyPresentation.propTypes = {
-    "handlers": PropTypes.shape({
-        "down": PropTypes.func.isRequired,
-        "up": PropTypes.func.isRequired
-    }),
-    "name": PropTypes.string.isRequired,
-    "number": PropTypes.number.isRequired
-};
+
 
 const mapDispatch = (dispatch) => ({
     "handlers": {
@@ -73,5 +76,6 @@ const mapDispatch = (dispatch) => ({
 });
 
 const Key = connect(null, mapDispatch)(KeyPresentation);
+
 
 export default Key;

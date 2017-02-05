@@ -4,6 +4,15 @@ import {modulationLfoSourcesSyncShape, syncPatchDataShape} from "../propdefs";
 
 class SyncControls extends Component {
 
+    static propTypes = {
+        "configuration": modulationLfoSourcesSyncShape.isRequired,
+        "disabled": PropTypes.bool,
+        "handlers": PropTypes.object.isRequired,
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
+        "patch": syncPatchDataShape.isRequired
+    }
+
     constructor () {
         super();
         this.toggle = this.toggle.bind(this);
@@ -70,14 +79,6 @@ class SyncControls extends Component {
         );
     }
 }
-SyncControls.propTypes = {
-    "configuration": modulationLfoSourcesSyncShape.isRequired,
-    "disabled": PropTypes.bool,
-    "handlers": PropTypes.object.isRequired,
-    "index": PropTypes.number,
-    "module": PropTypes.string.isRequired,
-    "patch": syncPatchDataShape.isRequired
-};
 
 
 export default SyncControls;

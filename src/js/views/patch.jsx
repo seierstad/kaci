@@ -14,6 +14,14 @@ import ModulationMatrix from "./modulation/matrix.jsx";
 import Oscillator from "./oscillator/oscillator.jsx";
 
 class PatchPresentation extends Component {
+
+    static propTypes = {
+        "configuration": configurationShape.isRequired,
+        "handlers": PropTypes.object.isRequired,
+        "patch": patchShape.isRequired,
+        "viewState": viewStateShape.isRequired
+    }
+
     shouldComponentUpdate (nextProps) {
         return (nextProps.patch !== this.props.patch);
     }
@@ -57,12 +65,6 @@ class PatchPresentation extends Component {
     }
 }
 
-PatchPresentation.propTypes = {
-    "configuration": configurationShape.isRequired,
-    "handlers": PropTypes.object.isRequired,
-    "patch": patchShape.isRequired,
-    "viewState": viewStateShape.isRequired
-};
 
 
 const mapDispatchToProps = (dispatch) => ({

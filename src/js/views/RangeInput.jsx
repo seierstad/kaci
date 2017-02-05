@@ -39,6 +39,20 @@ const getScale = (min, max, mid) => {
 };
 
 class RangeInput extends Component {
+
+    static propTypes = {
+        "changeHandler": PropTypes.func.isRequired,
+        "configuration": PropTypes.shape({
+            "exponential": PropTypes.bool,
+            "max": PropTypes.number.isRequired,
+            "min": PropTypes.number.isRequired,
+            "step": PropTypes.number
+        }),
+        "disabled": PropTypes.bool,
+        "label": PropTypes.string.isRequired,
+        "value": PropTypes.number.isRequired
+    }
+
     constructor () {
         super();
         this.handleChange = this.handleChange.bind(this);
@@ -90,18 +104,6 @@ class RangeInput extends Component {
         );
     }
 }
-RangeInput.propTypes = {
-    "changeHandler": PropTypes.func.isRequired,
-    "configuration": PropTypes.shape({
-        "exponential": PropTypes.bool,
-        "max": PropTypes.number.isRequired,
-        "min": PropTypes.number.isRequired,
-        "step": PropTypes.number
-    }),
-    "disabled": PropTypes.bool,
-    "label": PropTypes.string.isRequired,
-    "value": PropTypes.number.isRequired
-};
 
 
 export default RangeInput;

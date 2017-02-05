@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
 import {waveforms, wrappers} from "../../waveforms";
-import {oscillatorPatchDataShape, inputRangeShape} from "../../propdefs";
+import {oscillatorPatchDataShape, rangeShape} from "../../propdefs";
 
 import DependentComponent from "../dependent-component.jsx";
 import RangeInput from "../RangeInput.jsx";
@@ -27,6 +27,14 @@ const wrapWaveform = (wrappers, waveform, resonance) => {
 
 
 class Resonance extends Component {
+
+    static propTypes = {
+        "configuration": rangeShape.isRequired,
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+        "mixFunction": PropTypes.func.isRequired,
+        "patch": oscillatorPatchDataShape.isRequired
+    }
+
     constructor () {
         super();
         this.waveFunction = () => 0;
@@ -76,11 +84,6 @@ class Resonance extends Component {
         );
     }
 }
-Resonance.propTypes = {
-    "configuration": inputRangeShape.isRequired,
-    "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-    "mixFunction": PropTypes.func.isRequired,
-    "patch": oscillatorPatchDataShape.isRequired
-};
+
 
 export default Resonance;

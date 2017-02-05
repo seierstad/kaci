@@ -5,6 +5,15 @@ import {modulationTargetShape, modulationTargetModuleShape} from "../../propdefs
 
 class ModulationTargetModule extends Component {
 
+    static propTypes = {
+        "configuration": modulationTargetShape.isRequired,
+        "envCount": PropTypes.number.isRequired,
+        "handlers": PropTypes.object,
+        "lfoCount": PropTypes.number.isRequired,
+        "module": PropTypes.string.isRequired,
+        "patch": modulationTargetModuleShape
+    }
+
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
     }
@@ -29,13 +38,6 @@ class ModulationTargetModule extends Component {
         );
     }
 }
-ModulationTargetModule.propTypes = {
-    "configuration": modulationTargetShape.isRequired,
-    "envCount": PropTypes.number.isRequired,
-    "handlers": PropTypes.object,
-    "lfoCount": PropTypes.number.isRequired,
-    "module": PropTypes.string.isRequired,
-    "patch": modulationTargetModuleShape
-};
+
 
 export default ModulationTargetModule;

@@ -5,13 +5,22 @@ import {PORT} from "../../midiConstants";
 let midiPortSelectorCounter = 0;
 
 class MidiPortSelector extends Component {
+
+    static propTypes = {
+        "portChangeHandler": PropTypes.func.isRequired,
+        "ports": PropTypes.array,
+        "selectedPort": PropTypes.string
+    }
+
     constructor () {
         super();
         this.uniqeKey = null;
     }
+
     componentWillMount () {
         this.uniqeKey = (midiPortSelectorCounter += 1);
     }
+
     render () {
         const {portChangeHandler, ports, selectedPort} = this.props;
         const port = p => <option disabled={p.state === PORT.STATE.DISCONNECTED} key={p.id} value={p.id}>{p.name}{p.manufacturer ? " (" + p.manufacturer + ")" : "" }{p.id === selectedPort && p.state === PORT.STATE.DISCONNECTED ? " DISCONNECTED" : ""}</option>;
@@ -35,11 +44,6 @@ class MidiPortSelector extends Component {
         return null;
     }
 }
-MidiPortSelector.propTypes = {
-    "portChangeHandler": PropTypes.func.isRequired,
-    "ports": PropTypes.array,
-    "selectedPort": PropTypes.string
-};
 
 
 export default MidiPortSelector;

@@ -4,6 +4,11 @@ import {envelopePatchDataShape} from "../../propdefs";
 import {toPercent} from "./shared-functions";
 
 class EnvelopeLines extends Component {
+
+    static propTypes = {
+        "steps": envelopePatchDataShape.isRequired
+    }
+
     render () {
         const { steps } = this.props;
         const line = (step, index, arr) => {
@@ -28,8 +33,6 @@ class EnvelopeLines extends Component {
         );
     }
 }
-EnvelopeLines.propTypes = {
-    "steps": envelopePatchDataShape.isRequired
-};
+
 
 export default EnvelopeLines;

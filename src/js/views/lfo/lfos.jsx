@@ -5,6 +5,13 @@ import LFO from "./lfo.jsx";
 
 class LFOs extends Component {
 
+    static propTypes = {
+        "configuration": modulationLfoSourcesShape.isRequired,
+        "handlers": PropTypes.object.isRequired,
+        "patch": lfosPatchDataShape,
+        "syncHandlers": PropTypes.object
+    }
+
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
     }
@@ -30,13 +37,6 @@ class LFOs extends Component {
         return <div>{lfos}</div>;
     }
 }
-
-LFOs.propTypes = {
-    "configuration": modulationLfoSourcesShape.isRequired,
-    "handlers": PropTypes.object.isRequired,
-    "patch": lfosPatchDataShape,
-    "syncHandlers": PropTypes.object
-};
 
 
 export default LFOs;

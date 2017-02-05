@@ -5,6 +5,21 @@ import Circles from "./circles.jsx";
 
 
 class Envelope extends Component {
+
+    static propTypes = {
+        "activeIndex": PropTypes.number,
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
+        "part": PropTypes.string,
+        "patch": PropTypes.shape({
+            "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
+        }).isRequired,
+        "viewState": PropTypes.array,
+        "width": PropTypes.string,
+        "x": PropTypes.string
+    }
+
     constructor () {
         super();
         this.backgroundClick = this.backgroundClick.bind(this);
@@ -66,19 +81,6 @@ class Envelope extends Component {
         );
     }
 }
-Envelope.propTypes = {
-    "activeIndex": PropTypes.number,
-    "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-    "index": PropTypes.number,
-    "module": PropTypes.string.isRequired,
-    "part": PropTypes.string,
-    "patch": PropTypes.shape({
-        "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
-    }).isRequired,
-    "viewState": PropTypes.array,
-    "width": PropTypes.string,
-    "x": PropTypes.string
-};
 
 
 export default Envelope;

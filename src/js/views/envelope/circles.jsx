@@ -6,6 +6,17 @@ import {toPercent} from "./shared-functions";
 
 class EnvelopeCircles extends Component {
 
+    static propTypes = {
+        "activeIndex": PropTypes.number,
+        "background": PropTypes.element,
+        "envelopeIndex": PropTypes.number,
+        "handlers": PropTypes.object,
+        "module": PropTypes.string.isRequired,
+        "part": PropTypes.string,
+        "steps": envelopePatchDataShape.isRequired,
+        "viewState": envelopeViewStateShape.isRequired
+    }
+
     shouldComponentUpdate (nextProps) {
         return (this.props.steps !== nextProps.steps) || (this.props.viewState !== nextProps.viewState) || (this.props.activeIndex !== nextProps.activeIndex);
     }
@@ -50,16 +61,6 @@ class EnvelopeCircles extends Component {
         );
     }
 }
-EnvelopeCircles.propTypes = {
-    "activeIndex": PropTypes.number,
-    "background": PropTypes.element,
-    "envelopeIndex": PropTypes.number,
-    "handlers": PropTypes.object,
-    "module": PropTypes.string.isRequired,
-    "part": PropTypes.string,
-    "steps": envelopePatchDataShape.isRequired,
-    "viewState": envelopeViewStateShape.isRequired
-};
 
 
 export default EnvelopeCircles;

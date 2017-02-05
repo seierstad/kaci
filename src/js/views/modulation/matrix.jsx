@@ -9,6 +9,12 @@ import TargetModule from "./module.jsx";
 
 class ModulationMatrixPresentation extends Component {
 
+    static propTypes = {
+        "configuration": modulationShape.isRequired,
+        "handlers": PropTypes.object,
+        "patch": modulationPatchDataShape.isRequired
+    }
+
     render () {
         const {configuration, patch, handlers} = this.props;
         const lfoCount = configuration.source.lfos.count;
@@ -56,11 +62,7 @@ class ModulationMatrixPresentation extends Component {
         );
     }
 }
-ModulationMatrixPresentation.propTypes = {
-    "configuration": modulationShape.isRequired,
-    "handlers": PropTypes.object,
-    "patch": modulationPatchDataShape.isRequired
-};
+
 
 const mapState = (state) => ({
     "configuration": state.settings.modulation,

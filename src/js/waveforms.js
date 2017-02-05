@@ -4,12 +4,15 @@ export const wrappers = {
     sync: function () {
         return 1;
     },
+
     saw: function (phase) {
         return 1 - (phase % 1);
     },
+
     halfSinus: function (phase) {
         return Math.sin(phase * Math.PI);
     },
+
     gaussian: function () {
         // dummy function to be replaced by constructor
         // added for static enumeration purposes
@@ -20,33 +23,36 @@ export const waveforms = {
     zero: function zero () {
         return 0;
     },
+
     sinus: function sinus (phase) {
         return Math.sin(phase * DOUBLE_PI);
     },
+
     square: function square (phase) {
         if ((phase % 1) > 0.5) {
             return -1;
         }
         return 1;
     },
-    additiveSquare: function additiveSquare (phase, maxHarmonic) {
-        const h = maxHarmonic || 8;
+
+    additiveSquare: function additiveSquare (phase, maxHarmonic = 8) {
         let value = 0;
 
-        for (let i = 1; i < h; i += 2) {
+        for (let i = 1; i < maxHarmonic; i += 2) {
             value += Math.sin(phase * DOUBLE_PI * i) / i;
         }
 
         return value * (4 / Math.PI);
     },
+
     saw: function saw (phase) {
         return ((phase % 1) - 0.5) * 2;
     },
-    additiveSaw: function additiveSaw (phase, maxHarmonic) {
-        const h = maxHarmonic || 8;
+
+    additiveSaw: function additiveSaw (phase, maxHarmonic = 8) {
         let value = 0;
 
-        for (let i = 1; i < h; i += 1) {
+        for (let i = 1; i < maxHarmonic; i += 1) {
             value += Math.sin(phase * DOUBLE_PI * i) / i;
         }
 
@@ -68,12 +74,11 @@ export const waveforms = {
         return (p - 1) * 4;
     },
 
-    additiveTriangle: function additiveTriangle (phase, maxHarmonic) {
-        const h = maxHarmonic || 5;
+    additiveTriangle: function additiveTriangle (phase, maxHarmonic = 5) {
         let odd = true,
             value = 0;
 
-        for (let i = 1; i < h; i += 2) {
+        for (let i = 1; i < maxHarmonic; i += 2) {
             if (odd) {
                 value += Math.sin(phase * DOUBLE_PI * i) / (i * i);
             } else {
@@ -84,18 +89,24 @@ export const waveforms = {
         return value * (8 / Math.pow(Math.PI, 2));
     },
 
-    sampleAndHold: function sampleAndHold (phase, buffer, steps) {
-        const s = steps || 2;
-        const fraction = 1 / s;
+    sampleAndHold: (steps = 2) => {
+        const buffer = {};
+        const fraction = 1 / steps;
 
-        if (!buffer.hasOwnProperty("value") || buffer.value === null) {
-            buffer.value = (Math.random() - 0.5) * 2;
-        }
-        if (Math.ceil(phase / fraction) > Math.ceil(buffer.phase / fraction)) {
-            buffer.value = (Math.random() - 0.5) * 2;
-        }
-        buffer.phase = phase % 1;
-        return buffer.value;
+        return (phase) => {
+
+            if (!buffer.hasOwnProperty("value") || buffer.value === null) {
+                buffer.value = (Math.random() - 0.5) * 2;
+            }
+
+            if (Math.ceil(phase / fraction) > Math.ceil(buffer.phase / fraction)) {
+                buffer.value = (Math.random() - 0.5) * 2;
+            }
+
+            buffer.phase = phase % 1;
+
+            return buffer.value;
+        };
     }
 };
 

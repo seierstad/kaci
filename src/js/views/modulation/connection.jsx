@@ -7,6 +7,16 @@ import {defaultModulationConnectionParameters} from "../../configuration";
 
 
 class Connection extends Component {
+
+    static propTypes = {
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+        "index": PropTypes.number.isRequired,
+        "noConnection": PropTypes.bool,
+        "patch": modulationConnectionPatchDataShape,
+        "path": PropTypes.arrayOf(PropTypes.string).isRequired,
+        "type": modulationSourceTypeShape.isRequired
+    }
+
     constructor () {
         super();
         this.handleAmountChange = this.handleAmountChange.bind(this);
@@ -76,14 +86,6 @@ class Connection extends Component {
         );
     }
 }
-Connection.propTypes = {
-    "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-    "index": PropTypes.number.isRequired,
-    "noConnection": PropTypes.bool,
-    "patch": modulationConnectionPatchDataShape,
-    "path": PropTypes.arrayOf(PropTypes.string).isRequired,
-    "type": modulationSourceTypeShape.isRequired
-};
 
 
 export default Connection;

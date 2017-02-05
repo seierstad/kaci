@@ -6,6 +6,12 @@ import * as Actions from "../actions";
 
 
 class KeyboardInputView extends Component {
+
+    static propTypes = {
+        "configuration": keyboardShape.isRequired,
+        "handlers": PropTypes.object.isRequired
+    }
+
     shouldComponentUpdate (nextProps) {
         return (this.props.configuration !== nextProps.configuration);
     }
@@ -25,9 +31,5 @@ class KeyboardInputView extends Component {
     }
 }
 
-KeyboardInputView.propTypes = {
-    "configuration": keyboardShape.isRequired,
-    "handlers": PropTypes.object.isRequired
-};
 
 export default KeyboardInputView;

@@ -6,6 +6,15 @@ import {modulationTargetParameterShape} from "../../propdefs";
 
 class ModulationTarget extends Component {
 
+    static propTypes = {
+        "envCount": PropTypes.number.isRequired,
+        "handlers": PropTypes.object.isRequired,
+        "lfoCount": PropTypes.number.isRequired,
+        "moduleHead": PropTypes.object,
+        "parameter": PropTypes.string.isRequired,
+        "patch": modulationTargetParameterShape
+    }
+
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
     }
@@ -68,13 +77,6 @@ class ModulationTarget extends Component {
         );
     }
 }
-ModulationTarget.propTypes = {
-    "envCount": PropTypes.number.isRequired,
-    "handlers": PropTypes.object.isRequired,
-    "lfoCount": PropTypes.number.isRequired,
-    "moduleHead": PropTypes.object,
-    "parameter": PropTypes.string.isRequired,
-    "patch": modulationTargetParameterShape
-};
+
 
 export default ModulationTarget;

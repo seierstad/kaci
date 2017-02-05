@@ -1,5 +1,4 @@
 const drawWaveform = function (waveGenerator, canvas, params) {
-    "use strict";
 
     let canvasElement,
         phase = 0,

@@ -6,18 +6,32 @@ import Envelope from "../envelope/envelope.jsx";
 
 
 class PhaseDistortion extends Component {
+
+    static propTypes = {
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+        "index": PropTypes.number.isRequired,
+        "module": PropTypes.string.isRequired,
+        "patch": PropTypes.shape({
+            "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))
+        }),
+        "viewState": PropTypes.array,
+        "waveFunction": PropTypes.func.isRequired,
+        "waveformName": PropTypes.string.isRequired
+    }
+
     componentDidMount () {
         this.updateWaveform();
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate (nextProps) {
         return (
             nextProps.waveformName !== this.props.waveformName
             || nextProps.patch.steps !== this.props.patch.steps
             || nextProps.viewState !== this.props.viewState
         );
     }
-    componentDidUpdate (prevProps, prevState) {
+
+    componentDidUpdate () {
         this.updateWaveform();
     }
 
@@ -43,17 +57,6 @@ class PhaseDistortion extends Component {
         );
     }
 }
-PhaseDistortion.propTypes = {
-    "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-    "index": PropTypes.number.isRequired,
-    "module": PropTypes.string.isRequired,
-    "patch": PropTypes.shape({
-        "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number))
-    }),
-    "viewState": PropTypes.array,
-    "waveFunction": PropTypes.func.isRequired,
-    "waveformName": PropTypes.string.isRequired
-};
 
 
 export default PhaseDistortion;

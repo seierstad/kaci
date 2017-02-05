@@ -10,6 +10,14 @@ import RangeInput from "./RangeInput.jsx";
 
 
 class SubViewPresentation extends Component {
+
+    static propTypes = {
+        "configuration": modulationTargetShape.isRequired,
+        "handlers": PropTypes.object,
+        "patch": subPatchDataShape.isRequired,
+        "syncHandlers": PropTypes.objectOf(PropTypes.func).isRequired
+    }
+
     constructor () {
         super();
         this.handleChangeDepth = this.handleChangeDepth.bind(this);
@@ -20,6 +28,7 @@ class SubViewPresentation extends Component {
         event.stopPropagation();
         this.props.handlers.depthChange(parseInt(event.target.value, 10));
     }
+
     handleDetuneModeChange (event) {
         event.stopPropagation();
         this.props.handlers.detuneMode(event.target.value);
@@ -125,12 +134,7 @@ class SubViewPresentation extends Component {
         );
     }
 }
-SubViewPresentation.propTypes = {
-    "configuration": modulationTargetShape.isRequired,
-    "handlers": PropTypes.object,
-    "patch": subPatchDataShape.isRequired,
-    "syncHandlers": PropTypes.objectOf(PropTypes.func).isRequired
-};
+
 
 const mapState = (state) => ({
     "configuration": state.settings.modulation.target.sub,
@@ -149,6 +153,7 @@ const mapDispatch = (dispatch) => ({
 
     }
 });
+
 const SubView = connect(mapState, mapDispatch)(SubViewPresentation);
 
 

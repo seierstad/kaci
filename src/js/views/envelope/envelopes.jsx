@@ -7,6 +7,13 @@ import {envelopesPatchDataShape, modulationEnvelopeSourcesShape, sustainEnvelope
 
 class Envelopes extends Component {
 
+    static propTypes = {
+        "configuration": modulationEnvelopeSourcesShape.isRequired,
+        "handlers": PropTypes.object,
+        "patch": envelopesPatchDataShape,
+        "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)
+    }
+
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch || this.props.viewState !== nextProps.viewState;
     }
@@ -32,12 +39,7 @@ class Envelopes extends Component {
     }
 }
 
-Envelopes.propTypes = {
-    "configuration": modulationEnvelopeSourcesShape.isRequired,
-    "handlers": PropTypes.object,
-    "patch": envelopesPatchDataShape,
-    "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)
-};
+
 
 /*
     this.controller.addEventListener('touchstart', this.touchHandler.bind(this), false);

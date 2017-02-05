@@ -3,6 +3,12 @@ import drawWaveform from "../drawWaveform";
 
 
 class WaveformCanvas extends Component {
+
+    static propTypes = {
+        "update": PropTypes.bool,
+        "waveFunction": PropTypes.func.isRequired
+    }
+
     constructor () {
         super();
         this.updateWaveform = this.updateWaveform.bind(this);
@@ -30,10 +36,6 @@ class WaveformCanvas extends Component {
         );
     }
 }
-WaveformCanvas.propTypes = {
-    "update": PropTypes.bool,
-    "waveFunction": PropTypes.func.isRequired
-};
 
 
 export default WaveformCanvas;

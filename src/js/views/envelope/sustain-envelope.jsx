@@ -7,6 +7,15 @@ import Sustain from "./sustain.jsx";
 import {sustainEnvelopePatchDataShape} from "../../propdefs";
 
 class SustainEnvelope extends Component {
+
+    static propTypes = {
+        "handlers": PropTypes.object.isRequired,
+        "index": PropTypes.number.isRequired,
+        "module": PropTypes.string.isRequired,
+        "patch": sustainEnvelopePatchDataShape.isRequired,
+        "viewState": PropTypes.object
+    }
+
     constructor () {
         super();
         this.mouseOut = this.mouseOut.bind(this);
@@ -107,13 +116,6 @@ class SustainEnvelope extends Component {
         );
     }
 }
-SustainEnvelope.propTypes = {
-    "handlers": PropTypes.object.isRequired,
-    "index": PropTypes.number.isRequired,
-    "module": PropTypes.string.isRequired,
-    "patch": sustainEnvelopePatchDataShape.isRequired,
-    "viewState": PropTypes.object
-};
 
 
 export default SustainEnvelope;

@@ -10,6 +10,16 @@ import SyncControls from "../SyncControls.jsx";
 
 
 class LFO extends Component {
+
+    static propTypes = {
+        "configuration": modulationLfoSourcesShape.isRequired,
+        "handlers": PropTypes.objectOf(PropTypes.func),
+        "index": PropTypes.number.isRequired,
+        "module": PropTypes.string.isRequired,
+        "patch": lfoPatchDataShape.isRequired,
+        "syncHandlers": PropTypes.object
+    }
+
     constructor () {
         super();
         this.reset = this.reset.bind(this);
@@ -86,15 +96,6 @@ class LFO extends Component {
         );
     }
 }
-
-LFO.propTypes = {
-    "configuration": modulationLfoSourcesShape.isRequired,
-    "handlers": PropTypes.objectOf(PropTypes.func),
-    "index": PropTypes.number.isRequired,
-    "module": PropTypes.string.isRequired,
-    "patch": lfoPatchDataShape.isRequired,
-    "syncHandlers": PropTypes.object
-};
 
 
 export default LFO;

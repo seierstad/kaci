@@ -3,6 +3,18 @@ import drawWaveform from "./drawWaveform";
 
 
 class WaveformButton extends Component {
+
+    static propTypes = {
+        "controlName": PropTypes.string,
+        "includePhaseIndicator": PropTypes.bool,
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
+        "onChange": PropTypes.func.isRequired,
+        "selected": PropTypes.bool,
+        "waveform": PropTypes.func.isRequired,
+        "waveformName": PropTypes.string.isRequired
+    }
+
     constructor () {
         super();
         this.handleChange = this.handleChange.bind(this);
@@ -54,16 +66,6 @@ class WaveformButton extends Component {
         );
     }
 }
-WaveformButton.propTypes = {
-    "controlName": PropTypes.string,
-    "includePhaseIndicator": PropTypes.bool,
-    "index": PropTypes.number,
-    "module": PropTypes.string.isRequired,
-    "onChange": PropTypes.func.isRequired,
-    "selected": PropTypes.bool,
-    "waveform": PropTypes.func.isRequired,
-    "waveformName": PropTypes.string.isRequired
-};
 
 
 export default WaveformButton;

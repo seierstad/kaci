@@ -19,7 +19,7 @@ let patch = {
                 [1, 1]
             ]
         }],
-        "resonance": 2,
+        "resonance": 1.1,
         "resonanceActive": true,
         "wrapper": "saw",
         "mix": 0,
@@ -67,8 +67,8 @@ let patch = {
         },
         "mode": "global" /* "voice"  TODO: implement voice LFOs */
     }, {
-        "waveform": "sinus",
-        "frequency": 0.8,
+        "waveform": "square",
+        "frequency": 1.34,
         "amount": 1.0,
         "active": true,
         "sync": {
@@ -77,7 +77,7 @@ let patch = {
             "denominator": 4,
             "master": 0
         },
-        "mode": "voice"
+        "mode": "global"
     }],
     "envelopes": [{
         "attack": {
@@ -151,6 +151,15 @@ let patch = {
                 "source": {
                     "type": "lfo",
                     "index": 1
+                }
+            }],
+            "detune": [{
+                "amount": 1,
+                "polarity": "positive",
+                "enabled": true,
+                "source": {
+                    "type": "lfo",
+                    "index": 2
                 }
             }]
         },

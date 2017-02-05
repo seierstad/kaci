@@ -1,23 +1,36 @@
-import React, {PropTypes} from "react";
+import React, {Component, PropTypes} from "react";
 import MidiView from "./MIDI/midi.jsx";
 import KeyboardInputView from "./KeyboardInputView.jsx";
 import Tuning from "./tuning.jsx";
 
-import {keyboardShape} from "../propdefs";
+import {keyboardShape, configurationShape, playStateShape} from "../propdefs";
 
-const SystemSettingsView = ({keyboardConfiguration, keyboardHandlers, resetHandler}) => (
-    <section className="system-settings-view">
-        <MidiView />
-        <KeyboardInputView configuration={keyboardConfiguration} handlers={keyboardHandlers} />
-        <Tuning />
-        <button onClick={resetHandler}>system reset</button>
-    </section>
-);
-SystemSettingsView.propTypes = {
-    "keyboardConfiguration": keyboardShape,
-    "keyboardHandlers": PropTypes.object,
-    "resetHandler": PropTypes.func
-};
+
+class SystemSettingsView extends Component {
+
+    static propTypes = {
+        "configuration": configurationShape,
+        "keyboardHandlers": PropTypes.object,
+        "playState": playStateShape,
+        "resetHandler": PropTypes.func
+    }
+
+    render () {
+        const {keyboardConfiguration, keyboardHandlers, resetHandler, configuration, playState} = this.props;
+
+        return (
+            <section className="system-settings-view">
+                <MidiView
+                    configuration={configuration.midi}
+                    playState={playState.midiClock}
+                />
+                <KeyboardInputView configuration={configuration.keyboard} handlers={keyboardHandlers} />
+                <Tuning />
+                <button onClick={resetHandler}>system reset</button>
+            </section>
+        );
+    }
+}
 
 
 export default SystemSettingsView;

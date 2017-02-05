@@ -9,6 +9,13 @@ import PortSelector from "./port-selector.jsx";
 
 
 class MidiViewPresentation extends Component {
+
+    static propTypes = {
+        "configuration": midiShape,
+        "handlers": PropTypes.object,
+        "playState": midiClockPlayStateShape.isRequired
+    }
+
     shouldComponentUpdate (nextProps) {
         return (this.props.playState !== nextProps.playState) || (this.props.configuration !== nextProps.configuration);
     }
@@ -38,16 +45,7 @@ class MidiViewPresentation extends Component {
         );
     }
 }
-MidiViewPresentation.propTypes = {
-    "configuration": midiShape,
-    "handlers": PropTypes.object,
-    "playState": midiClockPlayStateShape.isRequired
-};
 
-const mapState = (state) => ({
-    "configuration": state.settings.midi,
-    "playState": state.playState.midiClock
-});
 
 const mapDispatch = (dispatch) => ({
     "handlers": {
@@ -59,6 +57,6 @@ const mapDispatch = (dispatch) => ({
     }
 });
 
-const MidiView = connect(mapState, mapDispatch)(MidiViewPresentation);
+const MidiView = connect(null, mapDispatch)(MidiViewPresentation);
 
 export default MidiView;

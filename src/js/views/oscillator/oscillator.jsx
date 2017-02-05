@@ -14,6 +14,15 @@ import Resonance from "./resonance.jsx";
 
 
 class OscillatorPresentation extends Component {
+
+    static propTypes = {
+        "configuration": modulationTargetShape.isRequired,
+        "envelopeHandlers": PropTypes.object.isRequired,
+        "handlers": PropTypes.object.isRequired,
+        "patch": oscillatorPatchDataShape.isRequired,
+        "viewState": PropTypes.object.isRequired
+    }
+
     constructor () {
         super();
         /*
@@ -152,13 +161,7 @@ class OscillatorPresentation extends Component {
         );
     }
 }
-OscillatorPresentation.propTypes = {
-    "configuration": modulationTargetShape.isRequired,
-    "envelopeHandlers": PropTypes.object.isRequired,
-    "handlers": PropTypes.object.isRequired,
-    "patch": oscillatorPatchDataShape.isRequired,
-    "viewState": PropTypes.object.isRequired
-};
+
 
 const mapState = (state) => ({
     "configuration": state.settings.modulation.target.oscillator,

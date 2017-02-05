@@ -7,6 +7,12 @@ import * as Actions from "../actions";
 
 
 class TuningPresentation extends Component {
+
+    static propTypes = {
+        "configuration": tuningShape,
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired
+    }
+
     constructor () {
         super();
         this.handleBaseFrequencyChange = this.handleBaseFrequencyChange.bind(this);
@@ -45,10 +51,7 @@ class TuningPresentation extends Component {
         );
     }
 }
-TuningPresentation.propTypes = {
-    "configuration": tuningShape,
-    "handlers": PropTypes.objectOf(PropTypes.func).isRequired
-};
+
 
 const mapState = (state) => ({
     "configuration": state.settings.tuning
@@ -61,5 +64,6 @@ const mapDispatch = (dispatch) => ({
 });
 
 const Tuning = connect(mapState, mapDispatch)(TuningPresentation);
+
 
 export default Tuning;

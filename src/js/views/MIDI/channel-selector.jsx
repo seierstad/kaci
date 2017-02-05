@@ -6,6 +6,12 @@ import {midiChannelShape} from "../../propdefs";
 let midiChannelSelectorCounter = 0;
 
 class MidiChannelSelector extends Component {
+
+    static propTypes = {
+        "channelChangeHandler": PropTypes.func.isRequired,
+        "selectedChannel": midiChannelShape.isRequired
+    }
+
     constructor () {
         super();
         this.uniqeKey = null;
@@ -42,10 +48,6 @@ class MidiChannelSelector extends Component {
         );
     }
 }
-MidiChannelSelector.propTypes = {
-    "channelChangeHandler": PropTypes.func.isRequired,
-    "selectedChannel": midiChannelShape.isRequired
-};
 
 
 export default MidiChannelSelector;

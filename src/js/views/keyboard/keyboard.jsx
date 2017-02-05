@@ -10,6 +10,16 @@ import Key from "./key.jsx";
 
 
 class KeyboardViewPresentation extends Component {
+
+    static propTypes = {
+        "configuration": PropTypes.object.isRequired,
+        "handlers": PropTypes.shape({
+            "handleChordShift": PropTypes.func.isRequired,
+            "handlePitchShift": PropTypes.func.isRequired
+        }).isRequired,
+        "playState": playStateShape.isRequired
+    }
+
     componentWillMount () {
         const {configuration: {startKey, endKey}} = this.props;
         this.keyWidth = 100 / ((endKey - startKey) - (((endKey - startKey) / 12) * 5));
@@ -96,14 +106,7 @@ class KeyboardViewPresentation extends Component {
         );
     }
 }
-KeyboardViewPresentation.propTypes = {
-    "configuration": PropTypes.object.isRequired,
-    "handlers": PropTypes.shape({
-        "handleChordShift": PropTypes.func.isRequired,
-        "handlePitchShift": PropTypes.func.isRequired
-    }).isRequired,
-    "playState": playStateShape.isRequired
-};
+
 
 const mapState = (state) => ({
     "configuration": state.settings.keyboard,

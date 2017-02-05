@@ -59,10 +59,12 @@ export const connectionShape = PropTypes.shape({
     })
 });
 
-export const steppedRangeShape = PropTypes.shape({
-    "min": PropTypes.number.isRequired,
+export const rangeShape = PropTypes.shape({
+    "exponential": PropTypes.bool,
     "max": PropTypes.number.isRequired,
-    "step": PropTypes.number.isRequired
+    "mid": PropTypes.number,
+    "min": PropTypes.number.isRequired,
+    "step": PropTypes.number
 });
 
 export const modulationSourceTypeShape = PropTypes.oneOf([
@@ -188,15 +190,15 @@ export const viewStateShape = PropTypes.shape({
 });
 
 export const modulationLfoSourcesSyncShape = PropTypes.shape({
-    "numerator": steppedRangeShape.isRequired,
-    "denominator": steppedRangeShape.isRequired
+    "numerator": rangeShape.isRequired,
+    "denominator": rangeShape.isRequired
 });
 
 export const modulationLfoSourcesShape = PropTypes.shape({
-    "amount": steppedRangeShape.isRequired,
+    "amount": rangeShape.isRequired,
     "count": PropTypes.number.isRequired,
     "default": lfoPatchDataShape.isRequired,
-    "frequency": steppedRangeShape.isRequired,
+    "frequency": rangeShape.isRequired,
     "sync": modulationLfoSourcesSyncShape
 });
 
@@ -205,12 +207,7 @@ export const modulationSourcesShape = PropTypes.shape({
     "lfos": modulationLfoSourcesShape.isRequired
 });
 
-export const inputRangeShape = PropTypes.shape({
-    "max": PropTypes.number.isRequired,
-    "min": PropTypes.number.isRequired
-});
-
-export const modulationTargetShape = PropTypes.objectOf(inputRangeShape.isRequired);
+export const modulationTargetShape = PropTypes.objectOf(rangeShape.isRequired);
 
 export const modulationTargetsShape = PropTypes.shape({
     "noise": modulationTargetShape.isRequired,

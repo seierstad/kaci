@@ -6,6 +6,13 @@ import RangeInput from "./RangeInput.jsx";
 
 
 class NoiseView extends Component {
+
+    static propTypes = {
+        "configuration": modulationTargetShape.isRequired,
+        "handlers": PropTypes.object.isRequired,
+        "patch": noisePatchDataShape.isRequired
+    }
+
     shouldComponentUpdate (nextProps) {
         return (this.props.patch !== nextProps.patch);
     }
@@ -37,11 +44,6 @@ class NoiseView extends Component {
         );
     }
 }
-NoiseView.propTypes = {
-    "configuration": modulationTargetShape.isRequired,
-    "handlers": PropTypes.object.isRequired,
-    "patch": noisePatchDataShape.isRequired
-};
 
 
 export default NoiseView;

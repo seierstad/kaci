@@ -2,6 +2,26 @@ import React, {Component, PropTypes} from "react";
 
 
 class Circle extends Component {
+
+    static propTypes = {
+        "active": PropTypes.bool,
+        "background": PropTypes.element,
+        "cx": PropTypes.string.isRequired,
+        "cy": PropTypes.string.isRequired,
+        "envelopeIndex": PropTypes.number,
+        "first": PropTypes.bool,
+        "handlers": PropTypes.shape({
+            "circleBlur": PropTypes.func.isRequired,
+            "circleClick": PropTypes.func.isRequired,
+            "circleMouseDrag": PropTypes.func.isRequired
+        }),
+        "index": PropTypes.number.isRequired,
+        "last": PropTypes.bool,
+        "module": PropTypes.string.isRequired,
+        "part": PropTypes.string,
+        "r": PropTypes.number.isRequired
+    }
+
     constructor () {
         super();
         this.click = this.click.bind(this);
@@ -44,24 +64,7 @@ class Circle extends Component {
         );
     }
 }
-Circle.propTypes = {
-    "active": PropTypes.bool,
-    "background": PropTypes.element,
-    "cx": PropTypes.string.isRequired,
-    "cy": PropTypes.string.isRequired,
-    "envelopeIndex": PropTypes.number,
-    "first": PropTypes.bool,
-    "handlers": PropTypes.shape({
-        "circleBlur": PropTypes.func.isRequired,
-        "circleClick": PropTypes.func.isRequired,
-        "circleMouseDrag": PropTypes.func.isRequired
-    }),
-    "index": PropTypes.number.isRequired,
-    "last": PropTypes.bool,
-    "module": PropTypes.string.isRequired,
-    "part": PropTypes.string,
-    "r": PropTypes.number.isRequired
-};
+
 
 export default Circle;
 

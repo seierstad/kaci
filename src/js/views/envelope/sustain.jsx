@@ -4,6 +4,26 @@ import {toPercent} from "./shared-functions";
 
 
 class Sustain extends Component {
+
+    static propTypes = {
+        "active": PropTypes.bool,
+        "envelopeIndex": PropTypes.number,
+        "handlers": PropTypes.shape({
+            "activeCircleMouseUp": PropTypes.func.isRequired,
+            "circleBlur": PropTypes.func.isRequired,
+            "circleClick": PropTypes.func.isRequired,
+            "circleMouseDrag": PropTypes.func.isRequired,
+            "mouseOut": PropTypes.func.isRequired,
+            "sustainBackgroundClick": PropTypes.func.isRequired
+        }).isRequired,
+        "module": PropTypes.string.isRequired,
+        "part": PropTypes.string,
+        "value": PropTypes.number.isRequired,
+        "viewState": PropTypes.object.isRequired,
+        "width": PropTypes.string,
+        "x": PropTypes.string
+    }
+
     constructor () {
         super();
         this.click = this.click.bind(this);
@@ -73,24 +93,6 @@ class Sustain extends Component {
         );
     }
 }
-Sustain.propTypes = {
-    "active": PropTypes.bool,
-    "envelopeIndex": PropTypes.number,
-    "handlers": PropTypes.shape({
-        "activeCircleMouseUp": PropTypes.func.isRequired,
-        "circleBlur": PropTypes.func.isRequired,
-        "circleClick": PropTypes.func.isRequired,
-        "circleMouseDrag": PropTypes.func.isRequired,
-        "mouseOut": PropTypes.func.isRequired,
-        "sustainBackgroundClick": PropTypes.func.isRequired
-    }).isRequired,
-    "module": PropTypes.string.isRequired,
-    "part": PropTypes.string,
-    "value": PropTypes.number.isRequired,
-    "viewState": PropTypes.object.isRequired,
-    "width": PropTypes.string,
-    "x": PropTypes.string
-};
 
 
 export default Sustain;

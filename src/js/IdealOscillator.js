@@ -144,8 +144,11 @@ class IdealOscillator {
     }
 
     setWaveform (waveformName) {
-        if (typeof IdealOscillator.waveforms[waveformName] === "function") {
-            this.selectedWaveform = IdealOscillator.waveforms[waveformName];
+        if (typeof waveforms[waveformName] === "function") {
+            if (waveformName === "sampleAndHold") {
+                this.selectedWaveform = waveforms[waveformName]();
+            }
+            this.selectedWaveform = waveforms[waveformName];
         }
     }
 
@@ -166,5 +169,6 @@ class IdealOscillator {
         this.generator = null;
     }
 }
-IdealOscillator.waveforms = waveforms;
+
+
 export default IdealOscillator;
