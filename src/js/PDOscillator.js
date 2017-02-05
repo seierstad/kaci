@@ -66,8 +66,6 @@ class PDOscillator {
 
         const that = this;
 
-        this.wrappers.gaussian = this.gaussianFunction(0.5, 0.1);
-
         this.pdEnvelope0 = [];
         this.pdEnvelope1 = [];
 
@@ -93,7 +91,7 @@ class PDOscillator {
         }
 
         if (typeof this.wrappers[this.state.wrapper] === "function") {
-            this.selectedWrapper = this.wrappers[this.state.wrapper];
+            this.selectedWrapper = this.wrappers[this.state.wrapper]();
         }
 
         this.resonanceActive = this.state.resonanceActive;
@@ -134,7 +132,7 @@ class PDOscillator {
         if (newState !== this.state) {
             if (this.state.wrapper !== newState.wrapper) {
                 if (typeof wrappers[newState.wrapper] === "function") {
-                    this.selectedWrapper = this.wrappers[newState.wrapper];
+                    this.selectedWrapper = this.wrappers[newState.wrapper]();
                 }
             }
             if (this.state.waveform !== newState.waveform) {
@@ -267,7 +265,7 @@ class PDOscillator {
 
     set wrapper (wrapperName) {
         if (wrapperName && this.wrappers[wrapperName] && typeof this.wrappers[wrapperName] === "function") {
-            this.selectedWrapper = this.wrappers[wrapperName];
+            this.selectedWrapper = this.wrappers[wrapperName]();
         }
         return this;
     }
@@ -294,15 +292,6 @@ class PDOscillator {
 
     getComputedFrequency (frequency, detune) {
         return frequency * Math.pow(2, detune / 1200);
-    }
-
-    gaussianFunction (mu, sig) {
-        let twoSigSquared = 2 * Math.pow(sig, 2),
-            muSquared = mu * mu;
-
-        return function (phase) {
-            return Math.exp(-(muSquared - (2 * mu * phase) + (phase * phase)) / twoSigSquared);
-        };
     }
 
     connect (node) {

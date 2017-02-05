@@ -1,21 +1,17 @@
 const DOUBLE_PI = require("./constants").DOUBLE_PI;
 
 export const wrappers = {
-    sync: function () {
-        return 1;
-    },
+    sync: () => () => 1,
 
-    saw: function (phase) {
-        return 1 - (phase % 1);
-    },
+    saw: () => (phase) => 1 - (phase % 1),
 
-    halfSinus: function (phase) {
-        return Math.sin(phase * Math.PI);
-    },
+    halfSinus: () => (phase) => Math.sin(phase * Math.PI),
 
-    gaussian: function () {
-        // dummy function to be replaced by constructor
-        // added for static enumeration purposes
+    gaussian: ({mu = 0.5, sig = 0.1} = {}) => {
+        const twoSigSquared = 2 * Math.pow(sig, 2);
+        const muSquared = mu * mu;
+
+        return (phase) => Math.exp(-(muSquared - (2 * mu * phase) + (phase * phase)) / twoSigSquared);
     }
 };
 

@@ -19,7 +19,7 @@ const wrapWaveform = (wrappers, waveform, resonance) => {
 
     for (wrapperName in wrappers) {
         if (wrappers.hasOwnProperty(wrapperName)) {
-            wrappedWaveforms[wrapperName] = getWrapperFunction(wrappers[wrapperName], waveform, resonance);
+            wrappedWaveforms[wrapperName] = getWrapperFunction(wrappers[wrapperName](), waveform, resonance);
         }
     }
     return wrappedWaveforms;
@@ -44,9 +44,8 @@ class Resonance extends Component {
     componentWillMount () {
         const {patch, mixFunction} = this.props;
         const {wrapper, resonance} = patch;
-        let wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus, 5);
-        this.setState({"wrappedWaveforms": wrappedWaveforms});
-        this.waveFunction = getWrapperFunction(wrappers[wrapper], mixFunction, resonance);
+        this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus, 5);
+        this.waveFunction = getWrapperFunction(wrappers[wrapper](), mixFunction, resonance);
 
     }
 
@@ -57,7 +56,7 @@ class Resonance extends Component {
     componentWillUpdate (nextProps) {
         const {patch, mixFunction} = nextProps;
         const {wrapper, resonance} = patch;
-        this.waveFunction = getWrapperFunction(wrappers[wrapper], mixFunction, resonance);
+        this.waveFunction = getWrapperFunction(wrappers[wrapper](), mixFunction, resonance);
     }
 
     render () {
@@ -78,7 +77,7 @@ class Resonance extends Component {
                     changeHandler={handlers.wrapperChange}
                     module="oscillator"
                     selected={wrapper}
-                    waveforms={this.state.wrappedWaveforms}
+                    waveforms={this.wrappedWaveforms}
                 />
             </div>
         );

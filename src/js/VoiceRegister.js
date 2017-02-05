@@ -9,11 +9,13 @@ import Voice from "./Voice";
 
 class VoiceRegister {
     constructor (store, context, modulationMatrix) {
+        /*
         this.appKeyDownHandler = this.appKeyDownHandler.bind(this);
         this.appKeyUpHandler = this.appKeyUpHandler.bind(this);
         this.chordShiftHandler = this.chordShiftHandler.bind(this);
         this.enableChordShiftHandler = this.enableChordShiftHandler.bind(this);
         this.disableChordShiftHandler = this.disableChordShiftHandler.bind(this);
+        */
         this.getIndexes = this.getIndexes.bind(this);
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
 
@@ -97,7 +99,7 @@ class VoiceRegister {
             return value !== undefined;
         });
     }
-
+    /*
     appKeyDownHandler (event) {
         const k = event.detail.keyNumber;
         const chords = this.chordShifter.chords;
@@ -181,6 +183,7 @@ class VoiceRegister {
             "detail": {}
         }));
     }
+    */
 
     chordShiftHandler (event) {
         const chords = this.chordShifter.chords;
