@@ -16,22 +16,13 @@ export const wrappers = {
 };
 
 export const waveforms = {
-    zero: function zero () {
-        return 0;
-    },
+    zero: () => () => 0,
 
-    sinus: function sinus (phase) {
-        return Math.sin(phase * DOUBLE_PI);
-    },
+    sinus: () => (phase) => Math.sin(phase * DOUBLE_PI),
 
-    square: function square (phase) {
-        if ((phase % 1) > 0.5) {
-            return -1;
-        }
-        return 1;
-    },
+    square: () => (phase) => ((phase % 1) > 0.5) ? -1 : 1,
 
-    additiveSquare: function additiveSquare (phase, maxHarmonic = 8) {
+    additiveSquare: ({maxHarmonic = 8} = {}) => (phase) => {
         let value = 0;
 
         for (let i = 1; i < maxHarmonic; i += 2) {
@@ -41,11 +32,9 @@ export const waveforms = {
         return value * (4 / Math.PI);
     },
 
-    saw: function saw (phase) {
-        return ((phase % 1) - 0.5) * 2;
-    },
+    saw: () => (phase) => ((phase % 1) - 0.5) * 2,
 
-    additiveSaw: function additiveSaw (phase, maxHarmonic = 8) {
+    additiveSaw: ({maxHarmonic = 8} = {}) => (phase) => {
         let value = 0;
 
         for (let i = 1; i < maxHarmonic; i += 1) {
@@ -55,11 +44,9 @@ export const waveforms = {
         return value * (2 / Math.PI);
     },
 
-    saw_inverse: function saw_inverse (phase) {
-        return 1 - ((phase % 1) * 2);
-    },
+    saw_inverse: () => (phase) => 1 - ((phase % 1) * 2),
 
-    triangle: function triangle (phase) {
+    triangle: () => (phase) => {
         const p = phase % 1;
 
         if (p < 0.25) {
@@ -70,7 +57,7 @@ export const waveforms = {
         return (p - 1) * 4;
     },
 
-    additiveTriangle: function additiveTriangle (phase, maxHarmonic = 5) {
+    additiveTriangle: ({maxHarmonic = 5} = {}) => (phase) => {
         let odd = true,
             value = 0;
 
@@ -85,7 +72,7 @@ export const waveforms = {
         return value * (8 / Math.pow(Math.PI, 2));
     },
 
-    sampleAndHold: (steps = 2) => {
+    sampleAndHold: ({steps = 2} = {}) => {
         const buffer = {};
         const fraction = 1 / steps;
 

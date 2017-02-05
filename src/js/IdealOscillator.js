@@ -145,10 +145,7 @@ class IdealOscillator {
 
     setWaveform (waveformName) {
         if (typeof waveforms[waveformName] === "function") {
-            if (waveformName === "sampleAndHold") {
-                this.selectedWaveform = waveforms[waveformName]();
-            }
-            this.selectedWaveform = waveforms[waveformName];
+            this.selectedWaveform = waveforms[waveformName]();
         }
     }
 

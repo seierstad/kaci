@@ -44,7 +44,7 @@ class Resonance extends Component {
     componentWillMount () {
         const {patch, mixFunction} = this.props;
         const {wrapper, resonance} = patch;
-        this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus, 5);
+        this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus(), 5);
         this.waveFunction = getWrapperFunction(wrappers[wrapper](), mixFunction, resonance);
 
     }

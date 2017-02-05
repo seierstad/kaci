@@ -25,6 +25,14 @@ class LFO extends Component {
         this.reset = this.reset.bind(this);
         this.amountChange = this.amountChange.bind(this);
         this.frequencyChange = this.frequencyChange.bind(this);
+        this.waveforms = {};
+    }
+
+    componentWillMount () {
+
+        for (const w in waveforms) {
+            this.waveforms[w] = waveforms[w]();
+        }
     }
 
     shouldComponentUpdate (nextProps) {
@@ -68,7 +76,7 @@ class LFO extends Component {
                     parameter="waveform"
                     ref={w => this.waveformSelector = w}
                     selected={patch.waveform}
-                    waveforms={waveforms}
+                    waveforms={this.waveforms}
                 />
                 <RangeInput
                     changeHandler={this.amountChange}

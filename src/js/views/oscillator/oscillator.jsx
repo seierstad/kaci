@@ -30,9 +30,16 @@ class OscillatorPresentation extends Component {
         this.pdFunction1 = this.pdFunction1.bind(this);
         this.mixFunction = this.mixFunction.bind(this);
         */
+        this.waveforms = {};
     }
+
     componentWillMount () {
         const {pd, waveform, mix} = this.props.patch;
+
+        for (const w in waveforms) {
+            this.waveforms[w] = waveforms[w]();
+        }
+
         this.setPdFunction0(pd[0].steps, waveform);
         this.setPdFunction1(pd[1].steps, waveform);
         this.setMixFunction(mix);
@@ -64,12 +71,13 @@ class OscillatorPresentation extends Component {
     }
 
     setPdFunction0 (steps, waveform) {
-        const waveFunction = waveforms[waveform];
+        const waveFunction = this.waveforms[waveform];
 
         this.pdFunction0 = (phase) => waveFunction(getDistortedPhase(phase, steps));
     }
+
     setPdFunction1 (steps, waveform) {
-        const waveFunction = waveforms[waveform];
+        const waveFunction = this.waveforms[waveform];
 
         this.pdFunction1 = (phase) => waveFunction(getDistortedPhase(phase, steps));
     }
@@ -115,7 +123,7 @@ class OscillatorPresentation extends Component {
                     changeHandler={handlers.waveformChange}
                     module="oscillator"
                     selected={patch.waveform}
-                    waveforms={waveforms}
+                    waveforms={this.waveforms}
                 />
                 <PhaseDistortion
                     handlers={envelopeHandlers}

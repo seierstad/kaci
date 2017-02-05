@@ -87,7 +87,7 @@ class PDOscillator {
         };
 
         if (typeof this.waveforms[this.state.waveform] === "function") {
-            this.selectedWaveform = this.waveforms[this.state.waveform];
+            this.selectedWaveform = this.waveforms[this.state.waveform]();
         }
 
         if (typeof this.wrappers[this.state.wrapper] === "function") {
@@ -137,7 +137,7 @@ class PDOscillator {
             }
             if (this.state.waveform !== newState.waveform) {
                 if (typeof waveforms[newState.waveform] === "function") {
-                    this.selectedWaveform = waveforms[newState.waveform];
+                    this.selectedWaveform = waveforms[newState.waveform]();
                 }
             }
             if (this.state.resonanceActive !== newState.resonanceActive) {
@@ -258,7 +258,7 @@ class PDOscillator {
 
     set waveform (waveformName) {
         if (waveformName && this.waveforms[waveformName] && typeof this.waveforms[waveformName] === "function") {
-            this.selectedWaveform = this.waveforms[waveformName];
+            this.selectedWaveform = this.waveforms[waveformName]();
         }
         return this;
     }
