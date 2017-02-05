@@ -21,6 +21,10 @@ class LFO extends Component {
         return this.props.patch !== nextProps.patch;
     }
 
+    componentDidUpdate () {
+        this.waveformSelector.activeButton.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
+    }
+
     reset (event) {
         const {index, module, handlers} = this.props;
         handlers.reset(event, module, index);
@@ -52,6 +56,7 @@ class LFO extends Component {
                     index={index}
                     module="lfos"
                     parameter="waveform"
+                    ref={w => this.waveformSelector = w}
                     selected={patch.waveform}
                     waveforms={waveforms}
                 />

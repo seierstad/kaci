@@ -6,6 +6,16 @@ import WaveformButton from "./waveform-button.jsx";
 let waveformSelectorCounter = 0;
 
 class WaveformSelector extends Component {
+
+    static propTypes = {
+        "changeHandler": PropTypes.func.isRequired,
+        "includePhaseIndicator": PropTypes.bool,
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
+        "selected": PropTypes.string,
+        "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
+    }
+
     constructor () {
         super();
         this.handleChange = this.handleChange.bind(this);
@@ -41,6 +51,7 @@ class WaveformSelector extends Component {
                             key={w}
                             module={module}
                             onChange={this.handleChange}
+                            ref={includePhaseIndicator && selected === w ? (p => this.activeButton = p) : null}
                             selected={selected === w}
                             waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]}
                             waveformName={w}
@@ -51,14 +62,6 @@ class WaveformSelector extends Component {
         );
     }
 }
-WaveformSelector.propTypes = {
-    "changeHandler": PropTypes.func.isRequired,
-    "includePhaseIndicator": PropTypes.bool,
-    "index": PropTypes.number,
-    "module": PropTypes.string.isRequired,
-    "selected": PropTypes.string,
-    "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
-};
 
 
 export default WaveformSelector;
