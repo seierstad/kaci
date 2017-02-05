@@ -56,6 +56,7 @@ class RangeInput extends Component {
     constructor () {
         super();
         this.handleChange = this.handleChange.bind(this);
+        this.handleReset = this.handleReset.bind(this);
     }
 
     componentWillMount () {
@@ -81,13 +82,22 @@ class RangeInput extends Component {
         this.props.changeHandler(exponential ? this.scale.up(value) : value);
     }
 
+    handleReset () {
+        const {mid, exponential} = this.props.configuration;
+        this.props.changeHandler(exponential ? this.scale.up(mid) : mid);
+    }
+
     render () {
         const {configuration, value, disabled, label} = this.props;
-        const {min, max, step = 0.001, exponential} = configuration;
+        const {min, max, mid, step = 0.001, exponential} = configuration;
 
+        const centerButton = (typeof mid === "number") ? (
+            <button onClick={this.handleReset}>reset</button>
+        ) : null;
 
         return (
             <div>
+                {centerButton}
                 <input
                     disabled={disabled}
                     id={this.id}

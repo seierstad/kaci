@@ -165,6 +165,7 @@ const configuration = {
             "sub": {
                 "detune": {
                     "min": -1,
+                    "mid": 0,
                     "max": 1
                 },
                 "beat": {
