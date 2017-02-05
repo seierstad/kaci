@@ -2,20 +2,18 @@ import {waveforms, wrappers} from "./waveforms";
 
 import {ParamLogger, mixValues, getDistortedPhase, inputNode, outputNode} from "./sharedFunctions";
 
-import DC from "./DCGenerator";
 import {BUFFER_LENGTH} from "./constants";
 import OutputStage from "./output-stage";
 
 class PDOscillator {
-    constructor (context, patch, frequency) {
+    constructor (context, dc, patch, frequency) {
         /* start common constructor code */
 
-        this.dc = new DC(context);
         this.context = context;
         this.state = patch;
 
         // gain, pan and mute
-        this.outputStage = new OutputStage(context, this.dc, !!patch.active);
+        this.outputStage = new OutputStage(context, dc, !!patch.active);
 
 
         this.parameters = {
@@ -75,7 +73,7 @@ class PDOscillator {
 
 
         //set frequency
-        this.dc.connect(targets.frequency);
+        dc.connect(targets.frequency);
         targets.frequency.gain.value = 440;
 
         this.mergedInput.connect(this.generator);

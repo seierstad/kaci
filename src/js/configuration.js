@@ -142,12 +142,8 @@ const configuration = {
             }
         },
         "target": {
-            "vca": {
-                "gain": {
-                    "min": 0,
-                    "max": 1,
-                    "exponential": true
-                }
+            "main": {
+                ...outputStageTargets
             },
             "oscillator": {
                 "resonance": {

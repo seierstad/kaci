@@ -45,8 +45,10 @@ let patch = {
         "gain": 0.5,
         "pan": 0
     },
-    "vca": {
-        "gain": 1
+    "main": {
+        "active": true,
+        "gain": 1,
+        "pan": 0
     },
     "lfos": [{
         "waveform": "sinus",

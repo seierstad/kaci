@@ -1,20 +1,18 @@
-import DC from "./DCGenerator";
 import {inputNode, outputNodeexport, ParamLogger} from "./SharedFunctions";
 
 
 import OutputStage from "./output-stage";
 
 class SubOscillator {
-    constructor (context, patch, frequency, scaleBaseNumber = 2) {
+    constructor (context, dc, patch, frequency, scaleBaseNumber = 2) {
 
         /* start common constructor code */
 
-        this.dc = new DC(context);
         this.context = context;
         this.state = {...patch};
 
         // gain, pan and mute
-        this.outputStage = new OutputStage(context, this.dc, !!patch.active);
+        this.outputStage = new OutputStage(context, dc, !!patch.active);
 
         this.parameters = {
             "targets": {...this.outputStage.targets}
@@ -28,7 +26,7 @@ class SubOscillator {
         // set frequency
         this.frequencyNode = context.createGain();
         this.frequencyNode.gain.value = 0;
-        this.dc.connect(this.frequencyNode);
+        dc.connect(this.frequencyNode);
 
 
         // multiply semitones by 100 to get cents
@@ -39,14 +37,14 @@ class SubOscillator {
         // detune, in semitones
         this.semitoneNode = context.createGain();
         this.semitoneNode.gain.value = 0;
-        this.dc.connect(this.semitoneNode);
+        dc.connect(this.semitoneNode);
         this.semitoneNode.connect(this.detuneNode);
 
 
         // linear beat frequency :)
         this.frequencyOffsetNode = context.createGain();
         this.frequencyOffsetNode.gain.value = 0;
-        this.dc.connect(this.frequencyOffsetNode);
+        dc.connect(this.frequencyOffsetNode);
 
         // shift frequency down 0/1/2 octaves
         this.ratioNode = context.createGain();

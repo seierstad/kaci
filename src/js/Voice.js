@@ -1,8 +1,11 @@
+import DC from "./DCGenerator";
 import EnvelopeGenerator from "./EnvelopeGenerator";
 import PDOscillator from "./PDOscillator";
 import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
+
+import OutputStage from "./output-stage";
 
 //import WavyJones from "../../lib/wavy-jones";
 
@@ -16,6 +19,7 @@ const prefixKeys = (object, prefix) => {
 
 class Voice {
     constructor (context, store, frequency) {
+        this.dc = new DC(context);
 
         this.store = store;
         this.state = store.getState().patch;
@@ -25,8 +29,7 @@ class Voice {
 
         this.context = context;
 
-        this.vca = context.createGain();
-        this.vca.gain.value = 1;
+        this.mainOut = new OutputStage(context, this.dc, !!this.state.main.active);
 
         this.lfos = [];
         this.createVoiceLfo = this.createVoiceLfo.bind(this);
@@ -37,15 +40,16 @@ class Voice {
             this.envelopes[index] = new EnvelopeGenerator(context, store, index);
         });
 
-        this.noise = new NoiseGenerator(context, this.state.noise);
-        this.sub = new SubOscillator(context, this.state.sub, frequency);
-        this.oscillator = new PDOscillator(context, this.state.oscillator, frequency);
+        this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
+        this.sub = new SubOscillator(context, this.dc, this.state.sub, frequency);
+        this.oscillator = new PDOscillator(context, this.dc, this.state.oscillator, frequency);
 
-        this.sub.connect(this.vca);
-        this.oscillator.connect(this.vca);
-        this.noise.connect(this.vca);
+        this.sub.connect(this.mainOut.input);
+        this.oscillator.connect(this.mainOut.input);
+        this.noise.connect(this.mainOut.input);
 
         this.targetNodes = {
+            ...(prefixKeys(this.mainOut.targets, "main.")),
             ...(prefixKeys(this.oscillator.parameters.targets, "oscillator.")),
             ...(prefixKeys(this.noise.parameters.targets, "noise.")),
             ...(prefixKeys(this.sub.parameters.targets, "sub."))
@@ -62,8 +66,14 @@ class Voice {
         const newState = this.store.getState().patch;
 
         if (this.state !== newState) {
-            const {oscillator: o, noise: n, sub: s} = this.state;
-            const {oscillator: oNew, noise: nNew, sub: sNew} = newState;
+            const {oscillator: o, noise: n, sub: s, main: m} = this.state;
+            const {oscillator: oNew, noise: nNew, sub: sNew, main: mNew} = newState;
+
+            if (m !== mNew) {
+                if (m.active !== mNew.active) {
+                    this.mainOut.active = mNew.active;
+                }
+            }
 
             if (o !== oNew) {
                 const {active: a, waveform: wa, pd, resonanceActive: ra, wrapper: wr} = o;
@@ -162,9 +172,9 @@ class Voice {
 
     connect (node) {
         if (node.hasOwnProperty("input")) {
-            this.vca.connect(node.input);
+            this.mainOut.connect(node.input);
         } else {
-            this.vca.connect(node);
+            this.mainOut.connect(node);
         }
     }
 
@@ -189,8 +199,8 @@ class Voice {
         this.oscillator.destroy();
         this.oscillator = null;
 
-        this.vca.disconnect();
-        this.vca = null;
+        this.mainOut.disconnect();
+        this.mainOut = null;
 
         this.unsubscribe();
 

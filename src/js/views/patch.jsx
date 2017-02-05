@@ -12,6 +12,7 @@ import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./lfo/lfos.jsx";
 import ModulationMatrix from "./modulation/matrix.jsx";
 import Oscillator from "./oscillator/oscillator.jsx";
+import MainOutput from "./main-output.jsx";
 
 class PatchPresentation extends Component {
 
@@ -32,6 +33,11 @@ class PatchPresentation extends Component {
 
         return (
             <div>
+                <MainOutput
+                    configuration={configuration.modulation.target.main}
+                    handlers={handlers.main}
+                    patch={patch.main}
+                />
                 <Oscillator
                     envelopeHandlers={handlers.envelope}
                     viewState={viewState.oscillator}
@@ -185,6 +191,19 @@ const mapDispatchToProps = (dispatch) => ({
                 },
                 "handleGainInput": (value) => {
                     dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "noise"});
+                }
+            }
+        },
+        "main": {
+            "outputHandlers": {
+                "handleToggle": (event) => {
+                    dispatch({type: Actions.OUTPUT_TOGGLE, module: "main"});
+                },
+                "handlePanInput": (value) => {
+                    dispatch({type: Actions.OUTPUT_PAN_CHANGE, value, module: "main"});
+                },
+                "handleGainInput": (value) => {
+                    dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "main"});
                 }
             }
         }

@@ -6,13 +6,7 @@ import modulation from "./modulation";
 import syncReducer from "./sync";
 
 
-const vca = (state = {gain: 1}, action) => {
-    switch (action.type) {
-        case Actions.VCA_GAIN_CHANGE:
-            return {
-                gain: action.value
-            };
-    }
+const main = (state = {active: true, pan: 0, gain: 1}) => {
     return state;
 };
 
@@ -196,7 +190,7 @@ const patch = (state, action) => {
     }
 
     return combineReducers({
-        vca,
+        main,
         oscillator,
         noise,
         sub,

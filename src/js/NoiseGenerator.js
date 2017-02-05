@@ -1,18 +1,15 @@
 import {BUFFER_LENGTH} from "./constants";
 import {inputNode} from "./SharedFunctions";
-import DC from "./DCGenerator";
 import {noise} from "./waveforms";
 import OutputStage from "./output-stage";
 
 class Noise {
-    constructor (context, patch) {
-        /* start common constructor code */
+    constructor (context, dc, patch) {
 
-        this.dc = new DC(context);
-        this.state = patch;
+        this.state = {...patch};
 
         // gain, pan and mute
-        this.outputStage = new OutputStage(context, this.dc, !!patch.active);
+        this.outputStage = new OutputStage(context, dc, !!patch.active);
 
 
         this.parameters = {

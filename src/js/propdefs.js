@@ -125,6 +125,10 @@ export const noisePatchDataShape = PropTypes.shape({
     ...patchOutputStage
 });
 
+export const patchDataMainOutShape = PropTypes.shape({
+    ...patchOutputStage
+});
+
 const modulationSourceModeShape = PropTypes.oneOf(["global", "voice"]);
 
 export const lfoPatchDataShape = PropTypes.shape({
@@ -226,7 +230,7 @@ export const modulationTargetsShape = PropTypes.shape({
     "noise": modulationTargetShape.isRequired,
     "oscillator": modulationTargetShape.isRequired,
     "sub": modulationTargetShape.isRequired,
-    "vca": modulationTargetShape.isRequired
+    "main": modulationTargetShape.isRequired
 });
 
 export const modulationShape = PropTypes.shape({
@@ -278,6 +282,7 @@ export const keyViewPropsShape = PropTypes.shape({
 });
 
 export const patchShape = PropTypes.shape({
+    "main": patchDataMainOutShape.isRequired,
     "oscillator": oscillatorPatchDataShape.isRequired,
     "noise": noisePatchDataShape.isRequired,
     "sub": subPatchDataShape.isRequired,
