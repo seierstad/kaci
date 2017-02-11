@@ -39,6 +39,7 @@ class Resonance extends Component {
         super();
         this.waveFunction = () => 0;
         this.waveFunction = this.waveFunction.bind(this);
+        this.handleToggle = this.handleToggle.bind(this);
     }
 
     componentWillMount () {
@@ -59,6 +60,11 @@ class Resonance extends Component {
         this.waveFunction = getWrapperFunction(wrappers[wrapper](), mixFunction, resonance);
     }
 
+    handleToggle (event) {
+        event.preventDefault();
+        this.props.handlers.toggle();
+    }
+
     render () {
         const {configuration, patch, handlers} = this.props;
         const {resonance, resonanceActive, wrapper} = patch;
@@ -66,7 +72,7 @@ class Resonance extends Component {
         return (
             <div className="oscillator-resonance-view">
                 <WaveformCanvas waveFunction={this.waveFunction} />
-                <input checked={resonanceActive} onChange={handlers.toggle} type="checkbox" />
+                <input checked={resonanceActive} onChange={this.handleToggle} type="checkbox" />
                 <RangeInput
                     changeHandler={handlers.factorChange}
                     configuration={configuration}

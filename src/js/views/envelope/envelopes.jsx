@@ -40,7 +40,6 @@ class Envelopes extends Component {
 }
 
 
-
 /*
     this.controller.addEventListener('touchstart', this.touchHandler.bind(this), false);
     this.controller.addEventListener('touchend', this.touchHandler.bind(this), false);

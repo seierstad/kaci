@@ -1,5 +1,3 @@
-import {SVGNS} from "../constants";
-
 export const getOffsetElement = function (svgElement) {
     // returns the fillRect rectangle.
     let offsetElement = svgElement;
