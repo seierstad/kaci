@@ -5,6 +5,8 @@ import StaticSources from "./static-sources";
 
 import {ParamLogger} from "./sharedFunctions";
 
+import WavyJones from "../../lib/wavy-jones";
+
 class ModulationMatrix {
 
     constructor (context, store, dc) {
@@ -30,21 +32,30 @@ class ModulationMatrix {
 
         this.connect = this.connect.bind(this);
 
-
         this.lfos = new LFOs(context, store, this.configuration);
 
+        const flatConfig = new StaticSources(context, store, this.configuration.target, dc);
+
         this.sources = {
-            static: new StaticSources(context, store, this.configuration.target, dc).nodes,
+            static: flatConfig.nodes,
             lfos: this.lfos.lfos
         };
 
 
-        this.targets = this.setupTargets(this.configuration.target, this.context, dc);
+        this.targets = {};
+        for (const key in flatConfig.limits) {
+            const {min, max} = flatConfig.limits[key];
 
-        this.connectStaticSources(this.sources.static, this.targets);
+            this.targets[key] = context.createWaveShaper();
+            this.targets[key].curve = new Float32Array([min, max]);
+
+            this.sources.static[key].connect(this.targets[key]);
+        }
+
+
         this.connections = {};
 
-        this.initPatch();
+        //this.initPatch();
 
     }
 
@@ -155,43 +166,6 @@ class ModulationMatrix {
 
     }
 
-    setupTargets (targets, context, dc, path) {
-        let result = {};
-
-        if (!path) {
-            return this.setupTargets(targets, context, dc, []);
-        }
-        for (let key in targets) {
-            if (targets.hasOwnProperty(key)) {
-                path.push(key);
-                const target = targets[key];
-                const name = path.join(".");
-
-                if (typeof target.min !== "undefined") {
-                    const curve = new Float32Array([target.min, target.max]);
-                    result[name] = context.createWaveShaper();
-                    result[name].curve = curve;
-                    path.pop();
-                } else {
-                    result = {
-                        ...result,
-                        ...this.setupTargets(target, context, dc, path.slice())
-                    };
-                    path.pop();
-                }
-            }
-        }
-        return result;
-    }
-
-    connectStaticSources (sources, targets) {
-        for (let key in sources) {
-            if (sources.hasOwnProperty(key) && targets[key]) {
-                sources[key].connect(targets[key]);
-            }
-        }
-    }
-
     patchVoice (voice, patch) {
 
         const voiceLfos = voice.lfos;
@@ -204,6 +178,16 @@ class ModulationMatrix {
                 this.targets[key].connect(voiceParamTargets[key]);
             }
         }
+
+        /* start scope
+        const scope = new WavyJones(this.context, "oscilloscope");
+        scope.lineColor = "black";
+        scope.lineThickness = 1;
+
+        this.targets["main.gain"].connect(scope);
+
+        new ParamLogger(voiceParamTargets["main.gain"], this.context, "main");
+        //*/
 
         /*
         for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {

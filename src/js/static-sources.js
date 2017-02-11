@@ -1,6 +1,8 @@
 import {scale} from "./Utils";
 
 
+const normalized = {min: -1, max: 1};
+
 class StaticSources {
 
     constructor (context, store, configuration, dc) {
@@ -12,85 +14,62 @@ class StaticSources {
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
+        this.parameters = {};
+        this.nodes = {};
+        this.limits = {};
 
-        this.dc = dc;
-        let init = this.init(configuration, this.state);
-        this.parameters = init.params;
-        this.nodes = init.nodes;
-        this.limits = init.limits;
 
-        Object.values(this.nodes).map(n => this.dc.connect(n));
+        for (const moduleName in configuration) {
+            const targetModule = configuration[moduleName];
+
+            for (const parameterName in targetModule) {
+                const limits = targetModule[parameterName];
+                const name = [moduleName, parameterName].join(".");
+                const node = context.createGain();
+
+                this.nodes[name] = node;
+                this.limits[name] = limits;
+                this.parameters[name] = node.gain;
+
+                const patchValue = this.state[moduleName][parameterName];
+                const scaledValue = scale(patchValue, limits, normalized);
+                node.gain.value = scaledValue;
+                node.gain.setValueAtTime(scaledValue, context.currentTime);
+                dc.connect(node);
+            }
+        }
 
     }
 
     stateChangeHandler () {
         const newState = this.store.getState().patch;
 
-        for (let parameter in this.parameters) {
-            const p = parameter.split(".");
-            if (this.state.hasOwnProperty(p[0]) && this.state[p[0]].hasOwnProperty(p[1]) && this.state[p[0]][p[1]] !== newState[p[0]][p[1]]) {
-                const scaledValue = scale(newState[p[0]][p[1]], this.limits[parameter], {min: -1, max: 1});
-                this.parameters[parameter].setValueAtTime(scaledValue, this.context.currentTime);
-            }
-        }
+        if (this.state !== newState) {
+            for (const modName in this.state) {
+                const mod = this.state[modName];
+                const modNew = newState[modName];
 
-        this.state = newState;
-    }
-
-    init (targets, patch, path) {
-        let result = {
-            nodes: {},
-            params: {},
-            limits: {}
-        };
-
-        if (!path) {
-            return this.init(targets, patch, []);
-        }
-
-        let name = "";
-
-        for (const key in targets) {
-            if (targets.hasOwnProperty(key)) {
-                path.push(key);
-                const target = targets[key];
-                name = path.join(".");
-
-                if (typeof target.min !== "undefined") {
-                    // create static source node
-
-                    const scaledValue = scale(patch[key], target, {min: -1, max: 1});
-                    const node = this.context.createGain();
-                    node.gain.value = scaledValue;
-                    node.gain.setValueAtTime(scaledValue, this.context.currentTime);
-
-                    result.nodes[name] = node;
-                    result.limits[name] = target;
-                    result.params[name] = node.gain;
+                if (mod !== modNew) {
+                    for (const paramName in mod) {
+                        const param = mod[paramName];
+                        const newParam = modNew[paramName];
 
 
-                    path.pop();
-                } else {
-                    const nextLevel = this.init(target, patch[key], path.slice());
-                    result = {
-                        nodes: {
-                            ...result.nodes,
-                            ...nextLevel.nodes
-                        },
-                        params: {
-                            ...result.params,
-                            ...nextLevel.params
-                        },
-                        limits: {
-                            ...result.limits,
-                            ...nextLevel.limits
+                        if (param !== newParam) {
+                            const key = [modName, paramName].join(".");
+                            if (this.parameters[key]) {
+                                console.log("change ", key);
+                                const normalizedValue = scale(newParam, this.limits[key], normalized);
+                                this.parameters[key].setValueAtTime(normalizedValue, this.context.currentTime);
+                            }
+
                         }
-                    };
-                    path.pop();
+                    }
                 }
             }
+
+            this.state = newState;
         }
-        return result;
     }
 }
 
