@@ -1,6 +1,16 @@
 import {inputNode} from "./SharedFunctions";
 
 class OutputStage {
+
+    static inputDefs = [
+        {
+            name: "gain"
+        },
+        {
+            name: "pan"
+        }
+    ];
+
     constructor (context, dc, active) {
 
         this.context = context;
@@ -15,17 +25,15 @@ class OutputStage {
 
         // signal path: source -> input -> panner -> output
 
-        this.parameters = {
-            "targets": {}
-        };
+        this.parameters = {};
 
-        const t = this.parameters.targets;
+        const p = this.parameters;
 
-        t.gain = inputNode(context);
-        t.gain.connect(this.input.gain);
+        p.gain = inputNode(context);
+        p.gain.connect(this.input.gain);
 
-        t.pan = inputNode(context);
-        t.pan.connect(this.panner.pan);
+        p.pan = inputNode(context);
+        p.pan.connect(this.panner.pan);
 
         //connect signal path
         this.input.connect(this.panner);
@@ -35,7 +43,7 @@ class OutputStage {
     }
 
     get targets () {
-        return this.parameters.targets;
+        return this.parameters;
     }
 
     set active (active) {
@@ -51,6 +59,11 @@ class OutputStage {
     }
 
     destroy () {
+        this.constructor.inputDefs.forEach((def) => {
+            this.parameters[def.name].disconnect();
+            this.parameters[def.name] = null;
+        });
+
         this.gain = null;
         this.input.disconnect();
         this.input = null;

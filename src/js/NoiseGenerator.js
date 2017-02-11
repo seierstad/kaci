@@ -10,11 +10,7 @@ class Noise {
 
         // gain, pan and mute
         this.outputStage = new OutputStage(context, dc, !!patch.active);
-
-
-        this.parameters = {
-            "targets": {...this.outputStage.targets}
-        };
+        this.parameters = {...this.outputStage.parameters};
 
 
         this.audioProcessHandler = this.audioProcessHandler.bind(this);
@@ -25,6 +21,9 @@ class Noise {
         this.color = patch.color;
     }
 
+    get targets () {
+        return this.parameters;
+    }
 
     set color (color) {
         if (typeof noise[color] === "function") {

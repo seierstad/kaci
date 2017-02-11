@@ -270,10 +270,6 @@ class VoiceRegister {
 
     startVoice (key, freq) {
 
-        if (this.activeVoices.every(v => !v)) {
-            this.context.dispatchEvent(new CustomEvent("voice.first.started", {}));
-        }
-
         if (!this.activeVoices[key]) {
             const frequency = (typeof key === "number") ? this.tuning[key] : freq;
             const patch = this.store.getState().patch;

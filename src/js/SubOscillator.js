@@ -4,66 +4,68 @@ import {inputNode, outputNodeexport, ParamLogger} from "./SharedFunctions";
 import OutputStage from "./output-stage";
 
 class SubOscillator {
+
+    static inputDefs = [
+        {
+            name: "detune"
+        }, {
+            name: "beat"
+        }
+    ];
+
     constructor (context, dc, patch, frequency, scaleBaseNumber = 2) {
 
         /* start common constructor code */
 
         this.context = context;
-        this.state = {...patch};
+        this.state = {
+            ...patch,
+            beat_sync: {
+                ...patch.beat_sync
+            }
+        };
 
         // gain, pan and mute
         this.outputStage = new OutputStage(context, dc, !!patch.active);
 
-        this.parameters = {
-            "targets": {...this.outputStage.targets}
-        };
+        this.parameters = {...this.outputStage.targets};
+
+
+        this.constructor.inputDefs.forEach((def) => {
+            this.parameters[def.name] = inputNode(context);
+        });
+
 
         // simple oscillator
         this.generator = context.createOscillator();
-        this.generator.frequency.value = 0;
+        this.generator.frequency.value = frequency;
         this.generator.type = "sine";
 
-        // set frequency
-        this.frequencyNode = context.createGain();
-        this.frequencyNode.gain.value = 0;
+        const gains = ["frequency", "detuneMultiplier", "detune", "beat", "ratio"];
+
+        gains.forEach(name => {
+            this[name + "Node"] = context.createGain();
+            this[name + "Node"].gain.value = 0;
+        });
+
+        this.parameters.beat.connect(this.beatNode.gain);
+        this.parameters.detune.connect(this.detuneNode.gain);
+
+        // connect dc
         dc.connect(this.frequencyNode);
+        dc.connect(this.beatNode);
+        dc.connect(this.detuneNode);
 
-
+        this.detuneNode.connect(this.detuneMultiplierNode);
         // multiply semitones by 100 to get cents
-        this.detuneNode = context.createGain();
-        this.detuneNode.gain.value = 0;
-        this.detuneNode.gain.setValueAtTime(100, context.currentTime);
-
-        // detune, in semitones
-        this.semitoneNode = context.createGain();
-        this.semitoneNode.gain.value = 0;
-        dc.connect(this.semitoneNode);
-        this.semitoneNode.connect(this.detuneNode);
-
-
-        // linear beat frequency :)
-        this.frequencyOffsetNode = context.createGain();
-        this.frequencyOffsetNode.gain.value = 0;
-        dc.connect(this.frequencyOffsetNode);
-
-        // shift frequency down 0/1/2 octaves
-        this.ratioNode = context.createGain();
-        this.ratioNode.gain.value = 0;
+        this.detuneMultiplierNode.gain.setValueAtTime(100, context.currentTime);
+        this.detuneMultiplierNode.connect(this.generator.detune);
 
         this.frequencyNode.connect(this.ratioNode);
+        this.beatNode.connect(this.ratioNode);
         this.ratioNode.connect(this.generator.frequency);
         this.generator.connect(this.outputStage.input);
 
-
-        const t = this.parameters.targets;
-        t.beat = inputNode(context);
-        t.beat.connect(this.frequencyOffsetNode.gain);
-
-        t.detune = inputNode(context);
-        t.detune.connect(this.semitoneNode.gain);
-
-
-        this.logger = new ParamLogger(this.frequencyNode, this.context, "frequencyNode: ");
 
         this.frequency = frequency;
         this.scaleBaseNumber = scaleBaseNumber;
@@ -72,12 +74,8 @@ class SubOscillator {
         this.active = patch.active;
     }
 
-    start () {
-        this.generator.start();
-    }
-
-    stop () {
-        this.generator.stop();
+    get targets () {
+        return this.parameters;
     }
 
     set active (active) {
@@ -100,15 +98,23 @@ class SubOscillator {
 
     set mode (mode) {
         if (mode === "beat") {
-            this.frequencyOffsetNode.connect(this.ratioNode);
-            this.detuneNode.disconnect();
+            this.beatNode.gain.setValueAtTime(this.state.beat, this.context.currentTime);
+            this.detuneMultiplierNode.gain.setValueAtTime(0, this.context.currentTime);
 
         } else if (mode === "semitone") {
-            this.frequencyOffsetNode.disconnect();
-            this.detuneNode.connect(this.generator.detune);
+            this.beatNode.gain.setValueAtTime(0, this.context.currentTime);
+            this.detuneMultiplierNode.gain.setValueAtTime(100, this.context.currentTime);
         }
 
         this.state.mode = mode;
+    }
+
+    start () {
+        this.generator.start();
+    }
+
+    stop () {
+        this.generator.stop();
     }
 
     connect (node) {
@@ -120,15 +126,12 @@ class SubOscillator {
     }
 
     destroy () {
-        this.logger.disconnect();
-        this.logger.destroy();
-        this.logger = null;
         this.frequencyNode.disconnect();
         this.frequencyNode = null;
         this.ratioNode.disconnect();
         this.ratioNode = null;
-        this.frequencyOffsetNode.disconnect();
-        this.frequencyOffsetNode = null;
+        this.beatNode.disconnect();
+        this.beatNode = null;
         this.generator.disconnect();
         this.generator = null;
         this.outputStage.destroy();
