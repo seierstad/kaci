@@ -18,16 +18,16 @@ let patch = {
         }],
         "resonance": 1.1,
         "resonanceActive": true,
-        "wrapper": "saw",
+        "wrapper": {"name": "gaussian", "parameters": {mu: 0.5, sig: 0.2}},
         "mix": 0,
         "detune": 0,
         "active": true,
-        "gain": 0.1,
+        "gain": 0.7,
         "pan": 0
     },
     "noise": {
         "color": "white",
-        "active": true,
+        "active": false,
         "gain": 0.2,
         "pan": 0
     },
@@ -122,7 +122,7 @@ let patch = {
     "modulation": {
         "oscillator": {
             "resonance": [{
-                "amount": 1,
+                "amount": 0.1,
                 "polarity": "positive",
                 "enabled": true,
                 "source": {

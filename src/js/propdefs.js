@@ -247,6 +247,14 @@ export const configurationShape = PropTypes.shape({
 });
 
 
+export const patchWrapperShape = PropTypes.oneOfType([
+    PropTypes.oneOf(Object.keys(wrappers)),
+    PropTypes.shape({
+        "name": PropTypes.oneOf(Object.keys(wrappers)).isRequired,
+        "parameters": PropTypes.object.isRequired
+    })
+]);
+
 export const oscillatorPatchDataShape = PropTypes.shape({
     "detune": PropTypes.number.isRequired,
     "mix": PropTypes.number.isRequired,
@@ -254,7 +262,7 @@ export const oscillatorPatchDataShape = PropTypes.shape({
     "resonance": PropTypes.number.isRequired,
     "resonanceActive": PropTypes.bool.isRequired,
     "waveform": PropTypes.oneOf(Object.keys(waveforms)),
-    "wrapper": PropTypes.oneOf(Object.keys(wrappers)),
+    "wrapper": patchWrapperShape.isRequired,
     ...patchOutputStage
 });
 

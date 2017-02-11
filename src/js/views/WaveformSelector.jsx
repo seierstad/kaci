@@ -12,7 +12,13 @@ class WaveformSelector extends Component {
         "includePhaseIndicator": PropTypes.bool,
         "index": PropTypes.number,
         "module": PropTypes.string.isRequired,
-        "selected": PropTypes.string,
+        "selected": PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.shape({
+                "name": PropTypes.string.isRequired,
+                "parameters": PropTypes.object.isRequired
+            })
+        ]),
         "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
     }
 

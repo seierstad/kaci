@@ -90,9 +90,13 @@ class PDOscillator {
         }
     }
 
-    set wrapper (wrapperName) {
-        if (typeof wrappers[wrapperName] === "function") {
-            this.selectedWrapper = wrappers[wrapperName]();
+    set wrapper (wrapper) {
+        if (typeof wrapper === "string") {
+            if (typeof wrappers[wrapper] === "function") {
+                this.selectedWrapper = wrappers[wrapper]();
+            }
+        } else if (wrapper.name && typeof wrappers[wrapper.name] === "function") {
+            this.selectedWrapper = wrappers[wrapper.name](wrapper.parameters);
         }
     }
 

@@ -45,8 +45,11 @@ class Resonance extends Component {
     componentWillMount () {
         const {patch, mixFunction} = this.props;
         const {wrapper, resonance} = patch;
+        const {name, parameters} = wrapper;
+        const wrapperFunction = (name && parameters) ? wrappers[name](parameters) : wrappers[wrapper]();
+        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance);
+
         this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus(), 5);
-        this.waveFunction = getWrapperFunction(wrappers[wrapper](), mixFunction, resonance);
 
     }
 
@@ -57,7 +60,9 @@ class Resonance extends Component {
     componentWillUpdate (nextProps) {
         const {patch, mixFunction} = nextProps;
         const {wrapper, resonance} = patch;
-        this.waveFunction = getWrapperFunction(wrappers[wrapper](), mixFunction, resonance);
+        const {name, parameters} = wrapper;
+        const wrapperFunction = (name && parameters) ? wrappers[name](parameters) : wrappers[wrapper]();
+        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance);
     }
 
     handleToggle (event) {
