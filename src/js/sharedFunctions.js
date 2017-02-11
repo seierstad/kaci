@@ -6,19 +6,27 @@ export const vectorToLinearFunction = (vector) => {
     return (phase) => (phase * rate) + constant;
 };
 
-export const getDistortedPhase = (phase, envelope) => {
-    let i;
-
-    if (envelope.length > 1) {
-        const p = phase % 1;
-        for (i = 1; i < envelope.length; i += 1) {
-            if (p >= envelope[i - 1][0] && p < envelope[i][0]) {
-                return vectorToLinearFunction([envelope[i - 1], envelope[i]])(p);
-            }
-        }
+export const phaseDistortionFunction = (envelope) => {
+    if (!envelope || envelope.length < 2) {
+        throw new Error("invalid phase distortion data");
     }
-    return 0;
+
+    const functions = [];
+    for (let i = 1; i < envelope.length; i += 1) {
+        functions[i - 1] = {
+            from: envelope[i - 1][0],
+            to: envelope[i][0],
+            fn: vectorToLinearFunction([envelope[i - 1], envelope[i]])
+        };
+    }
+
+    return (phase) => {
+        const p = phase % 1;
+        return functions.find(f => (p >= f.from && p < f.to)).fn(p);
+    };
 };
+
+export const getDistortedPhase = (phase, envelope) => phaseDistortionFunction(envelope)(phase);
 
 
 export const inputNode = (context) => {

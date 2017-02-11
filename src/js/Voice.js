@@ -50,9 +50,9 @@ class Voice {
 
         this.targetNodes = {
             ...(prefixKeys(this.mainOut.targets, "main.")),
-            ...(prefixKeys(this.oscillator.parameters.targets, "oscillator.")),
-            ...(prefixKeys(this.noise.parameters.targets, "noise.")),
-            ...(prefixKeys(this.sub.parameters.targets, "sub."))
+            ...(prefixKeys(this.oscillator.targets, "oscillator.")),
+            ...(prefixKeys(this.noise.targets, "noise.")),
+            ...(prefixKeys(this.sub.targets, "sub."))
         };
     }
 
@@ -93,6 +93,16 @@ class Voice {
 
                 if (ra !== raNew) {
                     this.oscillator.resonanceActive = raNew;
+                }
+
+                if (pd !== pdNew) {
+                    if (pdNew[0] !== pd[0]) {
+                        this.oscillator.pd0 = pdNew[0];
+                    }
+                    if (pdNew[1] !== pd[1]) {
+                        this.oscillator.pd1 = pdNew[1];
+                    }
+
                 }
             }
 

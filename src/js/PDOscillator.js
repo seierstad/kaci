@@ -1,29 +1,15 @@
 import {waveforms, wrappers} from "./waveforms";
 
-import {ParamLogger, mixValues, getDistortedPhase, inputNode, outputNode} from "./sharedFunctions";
+import {ParamLogger, mixValues, getDistortedPhase, phaseDistortionFunction, inputNode, outputNode} from "./sharedFunctions";
 
 import {BUFFER_LENGTH} from "./constants";
 import OutputStage from "./output-stage";
 
 class PDOscillator {
-    constructor (context, dc, patch, frequency) {
-        /* start common constructor code */
-
-        this.context = context;
-        this.state = patch;
-
-        // gain, pan and mute
-        this.outputStage = new OutputStage(context, dc, !!patch.active);
-
-
-        this.parameters = {
-            "targets": {...this.outputStage.targets}
-        };
-
-
-        const inputDefs = [{
+    static inputDefs = [
+        {
             name: "frequency",
-            defaultValue: frequency || 440
+            defaultValue: 440
         }, {
             name: "detune",
             defaultValue: 0
@@ -33,52 +19,56 @@ class PDOscillator {
         }, {
             name: "mix",
             defaultValue: 0
-        }];
+        }
+    ]
 
-        this.mergedInput = context.createChannelMerger(inputDefs.length);
+    constructor (context, dc, patch, frequency) {
+        /* start common constructor code */
 
-        const targets = this.parameters.targets;
+        this.context = context;
+        this.state = patch;
 
-        inputDefs.forEach((def, i) => {
-            const nodeName = def.name + "Node";
-            const targets = this.parameters.targets;
-            targets[def.name] = inputNode(context);
+
+        // gain, pan and mute
+        this.outputStage = new OutputStage(context, dc, !!patch.active);
+
+        this.parameters = {...this.outputStage.parameters};
+        this.mergedInput = context.createChannelMerger(this.constructor.inputDefs.length);
+
+        const p = this.parameters;
+
+        this.constructor.inputDefs.forEach((def, i) => {
+            p[def.name] = inputNode(context);
 
             //connect input to merge node
-            targets[def.name].connect(this.mergedInput, null, i);
+            p[def.name].connect(this.mergedInput, null, i);
         });
-
-
-        this.audioprocessHandler = this.getAudioProcessor(this);
-
-        this.generator = context.createScriptProcessor(BUFFER_LENGTH, inputDefs.length, 1);
-
-        const that = this;
-
-        this.pdEnvelope0 = [];
-        this.pdEnvelope1 = [];
-
-        this.state.pd[0].steps.forEach(function (point) {
-            that.pdEnvelope0.push([point[0], point[1]]);
-        });
-
-        this.pdEnvelope0.functions = [];
-        this.state.pd[1].steps.forEach(function (point) {
-            that.pdEnvelope1.push([point[0], point[1]]);
-        });
-        this.pdEnvelope1.functions = [];
 
         this.phase = 0;
         this.resonancePhase = 0;
+        this.previous = {
+            frequency: 0,
+            detune: 0,
+            resonance: 0,
+            calculatedFrequency: 0,
+            calculatedResonanceFrequency: 0
+        };
+
+        this.generator = context.createScriptProcessor(BUFFER_LENGTH, this.constructor.inputDefs.length, 1);
+
+        this.pdFunctions = [];
+
+        this.audioProcessHandler = this.audioProcessHandler.bind(this);
 
 
         //set frequency
-        dc.connect(targets.frequency);
-        targets.frequency.gain.value = 440;
+        dc.connect(p.frequency);
+        p.frequency.gain.value = 440;
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);
 
+        this.pd = patch.pd;
         this.frequency = frequency;
         this.active = patch.active;
         this.waveform = patch.waveform;
@@ -86,114 +76,8 @@ class PDOscillator {
         this.wrapper = patch.wrapper;
     }
 
-    start () {
-        this.generator.addEventListener("audioprocess", this.audioprocessHandler);
-    }
-
-    stop () {
-        this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
-        this.phase = 0;
-        this.resonancePhase = 0;
-    }
-
-    setPDEnvelope0 (data) {
-        this.pdEnvelope0 = [];
-
-        data.forEach(function (point) {
-            this.pdEnvelope0.push([point[0], point[1]]);
-        }, this);
-
-        this.pdEnvelope0.functions = [];
-    }
-
-    setPDEnvelope1 (data) {
-        this.pdEnvelope1 = [];
-
-        data.forEach(function (point) {
-            this.pdEnvelope1.push([point[0], point[1]]);
-        }, this);
-
-        this.pdEnvelope1.functions = [];
-    }
-
-    addPDEnvelopePoint (id, index, data) {
-        this["pdEnvelope" + id].splice(index, 0, data);
-        this["pdEnvelope" + id].functions = [];
-    }
-
-    movePDEnvelopePoint (id, index, data) {
-        this["pdEnvelope" + id][index] = data;
-        this["pdEnvelope" + id].functions = [];
-    }
-
-    deletePDEnvelopePoint (id, index) {
-        this["pdEnvelope" + id].splice(index, 1);
-        this["pdEnvelope" + id].functions = [];
-    }
-
-    getChangeWaveformHandler (osc) {
-        return function (evt) {
-            osc.setWaveform(evt.detail);
-        };
-    }
-
-    getAudioProcessor (oscillator) {
-
-        return (evt) => {
-            const frequency = evt.inputBuffer.getChannelData(0);
-            const detune = evt.inputBuffer.getChannelData(1);
-            const resonance = evt.inputBuffer.getChannelData(2);
-            const mix = evt.inputBuffer.getChannelData(3);
-            const output = evt.outputBuffer.getChannelData(0);
-
-            const previous = {
-                frequency: 0,
-                detune: 0,
-                resonance: 0,
-                calculatedFrequency: 0,
-                calculatedResonanceFrequency: 0
-            };
-
-            for (let i = 0; i < BUFFER_LENGTH; i += 1) {
-                let calculatedFrequency,
-                    calculatedResonanceFrequency,
-                    distortedPhase0,
-                    distortedPhase1,
-                    distortedPhaseMix;
-
-                if (frequency[i] === previous.frequency && detune[i] === previous.detune) {
-                    calculatedFrequency = previous.calculatedFrequency;
-                } else {
-                    calculatedFrequency = oscillator.getComputedFrequency(frequency[i], detune[i]);
-                    previous.frequency = frequency[i];
-                    previous.detune = detune[i];
-                }
-                if (previous.calculatedFrequency === calculatedFrequency && resonance[i] === previous.resonance) {
-                    calculatedResonanceFrequency = previous.calculatedFrequency;
-                } else {
-                    calculatedResonanceFrequency = calculatedFrequency * resonance[i];
-                }
-                previous.calculatedFrequency = calculatedFrequency;
-
-                const phase = oscillator.getIncrementedPhase(calculatedFrequency);
-
-
-                if (!oscillator.resonanceActive) {
-                    distortedPhase0 = getDistortedPhase(phase, oscillator.pdEnvelope0);
-                    distortedPhase1 = getDistortedPhase(phase, oscillator.pdEnvelope1);
-                    distortedPhaseMix = mixValues(distortedPhase0, distortedPhase1, mix[i]);
-
-                    output[i] = oscillator.selectedWaveform.call(oscillator, distortedPhaseMix);
-                } else {
-                    const wrapperPhase = oscillator.getIncrementedResonancePhase(calculatedResonanceFrequency);
-                    distortedPhase0 = getDistortedPhase(wrapperPhase, oscillator.pdEnvelope0);
-                    distortedPhase1 = getDistortedPhase(wrapperPhase, oscillator.pdEnvelope1);
-                    distortedPhaseMix = mixValues(distortedPhase0, distortedPhase1, mix[i]);
-
-                    output[i] = oscillator.selectedWaveform(distortedPhaseMix) * oscillator.selectedWrapper(phase);
-                }
-            }
-        };
+    get targets () {
+        return this.parameters;
     }
 
     set active (active) {
@@ -213,26 +97,97 @@ class PDOscillator {
     }
 
     set frequency (frequency) {
-        this.parameters.targets.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
+        this.parameters.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
     }
 
-    getIncrementedPhase (frequency) {
-        const increment = frequency / this.context.sampleRate;
-        this.phase += increment;
+    set pd (pd) {
+        this.pd0 = pd[0];
+        this.pd1 = pd[1];
+    }
+
+    set pd0 (pd) {
+        this.pdFunctions[0] = phaseDistortionFunction(pd.steps);
+    }
+
+    set pd1 (pd) {
+        this.pdFunctions[1] = phaseDistortionFunction(pd.steps);
+    }
+
+    start () {
+        this.generator.addEventListener("audioprocess", this.audioProcessHandler);
+    }
+
+    stop () {
+        this.generator.removeEventListener("audioprocess", this.audioProcessHandler);
+        this.phase = 0;
+        this.resonancePhase = 0;
+    }
+
+    audioProcessHandler (event) {
+        const frequency = event.inputBuffer.getChannelData(0);
+        const detune = event.inputBuffer.getChannelData(1);
+        const resonance = event.inputBuffer.getChannelData(2);
+        const mix = event.inputBuffer.getChannelData(3);
+        const output = event.outputBuffer.getChannelData(0);
+
+        output.forEach((v, i, out) => {
+            out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], mix[i]);
+        });
+    }
+
+    generatorFunction (frequency, detune, resonance, mix) {
+
+        let calculatedFrequency,
+            calculatedResonanceFrequency,
+            distortedPhaseMix;
+
+        if (frequency === this.previous.frequency && detune === this.previous.detune) {
+            calculatedFrequency = this.previous.calculatedFrequency;
+        } else {
+            calculatedFrequency = this.computeFrequency(frequency, detune);
+            this.previous.frequency = frequency;
+            this.previous.detune = detune;
+        }
+
+        if (this.previous.calculatedFrequency === calculatedFrequency && resonance === this.previous.resonance) {
+            calculatedResonanceFrequency = this.previous.calculatedResonanceFrequency;
+        } else {
+            calculatedResonanceFrequency = calculatedFrequency * resonance;
+            this.previous.calculatedResonanceFrequency = calculatedResonanceFrequency;
+        }
+
+        this.previous.calculatedFrequency = calculatedFrequency;
+
+
+        this.incrementPhase(calculatedFrequency);
+
+        if (!this.resonanceActive) {
+            distortedPhaseMix = mixValues(this.pdFunctions[0](this.phase), this.pdFunctions[1](this.phase), mix);
+
+            return this.selectedWaveform(distortedPhaseMix);
+        }
+
+        this.incrementResonancePhase(calculatedResonanceFrequency);
+        distortedPhaseMix = mixValues(this.pdFunctions[0](this.resonancePhase), this.pdFunctions[1](this.resonancePhase), mix);
+        return this.selectedWaveform(distortedPhaseMix) * this.selectedWrapper(this.phase);
+
+    }
+
+    incrementPhase (frequency) {
+        this.phase += (frequency / this.context.sampleRate);
 
         if (this.phase > 1) {
             this.resonancePhase = 0;
+            this.phase %= 1;
         }
-        return this.phase %= 1;
     }
 
-    getIncrementedResonancePhase (frequency) {
-        const increment = frequency / this.context.sampleRate;
-        this.resonancePhase += increment;
-        return this.resonancePhase %= 1;
+    incrementResonancePhase (frequency) {
+        this.resonancePhase += (frequency / this.context.sampleRate);
+        this.resonancePhase %= 1;
     }
 
-    getComputedFrequency (frequency, detune) {
+    computeFrequency (frequency, detune) {
         return frequency * Math.pow(2, detune / 1200);
     }
 
@@ -245,14 +200,11 @@ class PDOscillator {
     }
 
     destroy () {
-        this.parameters.targets.frequency.disconnect();
-        this.parameters.targets.frequency = null;
-        this.parameters.targets.detune.disconnect();
-        this.parameters.targets.detune = null;
-        this.parameters.targets.resonance.disconnect();
-        this.parameters.targets.resonance = null;
-        this.parameters.targets.mix.disconnect();
-        this.parameters.targets.mix = null;
+        this.constructor.inputDefs.forEach((def) => {
+            this.parameters[def.name].disconnect();
+            this.parameters[def.name] = null;
+        });
+
         this.mergedInput.disconnect();
         this.mergedInput = null;
         this.generator.disconnect();
