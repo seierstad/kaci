@@ -1,13 +1,10 @@
 import {PropTypes} from "react";
 
+import {MODULATION_SOURCE_MODE, RANGE} from "./constants";
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
 import {waveforms, wrappers, noise} from "./waveforms";
 
-export const polarityShape = PropTypes.oneOf([
-    "positive",
-    "full",
-    "negative"
-]);
+export const polarityShape = PropTypes.oneOf(Object.values(RANGE));
 
 export const keyboardLayoutShape = PropTypes.shape({
     "name": PropTypes.string.isRequired,
@@ -129,7 +126,7 @@ export const patchDataMainOutShape = PropTypes.shape({
     ...patchOutputStage
 });
 
-const modulationSourceModeShape = PropTypes.oneOf(["global", "voice"]);
+const modulationSourceModeShape = PropTypes.oneOf(Object.values(MODULATION_SOURCE_MODE));
 
 export const lfoPatchDataShape = PropTypes.shape({
     "active": PropTypes.bool.isRequired,

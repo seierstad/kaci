@@ -42,7 +42,7 @@ let patch = {
             "denominator": 3
         },
         "active": true,
-        "gain": 0.5,
+        "gain": 0.51,
         "pan": 0
     },
     "main": {
@@ -121,7 +121,7 @@ let patch = {
     }],
     "modulation": {
         "oscillator": {
-            "detune": [{
+            "resonance": [{
                 "amount": 0.5,
                 "polarity": "negative",
                 "enabled": true,
