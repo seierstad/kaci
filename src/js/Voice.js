@@ -31,14 +31,14 @@ class Voice {
 
         this.mainOut = new OutputStage(context, this.dc, !!this.state.main.active);
 
-        this.lfos = [];
-        this.createVoiceLfo = this.createVoiceLfo.bind(this);
-        this.state.lfos.forEach(this.createVoiceLfo);
+        this.lfos = this.state.lfos.reduce((acc, lfo, index) => {
+            if (lfo.mode === "voice") {
+                acc[index] = new LFO(this.context, this.store, lfo, this.dc, index);
+            }
+            return acc;
+        }, []);
 
-        this.envelopes = [];
-        this.state.envelopes.forEach((envPatch, index) => {
-            this.envelopes[index] = new EnvelopeGenerator(context, store, index);
-        });
+        this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(context, store, index));
 
         this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
         this.sub = new SubOscillator(context, this.dc, this.state.sub, frequency);
@@ -54,12 +54,6 @@ class Voice {
             ...(prefixKeys(this.noise.targets, "noise.")),
             ...(prefixKeys(this.sub.targets, "sub."))
         };
-    }
-
-    createVoiceLfo (lfoPatch, index) {
-        if (lfoPatch.mode === "voice") {
-            this.lfos[index] = new LFO(this.context, this.store, index);
-        }
     }
 
     stateChangeHandler () {

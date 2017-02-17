@@ -23,7 +23,6 @@ class PDOscillator {
     ]
 
     constructor (context, dc, patch, frequency) {
-        /* start common constructor code */
 
         this.context = context;
         this.state = patch;

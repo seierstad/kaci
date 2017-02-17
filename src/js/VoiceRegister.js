@@ -33,6 +33,7 @@ class VoiceRegister {
             "erik": Tunings.getExperimentalScale(0, 120, 69, 440),
             "halvannen": Tunings.getHalvannenScale(0, 120, 69, 440)
         };
+
         this.activeVoices = [];
         this.stoppedVoices = [];
         this.chordShifter = {
@@ -46,7 +47,7 @@ class VoiceRegister {
 
         this.modulationMatrix = modulationMatrix;
 
-        this.tuning = this.tunings.halvannen;
+        this.tuning = this.tunings.tempered;
         this.stateChangeHandler();
         this.store.subscribe(this.stateChangeHandler);
     }

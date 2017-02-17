@@ -215,8 +215,8 @@ export const modulationLfoSourcesShape = PropTypes.shape({
 });
 
 export const modulationSourcesShape = PropTypes.shape({
-    "envelopes": modulationEnvelopeSourcesShape.isRequired,
-    "lfos": modulationLfoSourcesShape.isRequired
+    "envelope": modulationEnvelopeSourcesShape.isRequired,
+    "lfo": modulationLfoSourcesShape.isRequired
 });
 
 export const outputTargetShape = PropTypes.shape({

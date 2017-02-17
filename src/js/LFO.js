@@ -1,5 +1,5 @@
 import IdealOscillator from "./IdealOscillator";
-
+import WavyJones from "../../lib/wavy-jones";
 /**
     LFO: three outputs
         - LFO.output (connected by LFO.connect(...)): full range (-1 to 1)
@@ -8,71 +8,96 @@ import IdealOscillator from "./IdealOscillator";
 */
 
 class LFO {
-    constructor (context, store, index, isSyncMaster) {
+
+    constructor (context, store, patch, dc, index, isSyncMaster) {
 
         this.context = context;
         this.index = index;
         this.store = store;
-        this.state = store.getState().patch.lfos[this.index];
+        this.state = {...patch};
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.updateOutputRanges = this.updateOutputRanges.bind(this);
+
         this.isSyncMaster = isSyncMaster;
         if (this.state && this.state.sync && typeof this.state.sync.master === "number") {
             this.syncMasterState = store.getState().patch.lfos[this.state.sync.master];
         }
 
         this.postGain = context.createGain(); // set gain.value to 0 to mute the lfo output
-        this.oscillator = new IdealOscillator(context);
+        this.oscillator = new IdealOscillator(context, dc);
         this.outputs = {};
 
         this.oscillator.connect(this.postGain);
 
-        this.frequency = this.oscillator.frequency;
-        this.frequency.value = 0;
-
-        if (!this.state.sync || !this.state.sync.enabled) {
-            this.frequency.setValueAtTime(this.state.frequency, this.context.currentTime);
-        }
-
-        this.detune = this.oscillator.detune;
-        this.setWaveform(this.state.waveform);
+        this.parameters = {...this.oscillator.targets};
 
         this.addOutput("positive", [0, 0.5, 1]);
         this.addOutput("negative", [-1, -0.5, 0]);
-        this.setValueAtTime(this.state.amount, context.currentTime);
+
 
         /*
         if (patch.syncEnabled && patch.syncRatioNumerator && patch.syncRatioDenominator) {
             this.syncToMaster();
-        } else {
-            if (typeof patch.frequency === 'number') {
-                this.setFrequency(patch.frequency);
-            }
         }
-*/
+        */
 
+        this.active = this.state.active;
+        if (!this.state.sync || !this.state.sync.enabled) {
+            this.frequency = this.state.frequency;
+        } else {
+            console.log("TODO: implement lfo sync");
+        }
+
+        this.amount = this.state.amount;
+        this.waveform = this.state.waveform;
+    }
+
+    set active (active) {
+        this.postGain.gain.setValueAtTime((active ? 1 : 0), this.context.currentTime);
+    }
+
+    set frequency (frequency) {
+        this.oscillator.frequency = frequency;
+    }
+
+    set amount (...params) {
+        const [value, time = this.context.currentTime] = params;
+        let delay = 0;
+
+        this.postGain.gain.setValueAtTime(value, time);
+
+        if (time) {
+            delay = Math.max(time - this.context.currentTime, 0);
+        }
+        setTimeout(this.updateOutputRanges(value), delay);
+    }
+
+    set waveform (waveformName) {
+        this.oscillator.waveform = waveformName;
     }
 
     stateChangeHandler () {
+
         const newState = this.store.getState().patch.lfos[this.index];
-        if (newState !== this.state) {
+
+        if (newState && (newState !== this.state)) {
             if (this.state.amount !== newState.amount) {
-                this.setValueAtTime(newState.amount, this.context.currentTime);
+                this.amount = newState.amount;
             }
             if (this.state.waveform !== newState.waveform) {
-                this.setWaveform(newState.waveform);
+                this.waveform = newState.waveform;
             }
             if (this.state.frequency !== newState.frequency) {
                 if (!newState.sync || !newState.sync.enabled) {
-                    this.setFrequency(newState.frequency);
+                    this.frequency = newState.frequency;
                 }
             }
             if (this.state.sync !== newState.sync) {
                 if (this.state.sync && this.state.sync.enabled && !newState.sync.enabled) {
                     // sync disabled
-                    this.setFrequency(newState.frequency);
+                    this.frequency = newState.frequency;
                 }
                 if ((!this.state.sync || this.state.sync && !this.state.sync.enabled) && newState.sync.enabled) {
                     // sync enabled
@@ -87,6 +112,7 @@ class LFO {
             this.state = newState;
         }
     }
+
     /*
 "lfo.change.sync.ratio",
 "lfo.change.sync.enable",
@@ -98,9 +124,6 @@ class LFO {
 "lfo.master.reset",
 'lfo.master.zeroPhase'
     */
-    setFrequency (frequency) {
-        this.frequency.setValueAtTime(frequency, this.context.currentTime);
-    }
 
     syncToMaster () {
         let that = this;
@@ -132,31 +155,12 @@ class LFO {
         }
     }
 
-    setValueAtTime (value, time) {
-        let delay = 0;
-
-        this.postGain.gain.setValueAtTime(value, time);
-
-        if (time) {
-            delay = Math.max(time - this.context.currentTime, 0);
-        }
-        setTimeout(this.updateOutputRanges(value), delay);
-    }
-
-    setWaveform (waveformName) {
-        this.oscillator.setWaveform(waveformName);
-    }
-
     addOutput (name, range) {
-        let shaper,
-            out;
-
         if (this.outputs[name]) {
-            throw {
-                "error": "An output named '" + name + "' already exists"
-            };
+            throw new Error ("An output named '" + name + "' already exists");
         }
-        shaper = this.context.createWaveShaper();
+
+        const shaper = this.context.createWaveShaper();
 
         if (range && range.length === 2) {
             shaper.curve = new Float32Array(range);

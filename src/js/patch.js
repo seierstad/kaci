@@ -16,7 +16,7 @@ let patch = {
                 [1, 1]
             ]
         }],
-        "resonance": 1.1,
+        "resonance": 3,
         "resonanceActive": true,
         "wrapper": {"name": "gaussian", "parameters": {mu: 0.5, sig: 0.2}},
         "mix": 0,
@@ -121,69 +121,13 @@ let patch = {
     }],
     "modulation": {
         "oscillator": {
-            "resonance": [{
-                "amount": 0.1,
-                "polarity": "positive",
-                "enabled": true,
-                "source": {
-                    "type": "lfo",
-                    "index": 0
-                }
-            }, {
-                "amount": .1,
-                "polarity": "negative",
-                "enabled": false,
-                "source": {
-                    "type": "env",
-                    "index": 0
-                }
-            }, {
-                "amount": .5,
-                "polarity": "positive",
-                "enabled": true,
-                "source": {
-                    "type": "lfo",
-                    "index": 2
-                }
-            }],
-            "pan": [{
-                "amount": 0.5,
-                "polarity": "full",
-                "enabled": true,
-                "source": {
-                    "type": "lfo",
-                    "index": 1
-                }
-            }],
             "detune": [{
-                "amount": 1,
-                "polarity": "positive",
+                "amount": 0.5,
+                "polarity": "negative",
                 "enabled": true,
                 "source": {
                     "type": "lfo",
-                    "index": 2
-                }
-            }]
-        },
-        "vca": {
-            "gain": [{
-                "amount": 1.0,
-                "polarity": "positive",
-                "enabled": true,
-                "source": {
-                    "type": "env",
                     "index": 0
-                }
-            }]
-        },
-        "noise": {
-            "pan": [{
-                "amount": 1,
-                "polarity": "full",
-                "enabled": true,
-                "source": {
-                    "type": "lfo",
-                    "index": 2
                 }
             }]
         }

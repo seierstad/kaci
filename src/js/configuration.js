@@ -82,7 +82,7 @@ const configuration = {
         "layouts": [{
             "name": "colemak",
             "offset": 36,
-            "map": [189, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 186, 219],
+            "map": [192, 65, 90, 82, 88, 67, 84, 86, 68, 66, 72, 75, 77, 69, 188, 73, 190, 191, 222, 81, 50, 87, 51, 70, 80, 53, 71, 54, 74, 76, 56, 85, 57, 89, 48, 186, 219],
             "controls": {
                 "CHORD_SHIFT_TOGGLE": 32
             }
@@ -115,7 +115,7 @@ const configuration = {
             "default": defaultModulationConnectionParameters
         },
         "source": {
-            "lfos": {
+            "lfo": {
                 "count": 3,
                 "amount": {
                     "min": 0,
@@ -131,7 +131,7 @@ const configuration = {
                 sync: defaultSyncConfiguration,
                 "default": defaultLfoParameters
             },
-            "envelopes": {
+            "envelope": {
                 "count": 2,
                 "default": defaultEnvParameters,
                 "defaultState": {

@@ -61,7 +61,7 @@ const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
 };
 
 
-const envelopes = (state = new Array(config.modulation.source.envelopes.count).fill(config.modulation.source.envelopes.defaultState), action) => {
+const envelopes = (state = new Array(config.modulation.source.envelope.count).fill(config.modulation.source.envelope.defaultState), action) => {
     const index = action.envelopeIndex;
 
     if (!isNaN(index) && action.module === "envelopes") {

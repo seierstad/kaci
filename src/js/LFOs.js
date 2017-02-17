@@ -11,7 +11,7 @@ class LFOs {
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.lfos = this.setupLFOs(configuration.source.lfos, this.state.patch.lfos, dc);
+        this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos, dc);
     }
 
     stateChangeHandler () {
@@ -29,9 +29,9 @@ class LFOs {
         const result = [];
 
         for (i = 0, j = configuration.count; i < j; i += 1) {
-            if (patch[i].mode === "global" || patch[i].mode === "retrigger") {
-                result[i] = new LFO(this.context, this.store, i);
-                result[i].start();
+            const p = patch[i] || configuration.default;
+            if (p.mode === "global" || p.mode === "retrigger") {
+                result[i] = new LFO(this.context, this.store, p, dc, i);
             }
         }
 

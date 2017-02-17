@@ -54,13 +54,13 @@ class PatchPresentation extends Component {
                     syncHandlers={handlers.sync}
                 />
                 <Envelopes
-                    configuration={configuration.modulation.source.envelopes}
+                    configuration={configuration.modulation.source.envelope}
                     handlers={handlers.envelope}
                     patch={patch.envelopes}
                     viewState={viewState.envelopes}
                 />
                 <LFOs
-                    configuration={configuration.modulation.source.lfos}
+                    configuration={configuration.modulation.source.lfo}
                     handlers={handlers.lfos}
                     patch={patch.lfos}
                     syncHandlers={handlers.sync}

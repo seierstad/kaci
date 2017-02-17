@@ -2,6 +2,7 @@ import equal from "deep-equal";
 import Utils from "./Utils";
 import LFOs from "./LFOs";
 import StaticSources from "./static-sources";
+import Connection from "./modulation-connection";
 
 import {ParamLogger} from "./sharedFunctions";
 
@@ -27,12 +28,12 @@ class ModulationMatrix {
 
         this.state = state.patch.modulation;
         this.configuration = state.settings.modulation;
-        this.patch = state.patch;
+        this.patch = state.patch.modulation;
         this.playState = state.playState;
 
         this.connect = this.connect.bind(this);
 
-        this.lfos = new LFOs(context, store, this.configuration);
+        this.lfos = new LFOs(context, store, this.configuration, dc);
 
         const flatConfig = new StaticSources(context, store, this.configuration.target, dc);
 
@@ -55,15 +56,18 @@ class ModulationMatrix {
 
         this.connections = {};
 
-        //this.initPatch();
+        this.initPatch(this.connections, this.state);
 
     }
 
-    initPatch () {
-        const activeGlobalLfoConnection = pc => pc.enabled && pc.source.type === "lfo" && this.sources.lfos[pc.source.index];
+    initPatch (connections, patch) {
+        // const activeGlobalLfoConnection = pc => pc.enabled && pc.source.type === "lfo" && this.sources.lfos[pc.source.index];
 
-        const moduleNames = Object.keys(this.state);
+        const moduleNames = Object.keys(patch);
         for (const moduleName of moduleNames) {
+            const modulePatch = patch[moduleName];
+            this.connectModule(connections, modulePatch, moduleName);
+            /*
             const module = this.state[moduleName];
             const parameterNames = Object.keys(module);
 
@@ -71,52 +75,99 @@ class ModulationMatrix {
                 const parameterConnections = module[parameterName];
 
                 parameterConnections.filter(activeGlobalLfoConnection).forEach(c => {
-                    this.connect(c.source.type, c.source.index, [moduleName, parameterName].join("."), c.polarity, c.amount);
+                    this.connect(c.source.type, c.source.index, moduleName, parameterName, c);
                 });
             }
+            */
         }
     }
 
-    connect (type, index, target, range, amount) {
-        let source;
-        if (this.targets[target]) {
-            switch (type) {
-                case "lfo":
-                    switch (range) {
-                        case "full":
-                            source = this.sources.lfos[index];
-                            break;
-                        case "positive":
-                            source = this.sources.lfos[index].outputs.positive;
-                            break;
-                        case "negative":
-                            source = this.sources.lfos[index].outputs.negative;
-                            break;
-                    }
-                    break;
+    connect (connections, connectionPatch, target) {
+        const {amount, polarity: range, source} = connectionPatch;
+        const {type, index} = source;
+        let sourceNode;
+
+
+        switch (type) {
+            case "lfo":
+                switch (range) {
+                    case "full":
+                        sourceNode = this.sources.lfos[index];
+                        break;
+                    case "positive":
+                        sourceNode = this.sources.lfos[index].outputs.positive;
+                        break;
+                    case "negative":
+                        sourceNode = this.sources.lfos[index].outputs.negative;
+                        break;
+                }
+                break;
+        }
+
+        connections[index] = this.context.createGain();
+        connections[index].gain.value = amount;
+
+        sourceNode.connect(connections[index]);
+        connections[index].connect(target);
+    }
+
+    connectType (connections, typeName, typePatch, target) {
+        connections[typeName] = connections[typeName] || [];
+        const enabledConnections = typePatch.filter(c => c.enabled);
+
+        for (const connection of enabledConnections) {
+            this.connect(connections[typeName], connection, target);
+        }
+    }
+
+    connectParameter (connections, parameterPatch, parameterName, moduleName) {
+        const targetKey = [moduleName, parameterName].join(".");
+        const target = this.targets[targetKey];
+
+        if (target) {
+            connections[parameterName] = connections[parameterName] || {};
+
+            const typeNames = Object.keys(this.configuration.source);
+            for (const typeName of typeNames) {
+                const typePatch = parameterPatch.filter(c => c.source.type === typeName);
+                this.connectType(connections[parameterName], typeName, typePatch, target);
             }
-
-            this.connections[type] = this.connections[type] || [];
-            this.connections[type][index] = this.connections[type][index] || {};
-            this.connections[type][index][target] = this.context.createGain();
-            this.connections[type][index][target].gain.value = amount;
-
-            source.connect(this.connections[type][index][target]);
-            this.connections[type][index][target].connect(this.targets[target]);
         }
     }
 
-    disconnect (type, index, target) {
-        if (this.connections[type][index][target]) {
-            this.connections[type][index][target].disconnect();
-            this.connections[type][index][target] = null;
+    connectModule (connections, modulePatch, moduleName) {
+        connections[moduleName] = connections[moduleName] || {};
+
+        for (const parameterName in modulePatch) {
+            const parameter = modulePatch[parameterName];
+            this.connectParameter(connections[moduleName], parameter, parameterName, moduleName);
         }
+    }
+
+    disconnect (node) {
+        if (typeof node.disconnect === "function") {
+            node.disconnect();
+            return null;
+        }
+
+        if (typeof node.forEach === "function") {
+            node.forEach((connection, index, arr) => {arr[index] = this.disconnect(connection);});
+            return null;
+        }
+
+        for (const propertyName in node) {
+            node[propertyName] = this.disconnect(node[propertyName]);
+        }
+
+        return null;
     }
 
     stateChangeHandler () {
         const newState = this.store.getState();
 
         const keyDown = k => !!k && k.down;
+
+        const connectionSourceFilter = (typeName, index) => c => c.source.type === typeName && c.source.index === index;
 
         if (newState.playState.keys !== this.playState.keys) {
             const currentKeyCount = this.playState.keys.filter(keyDown).length;
@@ -129,6 +180,88 @@ class ModulationMatrix {
             }
 
             this.playState.keys = newState.playState.keys;
+        }
+
+        if (newState.patch.modulation !== this.patch) {
+            const patch = this.patch;
+            const newPatch = newState.patch.modulation;
+
+            for (const moduleName in this.configuration.target) {
+                const module = patch[moduleName];
+                const newModule = newPatch[moduleName];
+
+                if (module && !newModule) {
+                    this.connections[moduleName] = this.disconnect(this.connections[moduleName]);
+                }
+
+                if (!module && newModule) {
+                    this.connectModule(this.connections, newModule, moduleName);
+
+                } else if (module !== newModule) {
+
+                    for (const parameterName in this.configuration.target[moduleName]) {
+
+                        const parameter = module[parameterName];
+                        const newParameter = newModule[parameterName];
+
+                        if (parameter && !newParameter) {
+                            this.connections[moduleName][parameterName] = this.disconnect(this.connections[moduleName][parameterName]);
+                        } else if (newParameter && !parameter) {
+                            this.connectParameter(this.connections[moduleName], newParameter, parameterName, moduleName);
+                        } else if (parameter !== newParameter) {
+                            for (const typeName in this.configuration.source) {
+                                const config = this.configuration.source[typeName];
+
+                                for (let index = 0; index < config.count; index += 1) {
+                                    const f = connectionSourceFilter(typeName, index);
+                                    const connection = parameter.find(f);
+                                    const newConnection = newParameter.find(f);
+
+                                    if (connection && !newConnection) {
+                                        this.disconnect(this.connections[moduleName][parameterName][typeName][index]);
+                                    } else if (!connection && newConnection) {
+                                        const target = this.targets[[moduleName, parameterName].join(".")];
+                                        if (target) {
+                                            this.connections[moduleName][parameterName][typeName] = this.connections[moduleName][parameterName][typeName] || [];
+                                            this.connect(this.connections[moduleName][parameterName][typeName], newConnection, target);
+                                        }
+                                    } else if (connection !== newConnection) {
+                                        const {amount, polarity, enabled} = connection;
+                                        const {amount: newAmount, polarity: newPolarity, enabled: newEnabled} = newConnection;
+
+                                        if (enabled !== newEnabled) {
+                                            if (enabled && !newEnabled) {
+                                                this.disconnect(this.connections[moduleName][parameterName][typeName][index]);
+                                            } else {
+                                                const target = this.targets[[moduleName, parameterName].join(".")];
+                                                if (target) {
+                                                    this.connections[moduleName][parameterName][typeName] = this.connections[moduleName][parameterName][typeName] || [];
+                                                    this.connect(this.connections[moduleName][parameterName][typeName], newConnection, target);
+                                                }
+                                            }
+                                        }
+
+                                        if (newEnabled) {
+                                            if (polarity !== newPolarity) {
+                                                this.connections[moduleName][parameterName][typeName][index].disconnect();
+                                                const target = this.targets[[moduleName, parameterName].join(".")];
+                                                if (target) {
+                                                    this.connections[moduleName][parameterName][typeName] = this.connections[moduleName][parameterName][typeName] || [];
+                                                    this.connect(this.connections[moduleName][parameterName][typeName], newConnection, target);
+                                                }
+                                            } else if (amount !== newAmount) {
+                                                this.connections[moduleName][parameterName][typeName][index].gain.setValueAtTime(newAmount, this.context.currentTime);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            this.patch = newPatch;
         }
 
         /*

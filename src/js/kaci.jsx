@@ -17,6 +17,7 @@ import MidiInput from "./MidiInput";
 import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration";
 
+import LFO from "./LFO";
 
 // window.Perf = Perf;
 
@@ -49,7 +50,7 @@ if (window.AudioContext) {
     //    shaper.curve = shaperCurve;
     //    shaper.connect(scope);
 
-    //* start scope
+    /* start scope
     const scope = new WavyJones(ctx, "oscilloscope");
     scope.lineColor = "black";
     scope.lineThickness = 1;

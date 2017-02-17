@@ -17,8 +17,8 @@ class ModulationMatrixPresentation extends Component {
 
     render () {
         const {configuration, patch, handlers} = this.props;
-        const lfoCount = configuration.source.lfos.count;
-        const envCount = configuration.source.envelopes.count;
+        const lfoCount = configuration.source.lfo.count;
+        const envCount = configuration.source.envelope.count;
 
         const sourceNumbers = [];
         for (let i = 0; i < lfoCount; i += 1) {

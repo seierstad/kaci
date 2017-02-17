@@ -1,8 +1,8 @@
 import * as Actions from "../actions";
 import syncReducer from "./sync";
+import {defaultLfoParameters} from "../configuration";
 
-
-const lfo = (state = [], action) => {
+const lfo = (state = {...defaultLfoParameters}, action) => {
     switch (action.type) {
         case Actions.LFO_FREQUENCY_CHANGE:
             return {
