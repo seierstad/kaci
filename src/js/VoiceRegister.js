@@ -8,17 +8,9 @@ import Voice from "./Voice";
  **/
 
 class VoiceRegister {
-    constructor (store, context, modulationMatrix) {
-        /*
-        this.appKeyDownHandler = this.appKeyDownHandler.bind(this);
-        this.appKeyUpHandler = this.appKeyUpHandler.bind(this);
-        this.chordShiftHandler = this.chordShiftHandler.bind(this);
-        this.enableChordShiftHandler = this.enableChordShiftHandler.bind(this);
-        this.disableChordShiftHandler = this.disableChordShiftHandler.bind(this);
-        */
-        this.getIndexes = this.getIndexes.bind(this);
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
 
+    constructor (store, context, modulationMatrix) {
+        this.stateChangeHandler = this.stateChangeHandler.bind(this);
 
         this.store = store;
         this.state = this.store.getState();
@@ -52,10 +44,77 @@ class VoiceRegister {
         this.store.subscribe(this.stateChangeHandler);
     }
 
+    startVoice (key, freq) {
+        if (!this.activeVoices[key]) {
+            const frequency = (typeof key === "number") ? this.tuning[key] : freq;
+            const voice = new Voice(this.context, this.store, frequency);
+
+            if (this.totalVoicesCount === 0) {
+                this.modulationMatrix.startGlobalModulators();
+            }
+            this.modulationMatrix.patchVoice(voice, this.patch);
+
+            voice.connect(this.mainMix);
+            this.activeVoices[key] = voice;
+            this.activeKeys[key] = true;
+
+            voice.start(this.context.currentTime);
+        }
+    }
+
+    get totalVoicesCount () {
+        const activeCount = this.activeVoices.reduce((prev, curr) => {return (curr ? (prev + 1) : prev);}, 0);
+        const stoppedCount = this.stoppedVoices.reduce((prev, curr) => {return (curr ? (prev + 1) : prev);}, 0);
+
+        return activeCount + stoppedCount;
+    }
+
+    stopVoice (key) {
+        const voice = this.activeVoices[key];
+
+        if (voice) {
+
+            voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
+            if (this.stoppedVoices[key]) {
+                this.deleteVoice(this.stoppedVoices[key]);
+            }
+
+            this.stoppedVoices[key] = voice;
+            delete this.activeVoices[key];
+            delete this.activeKeys[key];
+        }
+
+    }
+
+    deleteVoice (voice) {
+        const notVoice = (v) => v === null;
+        let voiceIndex = this.stoppedVoices.indexOf(voice);
+
+        if (voiceIndex !== -1) {
+            delete this.stoppedVoices[voiceIndex];
+
+        } else {
+
+            voiceIndex = this.activeVoices.indexOf(voice);
+
+            if (voiceIndex !== -1) {
+                delete this.activeVoices[voiceIndex];
+            }
+        }
+
+        //    this.modulationMatrix.unpatchVoice(voice);
+
+        if (this.totalVoicesCount === 0) {
+            this.modulationMatrix.stopGlobalModulators();
+        }
+    }
+
     stateChangeHandler () {
         const newState = this.store.getState();
         const newKeyState = newState.playState.keys;
         const newTuningState = newState.settings.tuning;
+
+        const keyDown = k => !!k && k.down;
 
         if (this.activeKeys !== newKeyState) {
 
@@ -78,7 +137,6 @@ class VoiceRegister {
 
             ups.forEach(k => this.stopVoice(k));
             downs.forEach(k => this.startVoice(k));
-
         }
 
         if (newTuningState.baseFrequency.value !== this.baseFrequency) {
@@ -92,14 +150,6 @@ class VoiceRegister {
         }
     }
 
-    getIndexes (keyarray) {
-
-        return keyarray.map(function (value, index) {
-            if (value !== null && value !== undefined) {return index;}
-        }).filter(function (value) {
-            return value !== undefined;
-        });
-    }
     /*
     appKeyDownHandler (event) {
         const k = event.detail.keyNumber;
@@ -197,7 +247,9 @@ class VoiceRegister {
             const chordIndex = Math.floor(q);
             const chordRatio = q - chordIndex;
 
-            const voiceIndexes = this.getIndexes(this.activeVoices);
+            const indexReducer = (acc, curr, index) => curr ? [...acc, index] : acc;
+
+            const voiceIndexes = this.activeVoices.reduce(indexReducer);
 
             // console.log("chord index: " + chordIndex + "\tchord1:\t" + chords[chordIndex].length + "\tchord2:\t" + chords[chordIndex + 1].length + " ratio: " + chordRatio);
             for (let i = 0, j = voiceIndexes.length; i < j; i += 1) {
@@ -267,62 +319,6 @@ class VoiceRegister {
 
     modulationWheelHandler () {
         // console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
-    }
-
-    startVoice (key, freq) {
-
-        if (!this.activeVoices[key]) {
-            const frequency = (typeof key === "number") ? this.tuning[key] : freq;
-            const voice = new Voice(this.context, this.store, frequency);
-
-            this.modulationMatrix.patchVoice(voice, this.patch);
-
-            voice.connect(this.mainMix);
-            this.activeVoices[key] = voice;
-            this.activeKeys[key] = true;
-
-            voice.start(this.context.currentTime);
-
-        }
-    }
-
-    stopVoice (key) {
-        const voice = this.activeVoices[key];
-
-        if (voice) {
-
-            voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
-            if (this.stoppedVoices[key]) {
-                this.deleteVoice(this.stoppedVoices[key]);
-            }
-
-            this.stoppedVoices[key] = voice;
-            delete this.activeVoices[key];
-            delete this.activeKeys[key];
-        }
-    }
-
-    deleteVoice (voice) {
-        const notVoice = (v) => v === null;
-        let voiceIndex = this.stoppedVoices.indexOf(voice);
-
-        if (voiceIndex !== -1) {
-            delete this.stoppedVoices[voiceIndex];
-
-        } else {
-
-            voiceIndex = this.activeVoices.indexOf(voice);
-
-            if (voiceIndex !== -1) {
-                delete this.activeVoices[voiceIndex];
-            }
-        }
-        //    this.modulationMatrix.unpatchVoice(voice);
-
-        if (this.activeVoices.every(notVoice) && this.stoppedVoices.every(notVoice)) {
-            // no active voices -> stop global lfos
-            this.context.dispatchEvent(new CustomEvent("voice.last.ended", {}));
-        }
     }
 }
 

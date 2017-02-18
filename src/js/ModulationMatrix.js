@@ -27,7 +27,6 @@ class ModulationMatrix {
         this.state = state.patch.modulation;
         this.configuration = state.settings.modulation;
         this.patch = state.patch.modulation;
-        this.playState = state.playState;
 
         this.connect = this.connect.bind(this);
 
@@ -56,6 +55,14 @@ class ModulationMatrix {
 
         this.initPatch(this.connections, this.state);
 
+    }
+
+    startGlobalModulators () {
+        this.lfos.start();
+    }
+
+    stopGlobalModulators () {
+        this.lfos.stop();
     }
 
     initPatch (connections, patch) {
@@ -150,22 +157,7 @@ class ModulationMatrix {
     stateChangeHandler () {
         const newState = this.store.getState();
 
-        const keyDown = k => !!k && k.down;
-
         const connectionSourceFilter = (typeName, index) => c => c.source.type === typeName && c.source.index === index;
-
-        if (newState.playState.keys !== this.playState.keys) {
-            const currentKeyCount = this.playState.keys.filter(keyDown).length;
-            const nextKeyCount = newState.playState.keys.filter(keyDown).length;
-
-            if (currentKeyCount === 0 && nextKeyCount > 0) {
-                this.lfos.start();
-            } else if (currentKeyCount > 0 && nextKeyCount === 0) {
-                this.lfos.stop();
-            }
-
-            this.playState.keys = newState.playState.keys;
-        }
 
         if (newState.patch.modulation !== this.patch) {
             const patch = this.patch;
@@ -256,6 +248,7 @@ class ModulationMatrix {
 
         const voiceTargets = voice.targets;
 
+        const envelopeConnections = {};
 
         for (let key in voiceTargets) {
             if (this.targets[key]) {
@@ -272,9 +265,14 @@ class ModulationMatrix {
                     && envelopes[p.source.index]
                 );
             });
-            console.log(moduleName, parameterName, parameterEnvelopes);
-            parameterEnvelopes.forEach(p => envelopes[p.source.index].connect(voiceTargets[key].gain));
+
+            parameterEnvelopes.forEach(p => {
+                envelopes[p.source.index].connect(voiceTargets[key].gain);
+                envelopeConnections[key] = envelopes[p.source.index];
+            });
+
         }
+        voice.envelopeConnections = envelopeConnections;
 
         /*
         for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {

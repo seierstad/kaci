@@ -78,10 +78,12 @@ class EnvelopeGenerator {
             const index = this.connections.indexOf(parameter);
             if (index !== -1) {
                 this.connections[index].cancelScheduledValues(this.context.currentTime);
+                this.connections[index].linearRampToValueAtTime(1, this.context.currentTime);
                 this.connections[index] = null;
             }
         } else {
             this.cancelScheduledValues();
+            this.linearRampToValueAtTime(1, this.context.currentTime);
             this.connections = [];
         }
     }
