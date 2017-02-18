@@ -42,9 +42,12 @@ class WaveformButton extends Component {
     }
 
     handleChange (event) {
-        const {onChange, waveformName} = this.props;
         event.stopPropagation();
-        onChange(waveformName);
+        const {selected, onChange, waveformName} = this.props;
+
+        if (event.target.checked && !selected) {
+            onChange(waveformName);
+        }
     }
 
     render () {

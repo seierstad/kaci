@@ -40,6 +40,7 @@ class WaveformSelector extends Component {
         const {waveforms, selected, index, module, includePhaseIndicator} = this.props;
         const controlName = "waveform-" + waveformSelectorCounter;
         waveformSelectorCounter += 1;
+
         const sampleAndHoldBuffer = {
             "value": null,
             "phase": 0

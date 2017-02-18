@@ -43,13 +43,24 @@ const lfo = (state = {...defaultLfoParameters}, action) => {
 const lfos = (state = [], action) => {
     if (action.module === "lfos") {
 
-        let result = [
-            ...state
-        ];
-        result[action.index] = lfo(state[action.index], action);
+        switch (action.type) {
+            case Actions.LFO_FREQUENCY_CHANGE:
+            case Actions.LFO_AMOUNT_CHANGE:
+            case Actions.LFO_WAVEFORM_CHANGE:
+            case Actions.LFO_RESET:
+            case Actions.SYNC_NUMERATOR_CHANGE:
+            case Actions.SYNC_DENOMINATOR_CHANGE:
+            case Actions.SYNC_TOGGLE:
 
-        return result;
+                const result = [
+                    ...state
+                ];
+                result[action.index] = lfo(state[action.index], action);
+
+                return result;
+        }
     }
+
     return state;
 };
 
