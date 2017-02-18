@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
 import {lfosPatchDataShape, modulationLfoSourcesShape} from "../../propdefs";
-import LFO from "./lfo.jsx";
+import Lfo from "./lfo.jsx";
 
 class LFOs extends Component {
 
@@ -22,7 +22,7 @@ class LFOs extends Component {
 
         for (let i = 0; i < configuration.count; i += 1) {
             lfos.push(
-                <LFO
+                <Lfo
                     configuration={configuration}
                     handlers={handlers}
                     index={i}

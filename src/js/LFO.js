@@ -1,5 +1,6 @@
+// import WavyJones from "../../lib/wavy-jones";
 import IdealOscillator from "./IdealOscillator";
-import WavyJones from "../../lib/wavy-jones";
+
 /**
     LFO: three outputs
         - LFO.output (connected by LFO.connect(...)): full range (-1 to 1)
@@ -23,6 +24,7 @@ class LFO {
         this.isSyncMaster = isSyncMaster;
         if (this.state && this.state.sync && typeof this.state.sync.master === "number") {
             this.syncMasterState = store.getState().patch.lfos[this.state.sync.master];
+            this.syncRatio = context.createGain();
         }
 
         this.postGain = context.createGain(); // set gain.value to 0 to mute the lfo output
@@ -46,8 +48,6 @@ class LFO {
         this.active = this.state.active;
         if (!this.state.sync || !this.state.sync.enabled) {
             this.frequency = this.state.frequency;
-        } else {
-            console.log("TODO: implement lfo sync");
         }
 
         this.amount = this.state.amount;
@@ -78,6 +78,10 @@ class LFO {
         this.oscillator.waveform = waveformName;
     }
 
+    set sync ({numerator, denominator}) {
+        this.syncRatio.gain.setValueAtTime(numerator / denominator, this.context.currentTime);
+    }
+
     stateChangeHandler () {
 
         const newState = this.store.getState().patch.lfos[this.index];
@@ -104,8 +108,9 @@ class LFO {
                     this.syncMasterState = this.store.getState().patch.lfos[newState.sync.master];
                 }
                 if (this.state.sync && this.state.sync.enabled) {
-                    if (this.state.sync.numerator !== newState.sync.numerator) {
-                        console.log("update numerator!");
+                    if (this.state.sync.numerator !== newState.sync.numerator || this.state.sync.denominator !== newState.sync.denominator) {
+                        const {numerator, denominator} = newState.sync;
+                        this.sync = {numerator, denominator};
                     }
                 }
             }

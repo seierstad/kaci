@@ -1,9 +1,10 @@
 import React, {Component, PropTypes} from "react";
+
+import {configurationShape, playStateShape} from "../propdefs";
+
 import MidiView from "./MIDI/midi.jsx";
 import KeyboardInputView from "./KeyboardInputView.jsx";
 import Tuning from "./tuning.jsx";
-
-import {keyboardShape, configurationShape, playStateShape} from "../propdefs";
 
 
 class SystemSettingsView extends Component {
@@ -16,7 +17,7 @@ class SystemSettingsView extends Component {
     }
 
     render () {
-        const {keyboardConfiguration, keyboardHandlers, resetHandler, configuration, playState} = this.props;
+        const {keyboardHandlers, resetHandler, configuration, playState} = this.props;
 
         return (
             <section className="system-settings-view">
@@ -24,8 +25,13 @@ class SystemSettingsView extends Component {
                     configuration={configuration.midi}
                     playState={playState.midiClock}
                 />
-                <KeyboardInputView configuration={configuration.keyboard} handlers={keyboardHandlers} />
-                <Tuning />
+                <KeyboardInputView
+                    configuration={configuration.keyboard}
+                    handlers={keyboardHandlers}
+                />
+                <Tuning
+                    configuration={configuration.tuning}
+                />
                 <button onClick={resetHandler}>system reset</button>
             </section>
         );

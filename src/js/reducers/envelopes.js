@@ -1,5 +1,6 @@
-import * as Actions from "../actions";
 import {combineReducers} from "redux";
+import * as Actions from "../actions";
+
 
 const sortByX = (a, b) => a[0] > b[0];
 

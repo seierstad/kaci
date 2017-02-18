@@ -22,33 +22,33 @@ class Envelope extends Component {
 
     constructor () {
         super();
-        this.backgroundClick = this.backgroundClick.bind(this);
-        this.mouseOut = this.mouseOut.bind(this);
+        this.handleBackgroundClick = this.handleBackgroundClick.bind(this);
+        this.handleMouseOut = this.handleMouseOut.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
         return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState) || (this.props.activeIndex !== nextProps.activeIndex);
     }
 
-    backgroundClick (event) {
+    handleBackgroundClick (event) {
         const {module, index, part, patch, handlers} = this.props;
         handlers.backgroundClick(event, module, patch.steps, index, part);
     }
 
-    mouseOut (event) {
-        const {module, index, part, patch, handlers} = this.props;
+    handleMouseOut (event) {
+        const {module, index, part, handlers} = this.props;
         handlers.mouseOut(event, module, index, part);
     }
 
     render () {
         const {handlers, index, module, patch, viewState, activeIndex, width, x, part} = this.props;
-        const {backgroundClick, envelopeBlur} = handlers;
 
         this.patch = patch;
+
         const background = (
             <rect
                 height="100%"
-                onMouseDown={this.backgroundClick}
+                onMouseDown={this.handleBackgroundClick}
                 opacity="0"
                 ref={(bg) => this.background = bg}
                 width="100%"
@@ -59,7 +59,7 @@ class Envelope extends Component {
             <svg
                 className={"controller envelope" + (part ? " " + part : "")}
                 height="100%"
-                onMouseOut={this.mouseOut}
+                onMouseOut={this.handleMouseOut}
                 width={width ? width : "100%"}
                 x={x}
             >

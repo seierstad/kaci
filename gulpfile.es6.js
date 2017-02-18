@@ -7,9 +7,6 @@ import gulpif from "gulp-if";
 import sourcemaps from "gulp-sourcemaps";
 import gutil from "gulp-util";
 
-/* script library configuration */
-import {dependencies} from "./package.json";
-
 /* scrips related libraries */
 import eslint from "gulp-eslint";
 import babel from "babelify";
@@ -32,6 +29,8 @@ import htmllint from "gulp-htmllint";
 /* server/build environment related libraries */
 import connect from "gulp-connect";
 
+/* script library configuration */
+import {dependencies} from "./package";
 
 
 /*
@@ -78,7 +77,7 @@ gulp.task("build:libs", () => {
     scripts tasks
 */
 
-const scriptSources = ["gulpfile.js", "gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
+const scriptSources = ["gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
 
 gulp.task("lint:scripts", () => {
     // ensure target directory exists

@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
+import {keyStateShape} from "../../propdefs";
 import * as Actions from "../../actions";
 
 class KeyPresentation extends Component {
@@ -10,8 +11,12 @@ class KeyPresentation extends Component {
             "down": PropTypes.func.isRequired,
             "up": PropTypes.func.isRequired
         }),
+        "height": PropTypes.number.isRequired,
         "name": PropTypes.string.isRequired,
-        "number": PropTypes.number.isRequired
+        "number": PropTypes.number.isRequired,
+        "playState": keyStateShape.isRequired,
+        "width": PropTypes.number.isRequired,
+        "x": PropTypes.number.isRequired
     }
 
     constructor () {
@@ -54,13 +59,13 @@ class KeyPresentation extends Component {
         return (
             <rect
                 className={classNames.join(" ")}
-                height={height}
+                height={height + "%"}
                 onMouseDown={this.handleKeyDown}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseUp={this.handleKeyUp}
                 ref={k => this.element = k}
                 width={width + "%"}
-                x={x}
+                x={x + "%"}
                 y="0"
             />
         );

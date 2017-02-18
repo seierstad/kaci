@@ -1,7 +1,6 @@
-import DCGenerator from "./DCGenerator";
 import {BUFFER_LENGTH} from "./constants";
 import {waveforms} from "./waveforms";
-import {PannableModule, inputNode} from "./sharedFunctions";
+import {inputNode} from "./shared-functions";
 
 
 class IdealOscillator {

@@ -1,6 +1,6 @@
 import {waveforms, wrappers} from "./waveforms";
 
-import {ParamLogger, mixValues, getDistortedPhase, phaseDistortionFunction, inputNode, outputNode} from "./sharedFunctions";
+import {mixValues, phaseDistortionFunction, inputNode} from "./shared-functions";
 
 import {BUFFER_LENGTH} from "./constants";
 import OutputStage from "./output-stage";

@@ -163,7 +163,7 @@ class MidiInput {
 
         const inputIterator = access.inputs.entries();
 
-        for (let [i, port] of inputIterator) {
+        for (let [, port] of inputIterator) {
             this.inputs[port.id] = port;
 
             const {connection, name, id, manufacturer, state} = port;
@@ -204,8 +204,8 @@ class MidiInput {
     }
 
     controlChangeHandler (type, data) {
-        let p = this.valuePairs,
-            cc = c.CONTROL;
+        let cc = c.CONTROL,
+            p = this.valuePairs;
 
         switch (type) {
             case cc.BANK_SELECT_MSB:
@@ -331,8 +331,8 @@ class MidiInput {
 
     activeChannelMessageHandler (event, overrideType) {
         const {data, timeStamp} = event;
-        let type = data[0],
-            index = 0;
+        let index = 0,
+            type = data[0];
 
         if (overrideType) {
             type = overrideType;

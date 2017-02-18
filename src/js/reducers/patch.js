@@ -1,5 +1,7 @@
-import * as Actions from "../actions";
 import {combineReducers} from "redux";
+
+import * as Actions from "../actions";
+
 import envelopes, {steps} from "./envelopes";
 import lfos from "./lfos";
 import modulation from "./modulation";
@@ -48,11 +50,6 @@ const oscillator = (state = {}, action) => {
                 detune: action.value
             };
 
-        case Actions.OSCILLATOR_TOGGLE:
-            return {
-                ...state,
-                active: !state.active
-            };
     }
 
     if (action.module === "oscillator") {
@@ -119,23 +116,6 @@ const noise = (state = {}, action) => {
 
 const sub = (state = {}, action) => {
     switch (action.type) {
-        case Actions.SUB_GAIN_CHANGE:
-            return {
-                ...state,
-                gain: action.value
-            };
-
-        case Actions.SUB_PAN_CHANGE:
-            return {
-                ...state,
-                pan: action.value
-            };
-
-        case Actions.SUB_TOGGLE:
-            return {
-                ...state,
-                active: !state.active
-            };
 
         case Actions.SUB_DEPTH_CHANGE:
             return {

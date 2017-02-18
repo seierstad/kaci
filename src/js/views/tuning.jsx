@@ -32,8 +32,7 @@ class TuningPresentation extends Component {
     }
 
     render () {
-        const {configuration, handlers} = this.props;
-        const {ports, selectedPort, channel} = configuration;
+        const {configuration} = this.props;
 
         return (
             <fieldset className="tuning-view">
@@ -53,17 +52,13 @@ class TuningPresentation extends Component {
 }
 
 
-const mapState = (state) => ({
-    "configuration": state.settings.tuning
-});
-
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "baseFrequency": (value) => {dispatch({type: Actions.BASE_FREQUENCY_CHANGE, value});}
     }
 });
 
-const Tuning = connect(mapState, mapDispatch)(TuningPresentation);
+const Tuning = connect(null, mapDispatch)(TuningPresentation);
 
 
 export default Tuning;

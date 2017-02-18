@@ -60,7 +60,10 @@ export class ParamLogger {
                     }
                 });
 
+                /* eslint-disable no-console */
                 console.log(label ? label : "", result);
+                /* eslint-enable no-console */
+
                 this.justLogged = true;
                 this.timer = setTimeout(() => {
                     this.justLogged = false;

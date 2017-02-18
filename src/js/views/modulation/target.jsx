@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from "react";
-import Connection from "./connection.jsx";
 
 import {modulationTargetParameterShape} from "../../propdefs";
+
+import Connection from "./connection.jsx";
 
 
 class ModulationTarget extends Component {
@@ -12,7 +13,8 @@ class ModulationTarget extends Component {
         "lfoCount": PropTypes.number.isRequired,
         "moduleHead": PropTypes.object,
         "parameter": PropTypes.string.isRequired,
-        "patch": modulationTargetParameterShape
+        "patch": modulationTargetParameterShape,
+        "path": PropTypes.arrayOf(PropTypes.string).isRequired
     }
 
     shouldComponentUpdate (nextProps) {

@@ -17,9 +17,7 @@ class LFOs {
     stateChangeHandler () {
         const newState = this.store.getState();
 
-        // TODO:
         // handle change from local to global/retrigger lfo mode
-        // and handle global lfo start/retrigger/stop on keypress/release
 
         this.state = newState;
     }

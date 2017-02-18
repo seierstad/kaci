@@ -47,13 +47,13 @@ class KeyboardViewPresentation extends Component {
 
             const key = (
                 <Key
-                    height={black ? "60%" : "100%"}
+                    height={black ? "60" : "100"}
                     key={i + "-" + noteName}
                     name={noteName}
                     number={i}
                     playState={playState.keys[i]}
                     width={black ? (this.keyWidth * 0.7) : this.keyWidth}
-                    x={(black ? (nextKeyX - this.keyWidth * 0.35) : nextKeyX) + "%"}
+                    x={(black ? (nextKeyX - this.keyWidth * 0.35) : nextKeyX)}
                 />
             );
 

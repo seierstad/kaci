@@ -46,7 +46,7 @@ class ModulationMatrixPresentation extends Component {
                             <th scope="col">none</th>
                         </tr>
                     </thead>
-                    {Object.keys(configuration.target).map((module, i) => (
+                    {Object.keys(configuration.target).map(module => (
                         <TargetModule
                             configuration={configuration.target[module]}
                             envCount={envCount}
@@ -64,11 +64,6 @@ class ModulationMatrixPresentation extends Component {
 }
 
 
-const mapState = (state) => ({
-    "configuration": state.settings.modulation,
-    "patch": state.patch.modulation
-});
-
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "changeAmount": (module, parameter, source, index, value) => {
@@ -83,7 +78,7 @@ const mapDispatch = (dispatch) => ({
     }
 });
 
-const ModulationMatrix = connect(mapState, mapDispatch)(ModulationMatrixPresentation);
+const ModulationMatrix = connect(null, mapDispatch)(ModulationMatrixPresentation);
 
 
 export default ModulationMatrix;

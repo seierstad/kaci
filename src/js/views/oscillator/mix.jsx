@@ -3,8 +3,9 @@ import React, {Component, PropTypes} from "react";
 import {rangeShape} from "../../propdefs";
 
 import RangeInput from "../RangeInput.jsx";
+
 import WaveformCanvas from "./waveform-canvas.jsx";
-import DependentComponent from "../dependent-component.jsx";
+
 
 class Mix extends Component {
 

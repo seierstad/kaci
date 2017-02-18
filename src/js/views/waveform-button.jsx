@@ -37,14 +37,14 @@ class WaveformButton extends Component {
         }
     }
 
-    handleChange (event) {
-        const {onChange, module, index, waveformName} = this.props;
-        event.stopPropagation();
-        onChange(waveformName);
+    shouldComponentUpdate (nextProps) {
+        return nextProps.selected !== this.props.selected;
     }
 
-    shouldComponentUpdate(nextProps) {
-        return nextProps.selected !== this.props.selected;
+    handleChange (event) {
+        const {onChange, waveformName} = this.props;
+        event.stopPropagation();
+        onChange(waveformName);
     }
 
     render () {
@@ -60,7 +60,14 @@ class WaveformButton extends Component {
                     value={waveformName}
                 />
                 <canvas height="50px" ref={c => this.canvas = c} role="presentation" width="50px" />
-                {includePhaseIndicator ? <div className="phase-indicator" ref={p => this.phaseIndicator = p} role="presentation"></div> : null}
+                {includePhaseIndicator ? (
+                    <div
+                        className="phase-indicator"
+                        ref={p => this.phaseIndicator = p}
+                        role="presentation"
+                    />)
+                     : null
+                }
                 <span className="waveform-name">{waveformName}</span>
             </label>
         );

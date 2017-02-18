@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 
 import * as Actions from "../../actions";
 import {waveforms} from "../../waveforms";
-import {getDistortedPhase, mixValues} from "../../sharedFunctions";
+import {getDistortedPhase, mixValues} from "../../shared-functions";
 import {oscillatorPatchDataShape, modulationTargetShape} from "../../propdefs";
 
 import OutputStage from "../output-stage.jsx";
@@ -172,16 +172,11 @@ class OscillatorPresentation extends Component {
 }
 
 
-const mapState = (state) => ({
-    "configuration": state.settings.modulation.target.oscillator,
-    "patch": state.patch.oscillator
-});
-
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "resonance": {
             "factorChange": (value) => {dispatch({type: Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE, value});},
-            "wrapperChange": (waveform, module) => {dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": waveform});},
+            "wrapperChange": (waveform) => {dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": waveform});},
             "toggle": () => {dispatch({"type": Actions.OSCILLATOR_RESONANCE_TOGGLE});}
         },
         "outputStageHandlers": {
@@ -189,13 +184,13 @@ const mapDispatch = (dispatch) => ({
             "handleGainInput": (value) => {dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "oscillator"});},
             "handlePanInput": (value) => {dispatch({type: Actions.OUTPUT_PAN_CHANGE, value, module: "oscillator"});}
         },
-        "waveformChange": (waveform, module) => {dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": waveform});},
+        "waveformChange": (waveform) => {dispatch({"type": Actions.OSCILLATOR_WAVEFORM_CHANGE, "value": waveform});},
         "mix": (value) => {dispatch({"type": Actions.OSCILLATOR_MIX_CHANGE, value});},
         "detune": (value) => {dispatch({"type": Actions.OSCILLATOR_DETUNE_CHANGE, value});}
     }
 });
 
-const Oscillator = connect(mapState, mapDispatch)(OscillatorPresentation);
+const Oscillator = connect(null, mapDispatch)(OscillatorPresentation);
 
 
 export default Oscillator;

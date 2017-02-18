@@ -3,10 +3,9 @@ import React, {Component, PropTypes} from "react";
 import {waveforms, wrappers} from "../../waveforms";
 import {oscillatorPatchDataShape, rangeShape} from "../../propdefs";
 
-import DependentComponent from "../dependent-component.jsx";
+import WaveformSelector from "../WaveformSelector.jsx";
 import RangeInput from "../RangeInput.jsx";
 import WaveformCanvas from "./waveform-canvas.jsx";
-import WaveformSelector from "../WaveformSelector.jsx";
 
 
 const getWrapperFunction = (wrapper, waveform, resonance) => (phase) => {

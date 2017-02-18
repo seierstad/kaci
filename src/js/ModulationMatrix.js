@@ -1,12 +1,9 @@
-import equal from "deep-equal";
-import Utils from "./Utils";
+//import WavyJones from "../../lib/wavy-jones";
+//import {ParamLogger} from "./shared-functions";
+
 import LFOs from "./LFOs";
 import StaticSources from "./static-sources";
-import Connection from "./modulation-connection";
 
-import {ParamLogger} from "./sharedFunctions";
-
-import WavyJones from "../../lib/wavy-jones";
 
 class ModulationMatrix {
 
@@ -299,7 +296,7 @@ class ModulationMatrix {
 
     }
 
-    patchVoice (voice, patch) {
+    patchVoice (voice) {
 
         const voiceLfos = voice.lfos;
         const voiceEnvs = voice.envelopes;

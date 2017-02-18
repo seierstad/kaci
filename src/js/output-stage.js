@@ -1,4 +1,4 @@
-import {inputNode} from "./SharedFunctions";
+import {inputNode} from "./shared-functions";
 
 class OutputStage {
 

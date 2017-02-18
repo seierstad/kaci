@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import * as Actions from "../actions";
 import {patchShape, viewStateShape, configurationShape} from "../propdefs";
 
-import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
+import {getValuePair} from "./ViewUtils";
 
 import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
@@ -29,48 +29,52 @@ class PatchPresentation extends Component {
 
     render () {
         const {configuration, patch, handlers, viewState} = this.props;
-        const {oscillator, sub, noise, vca, envelopes, lfos, modulation} = this.props.patch;
+        const {target, source} = configuration.modulation;
 
         return (
             <div>
                 <MainOutput
-                    configuration={configuration.modulation.target.main}
+                    configuration={target.main}
                     handlers={handlers.main}
                     patch={patch.main}
                 />
                 <Oscillator
+                    configuration={target.oscillator}
                     envelopeHandlers={handlers.envelope}
+                    patch={patch.oscillator}
                     viewState={viewState.oscillator}
                 />
                 <NoiseView
-                    configuration={configuration.modulation.target.noise}
+                    configuration={target.noise}
                     handlers={handlers.noise}
                     patch={patch.noise}
                 />
                 <SubView
-                    configuration={configuration.modulation.target.sub}
+                    configuration={target.sub}
                     handlers={handlers.sub}
                     patch={patch.sub}
                     syncHandlers={handlers.sync}
                 />
                 <Envelopes
-                    configuration={configuration.modulation.source.envelope}
+                    configuration={source.envelope}
                     handlers={handlers.envelope}
                     patch={patch.envelopes}
                     viewState={viewState.envelopes}
                 />
                 <LFOs
-                    configuration={configuration.modulation.source.lfo}
+                    configuration={source.lfo}
                     handlers={handlers.lfos}
                     patch={patch.lfos}
                     syncHandlers={handlers.sync}
                 />
-                <ModulationMatrix />
+                <ModulationMatrix
+                    configuration={configuration.modulation}
+                    patch={patch.modulation}
+                />
             </div>
         );
     }
 }
-
 
 
 const mapDispatchToProps = (dispatch) => ({
@@ -113,7 +117,7 @@ const mapDispatchToProps = (dispatch) => ({
                 });
             },
             "circleBlur": (event, module, envelopeIndex, envelopePart, index, first, last) => {
-                if ((envelopePart === "sustain") || (envelopePart === "release" && first) || envelopePart === "attack" && first) {
+                if ((envelopePart === "sustain") || (envelopePart === "release" && last) || envelopePart === "attack" && first) {
                     dispatch({type: Actions.ENVELOPE_SUSTAIN_EDIT_END, module, envelopeIndex});
                 } else {
                     dispatch({type: Actions.ENVELOPE_POINT_EDIT_END, module, envelopeIndex, envelopePart, index});
@@ -126,7 +130,7 @@ const mapDispatchToProps = (dispatch) => ({
                 dispatch({type: Actions.ENVELOPE_POINT_ADD, module, envelopeIndex, envelopePart, index, x, y});
             },
             "sustainBackgroundClick": (event, module, envelopeIndex) => {
-                const {x, y} = getValuePair(event, event.target);
+                const {y} = getValuePair(event, event.target);
                 dispatch({type: Actions.ENVELOPE_SUSTAIN_CHANGE, module, envelopeIndex, value: y});
             },
             "circleMouseDrag": (event, module, envelopeIndex, envelopePart, background, index, first, last) => {
@@ -183,7 +187,7 @@ const mapDispatchToProps = (dispatch) => ({
         },
         "noise": {
             "outputHandlers": {
-                "handleToggle": (event) => {
+                "handleToggle": () => {
                     dispatch({type: Actions.OUTPUT_TOGGLE, module: "noise"});
                 },
                 "handlePanInput": (value) => {
@@ -196,7 +200,7 @@ const mapDispatchToProps = (dispatch) => ({
         },
         "main": {
             "outputHandlers": {
-                "handleToggle": (event) => {
+                "handleToggle": () => {
                     dispatch({type: Actions.OUTPUT_TOGGLE, module: "main"});
                 },
                 "handlePanInput": (value) => {

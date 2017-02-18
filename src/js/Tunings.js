@@ -1,8 +1,7 @@
-// TODO: experiment with scales where base = the golden ratio, pi, e etc...
 import {SCALES} from "./configuration";
 
 
-const getTemperedScale = function (fromKey, toKey, referenceKey, referenceFrequency, steps = 12, base = 2) {
+export const getTemperedScale = function (fromKey, toKey, referenceKey, referenceFrequency, steps = 12, base = 2) {
     const scale = [];
 
     for (let i = fromKey, j = toKey; i < j; i += 1) {
@@ -13,7 +12,7 @@ const getTemperedScale = function (fromKey, toKey, referenceKey, referenceFreque
     return scale;
 };
 
-const getScale = function (intervals) {
+export const getScale = function (intervals) {
     let base = intervals.pop();
 
     return function (fromKey, toKey, referenceKey, referenceFrequency) {

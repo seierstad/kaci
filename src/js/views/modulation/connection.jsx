@@ -1,9 +1,11 @@
 import React, {Component, PropTypes} from "react";
-import PolaritySelector from "./polarity-selector.jsx";
-import RangeInput from "../RangeInput.jsx";
-import {modulationSourceTypeShape, modulationConnectionPatchDataShape} from "../../propdefs";
 
 import {defaultModulationConnectionParameters} from "../../configuration";
+import {modulationSourceTypeShape, modulationConnectionPatchDataShape} from "../../propdefs";
+
+import RangeInput from "../RangeInput.jsx";
+
+import PolaritySelector from "./polarity-selector.jsx";
 
 
 class Connection extends Component {
@@ -19,8 +21,8 @@ class Connection extends Component {
 
     constructor () {
         super();
-        this.handleAmountChange = this.handleAmountChange.bind(this);
-        this.handlePolarityChange = this.handlePolarityChange.bind(this);
+        this.amountChange = this.amountChange.bind(this);
+        this.polarityChange = this.polarityChange.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
     }
 
@@ -33,11 +35,11 @@ class Connection extends Component {
         return this.props.type === "env" || this.props.patch !== nextProps.patch;
     }
 
-    handleAmountChange (value) {
+    amountChange (value) {
         this.props.handlers.changeAmount(...this.path, value);
     }
 
-    handlePolarityChange (value) {
+    polarityChange (value) {
         this.props.handlers.changePolarity(...this.path, value);
     }
 
@@ -69,14 +71,14 @@ class Connection extends Component {
                 />
                 {index !== -1 ?
                     <PolaritySelector
-                        changeHandler={this.handlePolarityChange}
+                        changeHandler={this.polarityChange}
                         patch={polarity || "full"}
                         prefix={prefix}
                     />
                 : null}
                 {index !== -1 ?
                     <RangeInput
-                        changeHandler={this.handleAmountChange}
+                        changeHandler={this.amountChange}
                         configuration={{max: 1, min: 0, step: 0.01}}
                         label="amount"
                         value={amount || 0}

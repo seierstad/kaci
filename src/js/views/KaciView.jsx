@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
 import * as Actions from "../actions";
-import {configurationShape, viewStateShape, playStateShape, patchShape} from "../propDefs";
+import {configurationShape, viewStateShape, playStateShape, patchShape} from "../propdefs";
 
 
 import SystemSettingsView from "./SystemSettingsView.jsx";

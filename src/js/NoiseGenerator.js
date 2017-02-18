@@ -1,5 +1,4 @@
 import {BUFFER_LENGTH} from "./constants";
-import {inputNode} from "./SharedFunctions";
 import {noise} from "./waveforms";
 import OutputStage from "./output-stage";
 

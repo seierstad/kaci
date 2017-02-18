@@ -1,7 +1,9 @@
 import React, {Component, PropTypes} from "react";
-import Target from "./target.jsx";
 
 import {modulationTargetShape, modulationTargetModuleShape} from "../../propdefs";
+
+import Target from "./target.jsx";
+
 
 class ModulationTargetModule extends Component {
 

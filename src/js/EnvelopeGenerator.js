@@ -42,10 +42,10 @@ class EnvelopeGenerator {
     }
 
     applyEnvelope (envelope, time) {
-        let i,
+        let duration,
+            i,
             j,
             step,
-            duration,
             stepTime,
             stepValue;
 

@@ -222,7 +222,7 @@ class VoiceRegister {
                         "to": key2
                     });
                     // emit event to update view...
-                    console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
+                    // console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
                 }
 
                 /* end continous shift */
@@ -261,19 +261,18 @@ class VoiceRegister {
         }
     }
 
-    pitchBendHandler (event) {
-        console.log("PITCH coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
+    pitchBendHandler () {
+        // console.log("PITCH coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
     }
 
-    modulationWheelHandler (event) {
-        console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
+    modulationWheelHandler () {
+        // console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
     }
 
     startVoice (key, freq) {
 
         if (!this.activeVoices[key]) {
             const frequency = (typeof key === "number") ? this.tuning[key] : freq;
-            const patch = this.store.getState().patch;
             const voice = new Voice(this.context, this.store, frequency);
 
             this.modulationMatrix.patchVoice(voice);

@@ -1,6 +1,8 @@
-import * as Actions from "../actions";
 import {combineReducers} from "redux";
+
+import * as Actions from "../actions";
 import config from "../configuration";
+
 
 const envelope = (state = [], action) => {
     switch (action.type) {

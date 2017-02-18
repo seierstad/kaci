@@ -22,7 +22,7 @@ class LFO extends Component {
 
     constructor () {
         super();
-        this.reset = this.reset.bind(this);
+        this.handleReset = this.handleReset.bind(this);
         this.amountChange = this.amountChange.bind(this);
         this.frequencyChange = this.frequencyChange.bind(this);
         this.waveforms = {};
@@ -43,7 +43,7 @@ class LFO extends Component {
         this.waveformSelector.activeButton.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
     }
 
-    reset (event) {
+    handleReset (event) {
         const {index, module, handlers} = this.props;
         handlers.reset(event, module, index);
     }
@@ -67,7 +67,7 @@ class LFO extends Component {
         return (
             <section className="lfo" id={"lfo-" + index + "-view"}>
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
-                <button onClick={this.reset}>reset</button>
+                <button onClick={this.handleReset}>reset</button>
                 <WaveformSelector
                     changeHandler={handlers.changeWaveform}
                     includePhaseIndicator

@@ -1,6 +1,8 @@
 import * as Actions from "../actions";
-import syncReducer from "./sync";
 import {defaultLfoParameters} from "../configuration";
+
+import syncReducer from "./sync";
+
 
 const lfo = (state = {...defaultLfoParameters}, action) => {
     switch (action.type) {

@@ -1,6 +1,4 @@
-/*global module */
-"use strict";
-let patch = {
+const patch = {
     "oscillator": {
         "waveform": "triangle",
         "pd": [{
@@ -67,7 +65,7 @@ let patch = {
             "denominator": 1,
             "master": 0
         },
-        "mode": "global" /* "voice"  TODO: implement voice LFOs */
+        "mode": "global"
     }, {
         "waveform": "square",
         "frequency": 1.34,
@@ -134,7 +132,8 @@ let patch = {
     }
 };
 
-let rpatch = {
+/*
+const rpatch = {
     oscillator: {
         waveform: "triangle",
         pdEnvelope0: [
@@ -157,7 +156,7 @@ let rpatch = {
         waveform: "square",
         frequency: 1.34,
         amount: 1,
-        mode: "global" // TODO: implement support for "global", "retrigger" and "voice"
+        mode: "global"
     }, {
         waveform: "additiveSaw",
         frequency: 6.4,
@@ -226,6 +225,6 @@ let rpatch = {
         }]
     }
 };
-
+*/
 
 export default patch;

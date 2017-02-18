@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from "react";
 
+import {sustainEnvelopePatchDataShape} from "../../propdefs";
+
 import Envelope from "./envelope.jsx";
 import Sustain from "./sustain.jsx";
 
-
-import {sustainEnvelopePatchDataShape} from "../../propdefs";
 
 class SustainEnvelope extends Component {
 
@@ -44,7 +44,6 @@ class SustainEnvelope extends Component {
 
     render () {
         const {module, index, patch, viewState, handlers} = this.props;
-        const {mouseOut, durationChange} = handlers;
 
         const attackPart = patch.attack.duration / (patch.attack.duration + patch.release.duration);
         const releasePart = patch.release.duration / (patch.attack.duration + patch.release.duration);

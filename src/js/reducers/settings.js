@@ -1,8 +1,8 @@
-import * as Actions from "../actions";
 import {combineReducers} from "redux";
 
-import {PORT} from "../midiConstants";
+import * as Actions from "../actions";
 import defaultSettings from "../configuration";
+import {PORT} from "../midiConstants";
 
 const {STATE} = PORT;
 const nullReducer = (state = {}) => state;

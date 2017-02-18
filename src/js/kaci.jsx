@@ -4,11 +4,12 @@ import {Provider} from "react-redux";
 import {createStore} from "redux";
 // import Perf from "react-addons-perf";
 
+// import WavyJones from "../../lib/wavy-jones";
+
 import reducer from "./reducers/kaci";
 import KaciView from "./views/KaciView.jsx";
 
 import VoiceRegister from "./VoiceRegister";
-import WavyJones from "../../lib/wavy-jones";
 import DCGenerator from "./DCGenerator";
 import ModulationMatrix from "./ModulationMatrix";
 import KeyboardInput from "./KeyboardInput";
@@ -17,7 +18,6 @@ import MidiInput from "./MidiInput";
 import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration";
 
-import LFO from "./LFO";
 
 // window.Perf = Perf;
 
@@ -27,13 +27,13 @@ if (window.AudioContext) {
 
     const store = createStore(reducer, {patch: {...patch}, settings: {...defaultSettings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
 
-    const system = new SystemSettings(ctx, store);
+    new SystemSettings(ctx, store);
 
-    const midi = new MidiInput(store);
-    const keyboardInput = new KeyboardInput(store);
+    new MidiInput(store);
+    new KeyboardInput(store);
 
     const modulationMatrix = new ModulationMatrix(ctx, store, dc);
-    const reg = new VoiceRegister(store, ctx, modulationMatrix);
+    new VoiceRegister(store, ctx, modulationMatrix);
 
     const kaciWrapper = document.getElementById("kaci");
 

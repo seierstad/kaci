@@ -37,7 +37,7 @@ class SubViewPresentation extends Component {
 
     render () {
         const {patch, configuration, handlers, syncHandlers} = this.props;
-        const {outputStageHandlers, depthChange, beatToggle, beatChange, detuneChange} = handlers;
+        const {outputStageHandlers, beatChange, detuneChange} = handlers;
 
         return (
             <section className="sub-view">

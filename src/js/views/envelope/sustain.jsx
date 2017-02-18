@@ -26,32 +26,32 @@ class Sustain extends Component {
 
     constructor () {
         super();
-        this.click = this.click.bind(this);
-        this.blur = this.blur.bind(this);
-        this.mouseDrag = this.mouseDrag.bind(this);
-        this.backgroundClick = this.backgroundClick.bind(this);
+        this.handleClick = this.handleClick.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleMouseDrag = this.handleMouseDrag.bind(this);
+        this.handleBackgroundClick = this.handleBackgroundClick.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
         return (this.props.value !== nextProps.value) || (this.props.active !== nextProps.active);
     }
 
-    backgroundClick (event) {
+    handleBackgroundClick (event) {
         const {module, envelopeIndex, handlers} = this.props;
         handlers.sustainBackgroundClick(event, module, envelopeIndex);
     }
 
-    blur (event) {
+    handleBlur (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleBlur(event, module, envelopeIndex, part);
     }
 
-    mouseDrag (event) {
+    handleMouseDrag (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleMouseDrag(event, module, envelopeIndex, part, this.background);
     }
 
-    click (event) {
+    handleClick (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleClick(event, module, envelopeIndex, part);
     }
@@ -61,7 +61,7 @@ class Sustain extends Component {
         const background = (
             <rect
                 height="100%"
-                onMouseDown={this.backgroundClick}
+                onMouseDown={this.handleBackgroundClick}
                 opacity="0"
                 ref={(bg) => this.background = bg}
                 width="100%"
@@ -79,10 +79,10 @@ class Sustain extends Component {
                 {background}
                 <line
                     className={"sustain-bar" + (active ? " active" : "")}
-                    onMouseDown={active ? null : this.click}
-                    onMouseMove={active ? this.mouseDrag : null}
-                    onMouseOut={active ? this.blur : null}
-                    onMouseUp={active ? this.blur : null}
+                    onMouseDown={active ? null : this.handleClick}
+                    onMouseMove={active ? this.handleMouseDrag : null}
+                    onMouseOut={active ? this.handleBlur : null}
+                    onMouseUp={active ? this.handleBlur : null}
                     strokeWidth={10}
                     x1="0%"
                     x2="100%"

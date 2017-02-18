@@ -1,8 +1,6 @@
 import React, {Component, PropTypes} from "react";
-import {connect} from "react-redux";
 
 import {keyboardShape} from "../propdefs";
-import * as Actions from "../actions";
 
 
 class KeyboardInputView extends Component {

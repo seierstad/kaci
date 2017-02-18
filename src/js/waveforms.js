@@ -1,4 +1,4 @@
-const DOUBLE_PI = require("./constants").DOUBLE_PI;
+import {DOUBLE_PI} from "./constants";
 
 export const wrappers = {
     sync: () => () => 1,
