@@ -16,6 +16,14 @@ class SystemSettingsView extends Component {
         "resetHandler": PropTypes.func
     }
 
+    shouldComponentUpdate (nextProps) {
+        return (
+            this.props.playState !== nextProps.playState
+            || this.props.configuration !== nextProps.configuration
+        );
+    }
+
+
     render () {
         const {keyboardHandlers, resetHandler, configuration, playState} = this.props;
 
