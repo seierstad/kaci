@@ -14,7 +14,7 @@ class KeyPresentation extends Component {
         "height": PropTypes.number.isRequired,
         "name": PropTypes.string.isRequired,
         "number": PropTypes.number.isRequired,
-        "playState": keyStateShape.isRequired,
+        "playState": keyStateShape,
         "width": PropTypes.number.isRequired,
         "x": PropTypes.number.isRequired
     }

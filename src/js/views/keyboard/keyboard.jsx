@@ -47,7 +47,7 @@ class KeyboardViewPresentation extends Component {
 
             const key = (
                 <Key
-                    height={black ? "60" : "100"}
+                    height={black ? 60 : 100}
                     key={i + "-" + noteName}
                     name={noteName}
                     number={i}
