@@ -275,7 +275,7 @@ class VoiceRegister {
             const frequency = (typeof key === "number") ? this.tuning[key] : freq;
             const voice = new Voice(this.context, this.store, frequency);
 
-            this.modulationMatrix.patchVoice(voice);
+            this.modulationMatrix.patchVoice(voice, this.patch);
 
             voice.connect(this.mainMix);
             this.activeVoices[key] = voice;

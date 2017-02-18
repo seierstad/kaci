@@ -1,6 +1,6 @@
 import {PropTypes} from "react";
 
-import {MODULATION_SOURCE_MODE, RANGE} from "./constants";
+import {MODULATION_SOURCE_MODE, MODULATION_SOURCE_TYPE, RANGE} from "./constants";
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
 import {waveforms, wrappers, noise} from "./waveforms";
 
@@ -64,10 +64,7 @@ export const rangeShape = PropTypes.shape({
     "step": PropTypes.number
 });
 
-export const modulationSourceTypeShape = PropTypes.oneOf([
-    "env",
-    "lfo"
-]);
+export const modulationSourceTypeShape = PropTypes.oneOf(Object.values(MODULATION_SOURCE_TYPE));
 
 export const modulationSourceShape = PropTypes.shape({
     "index": PropTypes.number.isRequired,

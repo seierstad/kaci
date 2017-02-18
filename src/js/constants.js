@@ -9,6 +9,11 @@ export const MODULATION_SOURCE_MODE = {
     "RETRIGGER": "retrigger"
 };
 
+export const MODULATION_SOURCE_TYPE = {
+    "ENVELOPE": "env",
+    "LFO": "lfo"
+};
+
 export const RANGE = {
     "FULL": "full",
     "POSITIVE": "positive",

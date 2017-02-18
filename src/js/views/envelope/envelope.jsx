@@ -27,7 +27,13 @@ class Envelope extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState) || (this.props.activeIndex !== nextProps.activeIndex);
+        return (
+            this.props.patch !== nextProps.patch
+            || this.props.viewState !== nextProps.viewState
+            || this.props.activeIndex !== nextProps.activeIndex
+            || this.props.x !== nextProps.x
+            || this.props.width !== nextProps.width
+        );
     }
 
     handleBackgroundClick (event) {

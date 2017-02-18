@@ -144,6 +144,13 @@ class Voice {
         return this.targetNodes;
     }
 
+    get sources () {
+        return {
+            "lfos": [],
+            "envelopes": this.envelopes
+        };
+    }
+
     set frequency (frequency) {
         this.oscillator.frequency = frequency;
         this.sub.frequency = frequency;

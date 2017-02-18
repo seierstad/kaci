@@ -1,4 +1,3 @@
-"use strict";
 class EnvelopeGenerator {
     constructor (context, store, index) {
 
@@ -10,22 +9,10 @@ class EnvelopeGenerator {
         this.context = context;
         this.store = store;
         this.state = store.getState().patch.envelopes[index];
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+        // this.stateChangeHandler = this.stateChangeHandler.bind(this);
+        // this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.connections = [];
-
-
-        this.connections.disconnect = function () {
-            let i, j;
-            for (i = 0, j = this.length; i < j; i += 1) {
-                this[i] = null;
-            }
-        };
-    }
-
-    stateChangeHandler () {
-
     }
 
     setValueAtTime (stepValue, stepTime) {
@@ -65,7 +52,7 @@ class EnvelopeGenerator {
         }
     }
 
-    getReleaseDuration () {
+    get releaseDuration () {
         if (this.state && this.state.release && this.state.release.duration) {
             return this.state.release.duration;
         }
@@ -85,6 +72,7 @@ class EnvelopeGenerator {
     connect (parameter) {
         this.connections.push(parameter);
     }
+
     disconnect (parameter) {
         if (parameter) {
             const index = this.connections.indexOf(parameter);
@@ -93,11 +81,13 @@ class EnvelopeGenerator {
                 this.connections[index] = null;
             }
         } else {
+            this.cancelScheduledValues();
             this.connections = [];
         }
     }
+
     destroy () {
-        this.unsubscribe();
+        // this.unsubscribe();
         this.outputs = null;
         this.triggerTime = null;
         this.releaseTime = null;

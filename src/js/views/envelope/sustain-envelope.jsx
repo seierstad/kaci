@@ -18,7 +18,7 @@ class SustainEnvelope extends Component {
 
     constructor () {
         super();
-        this.mouseOut = this.mouseOut.bind(this);
+        this.handleMouseOut = this.handleMouseOut.bind(this);
         this.handleAttackDurationChange = this.handleAttackDurationChange.bind(this);
         this.handleReleaseDurationChange = this.handleReleaseDurationChange.bind(this);
     }
@@ -27,7 +27,7 @@ class SustainEnvelope extends Component {
         return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState);
     }
 
-    mouseOut (event) {
+    handleMouseOut (event) {
         const {module, index, handlers} = this.props;
         handlers.mouseOut(event, module, index);
     }
@@ -56,7 +56,7 @@ class SustainEnvelope extends Component {
                 <h1><abbr title="envelope">Env</abbr> {index + 1}</h1>
                 <svg
                     className="sustain-envelope controller"
-                    onMouseOut={viewState.editSustain ? this.mouseOut : null}
+                    onMouseOut={viewState.editSustain ? this.handleMouseOut : null}
                 >
 
                     <Envelope
@@ -88,7 +88,6 @@ class SustainEnvelope extends Component {
                         module={module}
                         part="sustain"
                         value={patch.attack.steps.slice(-1)[0][1]}
-                        viewState={viewState}
                         width={sustainWidth + "%"}
                         x={attackWidth + "%"}
                     />

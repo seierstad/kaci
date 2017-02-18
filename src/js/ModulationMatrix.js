@@ -1,5 +1,6 @@
 //import WavyJones from "../../lib/wavy-jones";
 //import {ParamLogger} from "./shared-functions";
+import {MODULATION_SOURCE_TYPE, RANGE} from "./constants";
 
 import LFOs from "./LFOs";
 import StaticSources from "./static-sources";
@@ -58,24 +59,11 @@ class ModulationMatrix {
     }
 
     initPatch (connections, patch) {
-        // const activeGlobalLfoConnection = pc => pc.enabled && pc.source.type === "lfo" && this.sources.lfos[pc.source.index];
-
         const moduleNames = Object.keys(patch);
+
         for (const moduleName of moduleNames) {
             const modulePatch = patch[moduleName];
             this.connectModule(connections, modulePatch, moduleName);
-            /*
-            const module = this.state[moduleName];
-            const parameterNames = Object.keys(module);
-
-            for (const parameterName of parameterNames) {
-                const parameterConnections = module[parameterName];
-
-                parameterConnections.filter(activeGlobalLfoConnection).forEach(c => {
-                    this.connect(c.source.type, c.source.index, moduleName, parameterName, c);
-                });
-            }
-            */
         }
     }
 
@@ -86,15 +74,15 @@ class ModulationMatrix {
 
 
         switch (type) {
-            case "lfo":
+            case MODULATION_SOURCE_TYPE.LFO:
                 switch (range) {
-                    case "full":
+                    case RANGE.FULL:
                         sourceNode = this.sources.lfos[index];
                         break;
-                    case "positive":
+                    case RANGE.POSITIVE:
                         sourceNode = this.sources.lfos[index].outputs.positive;
                         break;
-                    case "negative":
+                    case RANGE.NEGATIVE:
                         sourceNode = this.sources.lfos[index].outputs.negative;
                         break;
                 }
@@ -257,67 +245,36 @@ class ModulationMatrix {
                     }
                 }
             }
-
             this.patch = newPatch;
         }
-
-        /*
-        const compareLFOState = (newLfo, index) => {
-            for (let target in newLfo) {
-                const lfo = this.state.lfos[index] && this.state.lfos[index][target];
-                if (!equal(lfo, newLfo[target])) {
-                    if (!lfo || newLfo[target].enabled && !lfo.enabled) {
-                        // new connection
-                        this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
-                    } else {
-                        if (lfo.enabled && !newLfo[target].enabled) {
-                            // disconnect
-                            this.disconnect("lfo", index, target);
-                        } else if (lfo.polarity !== newLfo[target].polarity) {
-                            // reconnect
-                            this.disconnect("lfo", index, target);
-                            this.connect("lfo", index, target, newLfo[target].polarity, newLfo[target].amount);
-                        }
-                        if (lfo.amount !== newLfo[target].amount) {
-                            this.connections.lfo[index][target].gain.value = newLfo[target].amount;
-                        }
-                    }
-                }
-            }
-        };
-
-
-        if (!equal(this.state, newState)) {
-            newState.lfos.forEach(compareLFOState);
-
-            this.state = newState;
-        }
-        */
-
     }
 
     patchVoice (voice) {
 
-        const voiceLfos = voice.lfos;
-        const voiceEnvs = voice.envelopes;
-        const voiceParamTargets = voice.targets;
+        const voiceSources = voice.sources;
+        const {lfos, envelopes} = voiceSources;
+
+        const voiceTargets = voice.targets;
 
 
-        for (let key in voiceParamTargets) {
+        for (let key in voiceTargets) {
             if (this.targets[key]) {
-                this.targets[key].connect(voiceParamTargets[key]);
+                this.targets[key].connect(voiceTargets[key]);
             }
+
+            const [moduleName, parameterName] = key.split(".");
+            const {[moduleName]: module = {}} = this.patch;
+            const {[parameterName]: parameter = []} = module;
+            const parameterEnvelopes = parameter.filter(p => {
+                return (
+                    p.enabled
+                    && p.source.type === MODULATION_SOURCE_TYPE.ENVELOPE
+                    && envelopes[p.source.index]
+                );
+            });
+            console.log(moduleName, parameterName, parameterEnvelopes);
+            parameterEnvelopes.forEach(p => envelopes[p.source.index].connect(voiceTargets[key].gain));
         }
-
-        /* start scope
-        const scope = new WavyJones(this.context, "oscilloscope");
-        scope.lineColor = "black";
-        scope.lineThickness = 1;
-
-        this.targets["main.gain"].connect(scope);
-
-        new ParamLogger(voiceParamTargets["main.gain"], this.context, "main");
-        //*/
 
         /*
         for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {
@@ -330,50 +287,21 @@ class ModulationMatrix {
                 }
             }
         }
-*/
+        */
     }
+
     /*
-        this.eventDataConnection = function (data) {
-            if (this.validEventData(data) && this.connections[data.sourceType] && this.connections[data.sourceType][data.sourceIndex] && this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter]) {
-                return this.connections[data.sourceType][data.sourceIndex][data.targetModule + "." + data.targetParameter];
-            } else {
-                return null;
-            }
-        };
+    unpatchVoice (voice) {
+        var locals = voice.getModulators(),
+            split, key;
 
-        context.addEventListener('voice.first.started', this.startGlobalModulators, false);
-        context.addEventListener('voice.last.ended', this.stopGlobalModulators, false);
-
-unpatchVoice (voice) {
-    var locals = voice.getModulators(),
-        split, key;
-
-    for (key in this.targets) {
-        split = key.split(".");
-        this.targets[key].outputNode.disconnect(voice[split[0]][split[1]]);
+        for (key in this.targets) {
+            split = key.split(".");
+            this.targets[key].outputNode.disconnect(voice[split[0]][split[1]]);
+        }
+        console.log("voice unpatched");
     }
-    console.log("voice unpatched");
-};
-        this.update = () => {
-            const state = this.store.getState();
-            if (this.state.patch.noise.gain !== state.patch.noise.gain) {
-                this.sources.static["noise.gain"].setValueAtTime(state.patch.noise.gain, this.context.currentTime);
-            }
-            if (this.state.patch.noise.pan !== state.patch.noise.pan) {
-                this.sources.static["noise.pan"].setValueAtTime(state.patch.noise.pan, this.context.currentTime);
-            }
-            if (this.state.patch.sub.gain !== state.patch.sub.gain) {
-                this.sources.static["sub.gain"].setValueAtTime(state.patch.sub.gain, this.context.currentTime);
-            }
-            if (this.state.patch.sub.pan !== state.patch.sub.pan) {
-                this.sources.static["sub.pan"].setValueAtTime(state.patch.sub.pan, this.context.currentTime);
-            }
-
-            this.state = state;
-        };
-
-
-*/
+    */
 }
 
 

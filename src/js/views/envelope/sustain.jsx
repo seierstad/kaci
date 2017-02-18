@@ -19,7 +19,6 @@ class Sustain extends Component {
         "module": PropTypes.string.isRequired,
         "part": PropTypes.string,
         "value": PropTypes.number.isRequired,
-        "viewState": PropTypes.object.isRequired,
         "width": PropTypes.string,
         "x": PropTypes.string
     }
@@ -33,7 +32,11 @@ class Sustain extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return (this.props.value !== nextProps.value) || (this.props.active !== nextProps.active);
+        return (
+            this.props.value !== nextProps.value
+            || this.props.active !== nextProps.active
+            || this.props.x !== nextProps.x
+        );
     }
 
     handleBackgroundClick (event) {
