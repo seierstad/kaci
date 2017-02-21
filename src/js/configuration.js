@@ -47,12 +47,20 @@ export const defaultTuning = {
         "max": 500,
         "value": 440
     },
+    "baseKey": {
+        "min": 1,
+        "max": 128
+    },
     "scales": [{
+        "name": "Tempered 12 (regular)",
         "type": "tempered",
-        "steps": 12,
-        "base": 2
+        "notes": 12,
+        "baseNumber": 2
     }, {
-
+        "name": "Experimental rational",
+        "type": "rational",
+        "ratios": [1, 1.5, 2],
+        "baseKey": 69
     }]
 };
 

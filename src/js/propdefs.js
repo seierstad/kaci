@@ -37,15 +37,31 @@ export const midiClockPlayStateShape = PropTypes.shape({
     "quarterNoteDuration": PropTypes.number
 });
 
+export const temperedScaleShape = PropTypes.shape({
+    "type": PropTypes.oneOf(["tempered"]),
+    "notes": PropTypes.number.isRequired,
+    "baseNumber": PropTypes.number.isRequired
+});
+
+export const rationalScaleShape = PropTypes.shape({
+    "type": PropTypes.oneOf(["rational"]),
+    "ratios": PropTypes.arrayOf(PropTypes.number).isRequired,
+    "baseKey": PropTypes.number.isRequired
+});
+
+export const scaleShape = PropTypes.oneOfType([temperedScaleShape, rationalScaleShape]);
+
 export const tuningShape = PropTypes.shape({
     "baseFrequency": PropTypes.shape({
         "min": PropTypes.number.isRequired,
         "max": PropTypes.number.isRequired,
         "value": PropTypes.number.isRequired
     }).isRequired,
-    "scale": PropTypes.shape({
-        "type": PropTypes.string
-    })
+    "baseKey": PropTypes.shape({
+        "min": PropTypes.number.isRequired,
+        "max": PropTypes.number.isRequired
+    }),
+    "scales": PropTypes.arrayOf(scaleShape)
 });
 
 export const connectionShape = PropTypes.shape({
