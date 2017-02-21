@@ -87,7 +87,7 @@ const patch = {
                 [0.3, 0.5],
                 [1, 0.5]
             ],
-            "duration": 1
+            "duration": 0.2
         },
         "release": {
             "steps": [
@@ -95,7 +95,7 @@ const patch = {
                 [0.2, 0.1],
                 [1, 0]
             ],
-            "duration": 1
+            "duration": 0.2
         },
         "mode": "voice"
     }, {
@@ -118,6 +118,15 @@ const patch = {
         "mode": "voice"
     }],
     "modulation": {
+        "main": {
+            "gain": [{
+                "enabled": true,
+                "source": {
+                    "type": "env",
+                    "index": 0
+                }
+            }]
+        },
         "oscillator": {
             "resonance": [{
                 "amount": 0.5,

@@ -116,7 +116,7 @@ const mapDispatch = (dispatch) => ({
     "handlers": {
         "handlePitchShift": (value) => {dispatch({"type": KEYBOARD_PITCH_SHIFT, value});},
         "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT, value});},
-        "handleChordShiftToggle": (event) => {event.preventDefault(); dispatch({"type": KEYBOARD_CHORD_SHIFT_TOGGLE});}
+        "handleChordShiftToggle": (event) => {dispatch({"type": KEYBOARD_CHORD_SHIFT_TOGGLE});}
     }
 });
 const KeyboardView = connect(mapState, mapDispatch)(KeyboardViewPresentation);

@@ -114,8 +114,6 @@ class VoiceRegister {
         const newKeyState = newState.playState.keys;
         const newTuningState = newState.settings.tuning;
 
-        const keyDown = k => !!k && k.down;
-
         if (this.activeKeys !== newKeyState) {
 
             const reduceDownKeys = (prev, current, index) => {
@@ -125,7 +123,7 @@ class VoiceRegister {
                 return prev;
             };
 
-            const reduceUpKeys = function (prev, current, index) {
+            const reduceUpKeys = (prev, current, index) => {
                 if (!!current && (!newKeyState[index] || !newKeyState[index].down)) {
                     return [...prev, index];
                 }
@@ -152,93 +150,15 @@ class VoiceRegister {
 
     /*
     appKeyDownHandler (event) {
-        const k = event.detail.keyNumber;
-        const chords = this.chordShifter.chords;
-
-        if (!this.chordShifter.enabled) {
+        if (chords.length === 1) {
+            // add tones to initial chord after chordShift is enabled
             this.startTone(k);
-
-        } else {
-
-            if (this.chordShifter.activeKeys.length === 0) {
-                // first pressed key -> start new chord
-                chords.push([k]);
-                console.log("starting chord " + chords.length);
-
-            } else {
-
-                const lastChord = chords[chords.length - 1];
-
-                if (lastChord.indexOf(k) === -1) {
-                    // add key to last chord
-                    lastChord.push(k);
-                    lastChord.sort(function (a, b) {
-                        return a < b ? -1 : 1;
-                    });
-                    console.log("added note " + lastChord.length + " to chord " + chords.length);
-                }
-            }
-
-            this.chordShifter.activeKeys.push(k);
-
-            if (chords.length === 1) {
-                // add tones to initial chord after chordShift is enabled
-                this.startTone(k);
-            }
         }
-    }
-
-    appKeyUpHandler (event) {
-        const k = event.detail.keyNumber;
-
-        if (!this.chordShifter.enabled) {
-            this.stopTone(k);
-
-        } else {
-
-            // register key as released in chordShifter
-            const activeIndex = this.chordShifter.activeKeys.indexOf(k);
-
-            if (activeIndex !== -1) {
-                this.chordShifter.activeKeys.splice(activeIndex, 1);
-            }
-        }
-    }
-
-    enableChordShiftHandler () {
-        // enable
-        this.chordShifter.enabled = true;
-
-        // add current chord (if any)
-        let activeKeys = this.getIndexes(this.activeVoices);
-
-        if (activeKeys.length > 0) {
-            this.chordShifter.chords.push(activeKeys);
-            this.chordShifter.activeKeys = activeKeys.slice();
-
-        } else {
-
-            this.chordShifter.activeKeys = [];
-        }
-    }
-
-    disableChordShiftHandler () {
-        this.chordShifter = {
-            enabled: false,
-            chords: [],
-            activeKeys: []
-        };
-        // TODO: handle held keys/active voices
-
-        this.context.dispatchEvent(new CustomEvent("chordShift.disabled", {
-            "detail": {}
-        }));
     }
     */
 
-    chordShiftHandler (event) {
+    set chordShift (value) {
         const chords = this.chordShifter.chords;
-        const value = event.detail.value;
         const keys = [];
 
         if (this.chordShifter.enabled) {
@@ -296,30 +216,24 @@ class VoiceRegister {
 
 
                 frequency = this.tuning[getKey(chordRatio, key1, key2)];
-*/
+                */
                 /* end stepwise shift */
 
                 if (!isNaN(frequency)) {
                     voice.setFrequency(frequency);
                 }
             }
-            this.context.dispatchEvent(new CustomEvent("chordShift.changed", {
-                "detail": {
-                    "keys": keys,
-                    "balance": chordRatio,
-                    "fromIndex": chordIndex
-                }
-            }));
         }
+    }
+
+    set chordShiftMode (mode) {
+
     }
 
     pitchBendHandler () {
         // console.log("PITCH coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
     }
-
-    modulationWheelHandler () {
-        // console.log("MODWHEEL coarse: " + event.detail.coarse + "\tfine: " + event.detail.fine + "\tMIDIvalue: " + event.detail.MIDIvalue + "\tvalue: " + event.detail.value);
-    }
 }
+
 
 export default VoiceRegister;

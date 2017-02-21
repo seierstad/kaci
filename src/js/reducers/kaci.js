@@ -1,4 +1,4 @@
-import { combineReducers } from "redux";
+import {combineReducers} from "redux";
 import patch from "./patch";
 import settings from "./settings";
 import viewState from "./viewState";
