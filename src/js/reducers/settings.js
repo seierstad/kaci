@@ -95,6 +95,13 @@ const tuning = (state = {}, action) => {
                     value: action.value
                 }
             };
+
+        case Actions.TUNING_SELECT_SCALE:
+            return {
+                ...state,
+                selectedScale: action.value
+            };
+
         case Actions.SYSTEM_RESET:
             return {
                 ...defaultSettings.tuning

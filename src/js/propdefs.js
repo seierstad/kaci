@@ -57,10 +57,11 @@ export const tuningShape = PropTypes.shape({
         "max": PropTypes.number.isRequired,
         "value": PropTypes.number.isRequired
     }).isRequired,
-    "baseKey": PropTypes.shape({
+    "keys": PropTypes.shape({
         "min": PropTypes.number.isRequired,
         "max": PropTypes.number.isRequired
     }),
+    "selectedScale": PropTypes.string.isRequired,
     "scales": PropTypes.arrayOf(scaleShape)
 });
 

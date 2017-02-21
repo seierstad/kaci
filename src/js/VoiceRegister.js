@@ -13,18 +13,9 @@ class VoiceRegister {
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
 
         this.store = store;
-        this.state = this.store.getState();
+        this.state = {...this.store.getState()};
         this.activeKeys = [...this.state.playState.keys];
         this.context = context;
-
-        this.tunings = {
-            "tempered": Tunings.getTemperedScale(0, 120, 69, 440),
-            "tempered6": Tunings.getTemperedScale(0, 120, 69, 440, 5),
-            "tempered12_1_5": Tunings.getTemperedScale(0, 120, 69, 440, 12, 1.5),
-            "pythagorean": Tunings.getPythagoreanScale(0, 120, 69, 440),
-            "erik": Tunings.getExperimentalScale(0, 120, 69, 440),
-            "halvannen": Tunings.getHalvannenScale(0, 120, 69, 440)
-        };
 
         this.activeVoices = [];
         this.stoppedVoices = [];
@@ -39,8 +30,11 @@ class VoiceRegister {
 
         this.modulationMatrix = modulationMatrix;
 
-        this.tuning = this.tunings.tempered;
-        this.stateChangeHandler();
+        this.tuningState = {};
+        this.tuning = this.state.settings.tuning;
+
+        this.chordShift = this.state.playState.chordShift;
+
         this.store.subscribe(this.stateChangeHandler);
     }
 
@@ -60,6 +54,38 @@ class VoiceRegister {
 
             voice.start(this.context.currentTime);
         }
+    }
+
+    set tuning (tuning) {
+        const {selectedScale, scales, baseFrequency, keys} = tuning;
+        if (this.tuningState.selectedScale !== selectedScale) {
+            const scale = scales.find(s => s.name === selectedScale);
+            const {min, max} = keys;
+            const {value: frequency} = baseFrequency;
+
+            if (scale) {
+                const {type, baseKey} = scale;
+
+                switch (type) {
+
+                    case "tempered":
+                        const {notes, baseNumber} = scale;
+                        this.scale = Tunings.getTemperedScale(min, max, baseKey, frequency, notes, baseNumber);
+                        break;
+
+                    case "rational":
+                        const {ratios} = scale;
+                        this.scale = Tunings.getRationalScale(ratios)(min, max, baseKey, frequency);
+                        break;
+                }
+            }
+        }
+
+        this.tuningState = tuning;
+    }
+
+    get tuning () {
+        return this.scale;
     }
 
     get totalVoicesCount () {
@@ -109,55 +135,54 @@ class VoiceRegister {
         }
     }
 
+    static reduceDownKeys = (keyArray) => (prev, current, index) => {
+        if (current && current.down && !keyArray[index]) {
+            return [...prev, index];
+        }
+        return prev;
+    }
+
+    static reduceUpKeys = (keyArray) => (prev, current, index) => {
+        if (!!current && (!keyArray[index] || !keyArray[index].down)) {
+            return [...prev, index];
+        }
+        return prev;
+    }
+
     stateChangeHandler () {
         const newState = this.store.getState();
         const newKeyState = newState.playState.keys;
+        const newChordShiftState = newState.playState.chordShift;
         const newTuningState = newState.settings.tuning;
 
-        if (this.activeKeys !== newKeyState) {
+        if (!(newChordShiftState && newChordShiftState.enabled)) {
+            if (this.activeKeys !== newKeyState) {
 
-            const reduceDownKeys = (prev, current, index) => {
-                if (current && current.down && !this.activeKeys[index]) {
-                    return [...prev, index];
-                }
-                return prev;
-            };
+                const downs = newKeyState.reduce(VoiceRegister.reduceDownKeys(this.activeKeys), []);
+                const ups = this.activeKeys.reduce(VoiceRegister.reduceUpKeys(newKeyState), []);
 
-            const reduceUpKeys = (prev, current, index) => {
-                if (!!current && (!newKeyState[index] || !newKeyState[index].down)) {
-                    return [...prev, index];
-                }
-                return prev;
-            };
-
-            const downs = newKeyState.reduce(reduceDownKeys, []);
-            const ups = this.activeKeys.reduce(reduceUpKeys, []);
-
-            ups.forEach(k => this.stopVoice(k));
-            downs.forEach(k => this.startVoice(k));
+                ups.forEach(k => this.stopVoice(k));
+                downs.forEach(k => this.startVoice(k));
+            }
         }
 
-        if (newTuningState.baseFrequency.value !== this.baseFrequency) {
+        if (this.chordShifter !== newChordShiftState) {
+            console.log("chord shift change");
+            this.chordShift = newChordShiftState;
+        }
 
-            this.baseFrequency = newTuningState.baseFrequency.value;
-            this.tuning = Tunings.getTemperedScale(0, 120, 69, this.baseFrequency);
+        if (newTuningState !== this.tuningState) {
 
-            this.activeVoices.forEach((v, i) => {
-                v.frequency = this.tuning[i];
+            this.tuning = newTuningState;
+
+            this.activeVoices.forEach((voice, noteNumber) => {
+                voice.frequency = this.tuning[noteNumber];
             });
         }
     }
 
-    /*
-    appKeyDownHandler (event) {
-        if (chords.length === 1) {
-            // add tones to initial chord after chordShift is enabled
-            this.startTone(k);
-        }
-    }
-    */
-
-    set chordShift (value) {
+    set chordShift (state) {
+        const {value} = state;
         const chords = this.chordShifter.chords;
         const keys = [];
 
@@ -189,10 +214,7 @@ class VoiceRegister {
                     const key2 = chords[chordIndex + 1][i];
                     const frequency2 = this.tuning[key2];
                     frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
-                    keys.push({
-                        "from": key1,
-                        "to": key2
-                    });
+
                     // emit event to update view...
                     // console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
                 }

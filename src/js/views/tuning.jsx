@@ -16,6 +16,7 @@ class TuningPresentation extends Component {
     constructor () {
         super();
         this.handleBaseFrequencyChange = this.handleBaseFrequencyChange.bind(this);
+        this.handleScaleSelection = this.handleScaleSelection.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -31,8 +32,13 @@ class TuningPresentation extends Component {
         }
     }
 
+    handleScaleSelection (event) {
+        this.props.handlers.selectScale(event.target.value);
+    }
+
     render () {
         const {configuration} = this.props;
+        const {scales, selectedScale, baseFrequency, keys, baseKey} = configuration;
 
         return (
             <fieldset className="tuning-view">
@@ -40,22 +46,28 @@ class TuningPresentation extends Component {
                 <label htmlFor="base-frequency">base</label>
                 <input
                     id="base-frequency"
-                    max={configuration.baseFrequency.max}
-                    min={configuration.baseFrequency.min}
+                    max={baseFrequency.max}
+                    min={baseFrequency.min}
                     onChange={this.handleBaseFrequencyChange}
                     step={1}
                     type="number"
-                    value={configuration.baseFrequency.value}
+                    value={baseFrequency.value}
                 />
+
+                <select onChange={this.handleScaleSelection}>
+                    {scales.map(scale => (
+                        <option selected={selectedScale === scale.name ? true : null}>{scale.name}</option>
+                    ))}
+                </select>
 
                 <label htmlFor="base-key">base key</label>
                 <input
                     id="base-key"
-                    max={configuration.baseKey.max}
-                    min={configuration.baseKey.min}
+                    max={keys.max}
+                    min={keys.min}
                     step={1}
                     type="number"
-                    value={configuration.baseKey.value}
+                    value={baseKey}
                 />
                 <select
                     id="tuning-mode"
@@ -90,7 +102,8 @@ class TuningPresentation extends Component {
 
 const mapDispatch = (dispatch) => ({
     "handlers": {
-        "baseFrequency": (value) => {dispatch({type: Actions.BASE_FREQUENCY_CHANGE, value});}
+        "baseFrequency": (value) => {dispatch({type: Actions.BASE_FREQUENCY_CHANGE, value});},
+        "selectScale": (value) => {dispatch({type: Actions.TUNING_SELECT_SCALE, value});}
     }
 });
 

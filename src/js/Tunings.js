@@ -1,6 +1,3 @@
-import {SCALES} from "./configuration";
-
-
 export const getTemperedScale = function (fromKey, toKey, referenceKey, referenceFrequency, steps = 12, base = 2) {
     const scale = [];
 
@@ -12,7 +9,7 @@ export const getTemperedScale = function (fromKey, toKey, referenceKey, referenc
     return scale;
 };
 
-export const getScale = function (intervals) {
+export const getRationalScale = function (intervals) {
     let base = intervals.pop();
 
     return function (fromKey, toKey, referenceKey, referenceFrequency) {
@@ -26,14 +23,12 @@ export const getScale = function (intervals) {
             }
             scale[i] = referenceFrequency * Math.pow(base, Math.floor(keyOffset / intervals.length)) * intervals[index];
         }
+
         return scale;
     };
 };
 
-
 export default {
-    getTemperedScale: getTemperedScale,
-    getPythagoreanScale: getScale(SCALES.pythagorean),
-    getExperimentalScale: getScale(SCALES.experimental),
-    getHalvannenScale: getScale(SCALES.halvannen)
+    getTemperedScale,
+    getRationalScale
 };
