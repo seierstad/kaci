@@ -261,11 +261,22 @@ export const oscillatorPatchDataShape = PropTypes.shape({
 });
 
 export const keyStateShape = PropTypes.shape({
-    "down": PropTypes.bool
+    "down": PropTypes.bool,
+    "number": PropTypes.number,
+    "velocity": PropTypes.number,
+    "aftertouch": PropTypes.number
+});
+
+export const chordShape = PropTypes.arrayOf(keyStateShape);
+
+export const chordShiftShape = PropTypes.shape({
+    "value": PropTypes.number.isRequired,
+    "activeKeys": PropTypes.arrayOf(keyStateShape).isRequired,
+    "chords": PropTypes.arrayOf(chordShape)
 });
 
 export const playStateShape = PropTypes.shape({
-    "chordShift": PropTypes.number.isRequired,
+    "chordShift": chordShiftShape.isRequired,
     "hold": PropTypes.bool,
     "keys": PropTypes.arrayOf(keyStateShape).isRequired,
     "pitchShift": PropTypes.number.isRequired

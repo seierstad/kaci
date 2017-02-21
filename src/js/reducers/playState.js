@@ -183,7 +183,8 @@ const defaultPlayState = {
     keys: [],
     chordShift: defaultChordShift,
     midiClock: defaultMidiClockState,
-    hold: false
+    hold: false,
+    pitchShift: 0
 };
 
 const playState = (state = defaultPlayState, action) => {

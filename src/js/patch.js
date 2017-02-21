@@ -120,7 +120,9 @@ const patch = {
     "modulation": {
         "main": {
             "gain": [{
+                "amount": 1,
                 "enabled": true,
+                "polarity": "positive",
                 "source": {
                     "type": "env",
                     "index": 0

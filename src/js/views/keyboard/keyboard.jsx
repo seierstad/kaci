@@ -91,7 +91,7 @@ class KeyboardViewPresentation extends Component {
                     <RangeInput
                         changeHandler={handleChordShift}
                         className="chord-shift"
-                        configuration={{max: 1, min: -1, step: 0.01}}
+                        configuration={{max: 1, min: 0, step: 0.01}}
                         label="Chord shift"
                         value={playState.chordShift.value}
                     />
