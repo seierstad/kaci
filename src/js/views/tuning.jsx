@@ -54,9 +54,9 @@ class TuningPresentation extends Component {
                     value={baseFrequency.value}
                 />
 
-                <select onChange={this.handleScaleSelection}>
+                <select onChange={this.handleScaleSelection} value={selectedScale}>
                     {scales.map(scale => (
-                        <option selected={selectedScale === scale.name ? true : null}>{scale.name}</option>
+                        <option key={scale.name}>{scale.name}</option>
                     ))}
                 </select>
 

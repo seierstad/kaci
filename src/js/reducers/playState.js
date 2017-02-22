@@ -96,6 +96,7 @@ const addKeyToChords = (chords = [], key, newChord) => {
 
 const defaultChordShift = {
     enabled: false,
+    mode: "portamento",
     chords: [],
     activeKeys: [],
     value: 0

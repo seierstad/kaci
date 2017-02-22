@@ -167,7 +167,6 @@ class VoiceRegister {
         }
 
         if (this.chordShifter !== newChordShiftState) {
-            console.log("chord shift change");
             this.chordShift = newChordShiftState;
         }
 
@@ -181,71 +180,68 @@ class VoiceRegister {
         }
     }
 
+    static getKey (value, key1, key2) {
+        const diff = key2.number - key1.number;
+
+        if (diff < 0) {
+            return key1.number + Math.ceil(value * (diff - 1));
+        }
+
+        return key1.number + Math.floor(value * (diff + 1));
+    }
+
+
     set chordShift (state) {
-        const {value} = state;
-        const chords = this.chordShifter.chords;
+        const {value, chords} = state;
         const keys = [];
 
-        if (this.chordShifter.enabled) {
+        if (state.enabled) {
 
             const q = value * (chords.length - 1);
             const chordIndex = Math.floor(q);
             const chordRatio = q - chordIndex;
 
             const indexReducer = (acc, curr, index) => curr ? [...acc, index] : acc;
+            const voiceIndexes = this.activeVoices.reduce(indexReducer, []);
 
-            const voiceIndexes = this.activeVoices.reduce(indexReducer);
 
-            // console.log("chord index: " + chordIndex + "\tchord1:\t" + chords[chordIndex].length + "\tchord2:\t" + chords[chordIndex + 1].length + " ratio: " + chordRatio);
             for (let i = 0, j = voiceIndexes.length; i < j; i += 1) {
+
                 const voice = this.activeVoices[voiceIndexes[i]];
                 const key1 = chords[chordIndex][i];
+                const isLastChord = (chordIndex === chords.length - 1);
+
                 let frequency;
 
-                /* contious shift between frequencies: */
-                const frequency1 = this.tuning[key1];
 
-                if (chordIndex === chords.length - 1) {
-                    // handle edge case
-                    frequency = frequency1;
+                if (!isLastChord) {
+                    const key2 = chords[chordIndex + 1][i];
+
+                    if (state.mode === "portamento") {
+                        /* contious shift between frequencies: */
+                        const frequency1 = this.tuning[key1.number];
+                        const frequency2 = this.tuning[key2.number];
+                        frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
+                        /* end continous shift */
+                    }
+
+                    if (state.mode === "glissando") {
+                        /* stepwise (semitone, glissando) shift between frequencies: */
+                        frequency = this.tuning[VoiceRegister.getKey(chordRatio, key1, key2)];
+                        /* end stepwise shift */
+                    }
 
                 } else {
-
-                    const key2 = chords[chordIndex + 1][i];
-                    const frequency2 = this.tuning[key2];
-                    frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
-
-                    // emit event to update view...
-                    // console.log("voice " + i + ": \n freq1: " + frequency1 + "\tfreq2:\t" + frequency2 + "\tresult:\t" + frequency);
+                    frequency = this.tuning[key1.number];
                 }
-
-                /* end continous shift */
-
-                /* stepwise (semitone, glissando) shift between frequencies: */
-                /*
-                function getKey(value, key1, key2) {
-                    var diff = key2 - key1;
-
-                    if (diff < 0) {
-                        return key1 + Math.ceil(value * (diff - 1));
-                    } else {
-                        return key1 + Math.floor(value * (diff + 1));
-                    }
-                }
-
-                key1 = chords[chordIndex][i];
-                key2 = chords[chordIndex + 1][i];
-
-
-                frequency = this.tuning[getKey(chordRatio, key1, key2)];
-                */
-                /* end stepwise shift */
 
                 if (!isNaN(frequency)) {
-                    voice.setFrequency(frequency);
+                    voice.frequency = frequency;
                 }
             }
         }
+
+        this.chordShifter = state;
     }
 
     set chordShiftMode (mode) {
