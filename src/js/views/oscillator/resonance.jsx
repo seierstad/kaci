@@ -53,7 +53,10 @@ class Resonance extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return (this.props.patch.resonance !== nextProps.patch.resonance) || (this.props.patch.wrapper !== nextProps.patch.wrapper) || (this.props.mixFunction !== nextProps.mixFunction);
+        return this.props.patch.resonance !== nextProps.patch.resonance
+                || this.props.patch.resonanceActive !== nextProps.resonanceActive
+                || this.props.patch.wrapper !== nextProps.patch.wrapper
+                || this.props.mixFunction !== nextProps.mixFunction;
     }
 
     componentWillUpdate (nextProps) {
@@ -65,7 +68,6 @@ class Resonance extends Component {
     }
 
     handleToggle (event) {
-        event.preventDefault();
         this.props.handlers.toggle();
     }
 
@@ -76,7 +78,7 @@ class Resonance extends Component {
         return (
             <div className="oscillator-resonance-view">
                 <WaveformCanvas waveFunction={this.waveFunction} />
-                <input checked={resonanceActive} onChange={this.handleToggle} type="checkbox" />
+                <input checked={!!resonanceActive} onChange={this.handleToggle} type="checkbox" />
                 <RangeInput
                     changeHandler={handlers.factorChange}
                     configuration={configuration}

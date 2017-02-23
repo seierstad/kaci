@@ -307,7 +307,7 @@ export const keyViewPropsShape = PropTypes.shape({
     "keyNumber": PropTypes.number.isRequired,
     "keyWidth": PropTypes.number.isRequired,
     "noteName": PropTypes.string.isRequired,
-    "playState": keyStateShape,
+    "playState": playStateShape,
     "x": PropTypes.string.isRequired
 });
 
