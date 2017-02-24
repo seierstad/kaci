@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import {outputTargetShape, patchOutputStageShape} from "../propdefs";
+import {outputTargetShape, outputStagePatchShape} from "../propdefs";
 
 import RangeInput from "./RangeInput.jsx";
 
@@ -10,7 +10,7 @@ class OutputStage extends Component {
     static propTypes = {
         "configuration": outputTargetShape.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": patchOutputStageShape.isRequired
+        "patch": outputStagePatchShape.isRequired
     }
 
     shouldComponentUpdate (nextProps) {

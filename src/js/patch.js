@@ -117,6 +117,19 @@ const patch = {
         },
         "mode": "voice"
     }],
+    "morse": [{
+        "text": "kaci 0.5",
+        "frequency": 1.34,
+        "amount": 1,
+        "active": true,
+        "mode": "global",
+        "sync": {
+            "enabled": false,
+            "numerator": 1,
+            "denominator": 4,
+            "master": 0
+        }
+    }],
     "modulation": {
         "main": {
             "gain": [{

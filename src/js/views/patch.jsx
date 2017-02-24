@@ -10,6 +10,7 @@ import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
 import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./lfo/lfos.jsx";
+import MorseGenerators from "./morse/morse-generators.jsx";
 import ModulationMatrix from "./modulation/matrix.jsx";
 import Oscillator from "./oscillator/oscillator.jsx";
 import MainOutput from "./main-output.jsx";
@@ -53,7 +54,7 @@ class PatchPresentation extends Component {
                     configuration={target.sub}
                     handlers={handlers.sub}
                     patch={patch.sub}
-                    syncHandlers={handlers.sync}
+                    syncHandlers={handlers.periodic.sync}
                 />
                 <Envelopes
                     configuration={source.envelope}
@@ -63,9 +64,13 @@ class PatchPresentation extends Component {
                 />
                 <LFOs
                     configuration={source.lfo}
-                    handlers={handlers.lfos}
+                    handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.lfo}}
                     patch={patch.lfos}
-                    syncHandlers={handlers.sync}
+                />
+                <MorseGenerators
+                    configuration={source.morse}
+                    handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.morse}}
+                    patch={patch.morse}
                 />
                 <ModulationMatrix
                     configuration={configuration.modulation}
@@ -160,29 +165,38 @@ const mapDispatchToProps = (dispatch) => ({
             }
 
         },
-        "lfos": {
+        "modulator": {
             "reset": (event, module, index) => {
-                dispatch({"type": Actions.LFO_RESET, module, index});
+                dispatch({"type": Actions.MODULATOR_RESET, module, index});
             },
             "amountChange": (value, module, index) => {
-                dispatch({"type": Actions.LFO_AMOUNT_CHANGE, index, module, value});
-            },
-            "frequencyChange": (value, module, index) => {
-                dispatch({"type": Actions.LFO_FREQUENCY_CHANGE, index, module, value});
-            },
+                dispatch({"type": Actions.MODULATOR_AMOUNT_CHANGE, index, module, value});
+            }
+        },
+        "lfo": {
             "changeWaveform": (value, module, index) => {
                 dispatch({"type": Actions.LFO_WAVEFORM_CHANGE, index, module, value});
             }
         },
-        "sync": {
-            "denominatorChange": (value, module, index) => {
-                dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, value});
+        "morse": {
+            "textChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_TEXT_CHANGE, module, index, value});
+            }
+        },
+        "periodic": {
+            "frequencyChange": (value, module, index) => {
+                dispatch({"type": Actions.MODULATOR_FREQUENCY_CHANGE, index, module, value});
             },
-            "numeratorChange": (value, module, index) => {
-                dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, value});
-            },
-            "toggle": (module, index) => {
-                dispatch({"type": Actions.SYNC_TOGGLE, module, index});
+            "sync": {
+                "denominatorChange": (value, module, index) => {
+                    dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, value});
+                },
+                "numeratorChange": (value, module, index) => {
+                    dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, value});
+                },
+                "toggle": (module, index) => {
+                    dispatch({"type": Actions.SYNC_TOGGLE, module, index});
+                }
             }
         },
         "noise": {

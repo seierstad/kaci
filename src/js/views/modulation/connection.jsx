@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
 import {defaultModulationConnectionParameters} from "../../configuration";
-import {modulationSourceTypeShape, modulationConnectionPatchDataShape} from "../../propdefs";
+import {modulatorTypeShape, modulationConnectionPatchShape} from "../../propdefs";
 
 import RangeInput from "../RangeInput.jsx";
 
@@ -14,9 +14,9 @@ class Connection extends Component {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "index": PropTypes.number.isRequired,
         "noConnection": PropTypes.bool,
-        "patch": modulationConnectionPatchDataShape,
+        "patch": modulationConnectionPatchShape,
         "path": PropTypes.arrayOf(PropTypes.string).isRequired,
-        "type": modulationSourceTypeShape.isRequired
+        "type": modulatorTypeShape.isRequired
     }
 
     constructor () {

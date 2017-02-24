@@ -12,7 +12,7 @@ export const keyboardLayoutShape = PropTypes.shape({
     "map": PropTypes.arrayOf(PropTypes.number).isRequired
 });
 
-export const keyboardShape = PropTypes.shape({
+export const keyboardConfigShape = PropTypes.shape({
     "activeLayout": PropTypes.string.isRequired,
     "layouts": PropTypes.arrayOf(keyboardLayoutShape).isRequired
 });
@@ -81,77 +81,103 @@ export const rangeShape = PropTypes.shape({
     "step": PropTypes.number
 });
 
-export const modulationSourceTypeShape = PropTypes.oneOf(Object.values(MODULATION_SOURCE_TYPE));
+export const modulatorTypeShape = PropTypes.oneOf(Object.values(MODULATION_SOURCE_TYPE));
 
-export const modulationSourceShape = PropTypes.shape({
+export const modulatorShape = PropTypes.shape({
     "index": PropTypes.number.isRequired,
-    "type": modulationSourceTypeShape.isRequired
+    "type": modulatorTypeShape.isRequired
 });
 
-export const modulationConnectionPatchDataShape = PropTypes.shape({
+export const modulationConnectionPatchShape = PropTypes.shape({
     "amount": PropTypes.number.isRequired,
     "enabled": PropTypes.bool,
     "polarity": polarityShape.isRequired,
-    "source": modulationSourceShape.isRequired
+    "source": modulatorShape.isRequired
 });
-export const modulationTargetParameterShape = PropTypes.arrayOf(modulationConnectionPatchDataShape);
+export const modulationTargetParameterShape = PropTypes.arrayOf(modulationConnectionPatchShape);
 
 export const modulationTargetModuleShape = PropTypes.objectOf(modulationTargetParameterShape);
 
-export const modulationPatchDataShape = PropTypes.shape({
+export const modulationPatchShape = PropTypes.shape({
     "oscillator": modulationTargetModuleShape,
     "sub": modulationTargetModuleShape,
     "noise": modulationTargetModuleShape,
     "vca": modulationTargetModuleShape
 });
 
-export const syncPatchDataShape = PropTypes.shape({
+export const syncPatchShape = PropTypes.shape({
     "denominator": PropTypes.number.isRequired,
     "enabled": PropTypes.bool.isRequired,
     "numerator": PropTypes.number.isRequired
 });
 
-export const patchOutputStage = {
+export const periodicModulatorPatchShape = PropTypes.shape({
+    "frequency": PropTypes.number.isRequired,
+    "sync": syncPatchShape
+});
+
+export const outputStagePatchProperties = {
     "active": PropTypes.bool.isRequired,
     "gain": PropTypes.number.isRequired,
     "pan": PropTypes.number.isRequired
 };
 
-export const patchOutputStageShape = PropTypes.shape({
-    ...patchOutputStage
+export const outputStagePatchShape = PropTypes.shape({
+    ...outputStagePatchProperties
 });
 
 
-export const subPatchDataShape = PropTypes.shape({
+export const subPatchShape = PropTypes.shape({
     "beat": PropTypes.number.isRequired,
-    "beat_sync": syncPatchDataShape.isRequired,
+    "beat_sync": syncPatchShape.isRequired,
     "depth": PropTypes.number.isRequired,
     "detune": PropTypes.number.isRequired,
     "mode": PropTypes.oneOf(["semitone", "beat"]).isRequired,
-    ...patchOutputStage
+    ...outputStagePatchProperties
 });
 
-export const noisePatchDataShape = PropTypes.shape({
+export const noisePatchShape = PropTypes.shape({
     "color": PropTypes.oneOf(Object.keys(noise)),
-    ...patchOutputStage
+    ...outputStagePatchProperties
 });
 
-export const patchDataMainOutShape = PropTypes.shape({
-    ...patchOutputStage
+export const mainOutPatchShape = PropTypes.shape({
+    ...outputStagePatchProperties
 });
 
-const modulationSourceModeShape = PropTypes.oneOf(Object.values(MODULATION_SOURCE_MODE));
+const modulatorModeShape = PropTypes.oneOf(Object.values(MODULATION_SOURCE_MODE));
 
-export const lfoPatchDataShape = PropTypes.shape({
+const modulatorPatchProperties = {
     "active": PropTypes.bool.isRequired,
     "amount": PropTypes.number.isRequired,
+    "mode": modulatorModeShape.isRequired
+};
+
+export const modulatorPatchShape = PropTypes.shape({
+    ...modulatorPatchProperties
+});
+
+export const periodicPatchProperties = {
     "frequency": PropTypes.number.isRequired,
-    "mode": modulationSourceModeShape.isRequired,
-    "sync": syncPatchDataShape,
+    "sync": syncPatchShape
+};
+
+export const lfoPatchShape = PropTypes.shape({
+    ...modulatorPatchProperties,
+    ...periodicPatchProperties,
     "waveform": PropTypes.string.isRequired
 });
 
-export const lfosPatchDataShape = PropTypes.arrayOf(lfoPatchDataShape);
+export const lfosPatchShape = PropTypes.arrayOf(lfoPatchShape);
+
+
+export const morseGeneratorPatchShape = PropTypes.shape({
+    ...modulatorPatchProperties,
+    ...periodicPatchProperties,
+    "text": PropTypes.string.isRequired
+});
+
+export const morseGeneratorsPatchShape = PropTypes.arrayOf(morseGeneratorPatchShape);
 
 const envelopePointShape = (props, propName, componentName) => {
     const prop = props[propName];
@@ -173,26 +199,26 @@ const envelopePointShape = (props, propName, componentName) => {
     return true;
 };
 
-export const envelopePatchDataShape = PropTypes.arrayOf(envelopePointShape);
+export const envelopePatchShape = PropTypes.arrayOf(envelopePointShape);
 
-export const pdPatchDataShape = PropTypes.shape({
-    "steps": envelopePatchDataShape.isRequired
+export const pdPatchShape = PropTypes.shape({
+    "steps": envelopePatchShape.isRequired
 });
 
-export const oscillatorPdPatchDataShape = PropTypes.arrayOf(pdPatchDataShape);
+export const oscillatorPdPatchShape = PropTypes.arrayOf(pdPatchShape);
 
-export const envelopeStagePatchDataShape = PropTypes.shape({
-    "steps": envelopePatchDataShape.isRequired,
+export const envelopeStagePatchShape = PropTypes.shape({
+    "steps": envelopePatchShape.isRequired,
     "duration": PropTypes.number.isRequired
 });
 
-export const sustainEnvelopePatchDataShape = PropTypes.shape({
-    "attack": envelopeStagePatchDataShape.isRequired,
-    "release": envelopeStagePatchDataShape.isRequired,
-    "mode": modulationSourceModeShape.isRequired
+export const sustainEnvelopePatchShape = PropTypes.shape({
+    "attack": envelopeStagePatchShape.isRequired,
+    "release": envelopeStagePatchShape.isRequired,
+    "mode": modulatorModeShape.isRequired
 });
 
-export const envelopesPatchDataShape = PropTypes.arrayOf(sustainEnvelopePatchDataShape);
+export const envelopesPatchShape = PropTypes.arrayOf(sustainEnvelopePatchShape);
 
 export const envelopeViewStateShape = PropTypes.array;
 
@@ -204,7 +230,7 @@ export const sustainEnvelopeViewStateShape = PropTypes.shape({
 
 export const modulationEnvelopeSourcesShape = PropTypes.shape({
     "count": PropTypes.number.isRequired,
-    "default": sustainEnvelopePatchDataShape.isRequired,
+    "default": sustainEnvelopePatchShape.isRequired,
     "defaultState": sustainEnvelopeViewStateShape.isRequired
 });
 
@@ -212,22 +238,43 @@ export const viewStateShape = PropTypes.shape({
 
 });
 
-export const modulationLfoSourcesSyncShape = PropTypes.shape({
+export const syncConfigShape = PropTypes.shape({
     "numerator": rangeShape.isRequired,
     "denominator": rangeShape.isRequired
 });
 
-export const modulationLfoSourcesShape = PropTypes.shape({
+const modulatorConfigProperties = {
     "amount": rangeShape.isRequired,
-    "count": PropTypes.number.isRequired,
-    "default": lfoPatchDataShape.isRequired,
-    "frequency": rangeShape.isRequired,
-    "sync": modulationLfoSourcesSyncShape
+    "count": PropTypes.number.isRequired
+};
+
+export const modulatorConfigShape = PropTypes.shape({
+    ...modulatorConfigProperties
 });
 
-export const modulationSourcesShape = PropTypes.shape({
+const periodicConfigProperties = {
+    "frequency": rangeShape.isRequired,
+    "sync": syncConfigShape
+};
+
+export const periodicModulatorsConfigShape = PropTypes.shape(periodicConfigProperties);
+
+export const modulationLfoSourcesConfigShape = PropTypes.shape({
+    ...modulatorConfigProperties,
+    ...periodicConfigProperties,
+    "default": lfoPatchShape
+});
+
+export const modulationMorseSourcesConfigShape = PropTypes.shape({
+    ...modulatorConfigProperties,
+    ...periodicConfigProperties,
+    "default": morseGeneratorPatchShape
+});
+
+export const modulatorsConfigShape = PropTypes.shape({
     "envelope": modulationEnvelopeSourcesShape.isRequired,
-    "lfo": modulationLfoSourcesShape.isRequired
+    "lfo": modulationLfoSourcesConfigShape.isRequired,
+    "morse": modulationMorseSourcesConfigShape.isRequired
 });
 
 export const outputTargetShape = PropTypes.shape({
@@ -237,28 +284,27 @@ export const outputTargetShape = PropTypes.shape({
 
 export const modulationTargetShape = PropTypes.objectOf(PropTypes.oneOfType([rangeShape, outputTargetShape]));
 
-export const modulationTargetsShape = PropTypes.shape({
+export const modulationTargetsConfigShape = PropTypes.shape({
     "noise": modulationTargetShape.isRequired,
     "oscillator": modulationTargetShape.isRequired,
     "sub": modulationTargetShape.isRequired,
     "main": modulationTargetShape.isRequired
 });
 
-export const modulationShape = PropTypes.shape({
+export const modulationConfigShape = PropTypes.shape({
     "connection": connectionShape.isRequired,
-    "source": modulationSourcesShape.isRequired,
-    "target": modulationTargetsShape.isRequired
+    "source": modulatorsConfigShape.isRequired,
+    "target": modulationTargetsConfigShape.isRequired
 });
 
 export const configurationShape = PropTypes.shape({
-    "keyboard": keyboardShape.isRequired,
+    "keyboard": keyboardConfigShape.isRequired,
     "midi": midiShape.isRequired,
-    "modulation": modulationShape.isRequired,
+    "modulation": modulationConfigShape.isRequired,
     "tuning": tuningShape.isRequired
 });
 
-
-export const patchWrapperShape = PropTypes.oneOfType([
+export const wrapperPatchShape = PropTypes.oneOfType([
     PropTypes.oneOf(Object.keys(wrappers)),
     PropTypes.shape({
         "name": PropTypes.oneOf(Object.keys(wrappers)).isRequired,
@@ -266,15 +312,15 @@ export const patchWrapperShape = PropTypes.oneOfType([
     })
 ]);
 
-export const oscillatorPatchDataShape = PropTypes.shape({
+export const oscillatorPatchShape = PropTypes.shape({
     "detune": PropTypes.number.isRequired,
     "mix": PropTypes.number.isRequired,
-    "pd": oscillatorPdPatchDataShape.isRequired,
+    "pd": oscillatorPdPatchShape.isRequired,
     "resonance": PropTypes.number.isRequired,
     "resonanceActive": PropTypes.bool.isRequired,
     "waveform": PropTypes.oneOf(Object.keys(waveforms)),
-    "wrapper": patchWrapperShape.isRequired,
-    ...patchOutputStage
+    "wrapper": wrapperPatchShape.isRequired,
+    ...outputStagePatchProperties
 });
 
 export const keyStateShape = PropTypes.shape({
@@ -312,11 +358,11 @@ export const keyViewPropsShape = PropTypes.shape({
 });
 
 export const patchShape = PropTypes.shape({
-    "main": patchDataMainOutShape.isRequired,
-    "oscillator": oscillatorPatchDataShape.isRequired,
-    "noise": noisePatchDataShape.isRequired,
-    "sub": subPatchDataShape.isRequired,
-    "lfos": lfosPatchDataShape.isRequired,
-    "envelopes": envelopesPatchDataShape.isRequired,
-    "modulation": modulationPatchDataShape.isRequired
+    "main": mainOutPatchShape.isRequired,
+    "oscillator": oscillatorPatchShape.isRequired,
+    "noise": noisePatchShape.isRequired,
+    "sub": subPatchShape.isRequired,
+    "lfos": lfosPatchShape.isRequired,
+    "envelopes": envelopesPatchShape.isRequired,
+    "modulation": modulationPatchShape.isRequired
 });

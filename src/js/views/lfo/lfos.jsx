@@ -1,15 +1,14 @@
 import React, {Component, PropTypes} from "react";
 
-import {lfosPatchDataShape, modulationLfoSourcesShape} from "../../propdefs";
+import {lfosPatchShape, modulationLfoSourcesConfigShape} from "../../propdefs";
 import Lfo from "./lfo.jsx";
 
 class LFOs extends Component {
 
     static propTypes = {
-        "configuration": modulationLfoSourcesShape.isRequired,
+        "configuration": modulationLfoSourcesConfigShape.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": lfosPatchDataShape,
-        "syncHandlers": PropTypes.object
+        "patch": lfosPatchShape
     }
 
     shouldComponentUpdate (nextProps) {
@@ -25,11 +24,12 @@ class LFOs extends Component {
                 <Lfo
                     configuration={configuration}
                     handlers={handlers}
+                    includeSync={i > 0 ? true : null}
                     index={i}
                     key={i}
                     module="lfos"
                     patch={patch[i] || configuration["default"]}
-                    syncHandlers={syncHandlers}
+                    syncHandlers={handlers.sync}
                 />
             );
         }

@@ -5,6 +5,7 @@ import * as Actions from "../actions";
 import envelopes, {steps} from "./envelopes";
 import lfos from "./lfos";
 import modulation from "./modulation";
+import morse from "./morse";
 import syncReducer from "./sync";
 
 
@@ -176,6 +177,7 @@ const patch = (state, action) => {
         sub,
         lfos,
         envelopes,
+        morse,
         modulation
     })(state, action);
 };

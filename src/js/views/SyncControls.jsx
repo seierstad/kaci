@@ -1,16 +1,16 @@
 import React, {Component, PropTypes} from "react";
 
-import {modulationLfoSourcesSyncShape, syncPatchDataShape} from "../propdefs";
+import {syncConfigShape, syncPatchShape} from "../propdefs";
 
 class SyncControls extends Component {
 
     static propTypes = {
-        "configuration": modulationLfoSourcesSyncShape.isRequired,
+        "configuration": syncConfigShape.isRequired,
         "disabled": PropTypes.bool,
         "handlers": PropTypes.object.isRequired,
         "index": PropTypes.number,
         "module": PropTypes.string.isRequired,
-        "patch": syncPatchDataShape.isRequired
+        "patch": syncPatchShape.isRequired
     }
 
     constructor () {

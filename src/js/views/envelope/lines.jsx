@@ -1,12 +1,12 @@
 import React, {Component} from "react";
-import {envelopePatchDataShape} from "../../propdefs";
+import {envelopePatchShape} from "../../propdefs";
 
 import {toPercent} from "./shared-functions";
 
 class EnvelopeLines extends Component {
 
     static propTypes = {
-        "steps": envelopePatchDataShape.isRequired
+        "steps": envelopePatchShape.isRequired
     }
 
     render () {

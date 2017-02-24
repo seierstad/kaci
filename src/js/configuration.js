@@ -35,6 +35,19 @@ export const defaultEnvParameters = {
     "mode": "voice"
 };
 
+export const defaultMorseParameters = {
+    "text": "",
+    "active": true,
+    "amount": 1.0,
+    "frequency": 1.0,
+    "sync": {
+        "enabled": false,
+        "numerator": 1,
+        "denominator": 1
+    },
+    "mode": "voice"
+};
+
 export const defaultTuning = {
     "baseFrequency": {
         "min": 380,
@@ -142,10 +155,14 @@ const configuration = {
         "channel": "all",
         "ports": []
     },
-    "tuning": defaultTuning,
+    "tuning": {
+        ...defaultTuning
+    },
     "modulation": {
         "connection": {
-            "default": defaultModulationConnectionParameters
+            "default": {
+                ...defaultModulationConnectionParameters
+            }
         },
         "source": {
             "lfo": {
@@ -161,8 +178,12 @@ const configuration = {
                     "step": 0.01,
                     "exponential": true
                 },
-                sync: defaultSyncConfiguration,
-                "default": defaultLfoParameters
+                "sync": {
+                    ...defaultSyncConfiguration
+                },
+                "default": {
+                    ...defaultLfoParameters
+                }
             },
             "envelope": {
                 "count": 2,
@@ -171,6 +192,26 @@ const configuration = {
                     "attack": [],
                     "release": [],
                     "editSustain": false
+                }
+            },
+            "morse": {
+                "count": 1,
+                "amount": {
+                    "min": 0,
+                    "max": 1,
+                    "step": 1 / 12
+                },
+                "frequency": {
+                    "min": 0.001,
+                    "max": 5,
+                    "step": 0.01,
+                    "exponential": true
+                },
+                "sync": {
+                    ...defaultSyncConfiguration
+                },
+                "default": {
+                    ...defaultMorseParameters
                 }
             }
         },

@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import {sustainEnvelopePatchDataShape} from "../../propdefs";
+import {sustainEnvelopePatchShape} from "../../propdefs";
 
 import Envelope from "./envelope.jsx";
 import Sustain from "./sustain.jsx";
@@ -12,7 +12,7 @@ class SustainEnvelope extends Component {
         "handlers": PropTypes.object.isRequired,
         "index": PropTypes.number.isRequired,
         "module": PropTypes.string.isRequired,
-        "patch": sustainEnvelopePatchDataShape.isRequired,
+        "patch": sustainEnvelopePatchShape.isRequired,
         "viewState": PropTypes.object
     }
 

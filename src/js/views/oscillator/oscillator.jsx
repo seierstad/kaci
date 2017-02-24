@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import * as Actions from "../../actions";
 import {waveforms} from "../../waveforms";
 import {getDistortedPhase, mixValues} from "../../shared-functions";
-import {oscillatorPatchDataShape, modulationTargetShape} from "../../propdefs";
+import {oscillatorPatchShape, modulationTargetShape} from "../../propdefs";
 
 import OutputStage from "../output-stage.jsx";
 import RangeInput from "../RangeInput.jsx";
@@ -20,7 +20,7 @@ class OscillatorPresentation extends Component {
         "configuration": modulationTargetShape.isRequired,
         "envelopeHandlers": PropTypes.object.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": oscillatorPatchDataShape.isRequired,
+        "patch": oscillatorPatchShape.isRequired,
         "viewState": PropTypes.object.isRequired
     }
 

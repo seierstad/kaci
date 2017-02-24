@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
-import {modulationShape, modulationPatchDataShape} from "../../propdefs";
+import {modulationConfigShape, modulationPatchShape} from "../../propdefs";
 
 import {MODULATION_AMOUNT_CHANGE, MODULATION_POLARITY_CHANGE, MODULATION_CONNECTION_TOGGLE} from "../../actions";
 import TargetModule from "./module.jsx";
@@ -10,9 +10,9 @@ import TargetModule from "./module.jsx";
 class ModulationMatrixPresentation extends Component {
 
     static propTypes = {
-        "configuration": modulationShape.isRequired,
+        "configuration": modulationConfigShape.isRequired,
         "handlers": PropTypes.object,
-        "patch": modulationPatchDataShape.isRequired
+        "patch": modulationPatchShape.isRequired
     }
 
     render () {

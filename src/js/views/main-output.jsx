@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import {modulationTargetShape, patchDataMainOutShape} from "../propdefs";
+import {modulationTargetShape, mainOutPatchShape} from "../propdefs";
 import OutputStage from "./output-stage.jsx";
 
 class MainOutput extends Component {
@@ -8,7 +8,7 @@ class MainOutput extends Component {
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": patchDataMainOutShape.isRequired
+        "patch": mainOutPatchShape.isRequired
     }
 
     shouldComponentUpdate (nextProps) {

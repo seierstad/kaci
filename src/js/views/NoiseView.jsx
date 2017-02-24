@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import {modulationTargetShape, noisePatchDataShape} from "../propdefs";
+import {modulationTargetShape, noisePatchShape} from "../propdefs";
 import OutputStage from "./output-stage.jsx";
 
 class NoiseView extends Component {
@@ -8,7 +8,7 @@ class NoiseView extends Component {
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": noisePatchDataShape.isRequired
+        "patch": noisePatchShape.isRequired
     }
 
     shouldComponentUpdate (nextProps) {

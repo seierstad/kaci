@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 
 import {waveforms, wrappers} from "../../waveforms";
-import {oscillatorPatchDataShape, rangeShape} from "../../propdefs";
+import {oscillatorPatchShape, rangeShape} from "../../propdefs";
 
 import WaveformSelector from "../WaveformSelector.jsx";
 import RangeInput from "../RangeInput.jsx";
@@ -31,7 +31,7 @@ class Resonance extends Component {
         "configuration": rangeShape.isRequired,
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "mixFunction": PropTypes.func.isRequired,
-        "patch": oscillatorPatchDataShape.isRequired
+        "patch": oscillatorPatchShape.isRequired
     }
 
     constructor () {

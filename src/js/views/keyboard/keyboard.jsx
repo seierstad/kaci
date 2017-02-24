@@ -1,7 +1,6 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
-import {NOTE_NAMES} from "../../constants";
 import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT, KEYBOARD_CHORD_SHIFT_TOGGLE} from "../../actions";
 import {playStateShape} from "../../propdefs";
 
