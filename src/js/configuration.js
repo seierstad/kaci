@@ -135,7 +135,7 @@ const configuration = {
             }
         }],
         "startKey": 36,
-        "endKey": 73
+        "endKey": 72
     },
     "midi": {
         "selectedPort": "",
