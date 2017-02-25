@@ -93,10 +93,54 @@ export const waveforms = {
     }
 };
 
-export const noise = {
-    "white": function whiteNoise (buffer) {
-        for (let i = 0, j = buffer.length; i < j; i += 1) {
-            buffer[i] = Math.random() * 2 - 1;
+const trailingZeros = (size) => {
+
+    const MASK = (1 << size + 1) - 1;
+
+    return (number) => {
+        if ((number & MASK) === 0) {
+            return size;
         }
+
+        let zeros = 1;
+
+        while ((MASK & number) === ((MASK << zeros) & number)) {
+            zeros += 1;
+        }
+
+        return zeros - 1;
+    };
+};
+
+export const noise = {
+    "white": () => (buffer) => {
+        buffer.forEach((val, index, arr) => arr[index] = Math.random() * 2 - 1);
+    },
+
+    "pink": (resolution = 8) => {
+        const values = new Float32Array(resolution);
+        values.forEach((v, index, arr) => arr[index] = Math.random() * 2);
+
+        const getIndex = trailingZeros(resolution);
+
+        let sum = values.reduce((acc, current) => acc + current);
+        let maxPosition = (1 << resolution) - 1;
+        let position = 1;
+
+        const pinkSum = (v, i, output) => {
+            const index = getIndex(position);
+            const prev = values[index];
+            const curr = Math.random() * 2;
+            values[index] = curr;
+            sum += (curr - prev);
+
+            position = (position % maxPosition) + 1;
+
+            output[i] = (sum / resolution) - 1;
+        };
+
+        return (buffer) => {
+            buffer.forEach(pinkSum);
+        };
     }
 };

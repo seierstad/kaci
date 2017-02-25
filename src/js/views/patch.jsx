@@ -210,6 +210,9 @@ const mapDispatchToProps = (dispatch) => ({
                 "handleGainInput": (value) => {
                     dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "noise"});
                 }
+            },
+            "colorChange": (value) => {
+                dispatch({type: Actions.NOISE_COLOR_CHANGE, value});
             }
         },
         "main": {
