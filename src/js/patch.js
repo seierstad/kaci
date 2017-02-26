@@ -19,14 +19,14 @@ const patch = {
         "wrapper": {"name": "gaussian", "parameters": {mu: 0.5, sig: 0.2}},
         "mix": 0,
         "detune": 0,
-        "active": true,
+        "active": false,
         "gain": 0.7,
         "pan": 0
     },
     "noise": {
         "color": "white",
-        "active": false,
-        "gain": 0.2,
+        "active": true,
+        "gain": 0.75,
         "pan": 0
     },
     "sub": {
@@ -39,7 +39,7 @@ const patch = {
             "numerator": 16,
             "denominator": 3
         },
-        "active": true,
+        "active": false,
         "gain": 0.51,
         "pan": 0
     },

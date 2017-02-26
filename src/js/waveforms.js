@@ -112,7 +112,21 @@ const trailingZeros = (size) => {
     };
 };
 
+const sineSum = (min, max, weightFn = () => 1) => {
+    const numberOfPartials = Math.ceil(Math.log(max - min) / Math.log(2));
+    // make [weight, phaseOffset] pairs
+    const partials = (new Array(numberOfPartials).fill(0)).map((part, index) => [weightFn(index), Math.random() * DOUBLE_PI]);
+    const sumOfWeights = partials.reduce((acc, curr) => acc + curr[0], 0);
+    let phase = 0;
+
+    return () => {
+        phase += 1;
+        return partials.reduce((acc, partial, index) => (acc + Math.sin((phase * (1 << index)) + partial[1]) * partial[0]), 0) / sumOfWeights;
+    };
+};
+
 export const noise = {
+
     "white": () => (buffer) => {
         buffer.forEach((val, index, arr) => arr[index] = Math.random() * 2 - 1);
     },
@@ -141,6 +155,45 @@ export const noise = {
 
         return (buffer) => {
             buffer.forEach(pinkSum);
+        };
+    },
+
+    /*
+    "blue": (resolution = 8) => {
+        const values = new Float32Array(resolution);
+        values.forEach((v, index, arr) => arr[index] = (Math.random() * 2));
+
+        const getIndex = trailingZeros(resolution);
+
+        const blueSum = (acc, current) => acc + (acc - current);
+
+        let maxPosition = (1 << resolution) - 1;
+        let position = 1;
+
+        const blue = (v, i, output) => {
+            const index = getIndex(position);
+            values[index] = Math.random() * 2;
+
+            position = (position % maxPosition) + 1;
+
+            output[i] = values.reduce(blueSum) - 1;
+        };
+
+        return (buffer) => {
+            buffer.forEach(blue);
+        };
+    },
+    */
+
+    "geometric": (decayFactor = 0.1) => {
+        let previous = Math.random() * 2 - 1;
+        const previousFactor = 1 - decayFactor;
+
+        return (buffer) => {
+            buffer.forEach((v, i, arr) => {
+                arr[i] = previous * previousFactor + (Math.random() * 2 - 1) * decayFactor;
+                previous = arr[i];
+            });
         };
     }
 };
