@@ -36,6 +36,10 @@ class LFOs {
         return result;
     }
 
+    reset () {
+        this.lfos.forEach(lfo => lfo.reset());
+    }
+
     start () {
         this.lfos.forEach(lfo => lfo.start());
     }
