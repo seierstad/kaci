@@ -119,7 +119,7 @@ const patch = {
     }],
     "morse": [{
         "text": "kaci 0.5",
-        "frequency": 1.34,
+        "frequency": 0.34,
         "amount": 1,
         "active": true,
         "mode": "global",

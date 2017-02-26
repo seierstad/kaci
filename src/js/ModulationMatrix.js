@@ -4,6 +4,7 @@ import {MODULATION_SOURCE_TYPE, RANGE} from "./constants";
 
 import LFOs from "./LFOs";
 import StaticSources from "./static-sources";
+import MorseGenerators from "./morse-generators";
 
 
 class ModulationMatrix {
@@ -31,12 +32,14 @@ class ModulationMatrix {
         this.connect = this.connect.bind(this);
 
         this.lfos = new LFOs(context, store, this.configuration, dc);
+        this.morse = new MorseGenerators(context, store, this.configuration, dc);
 
         const flatConfig = new StaticSources(context, store, this.configuration.target, dc);
 
         this.sources = {
             static: flatConfig.nodes,
-            lfos: this.lfos.lfos
+            lfos: this.lfos.lfos,
+            morse: this.morse.generators
         };
 
 
@@ -59,10 +62,12 @@ class ModulationMatrix {
 
     startGlobalModulators () {
         this.lfos.start();
+        this.morse.start();
     }
 
     stopGlobalModulators () {
         this.lfos.stop();
+        this.morse.stop();
     }
 
     initPatch (connections, patch) {
@@ -78,21 +83,27 @@ class ModulationMatrix {
         const {amount, polarity: range, source} = connectionPatch;
         const {type, index} = source;
         let sourceNode;
-
+        let sourceArray;
 
         switch (type) {
             case MODULATION_SOURCE_TYPE.LFO:
-                switch (range) {
-                    case RANGE.FULL:
-                        sourceNode = this.sources.lfos[index];
-                        break;
-                    case RANGE.POSITIVE:
-                        sourceNode = this.sources.lfos[index].outputs.positive;
-                        break;
-                    case RANGE.NEGATIVE:
-                        sourceNode = this.sources.lfos[index].outputs.negative;
-                        break;
-                }
+                sourceArray = this.sources.lfos;
+                break;
+
+            case MODULATION_SOURCE_TYPE.MORSE:
+                sourceArray = this.sources.morse;
+                break;
+        }
+
+        switch (range) {
+            case RANGE.FULL:
+                sourceNode = sourceArray[index];
+                break;
+            case RANGE.POSITIVE:
+                sourceNode = sourceArray[index].outputs.positive;
+                break;
+            case RANGE.NEGATIVE:
+                sourceNode = sourceArray[index].outputs.negative;
                 break;
         }
 

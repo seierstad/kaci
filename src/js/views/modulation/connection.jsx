@@ -57,7 +57,7 @@ class Connection extends Component {
         const name = [type, module, parameter].join("-") + "-connection";
 
         const checked = patch.enabled || (index === -1 && noConnection);
-        const isLFO = (type === "lfo");
+        const isEnv = (type === "env");
 
         return (
             <td>
@@ -65,9 +65,9 @@ class Connection extends Component {
                 <input
                     checked={checked}
                     id={id}
-                    name={isLFO ? null : name}
+                    name={isEnv ? name : null}
                     onChange={this.handleToggle}
-                    type={isLFO ? "checkbox" : "radio"}
+                    type={isEnv ? "radio" : "checkbox"}
                 />
                 {index !== -1 ?
                     <PolaritySelector

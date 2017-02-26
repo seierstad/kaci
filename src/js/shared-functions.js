@@ -1,3 +1,5 @@
+import {MORSE_CODE} from "./constants";
+
 export const mixValues = (source1, source2, ratio) => source1 * (1 - ratio) + source2 * ratio;
 
 export const vectorToLinearFunction = (vector) => {
@@ -89,4 +91,13 @@ export const splicedArrayCopy = (arr, index, deleteCount, ...newContent) => {
     const result = [...arr];
     result.splice(index, deleteCount, ...newContent);
     return result;
+};
+
+export const morseEncode = (text) => {
+    return text.toLowerCase()
+        .replace(/ch/, "C")
+        .split("")
+        .map(char => (MORSE_CODE[char] || "").split("").join(" "))
+        .map(sequence => sequence.replace(/\./g, "1").replace(/-/g, "111"))
+        .join("   ").split("").map(p => p === "1");
 };

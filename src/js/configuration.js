@@ -45,6 +45,13 @@ export const defaultMorseParameters = {
         "numerator": 1,
         "denominator": 1
     },
+    "texts": [
+        "KACI O5",
+        "What hath God wrought?",
+        "Come at once. We have struck an iceberg",
+        "Too choosy, too hesitant, too lazy, too busy.",
+        "The secret of a happy life is to know when to stop - and then go that bit further."
+    ],
     "mode": "voice"
 };
 

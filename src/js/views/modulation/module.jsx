@@ -13,6 +13,7 @@ class ModulationTargetModule extends Component {
         "handlers": PropTypes.object,
         "lfoCount": PropTypes.number.isRequired,
         "module": PropTypes.string.isRequired,
+        "morseCount": PropTypes.number.isRequired,
         "patch": modulationTargetModuleShape
     }
 

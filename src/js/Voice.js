@@ -4,6 +4,7 @@ import PDOscillator from "./PDOscillator";
 import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
+import MorseGenerator from "./morse-generator";
 
 import OutputStage from "./output-stage";
 
@@ -35,6 +36,13 @@ class Voice {
         this.lfos = this.state.lfos.reduce((acc, lfo, index) => {
             if (lfo.mode === "voice") {
                 acc[index] = new LFO(this.context, this.store, lfo, this.dc, index);
+            }
+            return acc;
+        }, []);
+
+        this.morse = this.state.morse.reduce((acc, morse, index) => {
+            if (morse.mode === "voice") {
+                acc[index] = new MorseGenerator(this.context, this.store, morse, this.dc, index);
             }
             return acc;
         }, []);
@@ -151,6 +159,7 @@ class Voice {
     get sources () {
         return {
             "lfos": [],
+            "morse": this.morse,
             "envelopes": this.envelopes
         };
     }
@@ -218,6 +227,11 @@ class Voice {
         this.lfos.forEach(lfo => {
             lfo.disconnect();
             lfo.destroy();
+        });
+
+        this.morse.forEach(morse => {
+            morse.disconnect();
+            morse.destroy();
         });
 
         this.oscillator.destroy();

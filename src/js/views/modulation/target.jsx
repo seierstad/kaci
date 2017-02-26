@@ -12,6 +12,7 @@ class ModulationTarget extends Component {
         "handlers": PropTypes.object.isRequired,
         "lfoCount": PropTypes.number.isRequired,
         "moduleHead": PropTypes.object,
+        "morseCount": PropTypes.number.isRequired,
         "parameter": PropTypes.string.isRequired,
         "patch": modulationTargetParameterShape,
         "path": PropTypes.arrayOf(PropTypes.string).isRequired
@@ -22,9 +23,10 @@ class ModulationTarget extends Component {
     }
 
     render () {
-        const {moduleHead, patch = [], lfoCount, envCount, parameter, path, ...rest} = this.props;
+        const {moduleHead, patch = [], lfoCount, envCount, morseCount, parameter, path, ...rest} = this.props;
 
         const lfoPatch = patch.filter(p => p.source.type === "lfo").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
+        const morsePatch = patch.filter(p => p.source.type === "morse").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
         const envPatch = patch.filter(p => p.source.type === "env").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
         const noEnvelope = !envPatch.some(env => env.enabled);
 
@@ -40,6 +42,19 @@ class ModulationTarget extends Component {
                     patch={lfoPatch[i]}
                     path={[...path, parameter]}
                     type="lfo"
+                />
+            );
+        }
+
+        for (let i = 0; i < morseCount; i += 1) {
+            connections.push(
+                <Connection
+                    {...rest}
+                    index={i}
+                    key={"morse" + i}
+                    patch={morsePatch[i]}
+                    path={[...path, parameter]}
+                    type="morse"
                 />
             );
         }
