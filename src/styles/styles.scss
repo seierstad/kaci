@@ -601,3 +601,22 @@ body {
         width: 3em;
     }
 }
+
+.morse {
+    &-svg {
+        height: 3rem;
+        min-width: 10rem;
+        overflow: visible;
+        width: 100%;
+    }
+
+    &-background {
+        fill: #c0ffee;
+    }
+
+    .dit,
+    .dah {
+        stroke: #000;
+        stroke-width: 5;
+    }
+}

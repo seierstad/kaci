@@ -93,7 +93,7 @@ export const splicedArrayCopy = (arr, index, deleteCount, ...newContent) => {
     return result;
 };
 
-export const morseEncode = (text) => {
+export const morseEncode = (text = "") => {
     return text.toLowerCase()
         .replace(/ch/, "C")
         .split("")

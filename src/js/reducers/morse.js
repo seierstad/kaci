@@ -28,6 +28,12 @@ const morseGenerator = (state = {...defaultMorseParameters}, action) => {
                 "text": action.value
             };
 
+        case Actions.MORSE_SPEED_UNIT_CHANGE:
+            return {
+                ...state,
+                "speedUnit": action.value
+            };
+
         case Actions.SYNC_NUMERATOR_CHANGE:
         case Actions.SYNC_DENOMINATOR_CHANGE:
         case Actions.SYNC_TOGGLE:
@@ -49,6 +55,7 @@ const morse = (state = [], action) => {
             case Actions.MODULATOR_AMOUNT_CHANGE:
             case Actions.MODULATOR_RESET:
             case Actions.MORSE_TEXT_CHANGE:
+            case Actions.MORSE_SPEED_UNIT_CHANGE:
             case Actions.SYNC_NUMERATOR_CHANGE:
             case Actions.SYNC_DENOMINATOR_CHANGE:
             case Actions.SYNC_TOGGLE:

@@ -179,6 +179,9 @@ const mapDispatchToProps = (dispatch) => ({
             }
         },
         "morse": {
+            "speedUnitChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_SPEED_UNIT_CHANGE, module, index, value});
+            },
             "textChange": (module, index, value) => {
                 dispatch({"type": Actions.MORSE_TEXT_CHANGE, module, index, value});
             }
