@@ -6,14 +6,26 @@ import runSequence from "run-sequence";
 import gulpif from "gulp-if";
 import sourcemaps from "gulp-sourcemaps";
 import gutil from "gulp-util";
+import pump from "pump";
 
 /* scrips related libraries */
 import eslint from "gulp-eslint";
-import babel from "babelify";
+import babelify from "babelify";
 import buffer from "vinyl-buffer";
 import uglify from "gulp-uglify";
+import minifier from "gulp-uglify/minifier";
 import browserify from "browserify";
 import source from "vinyl-source-stream";
+// import bab from "gulp-babel";
+
+import rollup from "rollup-stream";
+import nodeResolve from "rollup-plugin-node-resolve";
+import commonjs from "rollup-plugin-commonjs";
+import babel from "rollup-plugin-babel";
+//import uglify from "rollup-plugin-uglify";
+import replace from "rollup-plugin-replace";
+import uglifyHarmony, {minify} from "uglify-js-harmony";
+import size from "rollup-plugin-sizes";
 
 /* styles related libraries */
 import stylelint from "gulp-stylelint";
@@ -37,8 +49,21 @@ import {dependencies} from "./package";
     shared configuration
 */
 
-const isDevelopment = true;
-const isProduction = !isDevelopment;
+process.env.NODE_ENV = process.env.NODE_ENV === "production" ? "production" : "development";
+
+gulp.task("env:production", () => {
+    return process.env.NODE_ENV = "production";
+});
+
+const isProduction = () => {
+    return process.env.NODE_ENV === "production";
+};
+
+const isDevelopment = () => {
+    return process.env.NODE_ENV === "development";
+};
+
+
 
 const REV_MANIFEST_CONFIG = {
     base: "build",
@@ -46,26 +71,22 @@ const REV_MANIFEST_CONFIG = {
     merge: true
 };
 
-gulp.task("env:production", () => {
-    return process.env.NODE_ENV = "production";
-});
-
 
 /*
     script libraries tasks
 */
 
 gulp.task("build:libs", () => {
-    let b = browserify().transform(babel);
+    let b = browserify().transform(babelify);
     Object.keys(dependencies).forEach(lib => b.require(lib));
 
     return b.bundle()
         .pipe(source("libs.js"))
         .pipe(buffer())
+        .pipe(rev())
         .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
         .pipe(gulpif(isProduction, uglify()))
-        .on("error", gutil.log)
-        .pipe(rev())
+            .on("error", gutil.log)
         .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
         .pipe(gulp.dest("build/js"))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
@@ -91,20 +112,65 @@ gulp.task("lint:scripts", () => {
         .pipe(eslint.failOnError());
 });
 
-gulp.task("build:scripts", () => {
+gulp.task("build:scripts", (cb) => {
 
-    const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babel);
+    const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babelify);
     Object.keys(dependencies).forEach(lib => b.external(lib));
 
     return b.bundle()
         .pipe(source("kaci.js"))
         .pipe(buffer())
         .pipe(rev())
-        .pipe(gulpif(isProduction, uglify()))
-        .on("error", gutil.log)
+        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
+            // Add transformation tasks to the pipeline here.
+            .pipe(gulpif(false, uglify()))
+            .on("error", gutil.log)
+        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
         .pipe(gulp.dest("build/js"))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
         .pipe(gulp.dest("build"));
+});
+
+gulp.task("rollup:scripts", (cb) => {
+    console.log("env: ", process.env.NODE_ENV);
+    return rollup({
+        entry: "src/js/kaci.jsx",
+        external: Object.keys(dependencies),
+        format: "cjs",
+        sourceMap: isDevelopment(),
+        plugins: [
+            replace({
+                "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
+            }),
+            babel({
+                "exclude": "node_modules/**"
+            }),
+            size()
+        ]
+    })
+
+    // point to the entry file.
+    .pipe(source("kaci.js"))
+
+    // buffer the output. most gulp plugins, including gulp-sourcemaps, don't support streams.
+    .pipe(buffer())
+    .pipe(rev())
+    .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
+        .pipe(minifier({
+            "compress": {
+                "screw_ie8": true,
+                "warnings": true
+            },
+            "output": {
+                "comments": false
+            },
+            "sourceMap": isDevelopment()
+        }, uglifyHarmony))
+        // Add transformation tasks to the pipeline here.
+    .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
+    .pipe(gulp.dest("build/js"))
+    .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+    .pipe(gulp.dest("build"));
 
 });
 
@@ -112,7 +178,7 @@ gulp.task("build:scripts", () => {
 gulp.task("update:scripts", () => {
     return runSequence(
         "lint:scripts",
-        "build:scripts",
+        "rollup:scripts",
         "build:markup"
     );
 });
@@ -223,6 +289,8 @@ gulp.task("watch", ["watch:scripts", "watch:styles"]);
 */
 
 gulp.task("default", () => {
-    runSequence("build:libs", "lint:scripts", "build:scripts", "build:styles", "build:markup", "server", "watch");
+    runSequence("build:libs", "lint:scripts", "rollup:scripts", "build:styles", "build:markup", "server", "watch");
 });
-
+gulp.task("prod", ["env:production"], () => {
+    runSequence("default");
+});
