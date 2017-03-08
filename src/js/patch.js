@@ -19,13 +19,13 @@ const patch = {
         "wrapper": {"name": "gaussian", "parameters": {mu: 0.5, sig: 0.2}},
         "mix": 0,
         "detune": 0,
-        "active": false,
+        "active": true,
         "gain": 0.7,
         "pan": 0
     },
     "noise": {
         "color": "white",
-        "active": true,
+        "active": false,
         "gain": 0.75,
         "pan": 0
     },
@@ -65,7 +65,7 @@ const patch = {
             "denominator": 1,
             "master": 0
         },
-        "mode": "global"
+        "mode": "voice"
     }, {
         "waveform": "square",
         "frequency": 1.34,
@@ -97,7 +97,7 @@ const patch = {
             ],
             "duration": 0.2
         },
-        "mode": "voice"
+        "mode": "global"
     }, {
         "attack": {
             "steps": [
@@ -115,11 +115,15 @@ const patch = {
             ],
             "duration": 0.1
         },
-        "mode": "voice"
+        "mode": "global"
     }],
     "morse": [{
         "text": "kaci 0.5",
-        "frequency": 0.34,
+        "frequency": 0.14,
+        "speedUnit": 24,
+        "shift": 6,
+        "padding": 8,
+        "fillToFit": false,
         "amount": 1,
         "active": true,
         "mode": "global",
@@ -145,11 +149,20 @@ const patch = {
         "oscillator": {
             "resonance": [{
                 "amount": 0.5,
-                "polarity": "negative",
+                "polarity": "positive",
+                "enabled": true,
+                "source": {
+                    "type": "morse",
+                    "index": 0
+                }
+            }],
+            "gain": [{
+                "amount": 0.5,
+                "polarity": "positive",
                 "enabled": true,
                 "source": {
                     "type": "lfo",
-                    "index": 0
+                    "index": 1
                 }
             }]
         }

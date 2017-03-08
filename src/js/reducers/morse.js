@@ -34,6 +34,24 @@ const morseGenerator = (state = {...defaultMorseParameters}, action) => {
                 "speedUnit": action.value
             };
 
+        case Actions.MORSE_PADDING_CHANGE:
+            return {
+                ...state,
+                "padding": action.value
+            };
+
+        case Actions.MORSE_FILL_TOGGLE:
+            return {
+                ...state,
+                "fillToFit": !state.fillToFit
+            };
+
+        case Actions.MORSE_SHIFT_CHANGE:
+            return {
+                ...state,
+                "shift": action.value
+            };
+
         case Actions.SYNC_NUMERATOR_CHANGE:
         case Actions.SYNC_DENOMINATOR_CHANGE:
         case Actions.SYNC_TOGGLE:
@@ -56,6 +74,9 @@ const morse = (state = [], action) => {
             case Actions.MODULATOR_RESET:
             case Actions.MORSE_TEXT_CHANGE:
             case Actions.MORSE_SPEED_UNIT_CHANGE:
+            case Actions.MORSE_PADDING_CHANGE:
+            case Actions.MORSE_FILL_TOGGLE:
+            case Actions.MORSE_SHIFT_CHANGE:
             case Actions.SYNC_NUMERATOR_CHANGE:
             case Actions.SYNC_DENOMINATOR_CHANGE:
             case Actions.SYNC_TOGGLE:

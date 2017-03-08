@@ -101,3 +101,56 @@ export const morseEncode = (text = "") => {
         .map(sequence => sequence.replace(/\./g, "1").replace(/-/g, "111"))
         .join("   ").split("").map(p => p === "1");
 };
+
+export const padPattern = (pattern, padding = 0) => {
+    if (padding === 0) {
+        return pattern;
+    }
+    if (padding < 0) {
+        return pattern.slice(0, pattern.length + padding - 1);
+    }
+
+    const pad = new Array(padding);
+    pad.fill(false);
+    return [...pattern, ...pad];
+};
+
+export const shiftPattern = (pattern, shift = 0) => {
+    if (shift === 0) {
+        return pattern;
+    }
+    return [
+        ...pattern.slice(-shift),
+        ...pattern.slice(0, -shift)
+    ];
+};
+
+export const factors = (number, min = 2) => {
+    const half = number / 2;
+
+    for (let i = min; i < half; i += 1) {
+        if (number % i === 0) {
+            return [i, ...factors(number / i, i)];
+        }
+    }
+
+    return [number];
+};
+
+export const divisors = (number, limit) => {
+    const sqr = Math.sqrt(number);
+    const result = [];
+
+    for (let i = 1; i < sqr; i += 1) {
+        if (number % i === 0) {
+            result.push(i);
+            result.push(number / i);
+        }
+    }
+
+    if ((sqr | 0) === sqr) {
+        result.push(sqr);
+    }
+
+    return result;
+};

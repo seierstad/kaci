@@ -49,7 +49,9 @@ class Voice {
 
         this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(context, store, index));
         this.connections = {
-            envelopes: {}
+            envelopes: {},
+            lfos: {},
+            morse: {}
         }; // values set in ModulationMatrix.patchVoice
 
         this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
@@ -158,7 +160,7 @@ class Voice {
 
     get sources () {
         return {
-            "lfos": [],
+            "lfos": this.lfos,
             "morse": this.morse,
             "envelopes": this.envelopes
         };
@@ -182,6 +184,10 @@ class Voice {
 
         this.lfos.forEach(lfo => {
             lfo.start();
+        });
+
+        this.morse.forEach(morse => {
+            morse.start();
         });
 
         this.envelopes.forEach(envelope => envelope.trigger(time));
@@ -225,11 +231,13 @@ class Voice {
         });
 
         this.lfos.forEach(lfo => {
+            lfo.stop();
             lfo.disconnect();
             lfo.destroy();
         });
 
         this.morse.forEach(morse => {
+            morse.stop();
             morse.disconnect();
             morse.destroy();
         });

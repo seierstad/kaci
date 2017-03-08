@@ -619,4 +619,10 @@ body {
         stroke: #000;
         stroke-width: 5;
     }
+
+    .guide {
+        stroke: #f00;
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+    }
 }

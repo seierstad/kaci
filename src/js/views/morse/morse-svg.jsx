@@ -5,11 +5,12 @@ class MorseSvg extends Component {
 
     static propTypes = {
         "data": PropTypes.arrayOf(PropTypes.bool).isRequired,
+        "guides": PropTypes.arrayOf(PropTypes.number),
         "wrap": PropTypes.number
     }
 
     render () {
-        const {data, wrap, strokeWidth = 6} = this.props;
+        const {data, wrap, strokeWidth = 6, guides = [3, 4]} = this.props;
         const {length} = data;
         const width = wrap ? wrap : length;
         const height = wrap ? Math.ceil(length / wrap) : 1;
@@ -72,6 +73,16 @@ class MorseSvg extends Component {
         const wrapRest = length % wrap;
         const backgroundBottom = (!wrap || wrapRest === 0) ? ["h", width * strokeWidth] : ["h", wrapRest * strokeWidth, "v", -strokeWidth, "h", (width - wrapRest) * strokeWidth];
 
+        const guideHeight = strokeWidth * (height + 2);
+        const guidePaths = guides.map(guide => {
+            const d = [];
+            for (let i = 1; i < guide; i += 1) {
+                d.push(...["M", (i * width / guide) * strokeWidth, -strokeWidth, "v", guideHeight]);
+            }
+
+            return <path className="guide" d={d.join(" ")} key={guide} />;
+        });
+
         return (
             <svg
                 className="morse-svg"
@@ -94,6 +105,7 @@ class MorseSvg extends Component {
                 </defs>
                 <path className="morse-background" d={["M", width * strokeWidth, 0, "h", -width * strokeWidth, "v", height * strokeWidth, ...backgroundBottom, "z"].join(" ")} />
                 {paths}
+                {guidePaths}
             </svg>
         );
     }

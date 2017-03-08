@@ -64,16 +64,9 @@ class Periodic {
         this.postGain.gain.setValueAtTime((active ? 1 : 0), this.context.currentTime);
     }
 
-    set amount (...params) {
-        const [value, time = this.context.currentTime] = params;
-        let delay = 0;
-
-        this.postGain.gain.setValueAtTime(value, time);
-
-        if (time) {
-            delay = Math.max(time - this.context.currentTime, 0);
-        }
-        setTimeout(this.updateOutputRanges(value), delay);
+    set amount (value) {
+        this.postGain.gain.setValueAtTime(value, this.context.currentTime);
+        setTimeout(this.updateOutputRanges(value), 1);
     }
 
     set sync ({numerator, denominator}) {

@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react";
 
-import {morseGeneratorsPatchShape, modulationMorseSourcesConfigShape} from "../../propdefs";
+import {morseGeneratorsPatchShape, modulationMorseSourcesConfigShape, morseGeneratorViewStateShape} from "../../propdefs";
 import MorseGenerator from "./morse-generator.jsx";
 
 class MorseGenerators extends Component {
@@ -8,15 +8,17 @@ class MorseGenerators extends Component {
     static propTypes = {
         "configuration": modulationMorseSourcesConfigShape.isRequired,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
-        "patch": morseGeneratorsPatchShape.isRequired
+        "patch": morseGeneratorsPatchShape.isRequired,
+        "viewState": PropTypes.arrayOf(morseGeneratorViewStateShape)
     }
 
     shouldComponentUpdate (nextProps) {
-        return this.props.patch !== nextProps.patch;
+        return this.props.patch !== nextProps.patch
+                || this.props.viewState !== nextProps.viewState;
     }
 
     render () {
-        const {patch, configuration, handlers, syncHandlers} = this.props;
+        const {patch, configuration, handlers, syncHandlers, viewState = []} = this.props;
         let generators = [];
 
         for (let i = 0; i < configuration.count; i += 1) {
@@ -29,6 +31,7 @@ class MorseGenerators extends Component {
                     key={i}
                     patch={patch[i] || configuration["default"]}
                     syncHandlers={handlers.sync}
+                    viewState={viewState[i]}
                 />
             );
         }

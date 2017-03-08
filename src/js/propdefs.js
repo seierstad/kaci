@@ -174,10 +174,18 @@ export const lfosPatchShape = PropTypes.arrayOf(lfoPatchShape);
 export const morseGeneratorPatchShape = PropTypes.shape({
     ...modulatorPatchProperties,
     ...periodicPatchProperties,
-    "text": PropTypes.string.isRequired
+    "text": PropTypes.string.isRequired,
+    "speedUnit": PropTypes.number,
+    "shift": PropTypes.number,
+    "padding": PropTypes.number,
+    "fillToFit": PropTypes.bool
 });
 
 export const morseGeneratorsPatchShape = PropTypes.arrayOf(morseGeneratorPatchShape);
+
+export const morseGeneratorViewStateShape = PropTypes.shape({
+    "guides": PropTypes.arrayOf(PropTypes.number)
+});
 
 const envelopePointShape = (props, propName, componentName) => {
     const prop = props[propName];
@@ -235,7 +243,11 @@ export const modulationEnvelopeSourcesShape = PropTypes.shape({
 });
 
 export const viewStateShape = PropTypes.shape({
-
+    "envelopes": PropTypes.arrayOf(sustainEnvelopeViewStateShape),
+    "oscillator": PropTypes.shape({
+        "pd": PropTypes.arrayOf(PropTypes.array)
+    }),
+    "morse": PropTypes.arrayOf(morseGeneratorViewStateShape)
 });
 
 export const syncConfigShape = PropTypes.shape({

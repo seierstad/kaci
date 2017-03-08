@@ -25,7 +25,8 @@ class PatchPresentation extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return (nextProps.patch !== this.props.patch);
+        return nextProps.patch !== this.props.patch
+                || nextProps.viewState !== this.props.viewState;
     }
 
     render () {
@@ -71,6 +72,7 @@ class PatchPresentation extends Component {
                     configuration={source.morse}
                     handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.morse}}
                     patch={patch.morse}
+                    viewState={viewState.morse}
                 />
                 <ModulationMatrix
                     configuration={configuration.modulation}
@@ -182,8 +184,20 @@ const mapDispatchToProps = (dispatch) => ({
             "speedUnitChange": (module, index, value) => {
                 dispatch({"type": Actions.MORSE_SPEED_UNIT_CHANGE, module, index, value});
             },
+            "paddingChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_PADDING_CHANGE, module, index, value});
+            },
+            "shiftChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_SHIFT_CHANGE, module, index, value});
+            },
+            "toggleFillToFit": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_FILL_TOGGLE, module, index, value});
+            },
             "textChange": (module, index, value) => {
                 dispatch({"type": Actions.MORSE_TEXT_CHANGE, module, index, value});
+            },
+            "toggleGuide": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_GUIDE_TOGGLE, module, index, value});
             }
         },
         "periodic": {
