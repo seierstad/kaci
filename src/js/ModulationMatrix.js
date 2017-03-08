@@ -95,23 +95,25 @@ class ModulationMatrix {
                 break;
         }
 
-        switch (range) {
-            case RANGE.FULL:
-                sourceNode = sourceArray[index];
-                break;
-            case RANGE.POSITIVE:
-                sourceNode = sourceArray[index].outputs.positive;
-                break;
-            case RANGE.NEGATIVE:
-                sourceNode = sourceArray[index].outputs.negative;
-                break;
+        if (sourceArray[index]) {
+            switch (range) {
+                case RANGE.FULL:
+                    sourceNode = sourceArray[index];
+                    break;
+                case RANGE.POSITIVE:
+                    sourceNode = sourceArray[index].outputs.positive;
+                    break;
+                case RANGE.NEGATIVE:
+                    sourceNode = sourceArray[index].outputs.negative;
+                    break;
+            }
+
+            connections[index] = this.context.createGain();
+            connections[index].gain.value = amount;
+
+            sourceNode.connect(connections[index]);
+            connections[index].connect(target);
         }
-
-        connections[index] = this.context.createGain();
-        connections[index].gain.value = amount;
-
-        sourceNode.connect(connections[index]);
-        connections[index].connect(target);
     }
 
     connectType (connections, typeName, typePatch, target) {
@@ -255,20 +257,24 @@ class ModulationMatrix {
     patchVoice (voice) {
 
         const voiceSources = voice.sources;
-        const {lfos, envelopes} = voiceSources;
+        const {lfos, envelopes, morse} = voiceSources;
 
         const voiceTargets = voice.targets;
 
         const envelopeConnections = {};
+        const lfoConnections = {};
+        const morseConnections = {};
 
         for (let key in voiceTargets) {
             if (this.targets[key]) {
                 this.targets[key].connect(voiceTargets[key]);
             }
 
+
             const [moduleName, parameterName] = key.split(".");
             const {[moduleName]: module = {}} = this.patch;
             const {[parameterName]: parameter = []} = module;
+
             const parameterEnvelopes = parameter.filter(p => {
                 return (
                     p.enabled
@@ -276,27 +282,40 @@ class ModulationMatrix {
                     && envelopes[p.source.index]
                 );
             });
-
             parameterEnvelopes.forEach(p => {
                 envelopes[p.source.index].connect(voiceTargets[key].gain);
                 envelopeConnections[key] = envelopes[p.source.index];
             });
 
-        }
-        voice.envelopeConnections = envelopeConnections;
+            const parameterLfos = parameter.filter(p => {
+                return (
+                    p.enabled
+                    && p.source.type === MODULATION_SOURCE_TYPE.LFO
+                    && lfos[p.source.index]
+                );
+            });
+            parameterLfos.forEach(p => {
+                lfos[p.source.index].connect(voiceTargets[key]);
+                lfoConnections[key] = lfos[p.source.index];
+            });
 
-        /*
-        for (i = 0, j = patch.modulation.envelopes.length; i < j; i += 1) {
-            if (localModulators.envelope[i]) {
-                envelopePatch = patch.modulation.envelopes[i];
-                for (key in envelopePatch) {
-                    if (localTargets[key]) {
-                        localModulators.envelopes[i].connect(localTargets[key]);
-                    }
-                }
-            }
+            const parameterMorse = parameter.filter(p => {
+                return (
+                    p.enabled
+                    && p.source.type === MODULATION_SOURCE_TYPE.MORSE
+                    && morse[p.source.index]
+                );
+            });
+            parameterMorse.forEach(p => {
+                morse[p.source.index].connect(voiceTargets[key]);
+                morseConnections[key] = morse[p.source.index];
+            });
         }
-        */
+
+
+        voice.envelopeConnections = envelopeConnections;
+        voice.lfoConnections = lfoConnections;
+        voice.morseConnections = morseConnections;
     }
 
     /*
