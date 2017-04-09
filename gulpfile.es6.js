@@ -289,8 +289,13 @@ gulp.task("watch", ["watch:scripts", "watch:styles"]);
 */
 
 gulp.task("default", () => {
-    runSequence("build:libs", "lint:scripts", "rollup:scripts", "build:styles", "build:markup", "server", "watch");
+    runSequence("build:libs", "lint:scripts", "rollup:scripts", "build:styles", "build:markup");
 });
+
+gulp.task("dev", () => {
+    runSequence("default", "server", "watch");
+});
+
 gulp.task("prod", ["env:production"], () => {
     runSequence("default");
 });
