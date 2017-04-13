@@ -54,9 +54,15 @@ import browsers from "./build-target-configuration";
 
 process.env.NODE_ENV = process.env.NODE_ENV === "production" ? "production" : "development";
 
+gulp.task("env:development", (cb) => {
+    process.env.NODE_ENV = "development";
+    cb();
+});
+
+
 gulp.task("env:production", (cb) => {
     process.env.NODE_ENV = "production";
-    return cb;
+    cb();
 });
 
 const isProduction = () => {
@@ -127,7 +133,7 @@ gulp.task("lint:scripts", ["create:target:report:lint"], () => {
         .pipe(eslint.failOnError());
 });
 
-gulp.task("rollup:scripts", (cb) => {
+gulp.task("build:scripts", (cb) => {
     console.log("env: ", process.env.NODE_ENV);
     return rollup({
         entry: "src/js/kaci.jsx",
@@ -170,11 +176,12 @@ gulp.task("rollup:scripts", (cb) => {
 });
 
 
-gulp.task("update:scripts", () => {
-    return runSequence(
+gulp.task("update:scripts", (cb) => {
+    runSequence(
         "lint:scripts",
-        "rollup:scripts",
-        "build:markup"
+        "build:scripts",
+        "markup",
+        cb
     );
 });
 
@@ -223,11 +230,12 @@ gulp.task("build:styles", function () {
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
-gulp.task("update:styles", () => {
-    return runSequence(
+gulp.task("update:styles", (cb) => {
+    runSequence(
         "lint:styles",
         "build:styles",
-        "build:markup"
+        "markup",
+        cb
     );
 });
 
@@ -285,20 +293,37 @@ gulp.task("server", function () {
     collection tasks
 */
 
+gulp.task("libs", (cb) => {
+    runSequence("build:libs", cb);
+});
+
+gulp.task("scripts", (cb) => {
+    runSequence("lint:scripts", "build:scripts", cb);
+});
+
+gulp.task("styles", (cb) => {
+    runSequence("lint:styles", "build:styles", cb);
+});
+
+gulp.task("markup", (cb) => {
+    runSequence("build:markup", cb);
+});
+
+
 gulp.task("watch", ["watch:scripts", "watch:styles"]);
 
 /*
     command line/deployment tasks
 */
 
-gulp.task("default", () => {
-    return runSequence("build:libs", "lint:scripts", "rollup:scripts", "lint:styles", "build:styles", "build:markup");
+gulp.task("default", ["libs", "scripts", "styles"], (cb) => {
+    runSequence("markup", cb);
 });
 
-gulp.task("dev", () => {
-    return runSequence("default", "server", "watch");
+gulp.task("dev", ["env:development"], (cb) => {
+    runSequence("default", "server", "watch", cb);
 });
 
-gulp.task("prod", ["env:production"], () => {
-    return runSequence("default");
+gulp.task("prod", ["env:production"], (cb) => {
+    runSequence("default", cb);
 });
