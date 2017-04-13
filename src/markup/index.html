@@ -3,7 +3,22 @@
     <head>
         <meta charset="utf-8" />
         <title>Kaci-O5 - Phase distortion synthesizer</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#aff">
         <link rel="stylesheet" href="css/styles.css" />
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", function() {
+                    navigator.serviceWorker.register("kaci-worker.js").then(function(registration) {
+                        // Registration was successful
+                        console.log("ServiceWorker registration successful with scope: ", registration.scope);
+                    }).catch(function(err) {
+                        // registration failed :(
+                        console.log("ServiceWorker registration failed: ", err);
+                    });
+                });
+            }
+        </script>
     </head>
     <body>
         <noscript>
