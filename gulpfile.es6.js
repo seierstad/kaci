@@ -1,6 +1,7 @@
 /* general libraries */
 import fs from "fs";
-import mkdirp from "mkdirp";
+import del from "del";
+import mkdirp from "mkdirp-promise";
 import gulp from "gulp";
 import runSequence from "run-sequence";
 import gulpif from "gulp-if";
@@ -44,6 +45,8 @@ import connect from "gulp-connect";
 /* script library configuration */
 import {dependencies} from "./package";
 
+/* build target configuration */
+import browsers from "./build-target-configuration";
 
 /*
     shared configuration
@@ -51,8 +54,9 @@ import {dependencies} from "./package";
 
 process.env.NODE_ENV = process.env.NODE_ENV === "production" ? "production" : "development";
 
-gulp.task("env:production", () => {
-    return process.env.NODE_ENV = "production";
+gulp.task("env:production", (cb) => {
+    process.env.NODE_ENV = "production";
+    return cb;
 });
 
 const isProduction = () => {
@@ -63,11 +67,19 @@ const isDevelopment = () => {
     return process.env.NODE_ENV === "development";
 };
 
+const TARGET_DIR = {
+    ROOT: "./build",
+    CSS: "./build/css",
+    SCRIPT: "./build/js",
+    LINT: "./reports/lint",
+    TEST: "./reports/test"
+};
+
 
 
 const REV_MANIFEST_CONFIG = {
-    base: "build",
-    path: "build/rev-manifest.json",
+    base: TARGET_DIR.ROOT,
+    path: TARGET_DIR.ROOT + "/rev-manifest.json",
     merge: true
 };
 
@@ -88,11 +100,18 @@ gulp.task("build:libs", () => {
         .pipe(gulpif(isProduction, uglify()))
             .on("error", gutil.log)
         .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
-        .pipe(gulp.dest("build/js"))
+        .pipe(gulp.dest(TARGET_DIR.SCRIPT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-        .pipe(gulp.dest("build"));
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
+gulp.task("create:target:report:lint", () => {
+    return mkdirp(TARGET_DIR.LINT);
+});
+
+gulp.task("create:target:report:test", () => {
+    return mkdirp(TARGET_DIR.TEST);
+});
 
 /*
     scripts tasks
@@ -100,35 +119,12 @@ gulp.task("build:libs", () => {
 
 const scriptSources = ["gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
 
-gulp.task("lint:scripts", () => {
-    // ensure target directory exists
-    mkdirp("./reports");
-    mkdirp("./reports/lint");
-
+gulp.task("lint:scripts", ["create:target:report:lint"], () => {
     return gulp.src(scriptSources)
         .pipe(eslint())
-        .pipe(eslint.format("checkstyle", fs.createWriteStream("reports/lint/checkstyle-eslint.xml")))
+        .pipe(eslint.format("checkstyle", fs.createWriteStream(TARGET_DIR.LINT + "/checkstyle-eslint.xml")))
         .pipe(eslint.format("stylish", process.stdout))
         .pipe(eslint.failOnError());
-});
-
-gulp.task("build:scripts", (cb) => {
-
-    const b = browserify("src/js/kaci.jsx", {debug: isDevelopment}).transform(babelify);
-    Object.keys(dependencies).forEach(lib => b.external(lib));
-
-    return b.bundle()
-        .pipe(source("kaci.js"))
-        .pipe(buffer())
-        .pipe(rev())
-        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
-            // Add transformation tasks to the pipeline here.
-            .pipe(gulpif(false, uglify()))
-            .on("error", gutil.log)
-        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
-        .pipe(gulp.dest("build/js"))
-        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-        .pipe(gulp.dest("build"));
 });
 
 gulp.task("rollup:scripts", (cb) => {
@@ -156,21 +152,20 @@ gulp.task("rollup:scripts", (cb) => {
     .pipe(buffer())
     .pipe(rev())
     .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
-        .pipe(minifier({
-            "compress": {
-                "screw_ie8": true,
-                "warnings": true
-            },
-            "output": {
-                "comments": false
-            },
-            "sourceMap": isDevelopment()
-        }, uglifyHarmony))
-        // Add transformation tasks to the pipeline here.
+    .pipe(gulpif(isProduction, minifier({
+        "compress": {
+            "screw_ie8": true,
+            "warnings": true
+        },
+        "output": {
+            "comments": false
+        },
+        "sourceMap": isDevelopment()
+    }, uglifyHarmony)))
     .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
-    .pipe(gulp.dest("build/js"))
+    .pipe(gulp.dest(TARGET_DIR.SCRIPT))
     .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-    .pipe(gulp.dest("build"));
+    .pipe(gulp.dest(TARGET_DIR.ROOT));
 
 });
 
@@ -195,16 +190,13 @@ gulp.task("watch:scripts", () => {
 
 const styleSources = ["./src/styles/*.scss"];
 
-gulp.task("lint:styles", () => {
-    // ensure target directory exists
-    mkdirp("./reports");
-    mkdirp("./reports/lint");
+gulp.task("lint:styles", ["create:target:report:lint"], () => {
 
     return gulp.src(styleSources)
         .pipe(stylelint({
             syntax: "scss",
             failAfterError: true,
-            reportOutputDir: "reports/lint",
+            reportOutputDir: TARGET_DIR.LINT,
             reporters: [
                 {formatter: "verbose", console: true},
                 {formatter: stylelintCheckstyleFormatter, save: "checkstyle-stylelint.xml"}
@@ -214,17 +206,21 @@ gulp.task("lint:styles", () => {
 
 gulp.task("build:styles", function () {
     return gulp.src(styleSources)
-        .pipe(sourcemaps.init())
+        .pipe(buffer())
+        .pipe(gulpif(isDevelopment, sourcemaps.init()))
         .pipe(sass({
             style: "expanded",
             errLogToConsole: true
         }))
         .pipe(autoprefixer({
-            browsers: ["last 2 versions"],
+            browsers: browsers,
             cascade: false
         }))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest("./build/css"));
+        .pipe(rev())
+        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
+        .pipe(gulp.dest(TARGET_DIR.CSS))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
 gulp.task("update:styles", () => {
@@ -256,10 +252,17 @@ gulp.task("lint:markup", () => {
 gulp.task("build:markup", () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
-    gulp.src(["src/markup/index.html"])
+    return gulp.src(["src/markup/index.html"])
         .pipe(revReplace({manifest: revManifest}))
-        .pipe(gulp.dest("build"))
+        .pipe(gulp.dest(TARGET_DIR.ROOT))
         .pipe(connect.reload());
+});
+
+
+/* clean task */
+
+gulp.task("clean", () => {
+    return del(["build", "reports"]);
 });
 
 
@@ -272,7 +275,7 @@ gulp.task("build:markup", () => {
 gulp.task("server", function () {
     return connect.server({
         livereload: true,
-        root: ["build"],
+        root: [TARGET_DIR.ROOT],
         debug: true
     });
 });
@@ -289,13 +292,13 @@ gulp.task("watch", ["watch:scripts", "watch:styles"]);
 */
 
 gulp.task("default", () => {
-    runSequence("build:libs", "lint:scripts", "rollup:scripts", "build:styles", "build:markup");
+    return runSequence("build:libs", "lint:scripts", "rollup:scripts", "lint:styles", "build:styles", "build:markup");
 });
 
 gulp.task("dev", () => {
-    runSequence("default", "server", "watch");
+    return runSequence("default", "server", "watch");
 });
 
 gulp.task("prod", ["env:production"], () => {
-    runSequence("default");
+    return runSequence("default");
 });

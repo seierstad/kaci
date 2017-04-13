@@ -1,0 +1,19 @@
+{
+	"attr-no-dup": true,
+	"class-no-dup": true,
+	"doctype-first": true,
+	"doctype-html5": true,
+	"head-req-title": true,
+	"html-req-lang": true,
+	"id-class-style": "dash",
+	"id-no-dup": true,
+	"img-req-alt": "allownull",
+	"indent-style": "spaces",
+	"indent-width": 4,
+	"label-req-for": true,
+	"line-end-style": "lf",
+	"tag-close": true,
+	"tag-name-lowercase": true,
+	"tag-name-match": true,
+	"tag-self-close": "always"
+}

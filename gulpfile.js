@@ -4,7 +4,7 @@
 
 /* eslint-disable import/no-commonjs */
 require("babel-register")({
-    "only": /gulpfile\.es6\.js/,
+    "only": [/gulpfile\.es6\.js/, "build-target-configuration.js"],
     "presets": [
         "es2015"
     ]
