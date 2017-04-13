@@ -5,6 +5,7 @@ $padding-section-bottom: 0.5rem;
 $padding-section-sides: 1rem;
 $keyboard-section-height: 20vh;
 
+$bg-color: #aff;
 $scope-color: #ff0;
 
 $envelope-circle-radius: 10;
@@ -41,7 +42,7 @@ $waveform-selector-phase-indicator-color: #fff;
 }
 
 body {
-    background-color: #aff;
+    background-color: $bg-color;
 }
 
 button {

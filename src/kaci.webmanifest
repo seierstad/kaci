@@ -1,0 +1,27 @@
+{
+    "name": "Kaci 05",
+    "short_name": "Kaci",
+    "description": "a phase distortion synthesizer",
+    "icons": [{
+        "src": "images/icon.svg",
+        "type": "image/svg",
+        "sizes": "72x72 192x192"
+    }, {
+        "src": "images/icon-1x.png",
+        "type": "image/png",
+        "sizes": "48x48"
+    }, {
+        "src": "images/icon-2x.png",
+        "type": "image/png",
+        "sizes": "96x96"
+    }, {
+        "src": "images/icon-4x.png",
+        "type": "image/png",
+        "sizes": "192x192"
+    }],
+    "start_url": "index.html",
+    "theme_color": "#aff",
+    "background_color": "#aff",
+    "display": "standalone",
+    "orientation": "any"
+}

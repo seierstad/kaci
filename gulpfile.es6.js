@@ -255,9 +255,18 @@ gulp.task("lint:markup", () => {
     .pipe(htmllint());
 });
 
+gulp.task("build:manifest", () => {
+    return gulp.src(["./src/kaci.webmanifest"])
+        .pipe(rev())
+        .pipe(gulp.dest(TARGET_DIR.ROOT))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
+});
+
+
 
 // Generate build index.html
-gulp.task("build:markup", () => {
+gulp.task("build:markup", ["build:manifest"], () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src(["src/markup/index.html"])
