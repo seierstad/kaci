@@ -259,10 +259,17 @@ gulp.task("watch:styles", () => {
     images tasks
 */
 const iconSizes = [
+    [16, 16],
+    [32, 32],
     [48, 48],
+    [64, 64],
     [72, 72],
     [96, 96],
-    [192, 192]
+    [144, 144],
+    [152, 152],
+    [180, 180],
+    [192, 192],
+    [196, 196]
 ];
 
 gulp.task("icons", () => {
@@ -325,7 +332,10 @@ gulp.task("build:manifest", () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src(["./src/kaci.webmanifest"])
-        .pipe(revReplace({manifest: revManifest}))
+        .pipe(revReplace({
+            manifest: revManifest,
+            replaceInExtensions: [".webmanifest"]
+        }))
         .pipe(rev())
         .pipe(gulp.dest(TARGET_DIR.ROOT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
@@ -399,7 +409,7 @@ gulp.task("watch", ["watch:scripts", "watch:styles"]);
     command line/deployment tasks
 */
 
-gulp.task("default", ["libs", "scripts", "styles"], (cb) => {
+gulp.task("default", ["libs", "scripts", "images", "styles"], (cb) => {
     runSequence("markup", cb);
 });
 

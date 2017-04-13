@@ -4,7 +4,7 @@
     "description": "a phase distortion synthesizer",
     "icons": [{
         "src": "images/icon.svg",
-        "type": "image/svg",
+        "type": "image/svg+xml",
         "sizes": "48x48 72x72 96x96 192x192"
     }, {
         "src": "images/icon-48x48.png",
