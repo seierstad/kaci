@@ -319,8 +319,19 @@ gulp.task("build:svg", () => {
 });
 
 /*
-    markup tasks
+    service worker tasks
+*/
 
+gulp.task("build:serviceworker", () => {
+    const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
+
+    return gulp.src("src/js/service-worker.js")
+        .pipe(revReplace({manifest: revManifest}))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
+});
+
+/*
+    markup tasks
 */
 
 gulp.task("lint:markup", () => {
@@ -345,7 +356,7 @@ gulp.task("build:manifest", () => {
 
 
 // Generate build index.html
-gulp.task("build:markup", ["build:manifest"], () => {
+gulp.task("build:markup", ["build:manifest", "build:serviceworker"], () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src(["src/markup/index.html"])
