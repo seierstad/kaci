@@ -8,6 +8,10 @@ import gulpif from "gulp-if";
 import sourcemaps from "gulp-sourcemaps";
 import gutil from "gulp-util";
 import pump from "pump";
+import rename from "gulp-rename";
+import flatmap from "gulp-flatmap";
+import es from "event-stream";
+import clone from "gulp-clone";
 
 /* scrips related libraries */
 import eslint from "gulp-eslint";
@@ -33,6 +37,11 @@ import stylelint from "gulp-stylelint";
 import stylelintCheckstyleFormatter from "stylelint-checkstyle-formatter";
 import sass from "gulp-sass";
 import autoprefixer from "gulp-autoprefixer";
+
+/* images related libraries */
+import svgmin from "gulp-svgmin";
+import svg2png from "gulp-svg2png";
+import optimizeImage from "gulp-image";
 
 /* markup related libraries */
 import rev from "gulp-rev";
@@ -77,6 +86,7 @@ const TARGET_DIR = {
     ROOT: "./build",
     CSS: "./build/css",
     SCRIPT: "./build/js",
+    IMAGES: "./build/images",
     LINT: "./reports/lint",
     TEST: "./reports/test"
 };
@@ -246,6 +256,62 @@ gulp.task("watch:styles", () => {
 
 
 /*
+    images tasks
+*/
+const iconSizes = [
+    [48, 48],
+    [72, 72],
+    [96, 96],
+    [192, 192]
+];
+
+gulp.task("icons", () => {
+    return gulp.src("src/images/icon.svg")
+        .pipe(svgmin({
+            plugins: [{
+                cleanupNumericValues: {
+                    floatPrecision: 2
+                }
+            }, {
+                convertColors: {
+                    rgb2hex: false,
+                    shortNames: false
+                }
+            }]
+        }))
+        .pipe(flatmap((stream, file) => {
+            const streams = iconSizes.map(([width, height]) => {
+                return stream.pipe(clone())
+                    .pipe(svg2png({width, height}))
+                    .pipe(rename({suffix: "-" + width + "x" + height}));
+            });
+
+            return es.merge(...streams, stream);
+        }))
+        .pipe(optimizeImage())
+        .pipe(rev())
+        .pipe(gulp.dest(TARGET_DIR.IMAGES))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
+});
+
+gulp.task("build:svg", () => {
+    return gulp.src("src/images/**")
+        .pipe(svgmin({
+            plugins: [{
+                convertColors: {
+                    currentColor: "#70a6c9"
+                }
+            }]
+        }))
+        .pipe(rename({basename: "logo"}))
+        .pipe(rev())
+        .pipe(gulp.dest(TARGET_DIR.IMAGES))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
+});
+
+/*
     markup tasks
 
 */
@@ -256,7 +322,10 @@ gulp.task("lint:markup", () => {
 });
 
 gulp.task("build:manifest", () => {
+    const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
+
     return gulp.src(["./src/kaci.webmanifest"])
+        .pipe(revReplace({manifest: revManifest}))
         .pipe(rev())
         .pipe(gulp.dest(TARGET_DIR.ROOT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
@@ -313,6 +382,11 @@ gulp.task("scripts", (cb) => {
 gulp.task("styles", (cb) => {
     runSequence("lint:styles", "build:styles", cb);
 });
+
+gulp.task("images", (cb) => {
+    runSequence("icons", "build:svg", cb);
+});
+
 
 gulp.task("markup", (cb) => {
     runSequence("build:markup", cb);

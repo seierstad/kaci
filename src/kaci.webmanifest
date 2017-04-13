@@ -5,22 +5,22 @@
     "icons": [{
         "src": "images/icon.svg",
         "type": "image/svg",
-        "sizes": "72x72 192x192"
+        "sizes": "48x48 72x72 96x96 192x192"
     }, {
-        "src": "images/icon-1x.png",
+        "src": "images/icon-48x48.png",
         "type": "image/png",
         "sizes": "48x48"
     }, {
-        "src": "images/icon-2x.png",
+        "src": "images/icon-96x96.png",
         "type": "image/png",
         "sizes": "96x96"
     }, {
-        "src": "images/icon-4x.png",
+        "src": "images/icon-192x192.png",
         "type": "image/png",
         "sizes": "192x192"
     }],
     "start_url": "index.html",
-    "theme_color": "#aff",
+    "theme_color": "#70a6c9",
     "background_color": "#aff",
     "display": "standalone",
     "orientation": "any"
