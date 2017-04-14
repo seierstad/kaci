@@ -322,7 +322,18 @@ gulp.task("build:svg", () => {
     service worker tasks
 */
 
-gulp.task("build:serviceworker", () => {
+gulp.task("version:cache", () => {
+    return gulp.src(REV_MANIFEST_CONFIG.path)
+        .pipe(rename({
+            basename: "kaci-cache",
+            extname: ""
+        }))
+        .pipe(rev())
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
+});
+
+gulp.task("build:serviceworker", ["version:cache"], () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src("src/js/service-worker.js")
