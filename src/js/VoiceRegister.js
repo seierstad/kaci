@@ -57,9 +57,8 @@ class VoiceRegister {
     }
 
     set tuning (tuning) {
-        const {selectedScale, scales, baseFrequency, keys} = tuning;
-        if (this.tuningState.selectedScale !== selectedScale) {
-            const scale = scales.find(s => s.name === selectedScale);
+        const {scale, scales, baseFrequency, keys} = tuning;
+        if (this.tuningState.scale !== scale || this.tuningState.baseFrequency !== baseFrequency) {
             const {min, max} = keys;
             const {value: frequency} = baseFrequency;
 
@@ -69,8 +68,8 @@ class VoiceRegister {
                 switch (type) {
 
                     case "tempered":
-                        const {notes, baseNumber} = scale;
-                        this.scale = Tunings.getTemperedScale(min, max, baseKey, frequency, notes, baseNumber);
+                        const {notes, base} = scale;
+                        this.scale = Tunings.getTemperedScale(min, max, baseKey, frequency, notes, base);
                         break;
 
                     case "rational":

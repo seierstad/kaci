@@ -118,12 +118,12 @@ const patch = {
         "mode": "global"
     }],
     "morse": [{
-        "text": "kaci 0.5",
+        "text": "H2O ",
         "frequency": 0.14,
-        "speedUnit": 24,
-        "shift": 6,
-        "padding": 8,
-        "fillToFit": false,
+        "speedUnit": 16,
+        "shift": 0,
+        "padding": 0,
+        "fillToFit": true,
         "amount": 1,
         "active": true,
         "mode": "global",

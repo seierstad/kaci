@@ -17,6 +17,10 @@ class TuningPresentation extends Component {
         super();
         this.handleBaseFrequencyChange = this.handleBaseFrequencyChange.bind(this);
         this.handleScaleSelection = this.handleScaleSelection.bind(this);
+        this.handleNoteCountChange = this.handleNoteCountChange.bind(this);
+        this.handleBaseKey = this.handleBaseKey.bind(this);
+        this.handleScaleTypeChange = this.handleScaleTypeChange.bind(this);
+        this.handleScaleBaseChange = this.handleScaleBaseChange.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -32,13 +36,29 @@ class TuningPresentation extends Component {
         }
     }
 
+    handleNoteCountChange (event) {
+        this.props.handlers.noteCount(parseInt(event.target.value, 10));
+    }
+
+    handleBaseKey (event) {
+        this.props.handlers.baseKey(parseInt(event.target.value, 10));
+    }
+
+    handleScaleBaseChange (event) {
+        this.props.handlers.scaleBase(parseFloat(event.target.value, 10));
+    }
+
+    handleScaleTypeChange (event) {
+        this.props.handlers.scaleType(event.target.value);
+    }
+
     handleScaleSelection (event) {
         this.props.handlers.selectScale(event.target.value);
     }
 
     render () {
         const {configuration} = this.props;
-        const {scales, selectedScale, baseFrequency, keys, baseKey} = configuration;
+        const {scales, scale, baseFrequency, keys, baseKey} = configuration;
 
         return (
             <fieldset className="tuning-view">
@@ -54,9 +74,9 @@ class TuningPresentation extends Component {
                     value={baseFrequency.value}
                 />
 
-                <select onChange={this.handleScaleSelection} value={selectedScale}>
-                    {scales.map(scale => (
-                        <option key={scale.name}>{scale.name}</option>
+                <select onChange={this.handleScaleSelection} value={scale.name}>
+                    {scales.map(s => (
+                        <option key={s.name}>{s.name}</option>
                     ))}
                 </select>
 
@@ -65,35 +85,52 @@ class TuningPresentation extends Component {
                     id="base-key"
                     max={keys.max}
                     min={keys.min}
+                    onChange={this.handleBaseKey}
                     step={1}
                     type="number"
                     value={baseKey}
                 />
+                <label htmlFor="scale-type">type</label>
                 <select
-                    id="tuning-mode"
+                    id="scale-type"
+                    onChange={this.handleScaleTypeChange}
+                    value={scale.type}
                 >
                     <option>tempered</option>
                     <option>rational</option>
                 </select>
-                <div>
-                    <label htmlFor="number-of-notes">number of notes</label>
-                    <input
-                        id="number-of-notes"
-                        max={100}
-                        min={1}
-                        step={1}
-                        type="number"
-                        value={12}
-                    />
-                    <label htmlFor="base-ratio">base ratio</label>
-                    <input
-                        id="base-ratio"
-                        max={100}
-                        min={1}
-                        type="number"
-                        value={2}
-                    />
-                </div>
+                {scale.type === "tempered" ? (
+                    <div>
+                        <label htmlFor="number-of-notes">number of notes</label>
+                        <input
+                            id="number-of-notes"
+                            max={128}
+                            min={1}
+                            onChange={this.handleNoteCountChange}
+                            step={1}
+                            type="number"
+                            value={scale.notes}
+                        />
+                        <label htmlFor="scale-base">base</label>
+                        <input
+                            id="scale-base"
+                            max={100}
+                            min={1}
+                            onChange={this.handleScaleBaseChange}
+                            step={0.1}
+                            type="number"
+                            value={scale.base}
+                        />
+                    </div>
+                ) : null}
+                {scale.type === "rational" ? (
+                    <fieldset>
+                        <legend>ratios</legend>
+                        {scale.ratios.map(([numerator, denominator]) => (
+                            <span className="fraction" key={numerator + "-" + denominator}>{numerator}/{denominator} </span>
+                        ))}
+                    </fieldset>
+                ) : null}
             </fieldset>
         );
     }
@@ -103,7 +140,12 @@ class TuningPresentation extends Component {
 const mapDispatch = (dispatch) => ({
     "handlers": {
         "baseFrequency": (value) => {dispatch({type: Actions.BASE_FREQUENCY_CHANGE, value});},
-        "selectScale": (value) => {dispatch({type: Actions.TUNING_SELECT_SCALE, value});}
+        "baseKey": (value) => {dispatch({type: Actions.BASE_KEY_CHANGE, value});},
+        "scaleBase": (value) => {dispatch({type: Actions.SCALE_BASE_CHANGE, value});},
+        "scaleType": (value) => {dispatch({type: Actions.SCALE_TYPE_CHANGE, value});},
+        "scaleFactor": (value) => {dispatch({type: Actions.SCALE_FACTOR_CHANGE, value});},
+        "selectScale": (value) => {dispatch({type: Actions.TUNING_SELECT_SCALE, value});},
+        "noteCount": (value) => {dispatch({type: Actions.SCALE_NOTE_COUNT_CHANGE, value});}
     }
 });
 

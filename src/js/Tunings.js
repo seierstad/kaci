@@ -34,6 +34,7 @@ export const getRationalScale = function (intervals) {
 
     return function (fromKey, toKey, referenceKey, referenceFrequency) {
         const scale = [];
+        const baseRatio = base[0] / base[1];
 
         for (let i = fromKey, j = toKey; i < j; i += 1) {
             const keyOffset = i - referenceKey;
@@ -41,7 +42,8 @@ export const getRationalScale = function (intervals) {
             if (index < 0) {
                 index += intervals.length;
             }
-            scale[i] = referenceFrequency * Math.pow(base, Math.floor(keyOffset / intervals.length)) * intervals[index];
+            const [numerator, denominator] = intervals[index];
+            scale[i] = referenceFrequency * Math.pow(baseRatio, Math.floor(keyOffset / intervals.length)) * (numerator / denominator);
         }
 
         return scale;
