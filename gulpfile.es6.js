@@ -324,6 +324,7 @@ gulp.task("build:svg", () => {
 
 gulp.task("version:cache", () => {
     return gulp.src(REV_MANIFEST_CONFIG.path)
+        .pipe(clone())
         .pipe(rename({
             basename: "kaci-cache",
             extname: ""
@@ -354,6 +355,7 @@ gulp.task("build:manifest", () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src(["./src/kaci.webmanifest"])
+        .pipe(clone())
         .pipe(revReplace({
             manifest: revManifest,
             replaceInExtensions: [".webmanifest"]
@@ -365,11 +367,13 @@ gulp.task("build:manifest", () => {
 });
 
 
+gulp.task("dependencies:markup", (cb) => {
+    runSequence("build:manifest", "build:serviceworker", cb);
+});
 
 // Generate build index.html
-gulp.task("build:markup", ["build:manifest", "build:serviceworker"], () => {
+gulp.task("build:markup", ["dependencies:markup"], () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
-
     return gulp.src(["src/markup/index.html"])
         .pipe(revReplace({manifest: revManifest}))
         .pipe(gulp.dest(TARGET_DIR.ROOT))
