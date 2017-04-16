@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react";
 
 import {modulatorConfigShape, modulatorPatchShape} from "../../propdefs";
 import RangeInput from "../RangeInput.jsx";
-
+import ModulatorMode from "../modulator-mode.jsx";
 
 const Modulator = Sup => class Modulator extends Sup {
 
@@ -10,20 +10,17 @@ const Modulator = Sup => class Modulator extends Sup {
         "configuration": modulatorConfigShape.isRequired,
         "handlers": PropTypes.shape({
             "amountChange": PropTypes.func.isRequired,
+            "modeChange": PropTypes.func.isRequired,
             "reset": PropTypes.func.isRequired
         }).isRequired,
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
         "patch": modulatorPatchShape.isRequired
     }
 
     constructor (props) {
         super(props);
-        this.handleReset = this.handleReset.bind(this);
         this.amountChange = this.amountChange.bind(this);
-    }
-
-    handleReset (event) {
-        const {index, module, handlers} = this.props;
-        handlers.reset(event, this.module, index);
     }
 
     amountChange (value) {
@@ -36,6 +33,7 @@ const Modulator = Sup => class Modulator extends Sup {
 
         return (
             <Sup {...this.props}>
+                <ModulatorMode {...this.props} />
                 <RangeInput
                     changeHandler={this.amountChange}
                     configuration={configuration.amount}
@@ -43,7 +41,7 @@ const Modulator = Sup => class Modulator extends Sup {
                     value={patch.amount}
                 />
                 {this.props.children}
-                <button onClick={this.handleReset}>reset</button>
+
             </Sup>
         );
     }

@@ -173,6 +173,9 @@ const mapDispatchToProps = (dispatch) => ({
             },
             "amountChange": (value, module, index) => {
                 dispatch({"type": Actions.MODULATOR_AMOUNT_CHANGE, index, module, value});
+            },
+            "modeChange": (value, module, index) => {
+                dispatch({"type": Actions.MODULATOR_MODE_CHANGE, value, module, index});
             }
         },
         "lfo": {

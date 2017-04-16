@@ -63,7 +63,7 @@ class LFO extends Component {
 }
 
 
-export default Periodic(Modulator(LFO));
+export default Modulator(Periodic(LFO));
 
 /*
 

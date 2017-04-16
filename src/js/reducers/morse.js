@@ -18,8 +18,14 @@ const morseGenerator = (state = {...defaultMorseParameters}, action) => {
                 "amount": action.value
             };
 
+        case Actions.MODULATOR_MODE_CHANGE:
+            return {
+                ...state,
+                "mode": action.value
+            };
+
         case Actions.MODULATOR_RESET:
-            // possible implementation: timestamp in the viewState?
+            // possible implementation: timestamp in the playState?
             return state;
 
         case Actions.MORSE_TEXT_CHANGE:
@@ -69,16 +75,17 @@ const morse = (state = [], action) => {
     if (action.module === "morse") {
 
         switch (action.type) {
-            case Actions.MODULATOR_FREQUENCY_CHANGE:
             case Actions.MODULATOR_AMOUNT_CHANGE:
+            case Actions.MODULATOR_FREQUENCY_CHANGE:
+            case Actions.MODULATOR_MODE_CHANGE:
             case Actions.MODULATOR_RESET:
-            case Actions.MORSE_TEXT_CHANGE:
-            case Actions.MORSE_SPEED_UNIT_CHANGE:
-            case Actions.MORSE_PADDING_CHANGE:
             case Actions.MORSE_FILL_TOGGLE:
+            case Actions.MORSE_PADDING_CHANGE:
             case Actions.MORSE_SHIFT_CHANGE:
-            case Actions.SYNC_NUMERATOR_CHANGE:
+            case Actions.MORSE_SPEED_UNIT_CHANGE:
+            case Actions.MORSE_TEXT_CHANGE:
             case Actions.SYNC_DENOMINATOR_CHANGE:
+            case Actions.SYNC_NUMERATOR_CHANGE:
             case Actions.SYNC_TOGGLE:
 
                 const result = [

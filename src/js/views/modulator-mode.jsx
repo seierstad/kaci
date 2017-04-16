@@ -6,37 +6,66 @@ class ModulatorMode extends Component {
 
     static propTypes = {
         "handlers": PropTypes.shape({
-            "colorChange": PropTypes.func.isRequired
+            "modeChange": PropTypes.func.isRequired
         }).isRequired,
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
         "patch": modulatorPatchShape.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleModeChange = this.handleModeChange.bind(this);
+    constructor (props) {
+        super(props);
+        const {index, module} = this.props;
+        this.handleModeChange = this.handleModeChange.bind(this, module, index);
     }
 
-    shouldComponentUpdate (nextProps) {
-        return (this.props.patch !== nextProps.patch);
-    }
-
-    handleModeChange (event) {
+    handleModeChange (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.modeChange(event.target.value);
+        this.props.handlers.modeChange(event.target.value, module, index);
     }
 
     render () {
-        const {patch, configuration, handlers} = this.props;
-        const {outputHandlers} = handlers;
-        const {color} = patch;
+        const {patch, configuration} = this.props;
 
         return (
             <fieldset className="modulator mode">
                 <legend>mode</legend>
-                <label><input type="radio" value="voice" />voice</label>
-                <label><input type="radio" value="global" />global</label>
-                <label><input type="radio" value="retrigger" />retrigger</label>
-                <label><input max="1" min="0" step="0.1" type="range" />local sync factor</label>
+                <label>
+                    <input
+                        checked={patch.mode === "voice" ? true : false}
+                        onChange={this.handleModeChange}
+                        type="radio"
+                        value="voice"
+                    />
+                    voice
+                </label>
+                <label>
+                    <input
+                        checked={patch.mode === "global" ? true : false}
+                        onChange={this.handleModeChange}
+                        type="radio"
+                        value="global"
+                    />
+                    global
+                </label>
+                <label>
+                    <input
+                        checked={patch.mode === "retrigger" ? true : false}
+                        onChange={this.handleModeChange}
+                        type="radio"
+                        value="retrigger"
+                    />
+                    retrigger
+                </label>
+                <label>
+                    <input
+                        max="1"
+                        min="0"
+                        step="0.1"
+                        type="range"
+                    />
+                    voice sync
+                </label>
             </fieldset>
         );
     }

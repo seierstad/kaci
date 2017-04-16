@@ -21,6 +21,7 @@ const Periodic = Sup => class Periodic extends Sup {
 
     constructor (props) {
         super(props);
+        this.handleReset = this.handleReset.bind(this);
         this.frequencyChange = this.frequencyChange.bind(this);
     }
 
@@ -29,12 +30,18 @@ const Periodic = Sup => class Periodic extends Sup {
         handlers.frequencyChange(value, this.module, index);
     }
 
+    handleReset (event) {
+        const {index, module, handlers} = this.props;
+        handlers.reset(event, this.module, index);
+    }
+
     render () {
         const {patch, configuration, index, handlers, syncHandlers, includeSync} = this.props;
         const {frequencyChange} = handlers;
 
         return (
             <Sup {...this.props}>
+                <button onClick={this.handleReset}>reset</button>
                 <fieldset>
                     <legend>speed</legend>
                     <RangeInput
