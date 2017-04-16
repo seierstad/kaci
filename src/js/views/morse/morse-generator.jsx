@@ -21,15 +21,16 @@ class MorseGenerator extends Component {
         "viewState": morseGeneratorViewStateShape
     }
 
-    constructor () {
-        super();
+    constructor (props) {
+        super(props);
         this.module = "morse";
-        this.handleTextChange = this.handleTextChange.bind(this);
-        this.handleSpeedUnitChange = this.handleSpeedUnitChange.bind(this);
-        this.handleGuideToggle = this.handleGuideToggle.bind(this);
-        this.handlePaddingChange = this.handlePaddingChange.bind(this);
-        this.handleShiftChange = this.handleShiftChange.bind(this);
-        this.handleFitToggle = this.handleFitToggle.bind(this);
+        const {index} = this.props;
+        this.handleTextChange = this.handleTextChange.bind(this, this.module, index);
+        this.handleSpeedUnitChange = this.handleSpeedUnitChange.bind(this, this.module, index);
+        this.handleGuideToggle = this.handleGuideToggle.bind(this, this.module, index);
+        this.handlePaddingChange = this.handlePaddingChange.bind(this, this.module, index);
+        this.handleShiftChange = this.handleShiftChange.bind(this, this.module, index);
+        this.handleFitToggle = this.handleFitToggle.bind(this, this.module, index);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -37,34 +38,34 @@ class MorseGenerator extends Component {
                 || this.props.viewState !== nextProps.viewState;
     }
 
-    handleTextChange (event) {
+    handleTextChange (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.textChange(this.module, this.props.index, event.target.value);
+        this.props.handlers.textChange(module, index, event.target.value);
     }
 
-    handleSpeedUnitChange (event) {
+    handleSpeedUnitChange (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.speedUnitChange(this.module, this.props.index, parseInt(event.target.value, 10));
+        this.props.handlers.speedUnitChange(module, index, parseInt(event.target.value, 10));
     }
 
-    handlePaddingChange (event) {
+    handlePaddingChange (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.paddingChange(this.module, this.props.index, parseInt(event.target.value, 10));
+        this.props.handlers.paddingChange(module, index, parseInt(event.target.value, 10));
     }
 
-    handleShiftChange (event) {
+    handleShiftChange (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.shiftChange(this.module, this.props.index, parseInt(event.target.value, 10));
+        this.props.handlers.shiftChange(module, index, parseInt(event.target.value, 10));
     }
 
-    handleFitToggle (event) {
+    handleFitToggle (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.toggleFillToFit(this.module, this.props.index);
+        this.props.handlers.toggleFillToFit(module, index);
     }
 
-    handleGuideToggle (event) {
+    handleGuideToggle (module, index, event) {
         event.stopPropagation();
-        this.props.handlers.toggleGuide(this.module, this.props.index, parseInt(event.target.value, 10));
+        this.props.handlers.toggleGuide(module, index, parseInt(event.target.value, 10));
     }
 
     render () {
@@ -74,7 +75,8 @@ class MorseGenerator extends Component {
         const {guides = []} = viewState;
         const {padding = 0, shift = 0, text = "", fillToFit = false, speedUnit} = patch;
         const pattern = morseEncode(text);
-        const fitPadding = (speedUnit && fillToFit) ? (speedUnit - ((pattern.length + padding) % speedUnit)) : 0;
+        const remainder = (pattern.length + padding) % speedUnit;
+        const fitPadding = (speedUnit && fillToFit && remainder !== 0) ? (speedUnit - remainder) : 0;
         const paddedPattern = padPattern(pattern, padding + fitPadding);
         const shiftedPattern = shiftPattern(paddedPattern, shift);
 

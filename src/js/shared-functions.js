@@ -125,6 +125,13 @@ export const shiftPattern = (pattern, shift = 0) => {
     ];
 };
 
+export const fillPatternToMultipleOf = (pattern, number) => {
+    const remainder = pattern.length % number;
+    const count = (remainder === 0) ? 0 : number - remainder;
+
+    return padPattern(pattern, count);
+};
+
 export const factors = (number, min = 2) => {
     const half = number / 2;
 

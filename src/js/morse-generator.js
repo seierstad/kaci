@@ -1,7 +1,7 @@
 //import WavyJones from "../../lib/wavy-jones";
 import {BUFFER_LENGTH} from "./constants";
 import Periodic from "./decorators/periodic";
-import {inputNode, morseEncode} from "./shared-functions";
+import {inputNode, morseEncode, padPattern, shiftPattern, fillPatternToMultipleOf} from "./shared-functions";
 import Oscillator from "./decorators/oscillator";
 
 
@@ -52,16 +52,52 @@ class MorseGenerator extends Periodic {
             this.oscillator.connect(this.outputs[name]);
         }
 
-        if (!this.state.sync || !this.state.sync.enabled) {
-            this.frequency = this.state.frequency;
-        }
-
         this.parameters = {...this.oscillator.targets};
-        this.text = patch.text;
+        this.pattern = patch;
+
+        this.updateFrequency(this.state.frequency);
     }
 
-    set text (text) {
-        this.oscillator.pattern = morseEncode(text);
+    updateFrequency (frequency) {
+        this.frequency = frequency * (this.state.speedUnit / this.oscillator.pattern.length);
+    }
+
+    set pattern ({text, speedUnit, shift, padding, fillToFit}) {
+        let pattern = morseEncode(text);
+        if (padding) {
+            pattern = padPattern(pattern, padding);
+        }
+        if (fillToFit && speedUnit) {
+            pattern = fillPatternToMultipleOf(pattern, speedUnit);
+        }
+        if (shift) {
+            pattern = shiftPattern(pattern, shift);
+        }
+
+        if (pattern.length === 0) {
+            pattern = [false];
+        }
+        this.oscillator.pattern = pattern;
+    }
+
+    updateState (newState) {
+        const patternChanged = (
+            this.state.text !== newState.text
+            || this.state.speedUnit !== newState.speedUnit
+            || this.state.shift !== newState.shift
+            || this.state.padding !== newState.padding
+            || this.state.fillToFit !== newState.fillToFit
+        );
+
+        if (patternChanged) {
+            this.pattern = newState;
+        }
+
+        if (patternChanged || this.state.frequency !== newState.frequency) {
+            this.updateFrequency(newState.frequency);
+        }
+
+        this.state = newState;
     }
 
     stateChangeHandler () {
@@ -70,12 +106,7 @@ class MorseGenerator extends Periodic {
 
         if (newState && (newState !== this.state)) {
             super.updateState(newState);
-
-            if (this.state.text !== newState.text) {
-                this.text = newState.text;
-            }
-
-            this.state = newState;
+            this.updateState(newState);
         }
     }
 

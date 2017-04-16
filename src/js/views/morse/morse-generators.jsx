@@ -29,6 +29,7 @@ class MorseGenerators extends Component {
                     includeSync={true}
                     index={i}
                     key={i}
+                    module="morse"
                     patch={patch[i] || configuration["default"]}
                     syncHandlers={handlers.sync}
                     viewState={viewState[i]}
