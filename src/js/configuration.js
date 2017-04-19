@@ -167,6 +167,7 @@ const configuration = {
         "endKey": 72
     },
     "midi": {
+        "active": false,
         "selectedPort": "",
         "channel": "all",
         "ports": []

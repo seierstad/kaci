@@ -52,6 +52,12 @@ const midiPorts = (state = [], action) => {
 
 const midi = (state = {}, action) => {
     switch (action.type) {
+        case Actions.MIDI_TOGGLE:
+            return {
+                ...state,
+                active: !state.active
+            };
+
         case Actions.MIDI_PORT_CONNECTION_CHANGE:
         case Actions.MIDI_PORT_STATE_CHANGE:
         case Actions.MIDI_ADD_INPUT_PORT:

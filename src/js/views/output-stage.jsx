@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from "react";
 
 import {outputTargetShape, outputStagePatchShape} from "../propdefs";
 
+import ModuleToggle from "./module-toggle.jsx";
 import RangeInput from "./RangeInput.jsx";
 
 
@@ -26,10 +27,10 @@ class OutputStage extends Component {
         return (
             <fieldset>
                 <legend>output</legend>
-                <label className="module-active">
-                    <input checked={active} onChange={handleToggle} type="checkbox" />
-                    <span className="label-text">active</span>
-                </label>
+                <ModuleToggle
+                    active={active}
+                    handler={handleToggle}
+                />
                 <RangeInput
                     changeHandler={handleGainInput}
                     configuration={configuration.gain}

@@ -29,6 +29,7 @@ export const midiPortShape = shape({
 export const midiChannelShape = oneOf(MIDI_CHANNELS);
 
 export const midiShape = shape({
+    "active": bool,
     "portId": string,
     "channel": midiChannelShape.isRequired,
     "ports": arrayOf(midiPortShape).isRequired
