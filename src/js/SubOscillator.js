@@ -1,4 +1,4 @@
-import {inputNode, outputNodeexport, ParamLogger} from "./SharedFunctions";
+import {inputNode} from "./shared-functions";
 
 
 import OutputStage from "./output-stage";
@@ -7,10 +7,18 @@ class SubOscillator {
 
     static inputDefs = [
         {
-            name: "detune"
+            "name": "detune"
         }, {
-            name: "beat"
+            "name": "beat"
         }
+    ];
+
+    static gains = [
+        "frequency",
+        "detuneMultiplier",
+        "detune",
+        "beat",
+        "ratio"
     ];
 
     constructor (context, dc, patch, frequency, scaleBaseNumber = 2) {
@@ -38,14 +46,14 @@ class SubOscillator {
 
         // simple oscillator
         this.generator = context.createOscillator();
-        this.generator.frequency.value = frequency;
+        this.generator.frequency.value = 0;
         this.generator.type = "sine";
 
-        const gains = ["frequency", "detuneMultiplier", "detune", "beat", "ratio"];
 
-        gains.forEach(name => {
+        SubOscillator.gains.forEach(name => {
             this[name + "Node"] = context.createGain();
             this[name + "Node"].gain.value = 0;
+            this[name + "Node"].gain.setValueAtTime(0, this.context.currentTime);
         });
 
         this.parameters.beat.connect(this.beatNode.gain);
@@ -99,11 +107,17 @@ class SubOscillator {
     set mode (mode) {
         if (mode === "beat") {
             this.beatNode.gain.setValueAtTime(this.state.beat, this.context.currentTime);
+            this.parameters.beat.connect(this.beatNode.gain);
+
+            this.parameters.detune.disconnect(this.detuneNode.gain);
             this.detuneMultiplierNode.gain.setValueAtTime(0, this.context.currentTime);
 
         } else if (mode === "semitone") {
+            this.parameters.beat.disconnect();
             this.beatNode.gain.setValueAtTime(0, this.context.currentTime);
+
             this.detuneMultiplierNode.gain.setValueAtTime(100, this.context.currentTime);
+            this.parameters.detune.connect(this.detuneNode.gain);
         }
 
         this.state.mode = mode;

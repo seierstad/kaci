@@ -41,7 +41,7 @@ class PhaseDistortion extends Component {
 
 
     render () {
-        const {patch, viewState, index, module, handlers} = this.props;
+        const {patch, viewState, index, handlers} = this.props;
 
         return (
             <div className="oscillator-pd-view">

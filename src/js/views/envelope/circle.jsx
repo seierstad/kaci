@@ -24,26 +24,26 @@ class Circle extends Component {
 
     constructor () {
         super();
-        this.click = this.click.bind(this);
-        this.blur = this.blur.bind(this);
-        this.mouseDrag = this.mouseDrag.bind(this);
+        this.handleClick = this.handleClick.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
+        this.handleMouseDrag = this.handleMouseDrag.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
         return (this.props.cx !== nextProps.cx) || (this.props.cy !== nextProps.cy) || (this.props.active !== nextProps.active);
     }
 
-    blur (event) {
+    handleBlur (event) {
         const {module, envelopeIndex, part, index, handlers, first, last} = this.props;
         handlers.circleBlur(event, module, envelopeIndex, part, index, first, last);
     }
 
-    mouseDrag (event) {
+    handleMouseDrag (event) {
         const {module, envelopeIndex, part, background, index, first, last, handlers} = this.props;
         handlers.circleMouseDrag(event, module, envelopeIndex, part, background, index, first, last);
     }
 
-    click (event) {
+    handleClick (event) {
         const {module, envelopeIndex, part, index, handlers, first, last} = this.props;
         handlers.circleClick(event, module, envelopeIndex, part, index, first, last);
     }
@@ -55,10 +55,10 @@ class Circle extends Component {
                 className={(active ? "active" : "") + (first ? " first" : "") + (last ? " last" : "")}
                 cx={cx}
                 cy={cy}
-                onMouseDown={this.click}
-                onMouseMove={active ? this.mouseDrag : null}
-                onMouseOut={active ? this.blur : null}
-                onMouseUp={active ? this.blur : null}
+                onMouseDown={this.handleClick}
+                onMouseMove={active ? this.handleMouseDrag : null}
+                onMouseOut={active ? this.handleBlur : null}
+                onMouseUp={active ? this.handleBlur : null}
                 r={r}
             />
         );

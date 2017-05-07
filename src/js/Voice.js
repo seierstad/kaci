@@ -4,6 +4,7 @@ import PDOscillator from "./PDOscillator";
 import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
+import MorseGenerator from "./morse-generator";
 
 import OutputStage from "./output-stage";
 
@@ -24,6 +25,7 @@ class Voice {
         this.store = store;
         this.state = store.getState().patch;
 
+        this.destroy = this.destroy.bind(this);
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
@@ -31,14 +33,26 @@ class Voice {
 
         this.mainOut = new OutputStage(context, this.dc, !!this.state.main.active);
 
-        this.lfos = [];
-        this.createVoiceLfo = this.createVoiceLfo.bind(this);
-        this.state.lfos.forEach(this.createVoiceLfo);
+        this.lfos = this.state.lfos.reduce((acc, lfo, index) => {
+            if (lfo.mode === "voice") {
+                acc[index] = new LFO(this.context, this.store, lfo, this.dc, index);
+            }
+            return acc;
+        }, []);
 
-        this.envelopes = [];
-        this.state.envelopes.forEach((envPatch, index) => {
-            this.envelopes[index] = new EnvelopeGenerator(context, store, index);
-        });
+        this.morse = this.state.morse.reduce((acc, morse, index) => {
+            if (morse.mode === "voice") {
+                acc[index] = new MorseGenerator(this.context, this.store, morse, this.dc, index);
+            }
+            return acc;
+        }, []);
+
+        this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(context, store, index));
+        this.connections = {
+            envelopes: {},
+            lfos: {},
+            morse: {}
+        }; // values set in ModulationMatrix.patchVoice
 
         this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
         this.sub = new SubOscillator(context, this.dc, this.state.sub, frequency);
@@ -54,12 +68,6 @@ class Voice {
             ...(prefixKeys(this.noise.targets, "noise.")),
             ...(prefixKeys(this.sub.targets, "sub."))
         };
-    }
-
-    createVoiceLfo (lfoPatch, index) {
-        if (lfoPatch.mode === "voice") {
-            this.lfos[index] = new LFO(this.context, this.store, index);
-        }
     }
 
     stateChangeHandler () {
@@ -150,9 +158,21 @@ class Voice {
         return this.targetNodes;
     }
 
+    get sources () {
+        return {
+            "lfos": this.lfos,
+            "morse": this.morse,
+            "envelopes": this.envelopes
+        };
+    }
+
     set frequency (frequency) {
         this.oscillator.frequency = frequency;
         this.sub.frequency = frequency;
+    }
+
+    set envelopeConnections (connections) {
+        this.connections.envelopes = connections;
     }
 
     start (time) {
@@ -166,6 +186,10 @@ class Voice {
             lfo.start();
         });
 
+        this.morse.forEach(morse => {
+            morse.start();
+        });
+
         this.envelopes.forEach(envelope => envelope.trigger(time));
     }
 
@@ -176,8 +200,13 @@ class Voice {
             envelope.release(time);
         });
 
+        let destroyDelay = 0;
+        if (this.connections.envelopes["main.gain"]) {
+            destroyDelay = this.connections.envelopes["main.gain"].releaseDuration;
+        }
+
         this.destroyCallback = callback;
-        this.destroyTimer = setTimeout(this.destroy.bind(this), 0);
+        this.destroyTimer = setTimeout(this.destroy, destroyDelay * 1000);
     }
 
     connect (node) {
@@ -202,8 +231,15 @@ class Voice {
         });
 
         this.lfos.forEach(lfo => {
+            lfo.stop();
             lfo.disconnect();
             lfo.destroy();
+        });
+
+        this.morse.forEach(morse => {
+            morse.stop();
+            morse.disconnect();
+            morse.destroy();
         });
 
         this.oscillator.destroy();
@@ -222,95 +258,3 @@ class Voice {
 
 
 export default Voice;
-
-
-/*
-
-        getHandler = function (module, parameter) {
-            var result;
-            switch (parameter) {
-            case "waveform":
-                result = function (evt) {
-                    var value = evt.detail.value || evt.detail;
-                    that[module].setWaveform(value);
-                };
-                break;
-            case "wrapper":
-                result = function (evt) {
-                    var value = evt.detail.value || evt.detail;
-                    that[module].setWrapper(value);
-                };
-                break;
-            case "resonanceActive":
-                result = function (evt) {
-                    that[module].resonanceActive = evt.detail;
-                };
-                break;
-            case "env0data":
-            case "env1data":
-                result = function (evt) {
-                    var d = evt.detail;
-                    switch (d.type) {
-                    case "add":
-                        that[module].addPDEnvelopePoint(parameter === "env0data" ? 0 : 1, d.index, [d.data.x, d.data.y]);
-                        break;
-                    case "move":
-                        that[module].movePDEnvelopePoint(parameter === "env0data" ? 0 : 1, d.index, [d.data.x, d.data.y]);
-                        break;
-                    case "delete":
-                        that[module].deletePDEnvelopePoint(parameter === "env0data" ? 0 : 1, d.index);
-                        break;
-                    }
-                };
-                break;
-            default:
-                result = function (evt) {
-                    that[module][parameter].setValueAtTime(evt.detail, that.context.currentTime);
-                };
-                break;
-            }
-            return result;
-        };
-
-        eventHandlers = [{
-            eventName: "oscillator.change.waveform",
-            handler: getHandler("oscillator", "waveform")
-        }, {
-            eventName: "oscillator.change.wrapper",
-            handler: getHandler("oscillator", "wrapper")
-        }, {
-            eventName: "oscillator.resonance.toggle",
-            handler: getHandler("oscillator", "resonanceActive")
-        }, {
-            eventName: "oscillator.env0.change.data",
-            handler: getHandler("oscillator", "env0data")
-        }, {
-            eventName: "oscillator.env1.change.data",
-            handler: getHandler("oscillator", "env1data")
-        }, {
-            eventName: "noise.toggle",
-            handler: getHandler("noise", "active")
-        }, {
-            eventName: "sub.toggle",
-            handler: getHandler("sub", "active")
-        }];
-
-        addVoiceEventListeners = function () {
-            var i, j;
-            for (i = 0, j = eventHandlers.length; i < j; i += 1) {
-                context.addEventListener(eventHandlers[i].eventName, eventHandlers[i].handler);
-            }
-        };
-        getRemoveEventFunction = function () {
-            return function removeVoiceEventListeners() {
-                var i, j;
-                for (i = 0, j = eventHandlers.length; i < j; i += 1) {
-                    context.removeEventListener(eventHandlers[i].eventName, eventHandlers[i].handler);
-                }
-            };
-        };
-
-        this.removeVoiceEventListeners = getRemoveEventFunction();
-        addVoiceEventListeners();
-
-*/

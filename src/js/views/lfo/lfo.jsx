@@ -1,31 +1,27 @@
 /*global document, module, require, CustomEvent */
 import React, {Component, PropTypes} from "react";
 
-import {lfoPatchDataShape, modulationLfoSourcesShape} from "../../propdefs";
+import {lfoPatchShape, modulationLfoSourcesConfigShape} from "../../propdefs";
 import {waveforms} from "../../waveforms";
 
-import RangeInput from "../RangeInput.jsx";
+import Modulator from "../decorators/modulator.jsx";
+import Periodic from "../decorators/periodic.jsx";
 import WaveformSelector from "../WaveformSelector.jsx";
-import SyncControls from "../SyncControls.jsx";
 
 
 class LFO extends Component {
 
     static propTypes = {
-        "configuration": modulationLfoSourcesShape.isRequired,
-        "handlers": PropTypes.objectOf(PropTypes.func),
+        "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "index": PropTypes.number.isRequired,
-        "module": PropTypes.string.isRequired,
-        "patch": lfoPatchDataShape.isRequired,
-        "syncHandlers": PropTypes.object
+        "patch": lfoPatchShape.isRequired
     }
 
     constructor () {
         super();
-        this.reset = this.reset.bind(this);
-        this.amountChange = this.amountChange.bind(this);
-        this.frequencyChange = this.frequencyChange.bind(this);
+        this.waveformSelector = null;
         this.waveforms = {};
+        this.module = "lfos";
     }
 
     componentWillMount () {
@@ -43,79 +39,31 @@ class LFO extends Component {
         this.waveformSelector.activeButton.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
     }
 
-    reset (event) {
-        const {index, module, handlers} = this.props;
-        handlers.reset(event, module, index);
-    }
-
-    amountChange (value) {
-        const {index, module, handlers} = this.props;
-        handlers.amountChange(value, module, index);
-
-    }
-
-    frequencyChange (value) {
-        const {index, module, handlers} = this.props;
-        handlers.frequencyChange(value, module, index);
-
-    }
-
     render () {
-        const {index, configuration, patch, handlers, syncHandlers} = this.props;
+        const {index, patch, handlers, syncHandlers} = this.props;
         const syncPossible = patch.sync;
 
         return (
             <section className="lfo" id={"lfo-" + index + "-view"}>
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
-                <button onClick={this.reset}>reset</button>
                 <WaveformSelector
                     changeHandler={handlers.changeWaveform}
                     includePhaseIndicator
                     index={index}
-                    module="lfos"
+                    module={this.module}
                     parameter="waveform"
                     ref={w => this.waveformSelector = w}
                     selected={patch.waveform}
                     waveforms={this.waveforms}
                 />
-                <RangeInput
-                    changeHandler={this.amountChange}
-                    configuration={configuration.amount}
-                    label="amount"
-                    value={patch.amount}
-                />
-                <RangeInput
-                    changeHandler={this.frequencyChange}
-                    configuration={configuration.frequency}
-                    disabled={syncPossible && patch.sync.enabled}
-                    label="frequency"
-                    value={patch.frequency}
-                />
-                {syncPossible ?
-                    <SyncControls
-                        configuration={configuration.sync}
-                        handlers={syncHandlers}
-                        index={index}
-                        module="lfos"
-                        patch={patch.sync}
-                    />
-                : null}
+                {this.props.children}
             </section>
         );
     }
 }
 
 
-export default LFO;
-
-/*
-    lfoToggle = new Utils.createCheckboxInput({
-        "id": this.lfoId,
-        dispatchEvent: ".toggle",
-        checked: (patch.active)
-    }, ctx);
-    lfoView.appendChild(lfoToggle);
-*/
+export default Modulator(Periodic(LFO));
 
 /*
 

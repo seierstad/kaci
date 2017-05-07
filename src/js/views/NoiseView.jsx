@@ -1,18 +1,31 @@
 import React, {Component, PropTypes} from "react";
 
-import {modulationTargetShape, noisePatchDataShape} from "../propdefs";
+import {modulationTargetShape, noisePatchShape} from "../propdefs";
+import {noise} from "../waveforms";
 import OutputStage from "./output-stage.jsx";
 
 class NoiseView extends Component {
 
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
-        "handlers": PropTypes.object.isRequired,
-        "patch": noisePatchDataShape.isRequired
+        "handlers": PropTypes.shape({
+            "colorChange": PropTypes.func.isRequired
+        }).isRequired,
+        "patch": noisePatchShape.isRequired
+    }
+
+    constructor () {
+        super();
+        this.handleColorChange = this.handleColorChange.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
         return (this.props.patch !== nextProps.patch);
+    }
+
+    handleColorChange (event) {
+        event.stopPropagation();
+        this.props.handlers.colorChange(event.target.value);
     }
 
     render () {
@@ -22,7 +35,10 @@ class NoiseView extends Component {
 
         return (
             <section className="noise-view">
-                <h1>{color} noise</h1>
+                <h2>noise</h2>
+                <select onChange={this.handleColorChange} value={patch.color}>
+                    {Object.keys(noise).map(color => <option key={color}>{color}</option>)}
+                </select>
                 <OutputStage
                     configuration={configuration}
                     handlers={outputHandlers}

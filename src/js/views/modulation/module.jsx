@@ -1,7 +1,9 @@
 import React, {Component, PropTypes} from "react";
-import Target from "./target.jsx";
 
 import {modulationTargetShape, modulationTargetModuleShape} from "../../propdefs";
+
+import Target from "./target.jsx";
+
 
 class ModulationTargetModule extends Component {
 
@@ -11,6 +13,7 @@ class ModulationTargetModule extends Component {
         "handlers": PropTypes.object,
         "lfoCount": PropTypes.number.isRequired,
         "module": PropTypes.string.isRequired,
+        "morseCount": PropTypes.number.isRequired,
         "patch": modulationTargetModuleShape
     }
 

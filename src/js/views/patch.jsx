@@ -4,12 +4,13 @@ import {connect} from "react-redux";
 import * as Actions from "../actions";
 import {patchShape, viewStateShape, configurationShape} from "../propdefs";
 
-import {getOffsetElement, cursorPosition, sizeInPixels, getValuePair} from "./ViewUtils";
+import {getValuePair} from "./ViewUtils";
 
 import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
 import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./lfo/lfos.jsx";
+import MorseGenerators from "./morse/morse-generators.jsx";
 import ModulationMatrix from "./modulation/matrix.jsx";
 import Oscillator from "./oscillator/oscillator.jsx";
 import MainOutput from "./main-output.jsx";
@@ -24,53 +25,63 @@ class PatchPresentation extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return (nextProps.patch !== this.props.patch);
+        return nextProps.patch !== this.props.patch
+                || nextProps.viewState !== this.props.viewState;
     }
 
     render () {
         const {configuration, patch, handlers, viewState} = this.props;
-        const {oscillator, sub, noise, vca, envelopes, lfos, modulation} = this.props.patch;
+        const {target, source} = configuration.modulation;
 
         return (
             <div>
                 <MainOutput
-                    configuration={configuration.modulation.target.main}
+                    configuration={target.main}
                     handlers={handlers.main}
                     patch={patch.main}
                 />
                 <Oscillator
+                    configuration={target.oscillator}
                     envelopeHandlers={handlers.envelope}
+                    patch={patch.oscillator}
                     viewState={viewState.oscillator}
                 />
                 <NoiseView
-                    configuration={configuration.modulation.target.noise}
+                    configuration={target.noise}
                     handlers={handlers.noise}
                     patch={patch.noise}
                 />
                 <SubView
-                    configuration={configuration.modulation.target.sub}
+                    configuration={target.sub}
                     handlers={handlers.sub}
                     patch={patch.sub}
-                    syncHandlers={handlers.sync}
+                    syncHandlers={handlers.periodic.sync}
                 />
                 <Envelopes
-                    configuration={configuration.modulation.source.envelopes}
+                    configuration={source.envelope}
                     handlers={handlers.envelope}
                     patch={patch.envelopes}
                     viewState={viewState.envelopes}
                 />
                 <LFOs
-                    configuration={configuration.modulation.source.lfos}
-                    handlers={handlers.lfos}
+                    configuration={source.lfo}
+                    handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.lfo}}
                     patch={patch.lfos}
-                    syncHandlers={handlers.sync}
                 />
-                <ModulationMatrix />
+                <MorseGenerators
+                    configuration={source.morse}
+                    handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.morse}}
+                    patch={patch.morse}
+                    viewState={viewState.morse}
+                />
+                <ModulationMatrix
+                    configuration={configuration.modulation}
+                    patch={patch.modulation}
+                />
             </div>
         );
     }
 }
-
 
 
 const mapDispatchToProps = (dispatch) => ({
@@ -113,7 +124,7 @@ const mapDispatchToProps = (dispatch) => ({
                 });
             },
             "circleBlur": (event, module, envelopeIndex, envelopePart, index, first, last) => {
-                if ((envelopePart === "sustain") || (envelopePart === "release" && first) || envelopePart === "attack" && first) {
+                if ((envelopePart === "sustain") || (envelopePart === "release" && last) || envelopePart === "attack" && first) {
                     dispatch({type: Actions.ENVELOPE_SUSTAIN_EDIT_END, module, envelopeIndex});
                 } else {
                     dispatch({type: Actions.ENVELOPE_POINT_EDIT_END, module, envelopeIndex, envelopePart, index});
@@ -126,7 +137,7 @@ const mapDispatchToProps = (dispatch) => ({
                 dispatch({type: Actions.ENVELOPE_POINT_ADD, module, envelopeIndex, envelopePart, index, x, y});
             },
             "sustainBackgroundClick": (event, module, envelopeIndex) => {
-                const {x, y} = getValuePair(event, event.target);
+                const {y} = getValuePair(event, event.target);
                 dispatch({type: Actions.ENVELOPE_SUSTAIN_CHANGE, module, envelopeIndex, value: y});
             },
             "circleMouseDrag": (event, module, envelopeIndex, envelopePart, background, index, first, last) => {
@@ -156,34 +167,61 @@ const mapDispatchToProps = (dispatch) => ({
             }
 
         },
-        "lfos": {
+        "modulator": {
             "reset": (event, module, index) => {
-                dispatch({"type": Actions.LFO_RESET, module, index});
+                dispatch({"type": Actions.MODULATOR_RESET, module, index});
             },
             "amountChange": (value, module, index) => {
-                dispatch({"type": Actions.LFO_AMOUNT_CHANGE, index, module, value});
+                dispatch({"type": Actions.MODULATOR_AMOUNT_CHANGE, index, module, value});
             },
-            "frequencyChange": (value, module, index) => {
-                dispatch({"type": Actions.LFO_FREQUENCY_CHANGE, index, module, value});
-            },
+            "modeChange": (value, module, index) => {
+                dispatch({"type": Actions.MODULATOR_MODE_CHANGE, value, module, index});
+            }
+        },
+        "lfo": {
             "changeWaveform": (value, module, index) => {
                 dispatch({"type": Actions.LFO_WAVEFORM_CHANGE, index, module, value});
             }
         },
-        "sync": {
-            "denominatorChange": (value, module, index) => {
-                dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, value});
+        "morse": {
+            "speedUnitChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_SPEED_UNIT_CHANGE, module, index, value});
             },
-            "numeratorChange": (value, module, index) => {
-                dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, value});
+            "paddingChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_PADDING_CHANGE, module, index, value});
             },
-            "toggle": (module, index) => {
-                dispatch({"type": Actions.SYNC_TOGGLE, module, index});
+            "shiftChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_SHIFT_CHANGE, module, index, value});
+            },
+            "toggleFillToFit": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_FILL_TOGGLE, module, index, value});
+            },
+            "textChange": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_TEXT_CHANGE, module, index, value});
+            },
+            "toggleGuide": (module, index, value) => {
+                dispatch({"type": Actions.MORSE_GUIDE_TOGGLE, module, index, value});
+            }
+        },
+        "periodic": {
+            "frequencyChange": (value, module, index) => {
+                dispatch({"type": Actions.MODULATOR_FREQUENCY_CHANGE, index, module, value});
+            },
+            "sync": {
+                "denominatorChange": (value, module, index) => {
+                    dispatch({"type": Actions.SYNC_DENOMINATOR_CHANGE, module, index, value});
+                },
+                "numeratorChange": (value, module, index) => {
+                    dispatch({"type": Actions.SYNC_NUMERATOR_CHANGE, module, index, value});
+                },
+                "toggle": (module, index) => {
+                    dispatch({"type": Actions.SYNC_TOGGLE, module, index});
+                }
             }
         },
         "noise": {
             "outputHandlers": {
-                "handleToggle": (event) => {
+                "handleToggle": () => {
                     dispatch({type: Actions.OUTPUT_TOGGLE, module: "noise"});
                 },
                 "handlePanInput": (value) => {
@@ -192,11 +230,14 @@ const mapDispatchToProps = (dispatch) => ({
                 "handleGainInput": (value) => {
                     dispatch({type: Actions.OUTPUT_GAIN_CHANGE, value, module: "noise"});
                 }
+            },
+            "colorChange": (value) => {
+                dispatch({type: Actions.NOISE_COLOR_CHANGE, value});
             }
         },
         "main": {
             "outputHandlers": {
-                "handleToggle": (event) => {
+                "handleToggle": () => {
                     dispatch({type: Actions.OUTPUT_TOGGLE, module: "main"});
                 },
                 "handlePanInput": (value) => {

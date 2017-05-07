@@ -1,9 +1,11 @@
 import React, {Component, PropTypes} from "react";
-import PolaritySelector from "./polarity-selector.jsx";
-import RangeInput from "../RangeInput.jsx";
-import {modulationSourceTypeShape, modulationConnectionPatchDataShape} from "../../propdefs";
 
 import {defaultModulationConnectionParameters} from "../../configuration";
+import {modulatorTypeShape, modulationConnectionPatchShape} from "../../propdefs";
+
+import RangeInput from "../RangeInput.jsx";
+
+import PolaritySelector from "./polarity-selector.jsx";
 
 
 class Connection extends Component {
@@ -12,15 +14,15 @@ class Connection extends Component {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "index": PropTypes.number.isRequired,
         "noConnection": PropTypes.bool,
-        "patch": modulationConnectionPatchDataShape,
+        "patch": modulationConnectionPatchShape,
         "path": PropTypes.arrayOf(PropTypes.string).isRequired,
-        "type": modulationSourceTypeShape.isRequired
+        "type": modulatorTypeShape.isRequired
     }
 
     constructor () {
         super();
-        this.handleAmountChange = this.handleAmountChange.bind(this);
-        this.handlePolarityChange = this.handlePolarityChange.bind(this);
+        this.amountChange = this.amountChange.bind(this);
+        this.polarityChange = this.polarityChange.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
     }
 
@@ -33,11 +35,11 @@ class Connection extends Component {
         return this.props.type === "env" || this.props.patch !== nextProps.patch;
     }
 
-    handleAmountChange (value) {
+    amountChange (value) {
         this.props.handlers.changeAmount(...this.path, value);
     }
 
-    handlePolarityChange (value) {
+    polarityChange (value) {
         this.props.handlers.changePolarity(...this.path, value);
     }
 
@@ -55,7 +57,7 @@ class Connection extends Component {
         const name = [type, module, parameter].join("-") + "-connection";
 
         const checked = patch.enabled || (index === -1 && noConnection);
-        const isLFO = (type === "lfo");
+        const isEnv = (type === "env");
 
         return (
             <td>
@@ -63,20 +65,20 @@ class Connection extends Component {
                 <input
                     checked={checked}
                     id={id}
-                    name={isLFO ? null : name}
+                    name={isEnv ? name : null}
                     onChange={this.handleToggle}
-                    type={isLFO ? "checkbox" : "radio"}
+                    type={isEnv ? "radio" : "checkbox"}
                 />
                 {index !== -1 ?
                     <PolaritySelector
-                        changeHandler={this.handlePolarityChange}
+                        changeHandler={this.polarityChange}
                         patch={polarity || "full"}
                         prefix={prefix}
                     />
                 : null}
                 {index !== -1 ?
                     <RangeInput
-                        changeHandler={this.handleAmountChange}
+                        changeHandler={this.amountChange}
                         configuration={{max: 1, min: 0, step: 0.01}}
                         label="amount"
                         value={amount || 0}

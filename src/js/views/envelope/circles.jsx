@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react";
-import {envelopeViewStateShape, envelopePatchDataShape} from "../../propdefs";
+import {envelopeViewStateShape, envelopePatchShape} from "../../propdefs";
 import Circle from "./circle.jsx";
 import {toPercent} from "./shared-functions";
 
@@ -13,7 +13,7 @@ class EnvelopeCircles extends Component {
         "handlers": PropTypes.object,
         "module": PropTypes.string.isRequired,
         "part": PropTypes.string,
-        "steps": envelopePatchDataShape.isRequired,
+        "steps": envelopePatchShape.isRequired,
         "viewState": envelopeViewStateShape.isRequired
     }
 

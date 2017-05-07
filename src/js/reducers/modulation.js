@@ -1,6 +1,6 @@
 import * as Actions from "../actions";
 import config from "../configuration";
-import {splicedArrayCopy} from "../sharedFunctions";
+import {splicedArrayCopy} from "../shared-functions";
 
 const connection = (state = {...config.modulation.connection["default"]}, action) => {
     const result = {...state};

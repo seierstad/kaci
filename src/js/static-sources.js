@@ -58,7 +58,6 @@ class StaticSources {
                         if (param !== newParam) {
                             const key = [modName, paramName].join(".");
                             if (this.parameters[key]) {
-                                console.log("change ", key);
                                 const normalizedValue = scale(newParam, this.limits[key], normalized);
                                 this.parameters[key].setValueAtTime(normalizedValue, this.context.currentTime);
                             }

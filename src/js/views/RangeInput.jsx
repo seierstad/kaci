@@ -1,5 +1,6 @@
-import {Component, PropTypes} from "react";
-import React from "react";
+import React, {Component, PropTypes} from "react";
+
+
 let rangeInputId = 0;
 
 const logBase = (x, base) => Math.log(x) / Math.log(base);
@@ -7,10 +8,7 @@ const logBase = (x, base) => Math.log(x) / Math.log(base);
 const getScale = (min, max, mid) => {
 
     if (typeof mid === "number") {
-        const highOffset = 1 - mid;
         const highSpan = max - mid;
-
-        const lowOffset = 1 - min;
         const lowSpan = mid - min;
 
         const down = (value) => {
@@ -31,7 +29,6 @@ const getScale = (min, max, mid) => {
     }
 
     const span = max - min;
-    const offset = 1 - min;
     const down = (value) => logBase(value - min + 1, span + 1) * span + min;
     const up = (value) => Math.pow(span + 1, (value - min) / span) + min - 1;
 
@@ -45,6 +42,7 @@ class RangeInput extends Component {
         "configuration": PropTypes.shape({
             "exponential": PropTypes.bool,
             "max": PropTypes.number.isRequired,
+            "mid": PropTypes.number,
             "min": PropTypes.number.isRequired,
             "step": PropTypes.number
         }),
@@ -117,5 +115,3 @@ class RangeInput extends Component {
 
 
 export default RangeInput;
-
-

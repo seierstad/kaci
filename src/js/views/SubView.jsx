@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
-import {modulationTargetShape, subPatchDataShape} from "../propdefs";
+import {modulationTargetShape, subPatchShape} from "../propdefs";
 import {OUTPUT_GAIN_CHANGE, OUTPUT_PAN_CHANGE, OUTPUT_TOGGLE, SUB_DEPTH_CHANGE, SUB_BEAT_FREQUENCY_CHANGE, SUB_DETUNE_CHANGE, SUB_DETUNE_MODE_CHANGE} from "../actions";
 import {defaultSyncConfiguration} from "../configuration";
 
@@ -15,7 +15,7 @@ class SubViewPresentation extends Component {
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
         "handlers": PropTypes.object,
-        "patch": subPatchDataShape.isRequired,
+        "patch": subPatchShape.isRequired,
         "syncHandlers": PropTypes.objectOf(PropTypes.func).isRequired
     }
 
@@ -37,7 +37,7 @@ class SubViewPresentation extends Component {
 
     render () {
         const {patch, configuration, handlers, syncHandlers} = this.props;
-        const {outputStageHandlers, depthChange, beatToggle, beatChange, detuneChange} = handlers;
+        const {outputStageHandlers, beatChange, detuneChange} = handlers;
 
         return (
             <section className="sub-view">

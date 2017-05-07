@@ -1,4 +1,4 @@
-const DOUBLE_PI = require("./constants").DOUBLE_PI;
+import {DOUBLE_PI} from "./constants";
 
 export const wrappers = {
     sync: () => () => 1,
@@ -93,10 +93,107 @@ export const waveforms = {
     }
 };
 
-export const noise = {
-    "white": function whiteNoise (buffer) {
-        for (let i = 0, j = buffer.length; i < j; i += 1) {
-            buffer[i] = Math.random() * 2 - 1;
+const trailingZeros = (size) => {
+
+    const MASK = (1 << size + 1) - 1;
+
+    return (number) => {
+        if ((number & MASK) === 0) {
+            return size;
         }
+
+        let zeros = 1;
+
+        while ((MASK & number) === ((MASK << zeros) & number)) {
+            zeros += 1;
+        }
+
+        return zeros - 1;
+    };
+};
+
+const sineSum = (min, max, weightFn = () => 1) => {
+    const numberOfPartials = Math.ceil(Math.log(max - min) / Math.log(2));
+    // make [weight, phaseOffset] pairs
+    const partials = (new Array(numberOfPartials).fill(0)).map((part, index) => [weightFn(index), Math.random() * DOUBLE_PI]);
+    const sumOfWeights = partials.reduce((acc, curr) => acc + curr[0], 0);
+    let phase = 0;
+
+    return () => {
+        phase += 1;
+        return partials.reduce((acc, partial, index) => (acc + Math.sin((phase * (1 << index)) + partial[1]) * partial[0]), 0) / sumOfWeights;
+    };
+};
+
+export const noise = {
+
+    "white": () => (buffer) => {
+        buffer.forEach((val, index, arr) => arr[index] = Math.random() * 2 - 1);
+    },
+
+    "pink": (resolution = 8) => {
+        const values = new Float32Array(resolution);
+        values.forEach((v, index, arr) => arr[index] = Math.random() * 2);
+
+        const getIndex = trailingZeros(resolution);
+
+        let sum = values.reduce((acc, current) => acc + current);
+        let maxPosition = (1 << resolution) - 1;
+        let position = 1;
+
+        const pinkSum = (v, i, output) => {
+            const index = getIndex(position);
+            const prev = values[index];
+            const curr = Math.random() * 2;
+            values[index] = curr;
+            sum += (curr - prev);
+
+            position = (position % maxPosition) + 1;
+
+            output[i] = (sum / resolution) - 1;
+        };
+
+        return (buffer) => {
+            buffer.forEach(pinkSum);
+        };
+    },
+
+    /*
+    "blue": (resolution = 8) => {
+        const values = new Float32Array(resolution);
+        values.forEach((v, index, arr) => arr[index] = (Math.random() * 2));
+
+        const getIndex = trailingZeros(resolution);
+
+        const blueSum = (acc, current) => acc + (acc - current);
+
+        let maxPosition = (1 << resolution) - 1;
+        let position = 1;
+
+        const blue = (v, i, output) => {
+            const index = getIndex(position);
+            values[index] = Math.random() * 2;
+
+            position = (position % maxPosition) + 1;
+
+            output[i] = values.reduce(blueSum) - 1;
+        };
+
+        return (buffer) => {
+            buffer.forEach(blue);
+        };
+    },
+    */
+
+    "geometric": (decayFactor = 0.1) => {
+        let previous = Math.random() * 2 - 1;
+        const previousFactor = 1 - decayFactor;
+
+        return (buffer) => {
+            buffer.forEach((v, i, arr) => {
+                arr[i] = previous * previousFactor + (Math.random() * 2 - 1) * decayFactor;
+                previous = arr[i];
+            });
+        };
     }
 };

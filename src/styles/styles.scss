@@ -5,6 +5,7 @@ $padding-section-bottom: 0.5rem;
 $padding-section-sides: 1rem;
 $keyboard-section-height: 20vh;
 
+$bg-color: #aff;
 $scope-color: #ff0;
 
 $envelope-circle-radius: 10;
@@ -41,7 +42,7 @@ $waveform-selector-phase-indicator-color: #fff;
 }
 
 body {
-    background-color: #aff;
+    background-color: $bg-color;
 }
 
 button {
@@ -262,7 +263,14 @@ fieldset {
     }
 }
 
-.keyboard.controller {
+.keyboard {
+    $key-width-white: 1rem;
+    $key-width-black-ratio: 0.7;
+    $key-width-black: $key-width-white * $key-width-black-ratio;
+    $black-margin-big: $key-width-white * (1 - ($key-width-black-ratio / 2));
+    $black-margin-small: $key-width-white * ((1 - $key-width-black-ratio) / 2);
+
+
     background-color: $bg-and-section-bg-color;
     border-bottom: none;
     border-bottom-left-radius: 0;
@@ -278,8 +286,204 @@ fieldset {
     z-index: 10;
 
     .keys {
-        border-right: 1px solid $key-stroke-color;
+        border: none;
+        display: block;
         height: 100%;
+        padding: 0;
+
+        .keys-legend {
+            bottom: 100%;
+            position: absolute;
+        }
+
+        &-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+    }
+
+    .white-keys .key,
+    .black-keys .key-wrapper,
+    .key-wrapper::before,
+    .key-wrapper::after {
+        flex: 1 0;
+    }
+
+    .white-keys {
+        flex: 0 0 100%;
+
+        > .key {
+            background-color: $key-color-white;
+            flex-basis: $key-width-white;
+        }
+    }
+
+    $key-flex: #{$key-width-black / 1rem} 0 $key-width-black;
+    $small-flex: #{$black-margin-small / 1rem} 0 $black-margin-small;
+    $big-flex: #{$black-margin-big / 1rem} 0 $black-margin-big;
+    $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width-white + $black-margin-big};
+
+    .black-keys {
+        flex: 0 0 60%;
+        position: relative;
+        top: -100%;
+
+        .key {
+            background-color: $key-color-black;
+            display: block;
+            flex: $key-flex;
+            height: 100%;
+
+
+            &-wrapper {
+                display: flex;
+                flex-grow: $key-width-white / 1rem;
+
+                &::before,
+                &::after {
+                    content: "";
+                    display: block;
+                    flex: $small-flex;
+                }
+
+                &.db,
+                &.gb,
+                &:first-child {
+                    flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+
+                    &::before {
+                        flex: $big-flex;
+                    }
+                }
+
+                &.bb,
+                &.eb,
+                &:last-child {
+                    flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+
+                    &::after {
+                        flex: $big-flex;
+                    }
+                }
+            }
+        }
+    }
+
+    .start-e,
+    .start-b {
+        .key-wrapper {
+            &.db,
+            &.gb {
+                &:first-child {
+                    flex-grow: ($key-width-white + $black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+
+                    &::before {
+                        flex: $big-white-flex;
+                    }
+                }
+            }
+        }
+    }
+
+    .end-c,
+    .end-f {
+        .key-wrapper {
+            &.bb,
+            &.eb {
+                &:last-child {
+                    flex-grow: ($black-margin-small + $key-width-black + $black-margin-big + $key-width-white) / 1rem;
+
+                    &::after {
+                        flex: $big-white-flex;
+                    }
+                }
+            }
+        }
+    }
+
+    .white-keys,
+    .black-keys {
+        display: flex;
+        pointer-events: none;
+
+        .key {
+            align-items: stretch;
+            border: 1px solid $key-stroke-color;
+            display: flex;
+            flex-direction: column-reverse;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            padding: 0;
+            pointer-events: auto;
+
+            &.down {
+                background-color: $key-color-down;
+            }
+
+            &.dropped {
+                background-color: $key-color-dropped;
+            }
+        }
+    }
+
+    .active-key,
+    .in-chord {
+        flex: 0 1 1rem;
+        transition: all 0.5s ease;
+    }
+
+    .active-key {
+        border-radius: 50%;
+        margin: 0 auto;
+        width: 1rem;
+    }
+
+    .in-chord {
+        border-radius: 0;
+        width: 100%;
+    }
+
+    .chord- {
+        &0 {
+            background-color: #f00;
+        }
+
+        &1 {
+            background-color: #0f0;
+        }
+
+        &2 {
+            background-color: #00f;
+        }
+
+        &3 {
+            background-color: #088;
+        }
+
+        &4 {
+            background-color: #808;
+        }
+
+        &5 {
+            background-color: #880;
+        }
+
+        &6 {
+            background-color: #888;
+        }
+
+        &7 {
+            background-color: #f0f;
+        }
+
+        &8 {
+            background-color: #ff0;
+        }
+
+        &9 {
+            background-color: #0ff;
+        }
     }
 
     .sliders {
@@ -309,26 +513,6 @@ fieldset {
                 transform-origin: left bottom;
             }
         }
-    }
-}
-
-.black {
-    fill: $key-color-black;
-}
-
-.white {
-    fill: $key-color-white;
-}
-
-.key {
-    stroke: $key-stroke-color;
-
-    &.down {
-        fill: $key-color-down;
-    }
-
-    &.dropped {
-        fill: $key-color-dropped;
     }
 }
 
@@ -416,5 +600,30 @@ body {
 
     [type="range"] {
         width: 3em;
+    }
+}
+
+.morse {
+    &-svg {
+        height: 3rem;
+        min-width: 10rem;
+        overflow: visible;
+        width: 100%;
+    }
+
+    &-background {
+        fill: #c0ffee;
+    }
+
+    .dit,
+    .dah {
+        stroke: #000;
+        stroke-width: 5;
+    }
+
+    .guide {
+        stroke: #f00;
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
     }
 }

@@ -1,19 +1,27 @@
 import * as Actions from "../actions";
+import {defaultLfoParameters} from "../configuration";
+
 import syncReducer from "./sync";
 
 
-const lfo = (state = [], action) => {
+const lfo = (state = {...defaultLfoParameters}, action) => {
     switch (action.type) {
-        case Actions.LFO_FREQUENCY_CHANGE:
+        case Actions.MODULATOR_FREQUENCY_CHANGE:
             return {
                 ...state,
                 "frequency": action.value
             };
 
-        case Actions.LFO_AMOUNT_CHANGE:
+        case Actions.MODULATOR_AMOUNT_CHANGE:
             return {
                 ...state,
                 "amount": action.value
+            };
+
+        case Actions.MODULATOR_MODE_CHANGE:
+            return {
+                ...state,
+                "mode": action.value
             };
 
         case Actions.LFO_WAVEFORM_CHANGE:
@@ -22,7 +30,7 @@ const lfo = (state = [], action) => {
                 "waveform": action.value
             };
 
-        case Actions.LFO_RESET:
+        case Actions.MODULATOR_RESET:
             // possible implementation: timestamp in the viewState?
             return state;
 
@@ -41,13 +49,25 @@ const lfo = (state = [], action) => {
 const lfos = (state = [], action) => {
     if (action.module === "lfos") {
 
-        let result = [
-            ...state
-        ];
-        result[action.index] = lfo(state[action.index], action);
+        switch (action.type) {
+            case Actions.LFO_WAVEFORM_CHANGE:
+            case Actions.MODULATOR_AMOUNT_CHANGE:
+            case Actions.MODULATOR_FREQUENCY_CHANGE:
+            case Actions.MODULATOR_MODE_CHANGE:
+            case Actions.MODULATOR_RESET:
+            case Actions.SYNC_DENOMINATOR_CHANGE:
+            case Actions.SYNC_NUMERATOR_CHANGE:
+            case Actions.SYNC_TOGGLE:
 
-        return result;
+                const result = [
+                    ...state
+                ];
+                result[action.index] = lfo(state[action.index], action);
+
+                return result;
+        }
     }
+
     return state;
 };
 

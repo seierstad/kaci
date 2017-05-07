@@ -1,12 +1,11 @@
 import React, {Component, PropTypes} from "react";
 
 import {waveforms, wrappers} from "../../waveforms";
-import {oscillatorPatchDataShape, rangeShape} from "../../propdefs";
+import {oscillatorPatchShape, rangeShape} from "../../propdefs";
 
-import DependentComponent from "../dependent-component.jsx";
+import WaveformSelector from "../WaveformSelector.jsx";
 import RangeInput from "../RangeInput.jsx";
 import WaveformCanvas from "./waveform-canvas.jsx";
-import WaveformSelector from "../WaveformSelector.jsx";
 
 
 const getWrapperFunction = (wrapper, waveform, resonance) => (phase) => {
@@ -32,7 +31,7 @@ class Resonance extends Component {
         "configuration": rangeShape.isRequired,
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "mixFunction": PropTypes.func.isRequired,
-        "patch": oscillatorPatchDataShape.isRequired
+        "patch": oscillatorPatchShape.isRequired
     }
 
     constructor () {
@@ -54,7 +53,10 @@ class Resonance extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return (this.props.patch.resonance !== nextProps.patch.resonance) || (this.props.patch.wrapper !== nextProps.patch.wrapper) || (this.props.mixFunction !== nextProps.mixFunction);
+        return this.props.patch.resonance !== nextProps.patch.resonance
+                || this.props.patch.resonanceActive !== nextProps.resonanceActive
+                || this.props.patch.wrapper !== nextProps.patch.wrapper
+                || this.props.mixFunction !== nextProps.mixFunction;
     }
 
     componentWillUpdate (nextProps) {
@@ -66,7 +68,6 @@ class Resonance extends Component {
     }
 
     handleToggle (event) {
-        event.preventDefault();
         this.props.handlers.toggle();
     }
 
@@ -77,7 +78,7 @@ class Resonance extends Component {
         return (
             <div className="oscillator-resonance-view">
                 <WaveformCanvas waveFunction={this.waveFunction} />
-                <input checked={resonanceActive} onChange={this.handleToggle} type="checkbox" />
+                <input checked={!!resonanceActive} onChange={this.handleToggle} type="checkbox" />
                 <RangeInput
                     changeHandler={handlers.factorChange}
                     configuration={configuration}

@@ -1,0 +1,26 @@
+{
+	"presets": [
+		["env", {
+			"targets": {
+				"browsers": ["last 1 versions", "not last 2 ie versions", "not last 2 ie_mob versions"]
+			},
+			"useBuiltIns": true,
+			"debug": true,
+			"modules": false
+		}],
+		"react"
+	],
+	"plugins": [
+		"transform-class-properties",
+		"transform-object-rest-spread",
+		"external-helpers"
+	],
+	"env": {
+		"production": {
+			"plugins": [
+				"transform-react-remove-prop-types",		
+				"transform-react-constant-elements"
+			]
+		}
+	}
+}

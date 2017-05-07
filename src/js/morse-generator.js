@@ -1,0 +1,124 @@
+//import WavyJones from "../../lib/wavy-jones";
+import {BUFFER_LENGTH} from "./constants";
+import Periodic from "./decorators/periodic";
+import {inputNode, morseEncode, padPattern, shiftPattern, fillPatternToMultipleOf} from "./shared-functions";
+import Oscillator from "./decorators/oscillator";
+
+
+class MorseOscillator extends Oscillator {
+
+    generatorFunction (frequency, detune) {
+        let calculatedFrequency;
+
+        if (frequency === this.previous.frequency && detune === this.previous.detune) {
+            calculatedFrequency = this.previous.calculatedFrequency;
+        } else {
+            calculatedFrequency = this.getComputedFrequency(frequency, detune);
+            this.previous = {
+                frequency,
+                detune,
+                calculatedFrequency
+            };
+        }
+        this.incrementPhase(calculatedFrequency);
+
+        const index = Math.floor(this.phase * this.pattern.length);
+
+        return this.pattern[index] ? 1 : -1;
+    }
+
+    set pattern (pattern) {
+        this.morsePattern = pattern;
+    }
+
+    get pattern () {
+        return this.morsePattern;
+    }
+}
+
+
+class MorseGenerator extends Periodic {
+
+    constructor (context, store, patch, dc, index, isSyncMaster) {
+        super(context, store, patch, dc, index, isSyncMaster);
+
+        this.stateChangeHandler = this.stateChangeHandler.bind(this);
+        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+
+        this.oscillator = new MorseOscillator(context, dc);
+        this.oscillator.connect(this.postGain);
+
+        for (let name in this.outputs) {
+            this.oscillator.connect(this.outputs[name]);
+        }
+
+        this.parameters = {...this.oscillator.targets};
+        this.pattern = patch;
+
+        this.updateFrequency(this.state.frequency);
+    }
+
+    updateFrequency (frequency) {
+        this.frequency = frequency * (this.state.speedUnit / this.oscillator.pattern.length);
+    }
+
+    set pattern ({text, speedUnit, shift, padding, fillToFit}) {
+        let pattern = morseEncode(text);
+        if (padding) {
+            pattern = padPattern(pattern, padding);
+        }
+        if (fillToFit && speedUnit) {
+            pattern = fillPatternToMultipleOf(pattern, speedUnit);
+        }
+        if (shift) {
+            pattern = shiftPattern(pattern, shift);
+        }
+
+        if (pattern.length === 0) {
+            pattern = [false];
+        }
+        this.oscillator.pattern = pattern;
+    }
+
+    updateState (newState) {
+        const patternChanged = (
+            this.state.text !== newState.text
+            || this.state.speedUnit !== newState.speedUnit
+            || this.state.shift !== newState.shift
+            || this.state.padding !== newState.padding
+            || this.state.fillToFit !== newState.fillToFit
+        );
+
+        if (patternChanged) {
+            this.pattern = newState;
+        }
+
+        if (patternChanged || this.state.frequency !== newState.frequency) {
+            this.updateFrequency(newState.frequency);
+        }
+
+        this.state = newState;
+    }
+
+    stateChangeHandler () {
+
+        const newState = this.store.getState().patch.morse[this.index];
+
+        if (newState && (newState !== this.state)) {
+            super.updateState(newState);
+            this.updateState(newState);
+        }
+    }
+
+    destroy () {
+        super.destroy();
+
+        this.unsubscribe();
+
+        this.stateChangeHandler = null;
+        this.unsubscribe = null;
+    }
+}
+
+
+export default MorseGenerator;

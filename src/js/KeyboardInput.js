@@ -57,10 +57,9 @@ class KeyboardInput {
             event.preventDefault();
             event.stopPropagation();
             this.pressedControlKeys[this.layout.controls.CHORD_SHIFT_TOGGLE] = true;
-        } else {
-            console.log(event.keyCode); // uncomment to get keyCodes for new layouts
-
         }
+
+        // console.log(event.keyCode); // uncomment to get keyCodes for new layouts
     }
 
     keyUpHandler (event) {

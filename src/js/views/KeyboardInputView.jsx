@@ -1,14 +1,12 @@
 import React, {Component, PropTypes} from "react";
-import {connect} from "react-redux";
 
-import {keyboardShape} from "../propdefs";
-import * as Actions from "../actions";
+import {keyboardConfigShape} from "../propdefs";
 
 
 class KeyboardInputView extends Component {
 
     static propTypes = {
-        "configuration": keyboardShape.isRequired,
+        "configuration": keyboardConfigShape.isRequired,
         "handlers": PropTypes.object.isRequired
     }
 

@@ -1,5 +1,4 @@
 import {BUFFER_LENGTH} from "./constants";
-import {inputNode} from "./SharedFunctions";
 import {noise} from "./waveforms";
 import OutputStage from "./output-stage";
 
@@ -27,7 +26,7 @@ class Noise {
 
     set color (color) {
         if (typeof noise[color] === "function") {
-            this.generatorFunction = noise[color];
+            this.generatorFunction = noise[color]();
         }
     }
 

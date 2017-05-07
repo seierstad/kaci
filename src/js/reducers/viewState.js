@@ -1,6 +1,8 @@
-import * as Actions from "../actions";
 import {combineReducers} from "redux";
+
+import * as Actions from "../actions";
 import config from "../configuration";
+
 
 const envelope = (state = [], action) => {
     switch (action.type) {
@@ -61,7 +63,7 @@ const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
 };
 
 
-const envelopes = (state = new Array(config.modulation.source.envelopes.count).fill(config.modulation.source.envelopes.defaultState), action) => {
+const envelopes = (state = new Array(config.modulation.source.envelope.count).fill(config.modulation.source.envelope.defaultState), action) => {
     const index = action.envelopeIndex;
 
     if (!isNaN(index) && action.module === "envelopes") {
@@ -94,9 +96,54 @@ const oscillator = (state = {"pd": [[], []]}, action) => {
     }
     return state;
 };
+
+const morseGen = (state = {"guides": []}, action) => {
+    switch (action.type) {
+        case Actions.MORSE_GUIDE_TOGGLE:
+            const index = state.guides.indexOf(action.value);
+
+            if (~index) {
+                return {
+                    ...state,
+                    "guides": [
+                        ...state.guides.slice(0, index),
+                        ...state.guides.slice(index + 1)
+                    ]
+                };
+            }
+
+            return {
+                ...state,
+                "guides": [
+                    ...state.guides,
+                    action.value
+                ]
+            };
+    }
+
+    return state;
+};
+
+const morse = (state = [], action) => {
+    if (action.module === "morse") {
+        switch (action.type) {
+            case Actions.MORSE_GUIDE_TOGGLE:
+
+                return [
+                    ...state.slice(0, action.index),
+                    morseGen(state[action.index], action),
+                    ...state.slice(action.index + 1)
+                ];
+        }
+    }
+
+    return state;
+};
+
 const viewState = combineReducers({
     envelopes,
-    oscillator
+    oscillator,
+    morse
 });
 
 export default viewState;

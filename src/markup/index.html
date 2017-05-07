@@ -1,12 +1,73 @@
 <!doctype html>
-<html>
+<html lang="en" dir="ltr">
     <head>
         <meta charset="utf-8" />
-        <title>Kaci-O5 - Phase distortion synthesizer</title>
+        <title>Kaci O5 - Phase distortion synthesizer</title>
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+        <meta name="theme-color" content="#aff">
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <link rel="stylesheet" href="css/styles.css" />
+        <link rel="manifest" href="kaci.webmanifest" />
+        <link rel="icon" type="image/svg+xml" sizes="16x16 32x32 48x48 64x64 72x72 96x96 192x912" href="images/icon.svg" />
+        <link rel="icon" type="image/png" sizes="16x16" href="images/icon-16x16.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="images/icon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="48x48" href="images/icon-48x48.png" />
+        <link rel="icon" type="image/png" sizes="64x64" href="images/icon-64x64.png" />
+        <link rel="icon" type="image/png" sizes="72x72" href="images/icon-72x72.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="images/icon-96x96.png" />
+        <link rel="icon" type="image/png" sizes="144x144" href="images/icon-144x144.png" />
+        <link rel="icon" type="image/png" sizes="152x152" href="images/icon-152x152.png" />
+        <link rel="icon" type="image/png" sizes="180x180" href="images/icon-180x180.png" />        
+        <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192x192.png" />
+
+        <!-- e-corp specific metadata -->
+        <meta name="msapplication-TileColor" content="#aff" />
+        <meta name="msapplication-TileImage" content="/images/icon-144x144.png" />
+        <meta name="application-name" content="Kaci 05" />
+
+        <!-- apple specific metadata -->
+        <link
+            rel="apple-touch-startup-image"
+            href="images/apple/iphone-startup.png"
+        />
+        <link 
+            rel="apple-touch-startup-image"
+            href="images/apple/ipad-landscape-startup.png"
+            media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)"
+        />
+        <link
+            rel="apple-touch-startup-image"
+            href="images/apple/ipad-portrait-startup.png"
+            media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)"
+        />
+        <meta
+            name="apple-mobile-web-app-capable"
+            content="yes"
+        />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
+
+        <script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", function() {
+                    navigator.serviceWorker.register("service-worker.js").then(function(registration) {
+                        // Registration was successful
+                        console.log("ServiceWorker registration successful with scope: ", registration.scope);
+                    }).catch(function(err) {
+                        // registration failed :(
+                        console.log("ServiceWorker registration failed: ", err);
+                    });
+                });
+            }
+        </script>
     </head>
     <body>
-        <div class="oscilloscope" id="oscilloscope"></div>
+        <noscript>
+            <p>Disabled Javascript => no Kaci :(</p>
+        </noscript>
         <div class="kaci-wrapper" id="kaci"></div>
         <script src="js/libs.js"></script>
         <script src="js/kaci.js"></script>

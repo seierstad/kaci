@@ -1,16 +1,16 @@
 import React, {Component, PropTypes} from "react";
 
+import {envelopesPatchShape, modulationEnvelopeSourcesShape, sustainEnvelopeViewStateShape} from "../../propdefs";
+
 import SustainEnvelope from "./sustain-envelope.jsx";
 
-
-import {envelopesPatchDataShape, modulationEnvelopeSourcesShape, sustainEnvelopeViewStateShape} from "../../propdefs";
 
 class Envelopes extends Component {
 
     static propTypes = {
         "configuration": modulationEnvelopeSourcesShape.isRequired,
         "handlers": PropTypes.object,
-        "patch": envelopesPatchDataShape,
+        "patch": envelopesPatchShape,
         "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)
     }
 

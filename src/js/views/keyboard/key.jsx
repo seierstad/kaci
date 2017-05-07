@@ -1,17 +1,26 @@
 import React, {Component, PropTypes} from "react";
 import {connect} from "react-redux";
 
+import {keyStateShape} from "../../propdefs";
 import * as Actions from "../../actions";
 
 class KeyPresentation extends Component {
 
     static propTypes = {
+        "chordRatio": PropTypes.number,
+        "chordShiftActiveKey": PropTypes.bool,
+        "chordShiftChordCount": PropTypes.number,
         "handlers": PropTypes.shape({
             "down": PropTypes.func.isRequired,
             "up": PropTypes.func.isRequired
         }),
+        "highChordIndex": PropTypes.number,
+        "inChordShiftChords": PropTypes.arrayOf(PropTypes.number),
+        "lowChordIndex": PropTypes.number,
         "name": PropTypes.string.isRequired,
-        "number": PropTypes.number.isRequired
+        "number": PropTypes.number.isRequired,
+        "state": keyStateShape,
+        "wrap": PropTypes.bool
     }
 
     constructor () {
@@ -19,10 +28,6 @@ class KeyPresentation extends Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return nextProps.playState !== this.props.playState;
     }
 
     handleKeyDown (event) {
@@ -46,24 +51,48 @@ class KeyPresentation extends Component {
     }
 
     render () {
-        const {x, width, height, name, playState} = this.props;
+        const {name, inChordShiftChords, state, wrap, chordShiftActiveKey, chordShiftChordCount, lowChordIndex, highChordIndex, chordRatio} = this.props;
         const classNames = ["key", name];
-        if (playState && playState.down) {
+        if (state && state.down) {
             classNames.push("down");
         }
-        return (
-            <rect
+
+        const button = (
+            <button
                 className={classNames.join(" ")}
-                height={height}
                 onMouseDown={this.handleKeyDown}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseUp={this.handleKeyUp}
                 ref={k => this.element = k}
-                width={width + "%"}
-                x={x}
-                y="0"
-            />
+            >
+                {inChordShiftChords ?
+                    inChordShiftChords.map(
+                        chordIndex => {
+                            const grow = chordIndex === lowChordIndex ? chordRatio : chordIndex === highChordIndex ? 100 - chordRatio : null;
+                            return (
+                                <div
+                                    className={"in-chord chord-" + chordIndex}
+                                    key={chordIndex}
+                                    style={grow ? {flexBasis: grow} : null}
+                                />
+                            );
+                        }
+                    )
+                    : null
+                }
+                {chordShiftActiveKey ? <div className={"active-key chord-" + chordShiftChordCount} /> : null}
+            </button>
         );
+
+        if (wrap) {
+            return (
+                <div className={"key-wrapper " + name}>
+                    {button}
+                </div>
+            );
+        }
+
+        return button;
     }
 }
 

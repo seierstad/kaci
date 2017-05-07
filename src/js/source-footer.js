@@ -34,4 +34,4 @@
 //                                ,/#%%##((/////////*
 //                                    *(#%%%#(/**,
 //
-//    Kaci O Five is a tribute to both a great leader and a great lead synth.
+//    Kaci O.5 is a tribute to both a great leader and a great lead synth.
