@@ -4,6 +4,15 @@ import * as c from "./midiConstants";
 
 class MidiInput {
     constructor (store) {
+        this.store = store;
+
+        if (!navigator || typeof navigator.requestMIDIAccess !== "function") {
+            this.store.dispatch({
+                type: Actions.MIDI_UNAVAILABLE
+            });
+            return null;
+        }
+
         this.midiAccessSuccess = this.midiAccessSuccess.bind(this);
         this.midiAccessFailure = this.midiAccessFailure.bind(this);
         this.accessStateChangeHandler = this.accessStateChangeHandler.bind(this);
@@ -16,17 +25,9 @@ class MidiInput {
         this.timeCodeHandler = this.timeCodeHandler.bind(this);
         this.update = this.update.bind(this);
 
-        this.clock = {
-            ticks: [],
-            tempo: null,
-            sync: null,
-            diff: 0
-        };
-
-        this.store = store;
         this.state = store.getState().settings.midi;
-
         this.unsubscribe = this.store.subscribe(this.update);
+
         this.access = null;
         this.inputs = {};
         this.inputState = [];
@@ -34,6 +35,12 @@ class MidiInput {
         this.activeInputId = null;
         this.activeInput = null;
         this.activeChannel = this.state.channel || "all";
+        this.clock = {
+            ticks: [],
+            tempo: null,
+            sync: null,
+            diff: 0
+        };
         this.runningStatusBuffer = null;
         this.valuePairs = {
             "BANK_SELECT": {
@@ -98,14 +105,16 @@ class MidiInput {
             }
         };
 
-        if (navigator && navigator.requestMIDIAccess) {
+        this.active = !!this.state.active;
+    }
+
+    set active (active) {
+        if (active) {
             this.midiAccessRequest = navigator.requestMIDIAccess({
                 "sysex": true
             }).then(this.midiAccessSuccess, this.midiAccessFailure);
         } else {
-            this.store.dispatch({
-                type: Actions.MIDI_UNAVAILABLE
-            });
+            console.log("TODO: disconnect MIDI access");
         }
     }
 
@@ -117,6 +126,10 @@ class MidiInput {
         }
         if (this.activeChannel !== state.channel) {
             this.selectChannel(state.channel);
+        }
+        if (this.state.active !== state.active) {
+            this.active = state.active;
+            this.state.active = state.active;
         }
     }
 
