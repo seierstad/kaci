@@ -23,6 +23,12 @@ const Modulator = Sup => class Modulator extends Sup {
         this.amountChange = this.amountChange.bind(this);
     }
 
+    componentDidMount() {
+    }
+
+    componentDidUpdate() {
+    }
+
     amountChange (value) {
         const {index, handlers} = this.props;
         handlers.amountChange(value, this.module, index);
