@@ -256,10 +256,14 @@ class ModulationMatrix {
 
     patchVoice (voice) {
 
-        const voiceSources = voice.sources;
-        const {lfos, envelopes, morse} = voiceSources;
-
-        const voiceTargets = voice.targets;
+        const {
+            sources: {
+                lfos,
+                envelopes,
+                morse
+            } = {},
+            targets: voiceTargets = {}
+        } = voice;
 
         const envelopeConnections = {};
         const lfoConnections = {};

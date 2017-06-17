@@ -550,6 +550,40 @@ fieldset {
     }
 }
 
+.harmonics {
+    &-flex-wrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+}
+
+.harmonic {
+    background: #0f0;
+
+    &-flex-wrapper {
+        max-width: 3rem;
+    }
+
+    &-level {
+        text-align: center;
+
+        [type="range"] {
+            transform: rotateZ(-90deg);
+            transform-origin: bottom left;
+        }
+    }
+
+    &-phase {
+        max-width: 3rem;
+        text-align: center;
+
+        [type="range"] {
+            max-width: 100%;
+        }
+    }
+}
+
 body {
     padding: 2rem;
 }
@@ -605,10 +639,9 @@ body {
 
 .morse {
     &-svg {
-        height: 3rem;
-        min-width: 10rem;
+        display: block;
+        height: 5rem;
         overflow: visible;
-        width: 100%;
     }
 
     &-background {
@@ -618,12 +651,17 @@ body {
     .dit,
     .dah {
         stroke: #000;
-        stroke-width: 5;
+        stroke-width: 0.8;
     }
 
     .guide {
         stroke: #f00;
         stroke-width: 1;
         vector-effect: non-scaling-stroke;
+    }
+
+    .phase-indicator {
+        background-color: #ff0;
+        display: inline-block;
     }
 }

@@ -9,11 +9,59 @@ class MorseSvg extends Component {
         "wrap": PropTypes.number
     }
 
+    constructor (props) {
+        super(props);
+        this.setPhaseAnimation = this.setPhaseAnimation.bind(this);
+        this.width = 0;
+        this.height = 0;
+        this.phaseIndicator = null;
+        this.animation = null;
+        this.row = null;
+        this.duration = 1000;
+    }
+
+    componentDidMount() {
+        /*
+        this.phaseIndicator.style.offsetPath = this.pathData;
+        this.phaseIndicator.style.offsetDistance = 4;
+        */
+        this.setPhaseAnimation();
+
+    }
+
+    componentDidUpdate () {
+        this.setPhaseAnimation();
+    }
+
+    setPhaseAnimation () {
+        this.row.animate([
+            {transform: "translateY(0)" },
+            {transform: "translateY(" + this.height + "px)" }
+        ], {
+            fill: "forwards",
+            easing: "steps(" + this.height + ", start)",
+            iterations: 1,
+            duration: this.duration
+        });
+
+        this.phaseIndicator.animate([
+            {transform: "translateX(0)"},
+            {transform: "translateX(" + this.width + "px)"}
+        ], {
+            fill: "forwards",
+            easing: "steps(" + this.width + ", start)",
+            iterations: this.height,
+            duration: this.duration / this.height
+        });
+    }
+
     render () {
-        const {data, wrap, strokeWidth = 6, guides = [3, 4]} = this.props;
+        const {data, wrap, strokeWidth = 1, guides = [3, 4]} = this.props;
         const {length} = data;
         const width = wrap ? wrap : length;
         const height = wrap ? Math.ceil(length / wrap) : 1;
+        this.width = width;
+        this.height = height;
 
         const pattern = data.reduce((acc, curr, index, arr) => {
             if (index === 0) {
@@ -83,12 +131,17 @@ class MorseSvg extends Component {
             return <path className="guide" d={d.join(" ")} key={guide} />;
         });
 
+        let motionPathDataPoints = [];
+        for (let r = 0, l = length; r < height; r += 1, l -= width) {
+            motionPathDataPoints.push("M0", ((r + 0.5) * strokeWidth), "h", Math.min(l, width) * strokeWidth);
+        }
+
+        const motionPathData = motionPathDataPoints.join(" ");
+        this.pathData = motionPathData;
         return (
             <svg
                 className="morse-svg"
-                height={height * strokeWidth}
                 viewBox={[0, 0, width * strokeWidth, height * strokeWidth].join(" ")}
-                width={width * strokeWidth}
             >
                 <defs>
                     <marker id="wrapped-dah"
@@ -102,10 +155,27 @@ class MorseSvg extends Component {
                     >
                         <path d="M 5 0 L 0 5 5 10 10 5 z" fill="currentColor" />
                     </marker>
+                    <path d={motionPathData} id="motion-path" pathLength={length} />
                 </defs>
                 <path className="morse-background" d={["M", width * strokeWidth, 0, "h", -width * strokeWidth, "v", height * strokeWidth, ...backgroundBottom, "z"].join(" ")} />
                 {paths}
                 {guidePaths}
+                <g className="row" ref={row => this.row = row}>
+                    <rect
+                        fill="blue"
+                        height={strokeWidth}
+                        opacity="0.5"
+                        width="100%"
+                        y="-1"
+                    />
+                    <circle
+                        cx={strokeWidth / -2}
+                        cy={strokeWidth / -2}
+                        fill="pink"
+                        r={strokeWidth / 2}
+                        ref={c => this.phaseIndicator = c}
+                    />
+                </g>
             </svg>
         );
     }

@@ -1,5 +1,6 @@
 /*global document, module, require, CustomEvent */
 import React, {Component, PropTypes} from "react";
+import autobind from "autobind-decorator";
 
 import {lfoPatchShape, modulationLfoSourcesConfigShape} from "../../propdefs";
 import {waveforms} from "../../waveforms";
@@ -17,26 +18,36 @@ class LFO extends Component {
         "patch": lfoPatchShape.isRequired
     }
 
-    constructor () {
-        super();
+    constructor (props) {
+        super(props);
         this.waveformSelector = null;
         this.waveforms = {};
         this.module = "lfos";
     }
 
     componentWillMount () {
-
         for (const w in waveforms) {
             this.waveforms[w] = waveforms[w]();
         }
+    }
+
+    componentDidMount () {
+        this.phaseIndicator = this.waveformSelector.phaseIndicator;
+        this.updatePhaseIndicator(true);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        this.phaseIndicator = this.waveformSelector.phaseIndicator;
+        this.updatePhaseIndicator(true);
     }
 
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
     }
 
-    componentDidUpdate () {
-        this.waveformSelector.activeButton.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
+    @autobind
+    updatePhaseIndicator (time, phase) {
+        this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
     }
 
     render () {
@@ -48,7 +59,7 @@ class LFO extends Component {
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
                 <WaveformSelector
                     changeHandler={handlers.changeWaveform}
-                    includePhaseIndicator
+                    includePhaseIndicator={true}
                     index={index}
                     module={this.module}
                     parameter="waveform"

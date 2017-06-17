@@ -39,6 +39,7 @@ class RangeInput extends Component {
 
     static propTypes = {
         "changeHandler": PropTypes.func.isRequired,
+        "className": PropTypes.string,
         "configuration": PropTypes.shape({
             "exponential": PropTypes.bool,
             "max": PropTypes.number.isRequired,
@@ -47,6 +48,7 @@ class RangeInput extends Component {
             "step": PropTypes.number
         }),
         "disabled": PropTypes.bool,
+        "eventParams": PropTypes.object,
         "label": PropTypes.string.isRequired,
         "value": PropTypes.number.isRequired
     }
@@ -75,18 +77,20 @@ class RangeInput extends Component {
     handleChange (event) {
         event.stopPropagation();
         event.preventDefault();
-        const {exponential} = this.props.configuration;
+
+        const {eventParams, configuration: {exponential}} = this.props;
         const value = parseFloat(this.input.value, 10);
-        this.props.changeHandler(exponential ? this.scale.up(value) : value);
+
+        this.props.changeHandler(exponential ? this.scale.up(value) : value, eventParams);
     }
 
     handleReset () {
-        const {mid, exponential} = this.props.configuration;
-        this.props.changeHandler(exponential ? this.scale.up(mid) : mid);
+        const {eventParams, configuration: {mid, exponential}} = this.props;
+        this.props.changeHandler(exponential ? this.scale.up(mid) : mid, eventParams);
     }
 
     render () {
-        const {configuration, value, disabled, label} = this.props;
+        const {className, configuration, value, disabled, label} = this.props;
         const {min, max, mid, step = 0.001, exponential} = configuration;
 
         const centerButton = (typeof mid === "number") ? (
@@ -94,7 +98,7 @@ class RangeInput extends Component {
         ) : null;
 
         return (
-            <div>
+            <div className={className ? className : null}>
                 {centerButton}
                 <input
                     disabled={disabled}

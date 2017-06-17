@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from "react";
+import autobind from "autobind-decorator";
 
 import WaveformButton from "./waveform-button.jsx";
 
@@ -22,15 +23,28 @@ class WaveformSelector extends Component {
         "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
     }
 
-    constructor () {
-        super();
-        this.handleChange = this.handleChange.bind(this);
+    constructor (props) {
+        super(props);
+        this.activeButton = null;
     }
 
     shouldComponentUpdate (nextProps) {
         return nextProps.selected !== this.props.selected;
     }
 
+    componentDidMount () {
+        if (this.props.includePhaseIndicator) {
+            this.phaseIndicator = this.activeButton.phaseIndicator;
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.props.includePhaseIndicator) {
+            this.phaseIndicator = this.activeButton.phaseIndicator;
+        }
+    }
+
+    @autobind
     handleChange (waveformName) {
         const {changeHandler, module, index} = this.props;
         changeHandler(waveformName, module, index);
@@ -50,18 +64,18 @@ class WaveformSelector extends Component {
             <fieldset className="waveform-selector" onChange={this.handleChange}>
                 <legend>waveform</legend>
                 <div className="flex-wrapper">
-                    {Object.keys(waveforms).map(w => (
+                    {Object.keys(waveforms).map(waveform => (
                         <WaveformButton
                             controlName={controlName}
                             includePhaseIndicator={!!includePhaseIndicator}
                             index={index}
-                            key={w}
+                            key={waveform}
                             module={module}
                             onChange={this.handleChange}
-                            ref={includePhaseIndicator && selected === w ? (p => this.activeButton = p) : null}
-                            selected={selected === w}
-                            waveform={w === "sampleAndHold" ? (phase) => waveforms[w](phase, sampleAndHoldBuffer, 4) : waveforms[w]}
-                            waveformName={w}
+                            ref={includePhaseIndicator && selected === waveform ? (p => this.activeButton = p) : null}
+                            selected={selected === waveform}
+                            waveform={waveform === "sampleAndHold" ? (phase) => waveforms[waveform](phase, sampleAndHoldBuffer, 4) : waveforms[waveform]}
+                            waveformName={waveform}
                         />
                     ))}
                 </div>

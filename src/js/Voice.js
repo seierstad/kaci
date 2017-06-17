@@ -84,8 +84,8 @@ class Voice {
             }
 
             if (o !== oNew) {
-                const {active: a, waveform: wa, pd, resonanceActive: ra, wrapper: wr} = o;
-                const {active: aNew, waveform: waNew, pd: pdNew, resonanceActive: raNew, wrapper: wrNew} = oNew;
+                const {active: a, waveform: wa, pd, mode: m, wrapper: wr, harmonics: h} = o;
+                const {active: aNew, waveform: waNew, pd: pdNew, mode: mNew, wrapper: wrNew, harmonics: hNew} = oNew;
 
                 if (a !== aNew) {
                     this.oscillator.active = aNew;
@@ -99,8 +99,8 @@ class Voice {
                     this.oscillator.wrapper = wrNew;
                 }
 
-                if (ra !== raNew) {
-                    this.oscillator.resonanceActive = raNew;
+                if (m !== mNew) {
+                    this.oscillator.mode = mNew;
                 }
 
                 if (pd !== pdNew) {
@@ -111,6 +111,10 @@ class Voice {
                         this.oscillator.pd1 = pdNew[1];
                     }
 
+                }
+
+                if (h !== hNew) {
+                    console.log("TODO: implement harmonics updater in PDOscillator");
                 }
             }
 

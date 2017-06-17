@@ -1,9 +1,10 @@
 import {waveforms, wrappers} from "./waveforms";
 
-import {mixValues, phaseDistortionFunction, inputNode} from "./shared-functions";
+import {mixValues, phaseDistortionFunction, inputNode, lcmReducer} from "./shared-functions";
 
-import {BUFFER_LENGTH} from "./constants";
+import {BUFFER_LENGTH, OSCILLATOR_MODE} from "./constants";
 import OutputStage from "./output-stage";
+
 
 class PDOscillator {
     static inputDefs = [
@@ -27,20 +28,17 @@ class PDOscillator {
         this.context = context;
         this.state = patch;
 
-
         // gain, pan and mute
         this.outputStage = new OutputStage(context, dc, !!patch.active);
 
         this.parameters = {...this.outputStage.parameters};
         this.mergedInput = context.createChannelMerger(this.constructor.inputDefs.length);
 
-        const p = this.parameters;
-
-        this.constructor.inputDefs.forEach((def, i) => {
-            p[def.name] = inputNode(context);
+        this.constructor.inputDefs.forEach((def, index) => {
+            this.parameters[def.name] = inputNode(context);
 
             //connect input to merge node
-            p[def.name].connect(this.mergedInput, null, i);
+            this.parameters[def.name].connect(this.mergedInput, null, index);
         });
 
         this.phase = 0;
@@ -57,12 +55,18 @@ class PDOscillator {
 
         this.pdFunctions = [];
 
+        this.counter = 0;
+        const {harmonics = []} = this.state;
+        const harmonicNumerators = harmonics.map(h => h.numerator);
+        const harmonicDenominators = harmonics.map(h => h.denominator);
+        this.counterMax = [...harmonicNumerators, ...harmonicDenominators].reduce(lcmReducer, 1);
+
         this.audioProcessHandler = this.audioProcessHandler.bind(this);
 
 
         //set frequency
-        dc.connect(p.frequency);
-        p.frequency.gain.value = 440;
+        dc.connect(this.parameters.frequency);
+        this.parameters.frequency.gain.value = 440;
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);
@@ -71,7 +75,7 @@ class PDOscillator {
         this.frequency = frequency;
         this.active = patch.active;
         this.waveform = patch.waveform;
-        this.resonanceActive = patch.resonanceActive;
+        this.mode = patch.mode;
         this.wrapper = patch.wrapper;
     }
 
@@ -97,6 +101,14 @@ class PDOscillator {
         } else if (wrapper.name && typeof wrappers[wrapper.name] === "function") {
             this.selectedWrapper = wrappers[wrapper.name](wrapper.parameters);
         }
+    }
+
+    set mode (mode) {
+        this.state.mode = mode;
+    }
+
+    get mode () {
+        return this.state.mode;
     }
 
     set frequency (frequency) {
@@ -164,15 +176,40 @@ class PDOscillator {
 
         this.incrementPhase(calculatedFrequency);
 
-        if (!this.resonanceActive) {
-            distortedPhaseMix = mixValues(this.pdFunctions[0](this.phase), this.pdFunctions[1](this.phase), mix);
+        switch (this.mode) {
+            case OSCILLATOR_MODE.HARMONICS:
+                distortedPhaseMix = mixValues(this.pdFunctions[0](this.phase), this.pdFunctions[1](this.phase), mix);
 
-            return this.selectedWaveform(distortedPhaseMix);
+                // sub octave, almost for free
+                const counterPhase = distortedPhaseMix + this.counter;
+                const sum = this.state.harmonics.reduce((acc, h) => acc + Math.abs(h.level), 0);
+
+                return this.state.harmonics.reduce((result, harmonic, index) => {
+                    if (harmonic.enabled && harmonic.level > 0) {
+                        const harmonicPdPhase = ((counterPhase % harmonic.denominator) * harmonic.numerator / harmonic.denominator);
+                        const phaseSum = (harmonicPdPhase + (harmonic.phase || 0)) % 1;
+                        const harmonicPhase = (phaseSum >= 0) ? phaseSum : (1 + phaseSum);
+                        const normalizedLevel = harmonic.level / sum;
+
+                        return result + (this.selectedWaveform(harmonicPhase) * normalizedLevel);
+                    }
+
+                    return result;
+                }, 0);
+                /*
+                const subOctavePhase = (distortedPhaseMix + this.counter) / COUNTER_MAX;
+                return (this.selectedWaveform(distortedPhaseMix) + this.selectedWaveform(subOctavePhase)) / 2;
+                */
+
+            case OSCILLATOR_MODE.RESONANT:
+                this.incrementResonancePhase(calculatedResonanceFrequency);
+                distortedPhaseMix = mixValues(this.pdFunctions[0](this.resonancePhase), this.pdFunctions[1](this.resonancePhase), mix);
+                return this.selectedWaveform(distortedPhaseMix) * this.selectedWrapper(this.phase);
+
+            default:
+                return 0;
         }
 
-        this.incrementResonancePhase(calculatedResonanceFrequency);
-        distortedPhaseMix = mixValues(this.pdFunctions[0](this.resonancePhase), this.pdFunctions[1](this.resonancePhase), mix);
-        return this.selectedWaveform(distortedPhaseMix) * this.selectedWrapper(this.phase);
 
     }
 
@@ -182,6 +219,8 @@ class PDOscillator {
         if (this.phase > 1) {
             this.resonancePhase = 0;
             this.phase %= 1;
+            this.counter += 1;
+            this.counter %= this.counterMax;
         }
     }
 

@@ -1,82 +1,20 @@
 import {combineReducers} from "redux";
 
 import * as Actions from "../actions";
+import defaultPatch from "../patch";
+
 
 import envelopes, {steps} from "./envelopes";
 import lfos from "./lfos";
 import modulation from "./modulation";
 import morse from "./morse";
 import syncReducer from "./sync";
-
+import oscillator from "./oscillator";
 
 const main = (state = {active: true, pan: 0, gain: 1}) => {
     return state;
 };
 
-const oscillator = (state = {}, action) => {
-    switch (action.type) {
-        case Actions.OSCILLATOR_RESONANCE_FACTOR_CHANGE:
-            return {
-                ...state,
-                resonance: action.value
-            };
-
-        case Actions.OSCILLATOR_RESONANCE_TOGGLE:
-            return {
-                ...state,
-                resonanceActive: !state.resonanceActive
-            };
-
-        case Actions.OSCILLATOR_WRAPPER_CHANGE:
-            return {
-                ...state,
-                wrapper: action.value
-            };
-
-        case Actions.OSCILLATOR_WAVEFORM_CHANGE:
-            return {
-                ...state,
-                waveform: action.value
-            };
-
-        case Actions.OSCILLATOR_MIX_CHANGE:
-            return {
-                ...state,
-                mix: action.value
-            };
-
-        case Actions.OSCILLATOR_DETUNE_CHANGE:
-            return {
-                ...state,
-                detune: action.value
-            };
-
-    }
-
-    if (action.module === "oscillator") {
-        // generic actions targeting oscillator parameters
-
-        switch (action.type) {
-            case Actions.ENVELOPE_POINT_DELETE:
-            case Actions.ENVELOPE_POINT_ADD:
-            case Actions.ENVELOPE_POINT_CHANGE:
-                const pd = [
-                    ...state.pd
-                ];
-
-                pd[action.envelopeIndex] = {
-                    steps: steps(state.pd[action.envelopeIndex].steps, action)
-                };
-
-                return {
-                    ...state,
-                    "pd": pd
-                };
-        }
-    }
-
-    return state;
-};
 
 const output = (state, action) => {
     switch (action.type) {
@@ -161,6 +99,11 @@ const sub = (state = {}, action) => {
 const patch = (state, action) => {
 
     switch (action.type) {
+        case Actions.SYSTEM_RESET:
+            return {
+                ...defaultPatch
+            };
+
         case Actions.OUTPUT_GAIN_CHANGE:
         case Actions.OUTPUT_PAN_CHANGE:
         case Actions.OUTPUT_TOGGLE:

@@ -132,6 +132,10 @@ export const fillPatternToMultipleOf = (pattern, number) => {
     return padPattern(pattern, count);
 };
 
+export const gcd = (a, b) => !b ? a : gcd(b, a % b);
+export const lcm = (a, b) => (a * b) / gcd(a, b);
+export const lcmReducer = (accumulator, current) => lcm(current, accumulator);
+
 export const factors = (number, min = 2) => {
     const half = number / 2;
 

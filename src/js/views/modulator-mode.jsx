@@ -40,6 +40,7 @@ class ModulatorMode extends Component {
                     voice
                 </label>
                 <label>
+
                     <input
                         checked={patch.mode === "global" ? true : false}
                         onChange={this.handleModeChange}
@@ -48,6 +49,8 @@ class ModulatorMode extends Component {
                     />
                     global
                 </label>
+                {
+                /*
                 <label>
                     <input
                         checked={patch.mode === "retrigger" ? true : false}
@@ -66,6 +69,8 @@ class ModulatorMode extends Component {
                     />
                     voice sync
                 </label>
+                */
+                }
             </fieldset>
         );
     }

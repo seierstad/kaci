@@ -14,10 +14,38 @@ const patch = {
                 [1, 1]
             ]
         }],
+        "harmonics": [{
+            "numerator": 1,
+            "denominator": 3,
+            "level": 0,
+            "enabled": true
+        }, {
+            "numerator": 1,
+            "denominator": 2,
+            "level": 0,
+            "enabled": true
+        }, {
+            "numerator": 2,
+            "denominator": 3,
+            "level": 0
+        }, {
+            "numerator": 3,
+            "denominator": 4,
+            "level": 0.0
+        }, {
+            "numerator": 1,
+            "denominator": 1,
+            "level": 0.5,
+            "enabled": true
+        }, {
+            "numerator": 5,
+            "denominator": 1,
+            "level": 0.5
+        }],
         "resonance": 3,
-        "resonanceActive": true,
         "wrapper": {"name": "gaussian", "parameters": {mu: 0.5, sig: 0.2}},
         "mix": 0,
+        "mode": "resonant", // harmonic
         "detune": 0,
         "active": true,
         "gain": 0.7,
@@ -192,7 +220,7 @@ export const patches = [{
             ]
         }],
         resonance: 3.789130076237144,
-        resonanceActive: true,
+        mode: "resonant",
         wrapper: "gaussian",
         mix: 0.454,
         detune: 0,
@@ -430,7 +458,7 @@ const rpatch = {
             [0.6, 0.8],
             [1, 1]
         ],
-        resonanceActive: true,
+        mode: "resonant",
         resonance: 1.1,
         wrapper: "saw",
         mix: 0,

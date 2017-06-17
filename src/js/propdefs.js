@@ -1,6 +1,6 @@
 import {PropTypes} from "react";
 
-import {MODULATION_SOURCE_MODE, MODULATION_SOURCE_TYPE, RANGE} from "./constants";
+import {MODULATION_SOURCE_MODE, MODULATION_SOURCE_TYPE, RANGE, OSCILLATOR_MODE} from "./constants";
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
 import {waveforms, wrappers, noise} from "./waveforms";
 
@@ -332,12 +332,22 @@ export const wrapperPatchShape = oneOfType([
     })
 ]);
 
+export const oscillatorModeShape = oneOf(Object.values(OSCILLATOR_MODE));
+
+export const harmonicShape = shape({
+    "denominator": number.isRequired,
+    "level": number.isRequired,
+    "numerator": number.isRequired
+});
+
+
 export const oscillatorPatchShape = shape({
     "detune": number.isRequired,
+    "harmonics": arrayOf(harmonicShape),
     "mix": number.isRequired,
+    "mode": oscillatorModeShape.isRequired,
     "pd": oscillatorPdPatchShape.isRequired,
     "resonance": number.isRequired,
-    "resonanceActive": bool.isRequired,
     "waveform": oneOf(Object.keys(waveforms)),
     "wrapper": wrapperPatchShape.isRequired,
     ...outputStagePatchProperties

@@ -18,7 +18,6 @@ class StaticSources {
         this.nodes = {};
         this.limits = {};
 
-
         for (const moduleName in configuration) {
             const targetModule = configuration[moduleName];
 
@@ -43,16 +42,15 @@ class StaticSources {
 
     stateChangeHandler () {
         const newState = this.store.getState().patch;
-
         if (this.state !== newState) {
             for (const modName in this.state) {
-                const mod = this.state[modName];
-                const modNew = newState[modName];
+                const {[modName]: mod} = this.state;
+                const {[modName]: modNew} = newState;
 
                 if (mod !== modNew) {
                     for (const paramName in mod) {
-                        const param = mod[paramName];
-                        const newParam = modNew[paramName];
+                        const {[paramName]: param} = mod;
+                        const {[paramName]: newParam} = modNew;
 
 
                         if (param !== newParam) {
