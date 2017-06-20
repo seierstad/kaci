@@ -176,6 +176,7 @@ class OscillatorPresentation extends Component {
                             handlers={handlers.harmonics}
                             mixFunction={this.mixFunction}
                             patch={patch.harmonics}
+                            viewState={viewState.harmonics}
                         />
                     ) : null}
                 </Mode>
@@ -199,10 +200,12 @@ const mapDispatch = (dispatch) => ({
             "wrapperChange": (waveform) => dispatch({"type": Actions.OSCILLATOR_WRAPPER_CHANGE, "value": waveform})
         },
         "harmonics": {
-            "denominatorChange": (value) => dispatch({type: Actions.HARMONIC_DENOMINATOR_CHANGE, module: "oscillator", value}),
-            "handleNormalize": () => dispatch({type: Actions.HARMONIC_LEVELS_NORMALIZE, module: "oscillator"}),
+            "add": (numerator, denominator) => dispatch({type: Actions.HARMONIC_ADD, module: "oscillator", submodule: "harmonics", numerator, denominator}),
+            "denominatorChange": (value) => dispatch({type: Actions.HARMONIC_DENOMINATOR_CHANGE, module: "oscillator", submodule: "harmonics", value}),
+            "handleNormalize": () => dispatch({type: Actions.HARMONIC_LEVELS_NORMALIZE, module: "oscillator", submodule: "harmonics"}),
+            "handleNew": () => dispatch({type: Actions.HARMONIC_NEW, module: "oscillator", submodule: "harmonics"}),
             "levelChange": (value, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_LEVEL_CHANGE, module: "oscillator", submodule: "harmonics", value, numerator, denominator}),
-            "numeratorChange": (value) => dispatch({type: Actions.HARMONIC_NUMERATOR_CHANGE, module: "oscillator", value}),
+            "numeratorChange": (value) => dispatch({type: Actions.HARMONIC_NUMERATOR_CHANGE, module: "oscillator", submodule: "harmonics", value}),
             "phaseChange": (value, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_PHASE_CHANGE, module: "oscillator", submodule: "harmonics", value, numerator, denominator}),
             "toggle": (module, index, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_TOGGLE, module: "oscillator", submodule: "harmonics", numerator, denominator})
         },

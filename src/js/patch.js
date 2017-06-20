@@ -38,8 +38,8 @@ const patch = {
             "level": 0.5,
             "enabled": true
         }, {
-            "numerator": 5,
-            "denominator": 1,
+            "numerator": 6,
+            "denominator": 4,
             "level": 0.5
         }],
         "resonance": 3,

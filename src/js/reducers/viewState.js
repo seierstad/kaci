@@ -79,21 +79,89 @@ const envelopes = (state = new Array(config.modulation.source.envelope.count).fi
     return state;
 };
 
-const oscillator = (state = {"pd": [[], []]}, action) => {
-    if (action.module === "oscillator" && action.hasOwnProperty("envelopeIndex")) {
-        switch (action.type) {
-            case Actions.ENVELOPE_POINT_ADD:
-            case Actions.ENVELOPE_BLUR:
-            case Actions.ENVELOPE_POINT_EDIT_START:
-            case Actions.ENVELOPE_POINT_EDIT_END:
-                const pd = [...state.pd];
-                pd[action.envelopeIndex] = envelope([...state.pd[action.envelopeIndex]], action);
+const harmonics = (state = {}, action) => {
+    if (action.submodule === "harmonics") {
+        const {type} = action;
+
+        switch (type) {
+            case Actions.HARMONIC_NEW:
+
+                return {
+                    "newHarmonic": {
+                        "denominator": 1,
+                        "enabled": true,
+                        "numerator": 1
+                    }
+                };
+
+            case Actions.HARMONIC_NUMERATOR_CHANGE:
                 return {
                     ...state,
-                    pd
+                    "newHarmonic": {
+                        ...(state.newHarmonic),
+                        "numerator": action.value
+                    }
+                };
+
+            case Actions.HARMONIC_DENOMINATOR_CHANGE:
+                return {
+                    ...state,
+                    "newHarmonic": {
+                        ...(state.newHarmonic),
+                        "denominator": action.value
+                    }
+                };
+
+            case Actions.HARMONIC_ADD:
+                const {newHarmonic, ...rest} = state;
+
+                return {
+                    ...rest
                 };
         }
     }
+
+    return state;
+};
+
+const oscillator = (state = {"pd": [[], []]}, action) => {
+    if (action.module === "oscillator") {
+
+        if (action.hasOwnProperty("envelopeIndex")) {
+
+            switch (action.type) {
+
+                case Actions.ENVELOPE_POINT_ADD:
+                case Actions.ENVELOPE_BLUR:
+                case Actions.ENVELOPE_POINT_EDIT_START:
+                case Actions.ENVELOPE_POINT_EDIT_END:
+                    const pd = [...state.pd];
+                    pd[action.envelopeIndex] = envelope([...state.pd[action.envelopeIndex]], action);
+
+                    return {
+                        ...state,
+                        pd
+                    };
+            }
+
+        } else if (action.submodule === "harmonics") {
+
+            switch (action.type) {
+
+                case Actions.HARMONIC_NEW:
+                case Actions.HARMONIC_ADD:
+                case Actions.HARMONIC_DENOMINATOR_CHANGE:
+                case Actions.HARMONIC_NUMERATOR_CHANGE:
+
+                    return {
+                        ...state,
+                        harmonics: harmonics(state.harmonics, action)
+                    };
+            }
+        }
+    }
+
+
     return state;
 };
 

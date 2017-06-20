@@ -1,12 +1,14 @@
 import * as Actions from "../actions";
 import {steps} from "./envelopes";
 
-const defaultHarmonics = [{
+export const defaultHarmonicParameters = {
     denominator: 1,
     enabled: true,
-    level: 1,
+    level: 0,
     numerator: 1
-}];
+};
+
+const defaultHarmonics = [{...defaultHarmonicParameters}];
 
 const harmonic = (state = {}, action) => {
     switch (action.type) {
@@ -58,6 +60,17 @@ const harmonics = (state = [...defaultHarmonics], action) => {
                     ...state.slice(index + 1)
                 ];
             }
+            break;
+
+        case Actions.HARMONIC_ADD:
+            return [
+                ...state,
+                {
+                    ...defaultHarmonicParameters,
+                    numerator: action.numerator,
+                    denominator: action.denominator
+                }
+            ].sort((a, b) => (a.numerator / a.denominator) > (b.numerator / b.denominator));
     }
 
     return state;
@@ -128,6 +141,7 @@ const oscillator = (state = {}, action) => {
             case Actions.HARMONIC_LEVELS_NORMALIZE:
             case Actions.HARMONIC_PHASE_CHANGE:
             case Actions.HARMONIC_TOGGLE:
+            case Actions.HARMONIC_ADD:
                 return {
                     ...state,
                     harmonics: harmonics(state.harmonics, action)
