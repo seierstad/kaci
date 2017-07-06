@@ -207,6 +207,7 @@ const mapDispatch = (dispatch) => ({
             "levelChange": (value, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_LEVEL_CHANGE, module: "oscillator", submodule: "harmonics", value, numerator, denominator}),
             "numeratorChange": (value) => dispatch({type: Actions.HARMONIC_NUMERATOR_CHANGE, module: "oscillator", submodule: "harmonics", value}),
             "phaseChange": (value, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_PHASE_CHANGE, module: "oscillator", submodule: "harmonics", value, numerator, denominator}),
+            "remove": (module, index, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_REMOVE, module: "oscillator", submodule: "harmonics", numerator, denominator}),
             "toggle": (module, index, {numerator, denominator}) => dispatch({type: Actions.HARMONIC_TOGGLE, module: "oscillator", submodule: "harmonics", numerator, denominator})
         },
         "outputStageHandlers": {

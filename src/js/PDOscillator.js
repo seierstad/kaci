@@ -1,6 +1,6 @@
 import {waveforms, wrappers} from "./waveforms";
 
-import {mixValues, phaseDistortionFunction, inputNode, lcmReducer} from "./shared-functions";
+import {mixValues, phaseDistortionFunction, inputNode, lcmReducer, fractionsLcm} from "./shared-functions";
 
 import {BUFFER_LENGTH, OSCILLATOR_MODE} from "./constants";
 import OutputStage from "./output-stage";
@@ -57,9 +57,8 @@ class PDOscillator {
 
         this.counter = 0;
         const {harmonics = []} = this.state;
-        const harmonicNumerators = harmonics.map(h => h.numerator);
-        const harmonicDenominators = harmonics.map(h => h.denominator);
-        this.counterMax = [...harmonicNumerators, ...harmonicDenominators].reduce(lcmReducer, 1);
+
+        this.counterMax = fractionsLcm(harmonics);
 
         this.audioProcessHandler = this.audioProcessHandler.bind(this);
 

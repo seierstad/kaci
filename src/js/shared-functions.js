@@ -136,6 +136,18 @@ export const gcd = (a, b) => !b ? a : gcd(b, a % b);
 export const lcm = (a, b) => (a * b) / gcd(a, b);
 export const lcmReducer = (accumulator, current) => lcm(current, accumulator);
 
+// find the least integer divisible by all fractions
+export const fractionsLcm = (fractions) => fractions.map(f => {
+    const max = Math.max(f.numerator, f.denominator);
+    if (f.denominator === 1) {
+        return 1;
+    }
+    if (f.numerator === 1) {
+        return max;
+    }
+    return max / gcd(f.numerator, f.denominator);
+}).reduce(lcmReducer, 1);
+
 export const factors = (number, min = 2) => {
     const half = number / 2;
 

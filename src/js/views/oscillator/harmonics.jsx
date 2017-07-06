@@ -3,11 +3,9 @@ import React, {Component, PropTypes} from "react";
 import {waveforms} from "../../waveforms";
 import {harmonicShape, rangeShape} from "../../propdefs";
 import {harmonicConfiguration} from "../../configuration";
-import {UNICODE_FRACTION, UNICODE_FRACTIONAL_SLASH, UNICODE_SUPERSCRIPT, UNICODE_SUBSCRIPT} from "../../constants";
 
-import FractionInput from "../fraction-input.jsx";
-import RangeInput from "../RangeInput.jsx";
-import SyncControls from "../SyncControls.jsx";
+import {mixValues, phaseDistortionFunction, lcm, fractionsLcm} from "../../shared-functions";
+
 import WaveformCanvas from "./waveform-canvas.jsx";
 import Harmonic from "./harmonic.jsx";
 import HarmonicNew from "./harmonic-new.jsx";
@@ -35,12 +33,34 @@ class Harmonics extends Component {
         super(props);
         this.waveFunction = () => 0;
         this.waveFunction = this.waveFunction.bind(this);
+        this.setWaveFunction = this.setWaveFunction.bind(this);
+    }
+
+    componentWillMount () {
+        this.setWaveFunction(this.props);
     }
 
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch
                 || this.props.mixFunction !== nextProps.mixFunction
                 || this.viewState !== nextProps.viewState;
+    }
+
+    componentWillUpdate (nextProps) {
+        this.setWaveFunction(nextProps);
+    }
+
+    setWaveFunction (props) {
+        const {patch, mixFunction} = props;
+        const counter = fractionsLcm(patch);
+        this.waveFunction = (phase) => patch.reduce((acc, harmonic) => {
+            if (harmonic.enabled && harmonic.level > 0) {
+                const p = ((phase * counter * harmonic.numerator / harmonic.denominator) + (harmonic.phase || 0)) % 1;
+                const harmonicPhase = (p >= 0) ? p : (1 + p);
+                return acc + mixFunction(harmonicPhase) * harmonic.level;
+            }
+            return acc;
+        }, 0);
     }
 
     render () {

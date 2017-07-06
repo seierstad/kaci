@@ -19,11 +19,17 @@ class Harmonic extends Component {
     constructor (props) {
         super(props);
 
+        this.handleRemove = this.handleRemove.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
     }
 
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
+    }
+
+    handleRemove () {
+        const {module, index, handlers, patch} = this.props;
+        handlers.remove(module, index, patch);
     }
 
     handleToggle () {
@@ -57,6 +63,15 @@ class Harmonic extends Component {
             <fieldset className="harmonic">
                 <legend>{legend}</legend>
                 <div className="flex-wrapper">
+                    {!(denominator === 1 && numerator === 1) ? (
+                        <button
+                            className="harmonic-remove"
+                            onClick={this.handleRemove}
+                            type="button"
+                        >
+                            remove
+                        </button>
+                    ) : null}
                     <input
                         checked={!!enabled}
                         id={toggleId}

@@ -56,6 +56,7 @@ class NewHarmonic extends Component {
                         configuration={harmonicConfiguration}
                         denominatorRef={this.setDenominatorRef}
                         handlers={handlers}
+                        module="oscillator"
                         numeratorRef={this.setNumeratorRef}
                         patch={viewState}
                     />
