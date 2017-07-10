@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {defaultModulationConnectionParameters} from "../../configuration";
 import {modulatorTypeShape, modulationConnectionPatchShape} from "../../propdefs";
@@ -75,7 +75,9 @@ class Connection extends Component {
                         patch={polarity || "full"}
                         prefix={prefix}
                     />
-                : null}
+                    :
+                    null
+                }
                 {index !== -1 ?
                     <RangeInput
                         changeHandler={this.amountChange}
@@ -83,7 +85,9 @@ class Connection extends Component {
                         label="amount"
                         value={amount || 0}
                     />
-                : null}
+                    :
+                    null
+                }
             </td>
         );
     }

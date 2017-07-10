@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
 import * as Actions from "../../actions";
@@ -53,10 +53,14 @@ class MidiViewPresentation extends Component {
                         channelChangeHandler={handlers.channelChange}
                         selectedChannel={channel}
                     />
-                : null}
+                    :
+                    null
+                }
                 {playState.tempo ?
                     <dl><dt>Sync tempo:</dt><dd>{playState.tempo}</dd></dl>
-                : null}
+                    :
+                    null
+                }
             </fieldset>
         );
     }

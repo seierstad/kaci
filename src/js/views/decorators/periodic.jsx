@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {periodicModulatorsConfigShape, periodicModulatorPatchShape} from "../../propdefs";
 import {defaultSyncConfiguration} from "../../configuration";
@@ -25,10 +25,10 @@ const Periodic = Sup => class Periodic extends Sup {
         this.frequencyChange = this.frequencyChange.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount () {
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
     }
 
     frequencyChange (value) {
@@ -67,7 +67,9 @@ const Periodic = Sup => class Periodic extends Sup {
                             module={this.module}
                             patch={patch.sync}
                         />
-                    : null}
+                        :
+                        null
+                    }
                 </fieldset>
                 {this.props.children}
             </Sup>

@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {morseGeneratorsPatchShape, modulationMorseSourcesConfigShape, morseGeneratorViewStateShape} from "../../propdefs";
 import MorseGenerator from "./morse-generator.jsx";

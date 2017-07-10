@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {waveforms} from "../../waveforms";
 import {harmonicShape, rangeShape} from "../../propdefs";
@@ -108,15 +108,15 @@ class Harmonics extends Component {
                         type="button"
                     >normalize</button>
                 </fieldset>
-                    {(typeof newHarmonic.numerator === "number") ? (
-                        <HarmonicNew
-                            handlers={handlers}
-                            validRatio={newRatioIsUnique}
-                            viewState={newHarmonic}
-                        />
-                    ) : (
-                        <button onClick={handlers.handleNew} type="button">new harmonic</button>
-                    )}
+                {(typeof newHarmonic.numerator === "number") ? (
+                    <HarmonicNew
+                        handlers={handlers}
+                        validRatio={newRatioIsUnique}
+                        viewState={newHarmonic}
+                    />
+                ) : (
+                    <button onClick={handlers.handleNew} type="button">new harmonic</button>
+                )}
             </div>
         );
     }

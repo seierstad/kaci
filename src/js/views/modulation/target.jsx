@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {modulationTargetParameterShape} from "../../propdefs";
 
@@ -77,7 +77,9 @@ class ModulationTarget extends Component {
             <tr>
                 {moduleHead ?
                     <th rowSpan={moduleHead.parameterCount} scope="rowgroup"><span>{moduleHead.module}</span></th>
-                : null }
+                    :
+                    null
+                }
                 <th scope="row">{parameter}</th>
                 {connections}
                 {envCount > 0 ?
@@ -89,7 +91,9 @@ class ModulationTarget extends Component {
                         path={[...path, parameter]}
                         type="env"
                     />
-                : null}
+                    :
+                    null
+                }
             </tr>
         );
     }

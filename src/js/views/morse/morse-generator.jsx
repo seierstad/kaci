@@ -1,5 +1,5 @@
 /*global document, module, require, CustomEvent */
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {morseGeneratorPatchShape, modulationMorseSourcesConfigShape, morseGeneratorViewStateShape} from "../../propdefs";
 import {morseEncode, factors, divisors, shiftPattern, padPattern} from "../../shared-functions";

@@ -1,4 +1,4 @@
-import {PropTypes} from "react";
+import {PropTypes} from "prop-types";
 
 import {MODULATION_SOURCE_MODE, MODULATION_SOURCE_TYPE, RANGE, OSCILLATOR_MODE} from "./constants";
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
@@ -205,7 +205,7 @@ const envelopePointShape = (props, propName, componentName) => {
         || typeof prop[1] !== "number"
         || props[1] > 1
         || props[1] < 0
-       ) {
+    ) {
 
         return new Error(
             "Invalid prop `" + propName + "` supplied to" +

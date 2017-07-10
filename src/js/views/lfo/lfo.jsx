@@ -1,5 +1,5 @@
 /*global document, module, require, CustomEvent */
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import {lfoPatchShape, modulationLfoSourcesConfigShape} from "../../propdefs";
@@ -36,7 +36,7 @@ class LFO extends Component {
         this.updatePhaseIndicator(true);
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate (prevProps, prevState) {
         this.phaseIndicator = this.waveformSelector.phaseIndicator;
         this.updatePhaseIndicator(true);
     }

@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import WaveformButton from "./waveform-button.jsx";
@@ -38,7 +38,7 @@ class WaveformSelector extends Component {
         }
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
         if (this.props.includePhaseIndicator) {
             this.phaseIndicator = this.activeButton.phaseIndicator;
         }

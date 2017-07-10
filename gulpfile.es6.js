@@ -114,7 +114,7 @@ gulp.task("build:libs", () => {
         .pipe(rev())
         .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
         .pipe(gulpif(isProduction, uglify()))
-            .on("error", gutil.log)
+        .on("error", gutil.log)
         .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
         .pipe(gulp.dest(TARGET_DIR.SCRIPT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
@@ -162,27 +162,26 @@ gulp.task("build:scripts", (cb) => {
     })
 
     // point to the entry file.
-    .pipe(source("kaci.js"))
+        .pipe(source("kaci.js"))
 
     // buffer the output. most gulp plugins, including gulp-sourcemaps, don't support streams.
-    .pipe(buffer())
-    .pipe(rev())
-    .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
-    .pipe(gulpif(isProduction, minifier({
-        "compress": {
-            "screw_ie8": true,
-            "warnings": true
-        },
-        "output": {
-            "comments": false
-        },
-        "sourceMap": isDevelopment()
-    }, uglifyHarmony)))
-    .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
-    .pipe(gulp.dest(TARGET_DIR.SCRIPT))
-    .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-    .pipe(gulp.dest(TARGET_DIR.ROOT));
-
+        .pipe(buffer())
+        .pipe(rev())
+        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
+        .pipe(gulpif(isProduction, minifier({
+            "compress": {
+                "screw_ie8": true,
+                "warnings": true
+            },
+            "output": {
+                "comments": false
+            },
+            "sourceMap": isDevelopment()
+        }, uglifyHarmony)))
+        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
+        .pipe(gulp.dest(TARGET_DIR.SCRIPT))
+        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
 
@@ -348,7 +347,7 @@ gulp.task("build:serviceworker", ["version:cache"], () => {
 
 gulp.task("lint:markup", () => {
     return gulp.src("src/**/*.html")
-    .pipe(htmllint());
+        .pipe(htmllint());
 });
 
 gulp.task("build:manifest", () => {

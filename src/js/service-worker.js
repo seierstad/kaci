@@ -18,30 +18,30 @@ var urlsToCache = [
     "/images/icon.svg"
 ];
 
-self.addEventListener("install", function(event) {
+self.addEventListener("install", function (event) {
     // Perform install steps
     event.waitUntil(
         caches.open(CACHE_NAME)
-        .then(function(cache) {
-            // console.log("Opened cache");
-            return cache.addAll(urlsToCache);
-        })
+            .then(function (cache) {
+                // console.log("Opened cache");
+                return cache.addAll(urlsToCache);
+            })
     );
 });
 
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function (event) {
     var cachePrefix = CACHE_NAME.substr(0, CACHE_NAME.lastIndexOf("-"));
     event.waitUntil(
-        caches.keys().then(function(cacheNames) {
+        caches.keys().then(function (cacheNames) {
             return Promise.all(
-                cacheNames.filter(function(cacheName) {
+                cacheNames.filter(function (cacheName) {
                     // Return true if you want to remove this cache,
                     // but remember that caches are shared across
                     // the whole origin
                     // console.log(cacheName);
                     return cacheName !== CACHE_NAME && cacheName.indexOf(cachePrefix) !== -1;
-                }).map(function(cacheName) {
+                }).map(function (cacheName) {
                     // console.log("delete ", cacheName);
                     return caches.delete(cacheName);
                 })
@@ -51,11 +51,11 @@ self.addEventListener('activate', function(event) {
 });
 
 
-self.addEventListener("fetch", function(event) {
+self.addEventListener("fetch", function (event) {
     event.respondWith(
-        caches.open(CACHE_NAME).then(function(cache) {
+        caches.open(CACHE_NAME).then(function (cache) {
             return cache.match(event.request).then(function (response) {
-                return response || fetch(event.request).then(function(response) {
+                return response || fetch(event.request).then(function (response) {
                     cache.put(event.request, response.clone());
                     return response;
                 });

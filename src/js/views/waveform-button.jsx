@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 import drawWaveform from "./drawWaveform";
 
 
@@ -69,7 +69,7 @@ class WaveformButton extends Component {
                         ref={p => this.phaseIndicator = p}
                         role="presentation"
                     />)
-                     : null
+                    : null
                 }
                 <span className="waveform-name">{waveformName}</span>
             </label>

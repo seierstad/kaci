@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 
 class MorseSvg extends Component {
@@ -20,7 +20,7 @@ class MorseSvg extends Component {
         this.duration = 1000;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         /*
         this.phaseIndicator.style.offsetPath = this.pathData;
         this.phaseIndicator.style.offsetDistance = 4;

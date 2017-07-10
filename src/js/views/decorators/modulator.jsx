@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react";
+import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {modulatorConfigShape, modulatorPatchShape} from "../../propdefs";
 import RangeInput from "../RangeInput.jsx";
@@ -23,10 +23,10 @@ const Modulator = Sup => class Modulator extends Sup {
         this.amountChange = this.amountChange.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount () {
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
     }
 
     amountChange (value) {

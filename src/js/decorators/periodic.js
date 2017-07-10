@@ -89,16 +89,16 @@ class Periodic {
         this.oscillator.resetPhase();
     }
 
-/*
-"lfo.change.sync.ratio",
-"lfo.change.sync.enable",
-"lfo.change.sync.disable",
-"lfo.master.requestZeroPhase",
-"lfo.master.requestFrequency",
-"lfo.master.changed.frequency",
-"lfo.master.reset",
-'lfo.master.zeroPhase'
-*/
+    /*
+    "lfo.change.sync.ratio",
+    "lfo.change.sync.enable",
+    "lfo.change.sync.disable",
+    "lfo.master.requestZeroPhase",
+    "lfo.master.requestFrequency",
+    "lfo.master.changed.frequency",
+    "lfo.master.reset",
+    'lfo.master.zeroPhase'
+    */
 
 
     syncToMaster () {
