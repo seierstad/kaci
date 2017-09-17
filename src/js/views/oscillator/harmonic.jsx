@@ -74,6 +74,7 @@ class Harmonic extends Component {
                     ) : null}
                     <input
                         checked={!!enabled}
+                        className="harmonic-toggle"
                         id={toggleId}
                         onChange={this.handleToggle}
                         type="checkbox"

@@ -94,7 +94,7 @@ class RangeInput extends Component {
         const {min, max, mid, step = 0.001, exponential} = configuration;
 
         const centerButton = (typeof mid === "number") ? (
-            <button onClick={this.handleReset}>reset</button>
+            <button onClick={this.handleReset} type="button">reset</button>
         ) : null;
 
         return (
@@ -108,6 +108,7 @@ class RangeInput extends Component {
                     onChange={this.handleChange}
                     ref={i => this.input = i}
                     step={step}
+                    title={label}
                     type="range"
                     value={exponential ? this.scale.down(value) : value}
                 />

@@ -43,6 +43,7 @@ $waveform-selector-phase-indicator-color: #fff;
 
 body {
     background-color: $bg-color;
+    padding: 2rem;
 }
 
 button {
@@ -153,10 +154,14 @@ fieldset {
     }
 }
 
+.flex-wrapper {
+    display: flex;
+    position: relative;
+}
+
 .waveform {
     &-selector {
         .flex-wrapper {
-            display: flex;
             flex-direction: row;
             flex-wrap: wrap;
 
@@ -550,42 +555,94 @@ fieldset {
     }
 }
 
-.harmonics {
-    &-flex-wrapper {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-    }
-}
+.oscillator-harmonics-view {
+    .harmonics {
+        > .flex-wrapper {
+            flex-direction: row;
+            flex-wrap: nowrap;
+        }
 
-.harmonic {
-    background: #0f0;
+        &-normalize {
+            margin: 0 0.25rem;
+            position: absolute;
+            top: 8.5rem;
+            width: calc(100% - 3.75rem);
+        }
 
-    &-flex-wrapper {
-        max-width: 3rem;
-    }
+        &-add {
+            margin: 0 0.25rem;
+            width: 3rem;
+        }
 
-    &-level {
-        text-align: center;
-
-        [type="range"] {
-            transform: rotateZ(-90deg);
-            transform-origin: bottom left;
+        &-new {
+            margin: 0;
+            padding: 0;
+            width: 3rem;
         }
     }
 
-    &-phase {
-        max-width: 3rem;
-        text-align: center;
+    .harmonic {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        position: relative;
 
-        [type="range"] {
-            max-width: 100%;
+        > .flex-wrapper {
+            flex-direction: column;
+            max-width: 3rem;
+        }
+
+        &-level {
+            height: 8rem;
+            padding-bottom: 2rem;
+            text-align: center;
+
+            [type="range"] {
+                margin: 0;
+                transform: rotateZ(-90deg) scaleX(2) translateX(-1.25rem);
+                transform-origin: center center;
+                width: 3rem;
+
+                &::-webkit-slider-thumb {
+                    transform: scaleY(2);
+                }
+            }
+        }
+
+        &-phase {
+            display: flex;
+            flex-direction: column;
+            max-width: 3rem;
+            text-align: center;
+
+            [type="range"] {
+                max-width: 100%;
+                order: 1;
+            }
+
+            [type="button"] {
+                margin: 0 0.25rem;
+                order: 2;
+            }
+        }
+
+        &-remove {
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 1rem;
+        }
+
+        &-toggle {
+            align-self: center;
+        }
+
+        [for] {
+            @extend %squish-text;
         }
     }
-}
-
-body {
-    padding: 2rem;
 }
 
 .modulation-matrix {

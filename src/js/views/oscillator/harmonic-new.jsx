@@ -49,9 +49,9 @@ class NewHarmonic extends Component {
         } = this.props;
 
         return (
-            <form onSubmit={this.handleAddHarmonic}>
+            <form className="harmonics-new" onSubmit={this.handleAddHarmonic}>
                 <fieldset className="harmonic">
-                    <legend>new harmonic</legend>
+                    <legend>new</legend>
                     <FractionInput
                         configuration={harmonicConfiguration}
                         denominatorRef={this.setDenominatorRef}
@@ -61,7 +61,7 @@ class NewHarmonic extends Component {
                         patch={viewState}
                     />
                     {validRatio ? (
-                        <button type="submit">add</button>
+                        <button className="harmonics-new-add" type="submit">add</button>
                     ) : null}
                 </fieldset>
             </form>

@@ -94,29 +94,32 @@ class Harmonics extends Component {
                 <fieldset className="oscillator-harmonics-view">
                     <legend>harmonics</legend>
 
-                    {patch.map((harmonic, index) => (
-                        <Harmonic
-                            className={(index === identicalIndex) ? "same-as-new" : null}
-                            handlers={handlers}
-                            key={harmonic.numerator + "_" + harmonic.denominator}
-                            patch={harmonic}
-                        >
-                        </Harmonic>
-                    ))}
-                    <button
-                        onClick={handlers.handleNormalize}
-                        type="button"
-                    >normalize</button>
+                    <div className="flex-wrapper">
+                        {patch.map((harmonic, index) => (
+                            <Harmonic
+                                className={(index === identicalIndex) ? "same-as-new" : null}
+                                handlers={handlers}
+                                key={harmonic.numerator + "_" + harmonic.denominator}
+                                patch={harmonic}
+                            >
+                            </Harmonic>
+                        ))}
+                        {(typeof newHarmonic.numerator === "number") ? (
+                            <HarmonicNew
+                                handlers={handlers}
+                                validRatio={newRatioIsUnique}
+                                viewState={newHarmonic}
+                            />
+                        ) : (
+                            <button className="harmonics-add" onClick={handlers.handleNew} title="add harmonic" type="button">add</button>
+                        )}
+                        <button
+                            className="harmonics-normalize"
+                            onClick={handlers.handleNormalize}
+                            type="button"
+                        >normalize</button>
+                    </div>
                 </fieldset>
-                {(typeof newHarmonic.numerator === "number") ? (
-                    <HarmonicNew
-                        handlers={handlers}
-                        validRatio={newRatioIsUnique}
-                        viewState={newHarmonic}
-                    />
-                ) : (
-                    <button onClick={handlers.handleNew} type="button">new harmonic</button>
-                )}
             </div>
         );
     }
