@@ -162,8 +162,7 @@ fieldset {
 .waveform {
     &-selector {
         .flex-wrapper {
-            flex-direction: row;
-            flex-wrap: wrap;
+            flex-flow: row wrap;
 
             > label {
                 $button-bevel-shadow: 4px 4px 12px 1px rgba(255, 255, 255, 1) inset, 0 0 9px 1px rgba(0, 0, 0, 0.5) inset;
@@ -416,8 +415,7 @@ fieldset {
             align-items: stretch;
             border: 1px solid $key-stroke-color;
             display: flex;
-            flex-direction: column-reverse;
-            flex-wrap: nowrap;
+            flex-flow: column-reverse nowrap;
             justify-content: flex-start;
             padding: 0;
             pointer-events: auto;
@@ -558,8 +556,7 @@ fieldset {
 .oscillator-harmonics-view {
     .harmonics {
         > .flex-wrapper {
-            flex-direction: row;
-            flex-wrap: nowrap;
+            flex-flow: row nowrap;
         }
 
         &-normalize {

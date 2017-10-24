@@ -1,28 +1,34 @@
 {
   "extends": "stylelint-config-standard",
   "plugins": [
-    "stylelint-scss"
+    "stylelint-scss",
+    "stylelint-order"
   ],
   "rules": {
-  	"indentation": 4,
-  	"declaration-block-properties-order": "alphabetical",
-  	"font-family-name-quotes": "always-unless-keyword",
-  	"function-url-quotes": "always",
-  	"string-quotes": "double",
-  	"declaration-no-important": true,
-  	"at-rule-no-vendor-prefix": true,
+    "at-rule-no-unknown": [true, {"ignoreAtRules": ["include", "extend", "mixin", "each", "function", "return", "if", "for", "else"]}],
+    "at-rule-no-vendor-prefix": true,
+    "color-named": "never",
+    "comment-word-blacklist": [["TODO:"], { "severity": "warning" }],
+    "declaration-no-important": true,
+    "declaration-property-unit-blacklist": {
+      "font-size": ["px", "%"],
+      "/^animation/": ["s"]
+    },
+    "font-family-name-quotes": "always-unless-keyword",
+    "function-url-quotes": "always",
+    "indentation": 4,
+    "media-feature-name-no-vendor-prefix": true,
+    "selector-max-id": 0,
+    "property-no-vendor-prefix": true,
+    "selector-no-vendor-prefix": true,
+    "string-quotes": "double",
+    "value-no-vendor-prefix": true,
     "max-empty-lines": 2,
-  	"media-feature-name-no-vendor-prefix": true,
-  	"property-no-vendor-prefix": true,
-  	"selector-no-vendor-prefix": true,
-  	"value-no-vendor-prefix": true,
-  	"color-named": "never",
-  	"comment-word-blacklist": [["TODO:"], { "severity": "warning" }],
-  	"declaration-property-unit-blacklist": {
-  	  "font-size": ["px", "%"],
-  	  "/^animation/": ["s"]
-  	},
-  	"selector-no-id": true,
-  	"scss/selector-no-redundant-nesting-selector": true
+  	"scss/selector-no-redundant-nesting-selector": true,
+    "order/order": [
+      "custom-properties",
+      "declarations"
+    ],
+    "order/properties-alphabetical-order": true
   }
 }
