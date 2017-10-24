@@ -17,19 +17,19 @@ import clone from "gulp-clone";
 import eslint from "gulp-eslint";
 import babelify from "babelify";
 import buffer from "vinyl-buffer";
-import uglify from "gulp-uglify";
-import minifier from "gulp-uglify/minifier";
+import gulpUglify from "gulp-uglify";
 import browserify from "browserify";
 import source from "vinyl-source-stream";
 // import bab from "gulp-babel";
 
 import rollup from "rollup-stream";
-import nodeResolve from "rollup-plugin-node-resolve";
+import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
+import rollupJson from "rollup-plugin-json";
 import babel from "rollup-plugin-babel";
-//import uglify from "rollup-plugin-uglify";
+import uglify from "rollup-plugin-uglify";
 import replace from "rollup-plugin-replace";
-import uglifyHarmony, {minify} from "uglify-js-harmony";
+import uglifyEs, {minify} from "uglify-es";
 import size from "rollup-plugin-sizes";
 
 /* styles related libraries */
@@ -113,7 +113,7 @@ gulp.task("build:libs", () => {
         .pipe(buffer())
         .pipe(rev())
         .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
-        .pipe(gulpif(isProduction, uglify()))
+        .pipe(gulpif(isProduction, gulpUglify()))
         .on("error", gutil.log)
         .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
         .pipe(gulp.dest(TARGET_DIR.SCRIPT))
@@ -145,45 +145,98 @@ gulp.task("lint:scripts", ["create:target:report:lint"], () => {
 
 gulp.task("build:scripts", (cb) => {
     console.log("env: ", process.env.NODE_ENV);
+
     return rollup({
-        entry: "src/js/kaci.jsx",
-        external: Object.keys(dependencies),
+        input: "src/js/kaci.jsx",
+        // external: Object.keys(dependencies),
         format: "cjs",
-        sourceMap: isDevelopment(),
+        sourcemap: isDevelopment(),
         plugins: [
+            rollupJson(),
+            resolve({
+
+                module: true, // Default: true
+
+                // use "jsnext:main" if possible
+                // – see https://github.com/rollup/rollup/wiki/jsnext:main
+                jsnext: true, // Default: false
+
+                // use "main" field or index.js, even if it's not an ES6 module
+                // (needs to be converted from CommonJS to ES6
+                // – see https://github.com/rollup/rollup-plugin-commonjs
+                //main: true, // Default: true
+
+                // some package.json files have a `browser` field which
+                // specifies alternative files to load for people bundling
+                // for the browser. If that's you, use this option, otherwise
+                // pkg.browser will be ignored
+                browser: true, // Default: false
+
+                // whether to prefer built-in modules (e.g. `fs`, `path`) or
+                // local ones with the same names
+                preferBuiltins: false, // Default: true
+
+                // If true, inspect resolved files to check that they are
+                // ES2015 modules
+                // modulesOnly: true, // Default: false
+
+                customResolveOptions: {
+                    moduleDirectory: "node_modules"
+                }
+            }),
             replace({
                 "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
+            }),
+            commonjs({
+                include: "node_modules/**",
+                exclude: [
+                    "src/js"
+                ],
+                namedExports: {
+                    "node_modules/react/index.js": ["Children", "Component", "createElement"],
+                    "node_modules/prop-types/index.js": ["PropTypes"]
+                }
             }),
             babel({
                 "exclude": "node_modules/**"
             }),
-            size()
+            uglify({
+                "compress": {
+                    "drop_console": true,
+                    "ecma": 5,
+                    "warnings": true
+                },
+                "output": {
+                    "comments": false,
+                    "ecma": 5
+                }
+            }, minify)
         ]
     })
+        // point to the entry file.
+        .pipe(source("kaci.jsx", "./src/js"))
 
-    // point to the entry file.
-        .pipe(source("kaci.js"))
-
-    // buffer the output. most gulp plugins, including gulp-sourcemaps, don't support streams.
+        // buffer the output. most gulp plugins, including gulp-sourcemaps, don't support streams.
         .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+
+        // transform the code further here.
+
+        // if you want to output with a different name from the input file, use gulp-rename here.
+        .pipe(rename("kaci.js"))
+        // write the sourcemap alongside the output file.
         .pipe(rev())
-        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
-        .pipe(gulpif(isProduction, minifier({
-            "compress": {
-                "screw_ie8": true,
-                "warnings": true
-            },
-            "output": {
-                "comments": false
-            },
-            "sourceMap": isDevelopment()
-        }, uglifyHarmony)))
-        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(TARGET_DIR.SCRIPT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
+
+gulp.task("build:workers", () => {
+    return gulp.src("src/js/workers/**")
+        .pipe(gulp.dest(TARGET_DIR.ROOT));
+});
 
 gulp.task("update:scripts", (cb) => {
     runSequence(
@@ -434,8 +487,8 @@ gulp.task("watch", ["watch:scripts", "watch:styles"]);
     command line/deployment tasks
 */
 
-gulp.task("default", ["libs", "scripts", "images", "styles"], (cb) => {
-    runSequence("markup", cb);
+gulp.task("default", (cb) => {
+    runSequence("scripts", "images", "styles", "markup", cb);
 });
 
 gulp.task("dev", ["env:development"], (cb) => {
@@ -443,5 +496,5 @@ gulp.task("dev", ["env:development"], (cb) => {
 });
 
 gulp.task("prod", ["env:production"], (cb) => {
-    runSequence("default", cb);
+    runSequence("clean", "default", "server", cb);
 });

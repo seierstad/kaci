@@ -3,7 +3,6 @@ var urlsToCache = [
     "/",
     "/css/styles.css",
     "/js/kaci.js",
-    "/js/libs.js",
     "/images/icon-144x144.png",
     "/images/icon-152x152.png",
     "/images/icon-16x16.png",
