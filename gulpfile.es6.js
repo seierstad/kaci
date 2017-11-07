@@ -14,11 +14,11 @@ import es from "event-stream";
 import clone from "gulp-clone";
 
 /* scrips related libraries */
-import eslint from "gulp-eslint";
 import babelify from "babelify";
-import buffer from "vinyl-buffer";
-import gulpUglify from "gulp-uglify";
 import browserify from "browserify";
+import buffer from "vinyl-buffer";
+import eslint from "gulp-eslint";
+import gulpUglify from "gulp-uglify";
 import source from "vinyl-source-stream";
 // import bab from "gulp-babel";
 
@@ -154,32 +154,10 @@ gulp.task("build:scripts", (cb) => {
         plugins: [
             rollupJson(),
             resolve({
-
-                module: true, // Default: true
-
-                // use "jsnext:main" if possible
-                // – see https://github.com/rollup/rollup/wiki/jsnext:main
-                jsnext: true, // Default: false
-
-                // use "main" field or index.js, even if it's not an ES6 module
-                // (needs to be converted from CommonJS to ES6
-                // – see https://github.com/rollup/rollup-plugin-commonjs
-                //main: true, // Default: true
-
-                // some package.json files have a `browser` field which
-                // specifies alternative files to load for people bundling
-                // for the browser. If that's you, use this option, otherwise
-                // pkg.browser will be ignored
-                browser: true, // Default: false
-
-                // whether to prefer built-in modules (e.g. `fs`, `path`) or
-                // local ones with the same names
-                preferBuiltins: false, // Default: true
-
-                // If true, inspect resolved files to check that they are
-                // ES2015 modules
-                // modulesOnly: true, // Default: false
-
+                module: true,
+                jsnext: true,
+                browser: true,
+                preferBuiltins: false,
                 customResolveOptions: {
                     moduleDirectory: "node_modules"
                 }
@@ -226,7 +204,7 @@ gulp.task("build:scripts", (cb) => {
         .pipe(rename("kaci.js"))
         // write the sourcemap alongside the output file.
         .pipe(rev())
-        .pipe(sourcemaps.write('.'))
+        .pipe(sourcemaps.write("."))
         .pipe(gulp.dest(TARGET_DIR.SCRIPT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
         .pipe(gulp.dest(TARGET_DIR.ROOT));
