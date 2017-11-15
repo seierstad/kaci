@@ -48,6 +48,10 @@ import rev from "gulp-rev";
 import revReplace from "gulp-rev-replace";
 import htmllint from "gulp-htmllint";
 
+/* testing related libraries */
+import webdriver from "selenium-webdriver";
+import "chromedriver";
+
 /* server/build environment related libraries */
 import connect from "gulp-connect";
 
@@ -434,6 +438,19 @@ gulp.task("server", function () {
 
 
 /*
+    tests
+*/
+gulp.task("test:selenium", () => {
+    const browser = new webdriver.Builder().usingServer().withCapabilities({browserName: "chrome"}).build();
+
+    browser.get("http://en.wikipedia.org/wiki/Wiki");
+    browser.findElements(webdriver.By.css('[href^="/wiki/"]')).then((links) => {
+        console.log("Found", links.length, "Wiki links.");
+        browser.quit();
+    });
+});
+
+/*
     collection tasks
 */
 
@@ -470,7 +487,7 @@ gulp.task("default", (cb) => {
 });
 
 gulp.task("dev", ["env:development"], (cb) => {
-    runSequence("default", "server", "watch", cb);
+    runSequence("default", "server", "watch", "test:selenium", cb);
 });
 
 gulp.task("prod", ["env:production"], (cb) => {
