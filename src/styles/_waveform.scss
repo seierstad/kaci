@@ -1,0 +1,107 @@
+.waveform {
+    &-selector {
+        .flex-wrapper {
+            flex-flow: row wrap;
+
+            > label {
+                $button-bevel-shadow: 4px 4px 12px 1px rgba(255, 255, 255, 1) inset, 0 0 9px 1px rgba(0, 0, 0, 0.5) inset;
+                $button-content-margin: 0.2rem;
+
+                background-color: #eef;
+                border: none;
+                box-shadow: $button-bevel-shadow;
+                display: inline-block;
+                margin: 0.3rem;
+                position: relative;
+                text-align: center;
+                transition-property: transform;
+
+                &,
+                &::before {
+                    border-radius: 0.5rem;
+                    transition-duration: 50ms;
+                    transition-timing-function: ease;
+                }
+
+                &::before {
+                    background-color: transparent;
+                    bottom: 0;
+                    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+                    content: "";
+                    display: block;
+                    left: 0;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    transition-property: opacity;
+                }
+
+                &:focus,
+                &:hover {
+                    will-change: transform;
+
+                    &::before {
+                        will-change: opacity;
+                    }
+                }
+
+                &:active {
+                    transform: translateY(1px);
+
+                    &::before {
+                        opacity: 0;
+                    }
+                }
+
+                .phase-indicator {
+                    background: $waveform-selector-phase-indicator-color;
+                    display: block;
+                    height: 50px;
+                    left: $button-content-margin;
+                    opacity: 0;
+                    position: absolute;
+                    top: $button-content-margin;
+                    width: 50px;
+
+                    .no-mask {
+                        display: none;
+                    }
+                }
+
+                &:active,
+                &:focus,
+                &:hover {
+                    .phase-indicator {
+                        will-change: opacity, clip-path;
+                    }
+                }
+
+
+                br,
+                input {
+                    display: none;
+                }
+
+                canvas {
+                    margin: $button-content-margin;
+                }
+
+                :checked {
+                    ~ canvas {
+                        background: rgba(30, 249, 255, 0.9);
+                    }
+
+                    ~ .phase-indicator {
+                        animation: phase-indicator 1000ms steps(48, start) infinite;
+                        opacity: 1;
+                        will-change: clip-path;
+                    }
+                }
+            }
+        }
+    }
+
+    &-name {
+        @extend %squish-text;
+    }
+}

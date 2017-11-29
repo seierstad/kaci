@@ -1,0 +1,48 @@
+.modulation-matrix {
+    tbody {
+        &:nth-of-type(odd) {
+            background: rgba(255, 255, 0, 0.5);
+        }
+
+        &:nth-of-type(even) {
+            background: rgba(255, 150, 0, 0.5);
+        }
+    }
+
+    th[scope="rowgroup"] {
+        margin: 3px;
+        min-height: 1em;
+        overflow: visible;
+        padding: 0.5em;
+        position: relative;
+
+        &,
+        span {
+            writing-mode: vertical-lr;
+        }
+    }
+
+    col {
+        &:nth-of-type(2n) {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        &:nth-of-type(3n) {
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+    }
+
+    label {
+        color: transparent;
+        font-size: 0;
+        line-height: 0;
+    }
+
+    td {
+        padding: 0.5em;
+    }
+
+    [type="range"] {
+        width: 3em;
+    }
+}

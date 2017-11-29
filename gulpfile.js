@@ -6,7 +6,7 @@
 require("babel-register")({
     "only": [/gulpfile\.es6\.js/, "build-target-configuration.js"],
     "presets": [
-        "es2015"
+        "env"
     ]
 });
 require("./gulpfile.es6.js");

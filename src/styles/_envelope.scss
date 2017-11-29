@@ -1,0 +1,49 @@
+.envelope {
+    .circles {
+        .active {
+            cursor: move;
+            opacity: 0.5;
+            r: $envelope-circle-radius-active;
+
+            &.first,
+            &.last {
+                cursor: ns-resize;
+            }
+        }
+
+        circle {
+            cursor: grab;
+            r: $envelope-circle-radius;
+            transition-duration: 0.2s;
+            transition-property: r;
+            transition-timing-function: easeOutElastic;
+        }
+    }
+
+    rect {
+        cursor: crosshair;
+    }
+}
+
+.sustain-envelope {
+    box-sizing: content-box;
+    margin: -20px;
+    padding: 30px;
+    width: calc(100% - 20px);
+
+    .controller {
+        overflow: visible;
+    }
+}
+
+.sustain-bar {
+    cursor: grab;
+    stroke: $envelope-circle-color;
+    stroke-linecap: round;
+    stroke-width: $envelope-circle-radius * 2;
+
+    &.active {
+        cursor: ns-resize;
+        stroke-width: $envelope-circle-radius-active * 2;
+    }
+}

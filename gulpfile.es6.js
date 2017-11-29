@@ -40,7 +40,7 @@ import autoprefixer from "gulp-autoprefixer";
 
 /* images related libraries */
 import svgmin from "gulp-svgmin";
-import svg2png from "gulp-svg2png";
+import svg2png from "gulp-svg2png-node7fix";
 import optimizeImage from "gulp-image";
 
 /* markup related libraries */
@@ -306,7 +306,29 @@ const iconSizes = [
     [196, 196]
 ];
 
-gulp.task("icons", () => {
+gulp.task("build:mkdir:root", () => {
+    return mkdirp(TARGET_DIR.ROOT);
+});
+
+gulp.task("icons:mkdir", ["build:mkdir:root"], () => {
+    return mkdirp(TARGET_DIR.IMAGES);
+});
+
+gulp.task("icons", ["icons:mkdir"], () => {
+    /*
+    (function() {
+        var childProcess = require("child_process");
+        var oldSpawn = childProcess.spawn;
+        function mySpawn() {
+            console.log('spawn called');
+            console.log(arguments);
+            var result = oldSpawn.apply(this, arguments);
+            return result;
+        }
+        childProcess.spawn = mySpawn;
+    })();
+    */
+
     return gulp.src("src/images/icon.svg")
         .pipe(svgmin({
             plugins: [{
@@ -320,6 +342,7 @@ gulp.task("icons", () => {
                 }
             }]
         }))
+        /*
         .pipe(flatmap((stream, file) => {
             const streams = iconSizes.map(([width, height]) => {
                 return stream.pipe(clone())
@@ -329,6 +352,7 @@ gulp.task("icons", () => {
 
             return es.merge(...streams, stream);
         }))
+        */
         .pipe(optimizeImage())
         .pipe(rev())
         .pipe(gulp.dest(TARGET_DIR.IMAGES))

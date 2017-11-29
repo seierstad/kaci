@@ -5,7 +5,7 @@
 				"browsers": ["last 1 versions", "not last 2 ie versions", "not last 2 ie_mob versions"]
 			},
 			"useBuiltIns": true,
-			"debug": true,
+			"debug": false,
 			"modules": false
 		}],
 		"react"

@@ -1,0 +1,28 @@
+.morse {
+    &-svg {
+        display: block;
+        height: 5rem;
+        overflow: visible;
+    }
+
+    &-background {
+        fill: #c0ffee;
+    }
+
+    .dit,
+    .dah {
+        stroke: #000;
+        stroke-width: 0.8;
+    }
+
+    .guide {
+        stroke: #f00;
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .phase-indicator {
+        background-color: #ff0;
+        display: inline-block;
+    }
+}
