@@ -14,14 +14,9 @@ import es from "event-stream";
 import clone from "gulp-clone";
 
 /* scrips related libraries */
-import babelify from "babelify";
-import browserify from "browserify";
 import buffer from "vinyl-buffer";
 import eslint from "gulp-eslint";
-import gulpUglify from "gulp-uglify";
 import source from "vinyl-source-stream";
-// import bab from "gulp-babel";
-
 import rollup from "rollup-stream";
 import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
@@ -43,9 +38,12 @@ import svgmin from "gulp-svgmin";
 import svg2png from "gulp-svg2png-node7fix";
 import optimizeImage from "gulp-image";
 
-/* markup related libraries */
+/* versioning / cache busting libraries */
 import rev from "gulp-rev";
 import revReplace from "gulp-rev-replace";
+import revdel from "gulp-rev-delete-original";
+
+/* markup related libraries */
 import htmllint from "gulp-htmllint";
 
 /* testing related libraries */
@@ -54,9 +52,6 @@ import "chromedriver";
 
 /* server/build environment related libraries */
 import connect from "gulp-connect";
-
-/* script library configuration */
-import {dependencies} from "./package";
 
 /* build target configuration */
 import browsers from "./build-target-configuration";
@@ -105,25 +100,8 @@ const REV_MANIFEST_CONFIG = {
 
 
 /*
-    script libraries tasks
+    create directories
 */
-
-gulp.task("build:libs", () => {
-    let b = browserify().transform(babelify);
-    Object.keys(dependencies).forEach(lib => b.require(lib));
-
-    return b.bundle()
-        .pipe(source("libs.js"))
-        .pipe(buffer())
-        .pipe(rev())
-        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
-        .pipe(gulpif(isProduction, gulpUglify()))
-        .on("error", gutil.log)
-        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
-        .pipe(gulp.dest(TARGET_DIR.SCRIPT))
-        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-        .pipe(gulp.dest(TARGET_DIR.ROOT));
-});
 
 gulp.task("create:target:report:lint", () => {
     return mkdirp(TARGET_DIR.LINT);
@@ -133,13 +111,22 @@ gulp.task("create:target:report:test", () => {
     return mkdirp(TARGET_DIR.TEST);
 });
 
+gulp.task("build:mkdir:root", () => {
+    return mkdirp(TARGET_DIR.ROOT);
+});
+
+gulp.task("icons:mkdir", ["build:mkdir:root"], () => {
+    return mkdirp(TARGET_DIR.IMAGES);
+});
+
+
 /*
     scripts tasks
 */
 
 const scriptSources = ["gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
 
-gulp.task("lint:scripts", ["create:target:report:lint"], () => {
+gulp.task("scripts:lint", ["create:target:report:lint"], () => {
     return gulp.src(scriptSources)
         .pipe(eslint())
         .pipe(eslint.format("checkstyle", fs.createWriteStream(TARGET_DIR.LINT + "/checkstyle-eslint.xml")))
@@ -147,7 +134,7 @@ gulp.task("lint:scripts", ["create:target:report:lint"], () => {
         .pipe(eslint.failOnError());
 });
 
-gulp.task("build:scripts", (cb) => {
+gulp.task("scripts:build", (cb) => {
     console.log("env: ", process.env.NODE_ENV);
 
     return rollup({
@@ -200,7 +187,7 @@ gulp.task("build:scripts", (cb) => {
 
         // buffer the output. most gulp plugins, including gulp-sourcemaps, don't support streams.
         .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(gulpif(isDevelopment, sourcemaps.init({loadMaps: true})))
 
         // transform the code further here.
 
@@ -208,19 +195,20 @@ gulp.task("build:scripts", (cb) => {
         .pipe(rename("kaci.js"))
         // write the sourcemap alongside the output file.
         .pipe(rev())
-        .pipe(sourcemaps.write("."))
+        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
+        .pipe(revdel())
         .pipe(gulp.dest(TARGET_DIR.SCRIPT))
         .pipe(rev.manifest(REV_MANIFEST_CONFIG))
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
 
-gulp.task("build:workers", () => {
+gulp.task("workers:build", () => {
     return gulp.src("src/js/workers/**")
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
-gulp.task("update:scripts", (cb) => {
+gulp.task("scripts:update", (cb) => {
     runSequence(
         "lint:scripts",
         "build:scripts",
@@ -231,7 +219,7 @@ gulp.task("update:scripts", (cb) => {
 
 
 gulp.task("watch:scripts", () => {
-    return gulp.watch(scriptSources, ["update:scripts"]);
+    return gulp.watch(scriptSources, ["scripts:update"]);
 });
 
 
@@ -241,7 +229,7 @@ gulp.task("watch:scripts", () => {
 
 const styleSources = ["./src/styles/*.scss"];
 
-gulp.task("lint:styles", ["create:target:report:lint"], () => {
+gulp.task("styles:lint", ["create:target:report:lint"], () => {
 
     return gulp.src(styleSources)
         .pipe(stylelint({
@@ -255,7 +243,7 @@ gulp.task("lint:styles", ["create:target:report:lint"], () => {
         }));
 });
 
-gulp.task("build:styles", function () {
+gulp.task("styles:build", function () {
     return gulp.src(styleSources)
         .pipe(buffer())
         .pipe(gulpif(isDevelopment, sourcemaps.init()))
@@ -306,14 +294,6 @@ const iconSizes = [
     [196, 196]
 ];
 
-gulp.task("build:mkdir:root", () => {
-    return mkdirp(TARGET_DIR.ROOT);
-});
-
-gulp.task("icons:mkdir", ["build:mkdir:root"], () => {
-    return mkdirp(TARGET_DIR.IMAGES);
-});
-
 gulp.task("icons", ["icons:mkdir"], () => {
     /*
     (function() {
@@ -360,7 +340,7 @@ gulp.task("icons", ["icons:mkdir"], () => {
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
-gulp.task("build:svg", () => {
+gulp.task("svg:build", () => {
     return gulp.src("src/images/**")
         .pipe(svgmin({
             plugins: [{
@@ -392,7 +372,7 @@ gulp.task("version:cache", () => {
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
-gulp.task("build:serviceworker", ["version:cache"], () => {
+gulp.task("serviceworker:build", ["version:cache"], () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src("src/js/service-worker.js")
@@ -404,12 +384,12 @@ gulp.task("build:serviceworker", ["version:cache"], () => {
     markup tasks
 */
 
-gulp.task("lint:markup", () => {
+gulp.task("markup:lint", () => {
     return gulp.src("src/**/*.html")
         .pipe(htmllint());
 });
 
-gulp.task("build:manifest", () => {
+gulp.task("manifest:build", () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
 
     return gulp.src(["./src/kaci.webmanifest"])
@@ -425,12 +405,12 @@ gulp.task("build:manifest", () => {
 });
 
 
-gulp.task("dependencies:markup", (cb) => {
-    runSequence("build:manifest", "build:serviceworker", cb);
+gulp.task("markup:dependencies", (cb) => {
+    runSequence("manifest:build", "serviceworker:build", cb);
 });
 
 // Generate build index.html
-gulp.task("build:markup", ["dependencies:markup"], () => {
+gulp.task("markup:build", ["markup:dependencies"], () => {
     const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
     return gulp.src(["src/markup/index.html"])
         .pipe(revReplace({manifest: revManifest}))
@@ -478,25 +458,21 @@ gulp.task("test:selenium", () => {
     collection tasks
 */
 
-gulp.task("libs", (cb) => {
-    runSequence("build:libs", cb);
-});
-
 gulp.task("scripts", (cb) => {
-    runSequence("lint:scripts", "build:scripts", cb);
+    runSequence("scripts:lint", "scripts:build", cb);
 });
 
 gulp.task("styles", (cb) => {
-    runSequence("lint:styles", "build:styles", cb);
+    runSequence("styles:lint", "styles:build", cb);
 });
 
 gulp.task("images", (cb) => {
-    runSequence("icons", "build:svg", cb);
+    runSequence("icons", "svg:build", cb);
 });
 
 
 gulp.task("markup", (cb) => {
-    runSequence("build:markup", cb);
+    runSequence("markup:lint", "markup:build", cb);
 });
 
 
