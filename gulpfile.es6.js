@@ -506,7 +506,7 @@ gulp.task("watch", ["watch:scripts", "watch:styles"]);
     command line/deployment tasks
 */
 
-gulp.task("default", (cb) => {
+gulp.task("default", ["env:production"], (cb) => {
     runSequence("scripts", "images", "styles", "markup", cb);
 });
 
