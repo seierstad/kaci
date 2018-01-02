@@ -114,6 +114,10 @@ class PDOscillator {
         this.parameters.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
     }
 
+    set harmonics (harmonics) {
+        this.state.harmonics = harmonics;
+    }
+
     set pd (pd) {
         this.pd0 = pd[0];
         this.pd1 = pd[1];

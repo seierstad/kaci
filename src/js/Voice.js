@@ -114,7 +114,7 @@ class Voice {
                 }
 
                 if (h !== hNew) {
-                    console.log("TODO: implement harmonics updater in PDOscillator");
+                    this.oscillator.harmonics = hNew;
                 }
             }
 

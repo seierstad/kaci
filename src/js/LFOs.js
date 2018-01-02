@@ -7,7 +7,7 @@ class LFOs {
         this.context = context;
         this.store = store;
         this.state = store.getState();
-
+        console.log("neio");
         this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
@@ -23,10 +23,10 @@ class LFOs {
     }
 
     setupLFOs (configuration, patch, dc) {
-        let i, j;
         const result = [];
+        const j = configuration.count;
 
-        for (i = 0, j = configuration.count; i < j; i += 1) {
+        for (let i = 0; i < j; i += 1) {
             const p = patch[i] || configuration.default;
             if (p.mode === "global" || p.mode === "retrigger") {
                 result[i] = new LFO(this.context, this.store, p, dc, i);

@@ -25,7 +25,8 @@ if (window.AudioContext) {
     const ctx = new window.AudioContext();
     const dc = new DCGenerator(ctx);
 
-    const store = createStore(reducer, {patch: {...patch}, settings: {...defaultSettings}}, window.devToolsExtension ? window.devToolsExtension() : undefined);
+    const initialState = {patch: {...patch}, settings: {...defaultSettings}};
+    const store = createStore(reducer, initialState, (window.devToolsExtension ? window.devToolsExtension() : undefined));
 
     new SystemSettings(ctx, store);
 

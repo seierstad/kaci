@@ -134,53 +134,87 @@ gulp.task("scripts:lint", ["create:target:report:lint"], () => {
         .pipe(eslint.failOnError());
 });
 
+const DEV_UGLIFY_OPTIONS = {
+    "compress": {
+        "dead_code": false,
+        "drop_console": false,
+        "drop_debugger": false,
+        "ecma": 5,
+        "warnings": true,
+        "unused": false
+    },
+    "output": {
+        "comments": true,
+        "ecma": 5
+    },
+    "ie8": false,
+    "mangle": false,
+    "warnings": true,
+    "sourceMap": true
+};
+
+const PROD_UGLIFY_OPTIONS = {
+    "compress": {
+        "dead_code": true,
+        "drop_console": true,
+        "drop_debugger": true,
+        "passes": 2,
+        "unused": true,
+        "warnings": true
+    },
+    "output": {
+        "beautify": false,
+        "comments": false,
+        "ecma": 5
+    },
+    "ie8": false,
+    "warnings": true,
+    "sourceMap": false
+};
+
 gulp.task("scripts:build", (cb) => {
     console.log("env: ", process.env.NODE_ENV);
+
+    const uglifyOptions = isDevelopment() ? DEV_UGLIFY_OPTIONS : PROD_UGLIFY_OPTIONS;
+
+    const plugins = [
+        rollupJson(),
+        resolve({
+            main: true,
+            module: true,
+            jsnext: true,
+            browser: true,
+            preferBuiltins: false,
+            modulesOnly: false,
+            customResolveOptions: {
+                moduleDirectory: "node_modules"
+            }
+        }),
+        replace({
+            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
+        }),
+        commonjs({
+            include: "node_modules/**",
+            exclude: [
+                "src/js"
+            ],
+            namedExports: {
+                "node_modules/react/index.js": ["Children", "Component", "createElement"],
+                "node_modules/prop-types/index.js": ["PropTypes"]
+            }
+        }),
+        babel({
+            "exclude": "node_modules/**"
+        }),
+        uglify(uglifyOptions, minify)
+    ];
 
     return rollup({
         input: "src/js/kaci.jsx",
         // external: Object.keys(dependencies),
         format: "cjs",
         sourcemap: isDevelopment(),
-        plugins: [
-            rollupJson(),
-            resolve({
-                module: true,
-                jsnext: true,
-                browser: true,
-                preferBuiltins: false,
-                customResolveOptions: {
-                    moduleDirectory: "node_modules"
-                }
-            }),
-            replace({
-                "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
-            }),
-            commonjs({
-                include: "node_modules/**",
-                exclude: [
-                    "src/js"
-                ],
-                namedExports: {
-                    "node_modules/react/index.js": ["Children", "Component", "createElement"],
-                    "node_modules/prop-types/index.js": ["PropTypes"]
-                }
-            }),
-            babel({
-                "exclude": "node_modules/**"
-            }),
-            uglify({
-                "compress": {
-                    "drop_console": true,
-                    "ecma": 5,
-                    "warnings": true
-                },
-                "output": {
-                    "comments": false,
-                    "ecma": 5
-                }
-            }, minify)
-        ]
+        plugins
     })
         // point to the entry file.
         .pipe(source("kaci.jsx", "./src/js"))
@@ -210,8 +244,8 @@ gulp.task("workers:build", () => {
 
 gulp.task("scripts:update", (cb) => {
     runSequence(
-        "lint:scripts",
-        "build:scripts",
+        "scripts:lint",
+        "scripts:build",
         "markup",
         cb
     );
@@ -264,8 +298,8 @@ gulp.task("styles:build", function () {
 
 gulp.task("update:styles", (cb) => {
     runSequence(
-        "lint:styles",
-        "build:styles",
+        "styles:lint",
+        "styles:build",
         "markup",
         cb
     );
@@ -487,7 +521,7 @@ gulp.task("default", ["env:production"], (cb) => {
 });
 
 gulp.task("dev", ["env:development"], (cb) => {
-    runSequence("default", "server", "watch", "test:selenium", cb);
+    runSequence("clean", "scripts", "images", "styles", "markup", "server", "watch", "test:selenium", cb);
 });
 
 gulp.task("prod", ["env:production"], (cb) => {
