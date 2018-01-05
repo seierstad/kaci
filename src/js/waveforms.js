@@ -15,6 +15,27 @@ export const wrappers = {
     }
 };
 
+const NUMBER_REGEX = /^(\d*)(?:[.,]?(\d*))?$/g;
+
+const parseFloatRadix = (str, radix = 10) => {
+    let result = 0;
+    const match = NUMBER_REGEX.exec(str);
+    if (match) {
+        const intPart = match[1];
+        const decimalPart = match[2];
+
+        if (typeof intPart === "string") {
+            result += parseInt(intPart, radix);
+        }
+
+        if (typeof decimalPart === "string") {
+            result += (parseInt(decimalPart, radix) / Math.pow(radix, decimalPart.length));
+        }
+    }
+
+    return result;
+};
+
 export const waveforms = {
     zero: () => () => 0,
 
@@ -70,6 +91,37 @@ export const waveforms = {
             odd = !odd;
         }
         return value * (8 / Math.pow(Math.PI, 2));
+    },
+
+    cantorSet: ({depth = 2, pattern = [1, 0, 1, 0, 0, 1, 0]} = {}) => {
+
+        return (phase) => {
+            let steps = pattern.length;
+
+            for (let level = 0; level < depth; level += 1) {
+                const step = Math.floor(phase * steps) % pattern.length;
+
+                if (pattern[step] === 0) {
+                    return -1;
+                }
+                steps *= pattern.length;
+            }
+            return 1;
+        };
+
+
+    },
+
+    cantorFunction: () => (phase) => {
+        let base3 = phase.toString(3);
+        const firstOne = base3.indexOf("1");
+
+        if (firstOne !== -1) {
+            base3 = base3.replace(/^([0-9.,]*?1).*$/, "$1");
+        }
+        base3 = base3.replace(/2/g, "1");
+
+        return (parseFloatRadix(base3, 2) - 0.5) * 2;
     },
 
     sampleAndHold: ({steps = 2} = {}) => {
