@@ -90,6 +90,12 @@ export const defaultTuning = {
         "base": Math.PI,
         "baseKey": 69
     }, {
+        "name": "Bohlen–Pierce 13TET",
+        "type": "tempered",
+        "notes": 13,
+        "base": 3,
+        "baseKey": 69
+    }, {
         "name": "pythagorean",
         "type": "rational",
         "ratios": [[1, 1], [256, 243], [9, 8], [32, 27], [81, 64], [4, 3], [729, 512], [3, 2], [128, 81], [27, 16], [16, 9], [243, 128], [2, 1]],
