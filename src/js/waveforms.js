@@ -93,7 +93,7 @@ export const waveforms = {
         return value * (8 / Math.pow(Math.PI, 2));
     },
 
-    cantorSet: ({depth = 2, pattern = [1, 0, 1, 0, 0, 1, 0]} = {}) => {
+    cantorSet: ({depth = 4, pattern = [1, 0, 1]} = {}) => {
 
         return (phase) => {
             let steps = pattern.length;
@@ -122,6 +122,35 @@ export const waveforms = {
         base3 = base3.replace(/2/g, "1");
 
         return (parseFloatRadix(base3, 2) - 0.5) * 2;
+    },
+
+    minkowskiQuestionMark: () => (phase) => {
+        // c implementation rewritten to JavaScript
+        // c source: https://gist.github.com/pallas/5565556
+
+        const a0 = Math.floor(phase);
+
+        let sum_a = 1;
+        let add_term = true;
+        let sum_terms = 0.0;
+
+        for (let t = phase - a0 ; ; ) {
+            const tInverse = 1.0 / t;
+
+            let a = Math.trunc(tInverse);
+            t = tInverse % 1;
+            sum_a -= a;
+            const term = Math.pow(2, sum_a);
+
+            if (!Number.isFinite(term) || term < Number.MIN_VALUE) {
+                break;
+            }
+
+            sum_terms += add_term ? term : -term;
+            add_term = !add_term;
+        }
+
+        return (a0 + sum_terms - phase) * 5;
     },
 
     sampleAndHold: ({steps = 2} = {}) => {
