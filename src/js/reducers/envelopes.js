@@ -2,7 +2,7 @@ import {combineReducers} from "redux";
 import * as Actions from "../actions";
 
 
-const sortByX = (a, b) => a[0] > b[0];
+const sortByX = (a, b) => (a[0] >= b[0]) ? -1 : 1;
 
 const steps = (state = [], action) => {
     const {x, y} = action;

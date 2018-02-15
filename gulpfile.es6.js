@@ -14,18 +14,20 @@ import es from "event-stream";
 import clone from "gulp-clone";
 
 /* scrips related libraries */
-import buffer from "vinyl-buffer";
-import eslint from "gulp-eslint";
-import source from "vinyl-source-stream";
-import rollup from "rollup-stream";
-import resolve from "rollup-plugin-node-resolve";
-import commonjs from "rollup-plugin-commonjs";
-import rollupJson from "rollup-plugin-json";
 import babel from "rollup-plugin-babel";
-import uglify from "rollup-plugin-uglify";
+import buffer from "vinyl-buffer";
+import builtins from "rollup-plugin-node-builtins";
+import commonjs from "rollup-plugin-commonjs";
+import eslint from "gulp-eslint";
+import globals from "rollup-plugin-node-globals";
 import replace from "rollup-plugin-replace";
-import uglifyEs, {minify} from "uglify-es";
+import resolve from "rollup-plugin-node-resolve";
+import rollup from "rollup-stream";
+import rollupJson from "rollup-plugin-json";
 import size from "rollup-plugin-sizes";
+import source from "vinyl-source-stream";
+import uglify from "rollup-plugin-uglify";
+import uglifyEs, {minify} from "uglify-es";
 
 /* styles related libraries */
 import stylelint from "gulp-stylelint";
@@ -47,8 +49,10 @@ import revdel from "gulp-rev-delete-original";
 import htmllint from "gulp-htmllint";
 
 /* testing related libraries */
+/*
 import webdriver from "selenium-webdriver";
 import "chromedriver";
+/
 
 /* server/build environment related libraries */
 import connect from "gulp-connect";
@@ -178,6 +182,9 @@ gulp.task("scripts:build", (cb) => {
     const uglifyOptions = isDevelopment() ? DEV_UGLIFY_OPTIONS : PROD_UGLIFY_OPTIONS;
 
     const plugins = [
+        babel({
+            "exclude": "node_modules/**"
+        }),
         rollupJson(),
         resolve({
             main: true,
@@ -185,13 +192,7 @@ gulp.task("scripts:build", (cb) => {
             jsnext: true,
             browser: true,
             preferBuiltins: false,
-            modulesOnly: false,
-            customResolveOptions: {
-                moduleDirectory: "node_modules"
-            }
-        }),
-        replace({
-            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
+            modulesOnly: false
         }),
         commonjs({
             include: "node_modules/**",
@@ -203,16 +204,15 @@ gulp.task("scripts:build", (cb) => {
                 "node_modules/prop-types/index.js": ["PropTypes"]
             }
         }),
-        babel({
-            "exclude": "node_modules/**"
+        replace({
+            "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV)
         }),
         uglify(uglifyOptions, minify)
     ];
 
     return rollup({
         input: "src/js/kaci.jsx",
-        // external: Object.keys(dependencies),
-        format: "cjs",
+        format: "iife",
         sourcemap: isDevelopment(),
         plugins
     })
@@ -478,6 +478,7 @@ gulp.task("server", function () {
 /*
     tests
 */
+/*
 gulp.task("test:selenium", () => {
     const browser = new webdriver.Builder().usingServer().withCapabilities({browserName: "chrome"}).build();
 
@@ -487,7 +488,7 @@ gulp.task("test:selenium", () => {
         browser.quit();
     });
 });
-
+*/
 /*
     collection tasks
 */
@@ -521,7 +522,7 @@ gulp.task("default", ["env:production"], (cb) => {
 });
 
 gulp.task("dev", ["env:development"], (cb) => {
-    runSequence("clean", "scripts", "images", "styles", "markup", "server", "watch", "test:selenium", cb);
+    runSequence("clean", "scripts", "images", "styles", "markup", "server", "watch", cb);
 });
 
 gulp.task("prod", ["env:production"], (cb) => {

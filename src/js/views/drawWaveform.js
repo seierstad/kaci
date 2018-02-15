@@ -31,10 +31,10 @@ const drawWaveform = function (waveGenerator, canvas, params) {
 
     const phaseIncrement = 1.0 / width;
     for (let i = 0; i < width; i += 1) {
-        const yValue = waveGenerator(phase);
+        const yValue = waveGenerator(phase) - 1;
         const coordinates = {
             "x": i + xOffset,
-            "y": yValue * (halfHeight) + halfHeight + yOffset
+            "y": yValue * -halfHeight + yOffset
         };
         if (i === 0) {
             context.moveTo(coordinates.x, coordinates.y);

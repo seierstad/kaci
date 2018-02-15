@@ -1,12 +1,15 @@
 /* global require */
-
+/*eslint import/unambiguous:0*/
 "use strict";
 
 /* eslint-disable import/no-commonjs */
-require("babel-register")({
+require("@babel/register")({
     "only": [/gulpfile\.es6\.js/, "build-target-configuration.js"],
+    "plugins": [
+        "@babel/plugin-proposal-object-rest-spread"
+    ],
     "presets": [
-        "env"
+        "@babel/preset-env"
     ]
 });
 require("./gulpfile.es6.js");
