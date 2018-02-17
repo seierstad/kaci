@@ -1,5 +1,7 @@
 //import WavyJones from "../../lib/wavy-jones";
 //import {ParamLogger} from "./shared-functions";
+import autobind from "autobind-decorator";
+
 import {MODULATION_SOURCE_TYPE, RANGE} from "./constants";
 
 import LFOs from "./LFOs";
@@ -20,7 +22,6 @@ class ModulationMatrix {
         this.context = context;
 
         this.store = store;
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         const state = store.getState();
@@ -29,7 +30,6 @@ class ModulationMatrix {
         this.configuration = state.settings.modulation;
         this.patch = state.patch.modulation;
 
-        this.connect = this.connect.bind(this);
 
         this.lfos = new LFOs(context, store, this.configuration, dc);
         this.morse = new MorseGenerators(context, store, this.configuration, dc);
@@ -79,6 +79,7 @@ class ModulationMatrix {
         }
     }
 
+    @autobind
     connect (connections, connectionPatch, target) {
         const {amount, polarity: range, source} = connectionPatch;
         const {type, index} = source;
@@ -167,6 +168,7 @@ class ModulationMatrix {
         return null;
     }
 
+    @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
 

@@ -1,8 +1,9 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import autobind from "autobind-decorator";
 
 import {tuningShape} from "../propdefs";
-
 import * as Actions from "../actions";
 
 
@@ -13,20 +14,11 @@ class TuningPresentation extends Component {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired
     }
 
-    constructor () {
-        super();
-        this.handleBaseFrequencyChange = this.handleBaseFrequencyChange.bind(this);
-        this.handleScaleSelection = this.handleScaleSelection.bind(this);
-        this.handleNoteCountChange = this.handleNoteCountChange.bind(this);
-        this.handleBaseKey = this.handleBaseKey.bind(this);
-        this.handleScaleTypeChange = this.handleScaleTypeChange.bind(this);
-        this.handleScaleBaseChange = this.handleScaleBaseChange.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (this.props.configuration !== nextProps.configuration);
     }
 
+    @autobind
     handleBaseFrequencyChange (event) {
         event.preventDefault();
         const {min, max} = this.props.configuration.baseFrequency;
@@ -36,22 +28,27 @@ class TuningPresentation extends Component {
         }
     }
 
+    @autobind
     handleNoteCountChange (event) {
         this.props.handlers.noteCount(parseInt(event.target.value, 10));
     }
 
+    @autobind
     handleBaseKey (event) {
         this.props.handlers.baseKey(parseInt(event.target.value, 10));
     }
 
+    @autobind
     handleScaleBaseChange (event) {
         this.props.handlers.scaleBase(parseFloat(event.target.value, 10));
     }
 
+    @autobind
     handleScaleTypeChange (event) {
         this.props.handlers.scaleType(event.target.value);
     }
 
+    @autobind
     handleScaleSelection (event) {
         this.props.handlers.selectScale(event.target.value);
     }

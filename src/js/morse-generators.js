@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 import MorseGenerator from "./morse-generator";
 
 class MorseGenerators {
@@ -8,12 +9,11 @@ class MorseGenerators {
         this.store = store;
         this.state = store.getState();
 
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
-
         this.generators = this.setupGenerators(configuration.source.morse, this.state.patch.morse, dc);
     }
 
+    @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
 

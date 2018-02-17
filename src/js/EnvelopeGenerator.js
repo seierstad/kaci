@@ -1,3 +1,5 @@
+import autobind from "autobind-decorator";
+
 class EnvelopeGenerator {
     constructor (context, store, index) {
 
@@ -9,8 +11,6 @@ class EnvelopeGenerator {
         this.context = context;
         this.store = store;
         this.state = store.getState().patch.envelopes[index];
-        // this.stateChangeHandler = this.stateChangeHandler.bind(this);
-        // this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.connections = [];
     }

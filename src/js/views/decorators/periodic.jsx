@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {periodicModulatorsConfigShape, periodicModulatorPatchShape} from "../../propdefs";
 import {defaultSyncConfiguration} from "../../configuration";
@@ -21,8 +23,6 @@ const Periodic = Sup => class Periodic extends Sup {
 
     constructor (props) {
         super(props);
-        this.handleReset = this.handleReset.bind(this);
-        this.frequencyChange = this.frequencyChange.bind(this);
     }
 
     componentDidMount () {
@@ -31,11 +31,13 @@ const Periodic = Sup => class Periodic extends Sup {
     componentDidUpdate () {
     }
 
+    @autobind
     frequencyChange (value) {
         const {index, handlers} = this.props;
         handlers.frequencyChange(value, this.module, index);
     }
 
+    @autobind
     handleReset (event) {
         const {index, module, handlers} = this.props;
         handlers.reset(event, this.module, index);

@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 import {BUFFER_LENGTH} from "../constants";
 import {inputNode} from "../shared-functions";
 
@@ -40,8 +41,6 @@ class Oscillator {
 
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, this.constructor.inputDefs.length, 1);
         this.mergedInput.connect(this.generator);
-        this.audioProcessHandler = this.audioProcessHandler.bind(this);
-
     }
 
     set frequency (frequency) {
@@ -52,6 +51,7 @@ class Oscillator {
         return this.parameters.targets;
     }
 
+    @autobind
     audioProcessHandler (event) {
         const frequency = event.inputBuffer.getChannelData(0);
         const detune = event.inputBuffer.getChannelData(1);

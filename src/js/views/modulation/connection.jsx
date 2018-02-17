@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {defaultModulationConnectionParameters} from "../../configuration";
 import {modulatorTypeShape, modulationConnectionPatchShape} from "../../propdefs";
@@ -19,13 +21,6 @@ class Connection extends Component {
         "type": modulatorTypeShape.isRequired
     }
 
-    constructor () {
-        super();
-        this.amountChange = this.amountChange.bind(this);
-        this.polarityChange = this.polarityChange.bind(this);
-        this.handleToggle = this.handleToggle.bind(this);
-    }
-
     componentWillMount () {
         const {path, type, index} = this.props;
         this.path = [...path, type, index];
@@ -35,14 +30,17 @@ class Connection extends Component {
         return this.props.type === "env" || this.props.patch !== nextProps.patch;
     }
 
+    @autobind
     amountChange (value) {
         this.props.handlers.changeAmount(...this.path, value);
     }
 
+    @autobind
     polarityChange (value) {
         this.props.handlers.changePolarity(...this.path, value);
     }
 
+    @autobind
     handleToggle () {
         this.props.handlers.toggle(...this.path);
     }

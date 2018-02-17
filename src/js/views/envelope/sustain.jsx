@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {toPercent} from "./shared-functions";
 
@@ -23,14 +25,6 @@ class Sustain extends Component {
         "x": PropTypes.string
     }
 
-    constructor () {
-        super();
-        this.handleClick = this.handleClick.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
-        this.handleMouseDrag = this.handleMouseDrag.bind(this);
-        this.handleBackgroundClick = this.handleBackgroundClick.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (
             this.props.value !== nextProps.value
@@ -39,21 +33,25 @@ class Sustain extends Component {
         );
     }
 
+    @autobind
     handleBackgroundClick (event) {
         const {module, envelopeIndex, handlers} = this.props;
         handlers.sustainBackgroundClick(event, module, envelopeIndex);
     }
 
+    @autobind
     handleBlur (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleBlur(event, module, envelopeIndex, part);
     }
 
+    @autobind
     handleMouseDrag (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleMouseDrag(event, module, envelopeIndex, part, this.background);
     }
 
+    @autobind
     handleClick (event) {
         const {module, envelopeIndex, part, handlers} = this.props;
         handlers.circleClick(event, module, envelopeIndex, part);

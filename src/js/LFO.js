@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 // import WavyJones from "../../lib/wavy-jones";
 import Periodic from "./decorators/periodic";
 import IdealOscillator from "./IdealOscillator";
@@ -14,7 +15,6 @@ class LFO extends Periodic {
     constructor (context, store, patch, dc, index, isSyncMaster) {
         super(context, store, patch, dc, index, isSyncMaster);
 
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.oscillator = new IdealOscillator(context, dc);
@@ -38,6 +38,7 @@ class LFO extends Periodic {
         this.oscillator.waveform = waveformName;
     }
 
+    @autobind
     stateChangeHandler () {
 
         const newState = this.store.getState().patch.lfos[this.index];

@@ -1,12 +1,16 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import autobind from "autobind-decorator";
 
 import * as Actions from "../../actions";
 import {midiShape, midiClockPlayStateShape} from "../../propdefs";
+
 import ModuleToggle from "../module-toggle.jsx";
 
 import ChannelSelector from "./channel-selector.jsx";
 import PortSelector from "./port-selector.jsx";
+
 
 class MidiViewPresentation extends Component {
 
@@ -22,11 +26,7 @@ class MidiViewPresentation extends Component {
         return (this.props.playState !== nextProps.playState) || (this.props.configuration !== nextProps.configuration);
     }
 
-    constructor () {
-        super();
-        this.handleToggle = this.handleToggle.bind(this);
-    }
-
+    @autobind
     handleToggle (event) {
         this.props.handlers.toggle();
     }

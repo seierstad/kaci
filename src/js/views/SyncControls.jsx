@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {syncConfigShape, syncPatchShape} from "../propdefs";
 
@@ -15,22 +17,17 @@ class SyncControls extends Component {
         "patch": syncPatchShape.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleToggle = this.handleToggle.bind(this);
-        this.handleDenominatorChange = this.handleDenominatorChange.bind(this);
-        this.handleNumeratorChange = this.handleNumeratorChange.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (nextProps.patch !== this.props.patch) || (nextProps["disabled"] !== this.props["disabled"]);
     }
 
+    @autobind
     handleToggle () {
         const {module, index, handlers, eventParams} = this.props;
         handlers.toggle(module, index, eventParams);
     }
 
+    @autobind
     handleDenominatorChange (event) {
         event.preventDefault();
         const {module, index, handlers, eventParams} = this.props;
@@ -38,6 +35,7 @@ class SyncControls extends Component {
         handlers.denominatorChange(value, module, index, eventParams);
     }
 
+    @autobind
     handleNumeratorChange (event) {
         event.preventDefault();
         const {module, index, handlers, eventParams} = this.props;

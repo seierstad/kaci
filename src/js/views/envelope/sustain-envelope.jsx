@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {sustainEnvelopePatchShape} from "../../propdefs";
 
@@ -16,27 +18,23 @@ class SustainEnvelope extends Component {
         "viewState": PropTypes.object
     }
 
-    constructor () {
-        super();
-        this.handleMouseOut = this.handleMouseOut.bind(this);
-        this.handleAttackDurationChange = this.handleAttackDurationChange.bind(this);
-        this.handleReleaseDurationChange = this.handleReleaseDurationChange.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState);
     }
 
+    @autobind
     handleMouseOut (event) {
         const {module, index, handlers} = this.props;
         handlers.mouseOut(event, module, index);
     }
 
+    @autobind
     handleAttackDurationChange (event) {
         const {module, index, handlers} = this.props;
         handlers.durationChange(module, index, "attack", parseFloat(event.target.value));
     }
 
+    @autobind
     handleReleaseDurationChange (event) {
         const {module, index, handlers} = this.props;
         handlers.durationChange(module, index, "release", parseFloat(event.target.value));

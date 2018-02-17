@@ -1,4 +1,7 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
+
 import drawWaveform from "../drawWaveform";
 
 
@@ -7,11 +10,6 @@ class WaveformCanvas extends Component {
     static propTypes = {
         "update": PropTypes.bool,
         "waveFunction": PropTypes.func.isRequired
-    }
-
-    constructor () {
-        super();
-        this.updateWaveform = this.updateWaveform.bind(this);
     }
 
     componentDidMount () {
@@ -26,6 +24,7 @@ class WaveformCanvas extends Component {
         this.updateWaveform();
     }
 
+    @autobind
     updateWaveform () {
         drawWaveform(this.props.waveFunction, this.waveform);
     }

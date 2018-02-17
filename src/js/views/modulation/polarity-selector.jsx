@@ -1,5 +1,9 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
+
 import {polarityShape} from "../../propdefs";
+
 
 class PolaritySelector extends Component {
 
@@ -9,15 +13,11 @@ class PolaritySelector extends Component {
         "prefix": PropTypes.string.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleChange = this.handleChange.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
     }
 
+    @autobind
     handleChange (event) {
         event.stopPropagation();
         event.preventDefault();

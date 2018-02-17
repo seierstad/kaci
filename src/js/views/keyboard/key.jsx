@@ -1,8 +1,11 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import autobind from "autobind-decorator";
 
 import {keyStateShape} from "../../propdefs";
 import * as Actions from "../../actions";
+
 
 class KeyPresentation extends Component {
 
@@ -23,13 +26,7 @@ class KeyPresentation extends Component {
         "wrap": PropTypes.bool
     }
 
-    constructor () {
-        super();
-        this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleKeyUp = this.handleKeyUp.bind(this);
-        this.handleMouseEnter = this.handleMouseEnter.bind(this);
-    }
-
+    @autobind
     handleKeyDown (event) {
         if (event) {
             event.stopPropagation();
@@ -39,11 +36,13 @@ class KeyPresentation extends Component {
         this.props.handlers.down(this.props.number);
     }
 
+    @autobind
     handleKeyUp () {
         this.element.removeEventListener("mouseout", this.handleKeyUp);
         this.props.handlers.up(this.props.number);
     }
 
+    @autobind
     handleMouseEnter (event) {
         if (event.buttons & 0x1) {
             this.handleKeyDown();

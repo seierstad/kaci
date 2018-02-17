@@ -1,7 +1,9 @@
+import autobind from "autobind-decorator";
+
 import {scale} from "./Utils";
 
-
 const normalized = {min: -1, max: 1};
+
 
 class StaticSources {
 
@@ -11,7 +13,6 @@ class StaticSources {
         this.store = store;
         this.state = store.getState().patch;
 
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.parameters = {};
@@ -40,6 +41,7 @@ class StaticSources {
 
     }
 
+    @autobind
     stateChangeHandler () {
         const newState = this.store.getState().patch;
         if (this.state !== newState) {

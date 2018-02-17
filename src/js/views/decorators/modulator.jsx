@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {modulatorConfigShape, modulatorPatchShape} from "../../propdefs";
 import RangeInput from "../RangeInput.jsx";
@@ -20,7 +22,6 @@ const Modulator = Sup => class Modulator extends Sup {
 
     constructor (props) {
         super(props);
-        this.amountChange = this.amountChange.bind(this);
     }
 
     componentDidMount () {
@@ -29,6 +30,7 @@ const Modulator = Sup => class Modulator extends Sup {
     componentDidUpdate () {
     }
 
+    @autobind
     amountChange (value) {
         const {index, handlers} = this.props;
         handlers.amountChange(value, this.module, index);

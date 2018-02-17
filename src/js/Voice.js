@@ -1,3 +1,5 @@
+import autobind from "autobind-decorator";
+
 import DC from "./DCGenerator";
 import EnvelopeGenerator from "./EnvelopeGenerator";
 import PDOscillator from "./PDOscillator";
@@ -25,8 +27,6 @@ class Voice {
         this.store = store;
         this.state = store.getState().patch;
 
-        this.destroy = this.destroy.bind(this);
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.context = context;
@@ -70,6 +70,7 @@ class Voice {
         };
     }
 
+    @autobind
     stateChangeHandler () {
         const newState = this.store.getState().patch;
 
@@ -221,6 +222,7 @@ class Voice {
         }
     }
 
+    @autobind
     destroy () {
         this.sub.stop(this.stopTime);
         this.sub.disconnect();

@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import Lines from "./lines.jsx";
 import Circles from "./circles.jsx";
@@ -20,12 +22,6 @@ class Envelope extends Component {
         "x": PropTypes.string
     }
 
-    constructor () {
-        super();
-        this.handleBackgroundClick = this.handleBackgroundClick.bind(this);
-        this.handleMouseOut = this.handleMouseOut.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (
             this.props.patch !== nextProps.patch
@@ -36,11 +32,13 @@ class Envelope extends Component {
         );
     }
 
+    @autobind
     handleBackgroundClick (event) {
         const {module, index, part, patch, handlers} = this.props;
         handlers.backgroundClick(event, module, patch.steps, index, part);
     }
 
+    @autobind
     handleMouseOut (event) {
         const {module, index, part, handlers} = this.props;
         handlers.mouseOut(event, module, index, part);

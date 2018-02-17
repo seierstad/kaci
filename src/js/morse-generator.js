@@ -1,4 +1,6 @@
 //import WavyJones from "../../lib/wavy-jones";
+import autobind from "autobind-decorator";
+
 import {BUFFER_LENGTH} from "./constants";
 import Periodic from "./decorators/periodic";
 import {inputNode, morseEncode, padPattern, shiftPattern, fillPatternToMultipleOf} from "./shared-functions";
@@ -42,7 +44,6 @@ class MorseGenerator extends Periodic {
     constructor (context, store, patch, dc, index, isSyncMaster) {
         super(context, store, patch, dc, index, isSyncMaster);
 
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.oscillator = new MorseOscillator(context, dc);
@@ -100,6 +101,7 @@ class MorseGenerator extends Periodic {
         this.state = newState;
     }
 
+    @autobind
     stateChangeHandler () {
 
         const newState = this.store.getState().patch.morse[this.index];

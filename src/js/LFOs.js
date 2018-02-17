@@ -1,4 +1,7 @@
+import autobind from "autobind-decorator";
+
 import LFO from "./LFO";
+
 
 class LFOs {
 
@@ -8,12 +11,12 @@ class LFOs {
         this.store = store;
         this.state = store.getState();
         console.log("neio");
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos, dc);
     }
 
+    @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
 

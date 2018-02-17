@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 
 class MorseSvg extends Component {
@@ -11,7 +13,6 @@ class MorseSvg extends Component {
 
     constructor (props) {
         super(props);
-        this.setPhaseAnimation = this.setPhaseAnimation.bind(this);
         this.width = 0;
         this.height = 0;
         this.phaseIndicator = null;
@@ -33,6 +34,7 @@ class MorseSvg extends Component {
         this.setPhaseAnimation();
     }
 
+    @autobind
     setPhaseAnimation () {
         this.row.animate([
             {transform: "translateY(0)" },

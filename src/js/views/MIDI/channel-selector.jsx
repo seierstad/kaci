@@ -1,9 +1,12 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {CHANNELS} from "../../midiConstants";
 import {midiChannelShape} from "../../propdefs";
 
 let midiChannelSelectorCounter = 0;
+
 
 class MidiChannelSelector extends Component {
 
@@ -15,13 +18,13 @@ class MidiChannelSelector extends Component {
     constructor () {
         super();
         this.uniqeKey = null;
-        this.handleChange = this.handleChange.bind(this);
     }
 
     componentWillMount () {
         this.uniqeKey = (midiChannelSelectorCounter += 1);
     }
 
+    @autobind
     handleChange (evt) {
         evt.stopPropagation();
         evt.preventDefault();

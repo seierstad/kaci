@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {syncConfigShape, syncPatchShape} from "../propdefs";
 
@@ -17,17 +19,13 @@ class FractionInput extends Component {
         "patch": syncPatchShape.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleDenominatorChange = this.handleDenominatorChange.bind(this);
-        this.handleNumeratorChange = this.handleNumeratorChange.bind(this);
-    }
-
+    @autobind
     handleToggle () {
         const {module, index, handlers, eventParams} = this.props;
         handlers.toggle(module, index, eventParams);
     }
 
+    @autobind
     handleDenominatorChange (event) {
         event.preventDefault();
         const {module, index, handlers, eventParams} = this.props;
@@ -35,6 +33,7 @@ class FractionInput extends Component {
         handlers.denominatorChange(value, module, index, eventParams);
     }
 
+    @autobind
     handleNumeratorChange (event) {
         event.preventDefault();
         const {module, index, handlers, eventParams} = this.props;

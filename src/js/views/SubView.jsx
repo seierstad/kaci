@@ -1,5 +1,7 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import autobind from "autobind-decorator";
 
 import {modulationTargetShape, subPatchShape} from "../propdefs";
 import {OUTPUT_GAIN_CHANGE, OUTPUT_PAN_CHANGE, OUTPUT_TOGGLE, SUB_DEPTH_CHANGE, SUB_BEAT_FREQUENCY_CHANGE, SUB_DETUNE_CHANGE, SUB_DETUNE_MODE_CHANGE} from "../actions";
@@ -19,17 +21,13 @@ class SubViewPresentation extends Component {
         "syncHandlers": PropTypes.objectOf(PropTypes.func).isRequired
     }
 
-    constructor () {
-        super();
-        this.handleChangeDepth = this.handleChangeDepth.bind(this);
-        this.handleDetuneModeChange = this.handleDetuneModeChange.bind(this);
-    }
-
+    @autobind
     handleChangeDepth (event) {
         event.stopPropagation();
         this.props.handlers.depthChange(parseInt(event.target.value, 10));
     }
 
+    @autobind
     handleDetuneModeChange (event) {
         event.stopPropagation();
         this.props.handlers.detuneMode(event.target.value);

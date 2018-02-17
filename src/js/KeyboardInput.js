@@ -1,11 +1,10 @@
+import autobind from "autobind-decorator";
+
 import * as Actions from "./actions";
 
 class KeyboardInput {
 
     constructor (store) {
-        this.changeLayout = this.changeLayout.bind(this);
-        this.keyDownHandler = this.keyDownHandler.bind(this);
-        this.keyUpHandler = this.keyUpHandler.bind(this);
         this.store = store;
 
         this.state = store.getState().settings.keyboard;
@@ -13,13 +12,13 @@ class KeyboardInput {
         this.pressedControlKeys = [];
         this.layout = this.state.layouts.find(layout => layout.name === this.state.activeLayout);
 
-        this.update = this.update.bind(this);
         store.subscribe(this.update);
 
         document.addEventListener("keydown", this.keyDownHandler, false);
         document.addEventListener("keyup", this.keyUpHandler, false);
     }
 
+    @autobind
     update () {
         const newState = this.store.getState().settings.keyboard;
         if (newState.activeLayout !== this.state.activeLayout) {
@@ -28,7 +27,7 @@ class KeyboardInput {
         }
     }
 
-
+    @autobind
     keyDownHandler (event) {
         if (event.altKey || event.metaKey || event.shiftKey || event.ctrlKey) {
             return true;
@@ -62,6 +61,7 @@ class KeyboardInput {
         // console.log(event.keyCode); // uncomment to get keyCodes for new layouts
     }
 
+    @autobind
     keyUpHandler (event) {
         let index,
             key;
@@ -87,6 +87,7 @@ class KeyboardInput {
         }
     }
 
+    @autobind
     changeLayout (layout) {
         if (layout !== this.layout.name) {
             this.layout = this.state.layouts.find(l => l.name === layout);

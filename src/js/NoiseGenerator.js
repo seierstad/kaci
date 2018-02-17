@@ -1,3 +1,5 @@
+import autobind from "autobind-decorator";
+
 import {BUFFER_LENGTH} from "./constants";
 import {noise} from "./waveforms";
 import OutputStage from "./output-stage";
@@ -11,8 +13,6 @@ class Noise {
         this.outputStage = new OutputStage(context, dc, !!patch.active);
         this.parameters = {...this.outputStage.parameters};
 
-
-        this.audioProcessHandler = this.audioProcessHandler.bind(this);
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
         this.generator.connect(this.outputStage.input);
 
@@ -42,6 +42,7 @@ class Noise {
         this.generator.removeEventListener("audioprocess", this.audioProcessHandler);
     }
 
+    @autobind
     audioProcessHandler (event) {
         let output = event.outputBuffer.getChannelData(0);
         this.generatorFunction(output);

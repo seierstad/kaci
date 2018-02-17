@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {harmonicShape} from "../../propdefs";
 import {harmonicConfiguration} from "../../configuration";
@@ -16,22 +18,17 @@ class Harmonic extends Component {
         "patch": harmonicShape.isRequired
     }
 
-    constructor (props) {
-        super(props);
-
-        this.handleRemove = this.handleRemove.bind(this);
-        this.handleToggle = this.handleToggle.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return this.props.patch !== nextProps.patch;
     }
 
+    @autobind
     handleRemove () {
         const {module, index, handlers, patch} = this.props;
         handlers.remove(module, index, patch);
     }
 
+    @autobind
     handleToggle () {
         const {module, index, handlers, patch} = this.props;
         handlers.toggle(module, index, patch);

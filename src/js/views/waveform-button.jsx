@@ -1,4 +1,7 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
+
 import drawWaveform from "./drawWaveform";
 
 
@@ -13,11 +16,6 @@ class WaveformButton extends Component {
         "selected": PropTypes.bool,
         "waveform": PropTypes.func.isRequired,
         "waveformName": PropTypes.string.isRequired
-    }
-
-    constructor () {
-        super();
-        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidMount () {
@@ -41,6 +39,7 @@ class WaveformButton extends Component {
         return nextProps.selected !== this.props.selected;
     }
 
+    @autobind
     handleChange (event) {
         event.stopPropagation();
         const {selected, onChange, waveformName} = this.props;

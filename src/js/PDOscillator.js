@@ -1,3 +1,5 @@
+import autobind from "autobind-decorator";
+
 import {waveforms, wrappers} from "./waveforms";
 
 import {mixValues, phaseDistortionFunction, inputNode, lcmReducer, fractionsLcm} from "./shared-functions";
@@ -59,9 +61,6 @@ class PDOscillator {
         const {harmonics = []} = this.state;
 
         this.counterMax = fractionsLcm(harmonics);
-
-        this.audioProcessHandler = this.audioProcessHandler.bind(this);
-
 
         //set frequency
         dc.connect(this.parameters.frequency);
@@ -141,6 +140,7 @@ class PDOscillator {
         this.resonancePhase = 0;
     }
 
+    @autobind
     audioProcessHandler (event) {
         const frequency = event.inputBuffer.getChannelData(0);
         const detune = event.inputBuffer.getChannelData(1);

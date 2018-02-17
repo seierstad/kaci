@@ -1,5 +1,8 @@
+import autobind from "autobind-decorator";
+
 import {SET_SYSTEM_CONFIGURATION} from "./actions";
 import {LOCALSTORAGE_NAME} from "./constants";
+
 
 class SystemSettings {
     constructor (context, store) {
@@ -17,7 +20,7 @@ class SystemSettings {
                 });
             }
         }
-        this.update = this.update.bind(this);
+
         this.unsubscribe = store.subscribe(this.update);
         return this.state;
     }
@@ -28,6 +31,7 @@ class SystemSettings {
         }
     }
 
+    @autobind
     update () {
         const newState = this.store.getState().settings;
         if (newState !== this.state) {

@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {waveforms} from "../../waveforms";
 import {harmonicShape, rangeShape} from "../../propdefs";
@@ -32,8 +34,6 @@ class Harmonics extends Component {
     constructor (props) {
         super(props);
         this.waveFunction = () => 0;
-        this.waveFunction = this.waveFunction.bind(this);
-        this.setWaveFunction = this.setWaveFunction.bind(this);
     }
 
     componentWillMount () {
@@ -50,6 +50,7 @@ class Harmonics extends Component {
         this.setWaveFunction(nextProps);
     }
 
+    @autobind
     setWaveFunction (props) {
         const {patch, mixFunction} = props;
         const counter = fractionsLcm(patch);

@@ -1,3 +1,5 @@
+import autobind from "autobind-decorator";
+
 /*
     handles common functions for periodic modulators:
     - frequency
@@ -32,7 +34,6 @@ class Periodic {
         this.outputs = {};
         this.addOutput("positive", [0, 0.5, 1]);
         this.addOutput("negative", [-1, -0.5, 0]);
-        this.updateOutputRanges = this.updateOutputRanges.bind(this);
 
         this.isSyncMaster = isSyncMaster;
 
@@ -149,6 +150,7 @@ class Periodic {
         }
     }
 
+    @autobind
     updateOutputRanges (amount) {
         if (this.outputs.positive) {
             this.outputs.positive.curve = new Float32Array([0, amount]);

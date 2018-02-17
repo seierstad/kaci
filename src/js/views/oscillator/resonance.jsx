@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {waveforms, wrappers} from "../../waveforms";
 import {oscillatorPatchShape, rangeShape} from "../../propdefs";
@@ -37,7 +39,6 @@ class Resonance extends Component {
     constructor () {
         super();
         this.waveFunction = () => 0;
-        this.waveFunction = this.waveFunction.bind(this);
     }
 
     componentWillMount () {

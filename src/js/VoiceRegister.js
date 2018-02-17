@@ -1,3 +1,5 @@
+import autobind from "autobind-decorator";
+
 import Tunings from "./Tunings";
 import Voice from "./Voice";
 
@@ -10,7 +12,6 @@ import Voice from "./Voice";
 class VoiceRegister {
 
     constructor (store, context, modulationMatrix) {
-        this.stateChangeHandler = this.stateChangeHandler.bind(this);
 
         this.store = store;
         this.state = {...this.store.getState()};
@@ -99,7 +100,7 @@ class VoiceRegister {
 
         if (voice) {
 
-            voice.stop(this.context.currentTime, this.deleteVoice.bind(this));
+            voice.stop(this.context.currentTime, this.deleteVoice);
             if (this.stoppedVoices[key]) {
                 this.deleteVoice(this.stoppedVoices[key]);
             }
@@ -111,6 +112,7 @@ class VoiceRegister {
 
     }
 
+    @autobind
     deleteVoice (voice) {
         const notVoice = (v) => v === null;
         let voiceIndex = this.stoppedVoices.indexOf(voice);
@@ -148,6 +150,7 @@ class VoiceRegister {
         return prev;
     }
 
+    @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
         const newKeyState = newState.playState.keys;

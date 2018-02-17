@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {modulationTargetShape, noisePatchShape} from "../propdefs";
 import {noise} from "../waveforms";
@@ -14,15 +16,11 @@ class NoiseView extends Component {
         "patch": noisePatchShape.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleColorChange = this.handleColorChange.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (this.props.patch !== nextProps.patch);
     }
 
+    @autobind
     handleColorChange (event) {
         event.stopPropagation();
         this.props.handlers.colorChange(event.target.value);

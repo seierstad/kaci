@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {harmonicShape, rangeShape} from "../../propdefs";
 import {harmonicConfiguration} from "../../configuration";
@@ -17,12 +19,10 @@ class NewHarmonic extends Component {
     constructor (props) {
         super(props);
         this.numeratorElement = null;
-        this.setNumeratorRef = this.setNumeratorRef.bind(this);
         this.denominatorElement = null;
-        this.setDenominatorRef = this.setDenominatorRef.bind(this);
-        this.handleAddHarmonic = this.handleAddHarmonic.bind(this);
     }
 
+    @autobind
     handleAddHarmonic (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -33,10 +33,12 @@ class NewHarmonic extends Component {
         this.props.handlers.add(numerator, denominator);
     }
 
+    @autobind
     setDenominatorRef (denominator) {
         this.denominatorElement = denominator;
     }
 
+    @autobind
     setNumeratorRef (numerator) {
         this.numeratorElement = numerator;
     }

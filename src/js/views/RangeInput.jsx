@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 
 let rangeInputId = 0;
@@ -53,12 +55,6 @@ class RangeInput extends Component {
         "value": PropTypes.number.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleChange = this.handleChange.bind(this);
-        this.handleReset = this.handleReset.bind(this);
-    }
-
     componentWillMount () {
         const {configuration} = this.props;
         const {min, mid, max, exponential} = configuration;
@@ -74,6 +70,7 @@ class RangeInput extends Component {
         return this.props.value !== nextProps.value;
     }
 
+    @autobind
     handleChange (event) {
         event.stopPropagation();
         event.preventDefault();
@@ -84,6 +81,7 @@ class RangeInput extends Component {
         this.props.changeHandler(exponential ? this.scale.up(value) : value, eventParams);
     }
 
+    @autobind
     handleReset () {
         const {eventParams, configuration: {mid, exponential}} = this.props;
         this.props.changeHandler(exponential ? this.scale.up(mid) : mid, eventParams);

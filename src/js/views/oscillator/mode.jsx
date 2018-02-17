@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import autobind from "autobind-decorator";
 
 import {oscillatorModeShape} from "../../propdefs";
 import {OSCILLATOR_MODE} from "../../constants";
@@ -18,11 +20,6 @@ class Mode extends Component {
         "patch": oscillatorModeShape.isRequired
     }
 
-    constructor () {
-        super();
-        this.handleChange = this.handleChange.bind(this);
-    }
-
     shouldComponentUpdate (nextProps) {
         return (
             this.props.patch !== nextProps.patch
@@ -30,6 +27,7 @@ class Mode extends Component {
         );
     }
 
+    @autobind
     handleChange (event) {
         event.stopPropagation();
         this.props.handler(event.target.value);

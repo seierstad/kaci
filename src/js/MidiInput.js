@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 import * as Actions from "./actions";
 import * as c from "./midiConstants";
 
@@ -12,18 +13,6 @@ class MidiInput {
             });
             return null;
         }
-
-        this.midiAccessSuccess = this.midiAccessSuccess.bind(this);
-        this.midiAccessFailure = this.midiAccessFailure.bind(this);
-        this.accessStateChangeHandler = this.accessStateChangeHandler.bind(this);
-        this.activeChannelMessageHandler = this.activeChannelMessageHandler.bind(this);
-        this.isActiveChannel = this.isActiveChannel.bind(this);
-        this.midiMessageHandler = this.midiMessageHandler.bind(this);
-        this.removeInputListeners = this.removeInputListeners.bind(this);
-        this.addInputListeners = this.addInputListeners.bind(this);
-        this.selectInputPort = this.selectInputPort.bind(this);
-        this.timeCodeHandler = this.timeCodeHandler.bind(this);
-        this.update = this.update.bind(this);
 
         this.state = store.getState().settings.midi;
         this.unsubscribe = this.store.subscribe(this.update);
@@ -118,6 +107,7 @@ class MidiInput {
         }
     }
 
+    @autobind
     update () {
         const state = this.store.getState().settings.midi;
 
@@ -133,6 +123,7 @@ class MidiInput {
         }
     }
 
+    @autobind
     accessStateChangeHandler (event) {
         const {port} = event;
         const {connection, name, id, manufacturer, state} = port;
@@ -163,6 +154,7 @@ class MidiInput {
         }
     }
 
+    @autobind
     midiAccessFailure (exception) {
         console.log("MIDI failure: " + exception);
         this.store.dispatch({
@@ -170,6 +162,7 @@ class MidiInput {
         });
     }
 
+    @autobind
     midiAccessSuccess (access) {
         this.midiAccess = access;
         this.midiAccess.addEventListener("statechange", this.accessStateChangeHandler);
@@ -216,6 +209,7 @@ class MidiInput {
         }
     }
 
+    @autobind
     controlChangeHandler (type, data) {
         let cc = c.CONTROL,
             p = this.valuePairs;
@@ -298,10 +292,12 @@ class MidiInput {
         }
     }
 
+    @autobind
     timeCodeHandler (data) {
         console.log("TODO: implement timecode");
     }
 
+    @autobind
     clockHandler (time) {
 
         if (this.clock.sync) {
@@ -338,10 +334,12 @@ class MidiInput {
         }
     }
 
+    @autobind
     isActiveChannel (firstByte) {
         return (firstByte & 0xF0 === 0xF0) || (this.activeChannel === firstByte & 0x0F) || (typeof this.activeChannel === "string" && this.activeChannel === "all");
     }
 
+    @autobind
     activeChannelMessageHandler (event, overrideType) {
         const {data, timeStamp} = event;
         let index = 0,
@@ -422,24 +420,28 @@ class MidiInput {
 
     }
 
+    @autobind
     midiMessageHandler (event) {
         if (this.isActiveChannel(event.data[0])) {
             this.activeChannelMessageHandler(event);
         }
     }
 
+    @autobind
     removeInputListeners (port) {
         if (port) {
             port.removeEventListener("midimessage", this.midiMessageHandler);
         }
     }
 
+    @autobind
     addInputListeners (port) {
         if (port) {
             port.addEventListener("midimessage", this.midiMessageHandler, false);
         }
     }
 
+    @autobind
     selectInputPort (portId) {
         if (this.activeInput && this.activeInputId !== portId) {
             this.activeInput.close();
