@@ -11,12 +11,12 @@ export const getTemperedScale = function (fromKey, toKey, referenceKey, referenc
 
 export const scaleRatios = function (base, teller, nevner) {
     return noteNumber => {
-        var t = Math.pow(teller, noteNumber);
-        var n = Math.pow(nevner, noteNumber);
-        var r = Math.pow(teller / nevner, noteNumber);
+        let t = Math.pow(teller, noteNumber);
+        let n = Math.pow(nevner, noteNumber);
+        const r = Math.pow(teller / nevner, noteNumber);
 
         if (r > base || r < 1) {
-            var f = Math.log(r) / Math.log(base);
+            const f = Math.log(r) / Math.log(base);
             console.log("f: ", f, "t: ", t, "n: ", n, "r: ", r);
 
             if (r < 1) {

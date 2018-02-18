@@ -2,6 +2,7 @@ import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {NOTE_NAMES} from "../../constants";
 import {chordShiftShape} from "../../propdefs";
+import {keyboard as configuration} from "../../configuration";
 
 import Key from "./key.jsx";
 
@@ -11,15 +12,20 @@ const findKey = (chord, keyNumber) => chord.find(key => key.number === keyNumber
 class Keys extends Component {
 
     static propTypes = {
-        "chordShift": chordShiftShape.isRequired,
-        "endKey": PropTypes.number.isRequired,
+        "chordShift": chordShiftShape,
+        "endKey": PropTypes.number,
         "keys": PropTypes.array.isRequired,
-        "startKey": PropTypes.number.isRequired
+        "startKey": PropTypes.number
     }
 
     render () {
-        const {startKey, endKey, keys, chordShift} = this.props;
-        const {enabled, chords, value, activeKeys} = chordShift;
+        const {
+            startKey = configuration.startKey,
+            endKey = configuration.endKey,
+            keys,
+            chordShift = {}
+        } = this.props;
+        const {CSenabled = false, CSchords = [], CSvalue = 0, CSactiveKeys = []} = chordShift;
 
         const whiteKeys = [];
         const blackKeys = [];
@@ -39,19 +45,19 @@ class Keys extends Component {
                 []
             );
 
-            const q = value * (chords.length - 1);
+            const q = CSvalue * (CSchords.length - 1);
             const chordIndex = Math.floor(q);
             const chordRatio = Math.floor((q - chordIndex) * 100);
 
             const key = (
                 <Key
-                    chordRatio={chordShift.enabled ? chordRatio : null}
-                    chordShiftActiveKey={chordShift.enabled ? !!findKey(chordShift.activeKeys, i) : null}
-                    chordShiftChordCount={chordShift.enabled ? chordShift.chords.length : null}
-                    highChordIndex={chordShift.enabled && chords.length > chordIndex + 1 ? chordIndex + 1 : null}
-                    inChordShiftChords={chordShift.enabled ? findChordIndexes(chordShift.chords) : null}
+                    chordRatio={CSenabled ? chordRatio : null}
+                    chordShiftActiveKey={CSenabled ? !!findKey(CSactiveKeys, i) : null}
+                    chordShiftChordCount={CSenabled ? CSchords.length : null}
+                    highChordIndex={CSenabled && CSchords.length > chordIndex + 1 ? chordIndex + 1 : null}
+                    inChordShiftChords={CSenabled ? findChordIndexes(CSchords) : null}
                     key={i + "-" + noteName}
-                    lowChordIndex={chordShift.enabled ? chordIndex : null}
+                    lowChordIndex={CSenabled ? chordIndex : null}
                     name={noteName}
                     number={i}
                     state={keys[i]}

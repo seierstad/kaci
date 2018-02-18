@@ -8,6 +8,7 @@ class FractionInput extends Component {
 
     static propTypes = {
         "children": PropTypes.any,
+        "className": PropTypes.string,
         "configuration": syncConfigShape.isRequired,
         "denominatorRef": PropTypes.func,
         "disabled": PropTypes.bool,

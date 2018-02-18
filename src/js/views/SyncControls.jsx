@@ -8,6 +8,7 @@ class SyncControls extends Component {
 
     static propTypes = {
         "children": PropTypes.any,
+        "className": PropTypes.string,
         "configuration": syncConfigShape.isRequired,
         "disabled": PropTypes.bool,
         "handlers": PropTypes.object.isRequired,

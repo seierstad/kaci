@@ -46,13 +46,12 @@ class SubOscillator {
 
         // simple oscillator
         this.generator = context.createOscillator();
-        this.generator.frequency.value = 0;
+        this.generator.frequency.setValueAtTime(0, this.context.currentTime);
         this.generator.type = "sine";
 
 
         SubOscillator.gains.forEach(name => {
             this[name + "Node"] = context.createGain();
-            this[name + "Node"].gain.value = 0;
             this[name + "Node"].gain.setValueAtTime(0, this.context.currentTime);
         });
 

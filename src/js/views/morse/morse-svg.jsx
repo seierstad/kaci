@@ -8,6 +8,7 @@ class MorseSvg extends Component {
     static propTypes = {
         "data": PropTypes.arrayOf(PropTypes.bool).isRequired,
         "guides": PropTypes.arrayOf(PropTypes.number),
+        "strokeWidth": PropTypes.number,
         "wrap": PropTypes.number
     }
 
@@ -134,7 +135,7 @@ class MorseSvg extends Component {
         });
 
         let motionPathDataPoints = [];
-        for (let r = 0, l = length; r < height; r += 1, l -= width) {
+        for (let l = length, r = 0; r < height; r += 1, l -= width) {
             motionPathDataPoints.push("M0", ((r + 0.5) * strokeWidth), "h", Math.min(l, width) * strokeWidth);
         }
 
@@ -157,9 +158,21 @@ class MorseSvg extends Component {
                     >
                         <path d="M 5 0 L 0 5 5 10 10 5 z" fill="currentColor" />
                     </marker>
-                    <path d={motionPathData} id="motion-path" pathLength={length} />
+                    <path
+                        d={motionPathData}
+                        id="motion-path"
+                        pathLength={length}
+                    />
                 </defs>
-                <path className="morse-background" d={["M", width * strokeWidth, 0, "h", -width * strokeWidth, "v", height * strokeWidth, ...backgroundBottom, "z"].join(" ")} />
+                <path
+                    className="morse-background"
+                    d={[
+                        "M", width * strokeWidth, 0,
+                        "h", -width * strokeWidth,
+                        "v", height * strokeWidth, ...backgroundBottom,
+                        "z"
+                    ].join(" ")}
+                />
                 {paths}
                 {guidePaths}
                 <g className="row" ref={row => this.row = row}>

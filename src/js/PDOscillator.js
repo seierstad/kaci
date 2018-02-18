@@ -64,7 +64,7 @@ class PDOscillator {
 
         //set frequency
         dc.connect(this.parameters.frequency);
-        this.parameters.frequency.gain.value = 440;
+        this.parameters.frequency.gain.setValueAtTime(440, context.currentTime);
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);

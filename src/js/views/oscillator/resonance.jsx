@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import autobind from "autobind-decorator";
 
 import {waveforms, wrappers} from "../../waveforms";
 import {oscillatorPatchShape, rangeShape} from "../../propdefs";
@@ -73,7 +72,9 @@ class Resonance extends Component {
 
         return (
             <div className="oscillator-resonance-view">
-                <WaveformCanvas waveFunction={this.waveFunction} />
+                <WaveformCanvas
+                    waveFunction={this.waveFunction}
+                />
                 <RangeInput
                     changeHandler={handlers.factorChange}
                     configuration={configuration}

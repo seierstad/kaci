@@ -15,13 +15,13 @@ class OutputStage {
 
         this.context = context;
         this.input = context.createGain();
-        this.input.gain.value = 0;
+        this.input.gain.setValueAtTime(0, context.currentTime);
         this.panner = context.createStereoPanner();
-        this.panner.pan.value = 0;
+        this.panner.pan.setValueAtTime(0, context.currentTime);
 
         // this is the output stage, used for muting
         this.output = context.createGain();
-        this.output.gain.value = 0;
+        this.output.gain.setValueAtTime(0, context.currentTime);
 
         // signal path: source -> input -> panner -> output
 

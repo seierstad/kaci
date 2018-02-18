@@ -14,6 +14,7 @@ import MorseSvg from "./morse-svg.jsx";
 class MorseGenerator extends Component {
 
     static propTypes = {
+        "children": PropTypes.any,
         "configuration": modulationMorseSourcesConfigShape.isRequired,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "index": PropTypes.number.isRequired,

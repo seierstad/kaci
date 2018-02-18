@@ -36,13 +36,13 @@ class LFO extends Component {
         this.updatePhaseIndicator(true);
     }
 
+    shouldComponentUpdate (nextProps) {
+        return this.props.patch !== nextProps.patch;
+    }
+
     componentDidUpdate (prevProps, prevState) {
         this.phaseIndicator = this.waveformSelector.phaseIndicator;
         this.updatePhaseIndicator(true);
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return this.props.patch !== nextProps.patch;
     }
 
     @autobind
@@ -59,7 +59,7 @@ class LFO extends Component {
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
                 <WaveformSelector
                     changeHandler={handlers.changeWaveform}
-                    includePhaseIndicator={true}
+                    includePhaseIndicator
                     index={index}
                     module={this.module}
                     parameter="waveform"

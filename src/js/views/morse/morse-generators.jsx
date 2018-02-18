@@ -26,7 +26,7 @@ class MorseGenerators extends Component {
                 <MorseGenerator
                     configuration={configuration}
                     handlers={handlers}
-                    includeSync={true}
+                    includeSync
                     index={i}
                     key={i}
                     module="morse"
