@@ -10,7 +10,6 @@ class LFOs {
         this.context = context;
         this.store = store;
         this.state = store.getState();
-        console.log("neio");
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
         this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos, dc);

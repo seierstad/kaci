@@ -81,7 +81,9 @@ class MorseGenerator extends Component {
         const shiftedPattern = shiftPattern(paddedPattern, shift);
 
         const id = "morse-generator-text-" + index;
-        const patternDivisors = divisors(speedUnit || pattern.length).filter(f => f < MAX_GUIDE_DIVISOR && f !== 1 && f !== pattern.length).sort((a, b) => a < b);
+        const patternDivisors = divisors(speedUnit || pattern.length)
+            .filter(f => f < MAX_GUIDE_DIVISOR && f !== 1 && f !== pattern.length)
+            .sort((a, b) => a < b ? -1 : 1);
 
         const visibleGuides = patternDivisors.filter(d => ~guides.indexOf(d));
 

@@ -75,7 +75,7 @@ const harmonics = (state = [...defaultHarmonics], action) => {
                     numerator: action.numerator,
                     denominator: action.denominator
                 }
-            ].sort((a, b) => (a.numerator / a.denominator) > (b.numerator / b.denominator));
+            ].sort((a, b) => (a.numerator / a.denominator) < (b.numerator / b.denominator) ? -1 : 1);
     }
 
     return state;

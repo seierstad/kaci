@@ -28,7 +28,7 @@ class Oscillator {
         const p = this.parameters;
         this.constructor.inputDefs.forEach((def, i) => {
             p[def.name] = inputNode(context, dc);
-            p[def.name].gain.value = def.defaultValue;
+            p[def.name].gain.setValueAtTime(def.defaultValue, this.context.currentTime);
             dc.connect(p[def.name]);
             p[def.name].connect(this.mergedInput, null, i);
         });

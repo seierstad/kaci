@@ -33,7 +33,6 @@ class StaticSources {
 
                 const patchValue = this.state[moduleName][parameterName];
                 const scaledValue = scale(patchValue, limits, normalized);
-                node.gain.value = scaledValue;
                 node.gain.setValueAtTime(scaledValue, context.currentTime);
                 dc.connect(node);
             }

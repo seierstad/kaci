@@ -33,7 +33,6 @@ export const getDistortedPhase = (phase, envelope) => phaseDistortionFunction(en
 
 export const inputNode = (context) => {
     const node = context.createGain();
-    node.gain.value = 0;
     node.gain.setValueAtTime(1, context.currentTime);
 
     return node;
@@ -41,7 +40,6 @@ export const inputNode = (context) => {
 
 export const outputNode = (context, dc, value) => {
     const node = context.createGain();
-    node.gain.value = 0;
     node.gain.setValueAtTime(value, context.currentTime);
     dc.connect(node);
 

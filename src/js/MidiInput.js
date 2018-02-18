@@ -312,7 +312,10 @@ class MidiInput {
         if (this.clock.ticks.length > TICKS) {
             this.clock.ticks.shift();
 
-            const diff = [...this.clock.ticks].sort((a, b) => a - b).slice(REMOVE_LOW, TICKS - REMOVE_HIGH).reduce((a, b) => a + b) / (TICKS - REMOVE_LOW - REMOVE_HIGH);
+            const diff = [...this.clock.ticks]
+                .sort((a, b) => (a < b) ? -1 : 1)
+                .slice(REMOVE_LOW, TICKS - REMOVE_HIGH)
+                .reduce((a, b) => a + b) / (TICKS - REMOVE_LOW - REMOVE_HIGH);
 
 
             if (diff !== this.clock.diff) {

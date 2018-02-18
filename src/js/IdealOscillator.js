@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 import {BUFFER_LENGTH} from "./constants";
 import {waveforms} from "./waveforms";
 import {inputNode} from "./shared-functions";
@@ -21,6 +22,7 @@ class IdealOscillator extends Oscillator {
         }
     }
 
+    @autobind
     audioProcessHandler (event) {
         const frequency = event.inputBuffer.getChannelData(0);
         const detune = event.inputBuffer.getChannelData(1);

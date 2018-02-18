@@ -5,7 +5,7 @@ class DCGenerator {
 
         const gen = context.createOscillator();
         gen.setPeriodicWave(context.createPeriodicWave(real, imag));
-        gen.frequency.value = 0;
+        gen.frequency.setValueAtTime(0, context.currentTime);
         if (gen.type !== "custom") {
             gen.type = "custom";
         }

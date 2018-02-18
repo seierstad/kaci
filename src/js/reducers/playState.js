@@ -70,7 +70,7 @@ const containsKey = (chord, key) => {
     return chord.find(chordKey => chordKey.number === key.number);
 };
 
-const keySort = (a, b) => a.number > b.number;
+const keySort = (a, b) => a.number > b.number ? -1 : 1;
 
 
 const addKeyToChords = (chords = [], key, newChord) => {

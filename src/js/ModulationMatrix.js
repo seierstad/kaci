@@ -110,7 +110,7 @@ class ModulationMatrix {
             }
 
             connections[index] = this.context.createGain();
-            connections[index].gain.value = amount;
+            connections[index].gain.setValueAtTime(amount, this.context.currentTime);
 
             sourceNode.connect(connections[index]);
             connections[index].connect(target);
