@@ -63,44 +63,43 @@
         position: relative;
         top: -100%;
 
+        .key-wrapper {
+            display: flex;
+            flex-grow: $key-width-white / 1rem;
+
+            &::before,
+            &::after {
+                content: "";
+                display: block;
+                flex: $small-flex;
+            }
+
+            &.db,
+            &.gb,
+            &:first-child {
+                flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+
+                &::before {
+                    flex: $big-flex;
+                }
+            }
+
+            &.bb,
+            &.eb,
+            &:last-child {
+                flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+
+                &::after {
+                    flex: $big-flex;
+                }
+            }
+        }
+
         .key {
             background-color: $key-color-black;
             display: block;
             flex: $key-flex;
             height: 100%;
-
-
-            &-wrapper {
-                display: flex;
-                flex-grow: $key-width-white / 1rem;
-
-                &::before,
-                &::after {
-                    content: "";
-                    display: block;
-                    flex: $small-flex;
-                }
-
-                &.db,
-                &.gb,
-                &:first-child {
-                    flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
-
-                    &::before {
-                        flex: $big-flex;
-                    }
-                }
-
-                &.bb,
-                &.eb,
-                &:last-child {
-                    flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
-
-                    &::after {
-                        flex: $big-flex;
-                    }
-                }
-            }
         }
     }
 
@@ -247,4 +246,6 @@
             }
         }
     }
+
+    @import "chord-shift";
 }

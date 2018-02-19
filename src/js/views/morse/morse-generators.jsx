@@ -1,6 +1,11 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 
-import {morseGeneratorsPatchShape, modulationMorseSourcesConfigShape, morseGeneratorViewStateShape} from "../../propdefs";
+import {
+    morseGeneratorsPatchShape,
+    modulationMorseSourcesConfigShape,
+    morseGeneratorViewStateShape
+} from "../../propdefs";
 import MorseGenerator from "./morse-generator.jsx";
 
 class MorseGenerators extends Component {
@@ -18,7 +23,7 @@ class MorseGenerators extends Component {
     }
 
     render () {
-        const {patch, configuration, handlers, syncHandlers, viewState = []} = this.props;
+        const {patch, configuration, handlers, viewState = []} = this.props;
         let generators = [];
 
         for (let i = 0; i < configuration.count; i += 1) {

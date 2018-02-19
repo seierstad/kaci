@@ -1,5 +1,5 @@
 import * as Actions from "../actions";
-
+import chordShift from "./chord-shift-reducer";
 
 const key = (state = {down: false}, action) => {
     switch (action.type) {
@@ -18,19 +18,41 @@ const key = (state = {down: false}, action) => {
     }
 };
 
-const keys = (state = [], action) => {
-    switch (action.type) {
-        case Actions.KEYBOARD_KEY_DOWN:
-        case Actions.KEYBOARD_KEY_UP:
+const keys = (state = {}, action = {}) => {
+    const {
+        afterTouch,
+        keyNumber,
+        type,
+        velocity
+    } = action;
+
+    switch (type) {
         case Actions.MIDI_KEY_DOWN:
+        case Actions.KEYBOARD_KEY_DOWN:
+            if (!state.hasOwnProperty(keyNumber)) {
+                return {
+                    ...state,
+                    [keyNumber]: {
+                        "down": true,
+                        "number": keyNumber,
+                        velocity,
+                        afterTouch
+                    }
+                };
+            }
+            break;
+        case Actions.KEYBOARD_KEY_UP:
         case Actions.MIDI_KEY_UP:
-            const result = [
-                ...(state.slice(0, action.keyNumber)),
-                ...(state.slice(action.keyNumber))
-            ];
-            result[action.keyNumber] = key({...state[action.keyNumber]}, action);
-            return result;
+            if (state.hasOwnProperty(keyNumber)) {
+                const result = {
+                    ...state
+                };
+                delete result[keyNumber];
+                return result;
+            }
+            break;
     }
+
     return state;
 };
 
@@ -66,112 +88,6 @@ const pitchShift = (state = 0, action) => {
     return state;
 };
 
-const containsKey = (chord, key) => {
-    return chord.find(chordKey => chordKey.number === key.number);
-};
-
-const keySort = (a, b) => a.number > b.number ? -1 : 1;
-
-
-const addKeyToChords = (chords = [], key, newChord) => {
-    if (newChord) {
-        return [
-            ...chords,
-            [key]
-        ];
-    }
-
-    const lastChordIndex = chords.length - 1;
-    const lastChord = chords[lastChordIndex];
-
-    if (!containsKey(lastChord, key)) {
-        return [
-            ...chords.slice(0, lastChordIndex),
-            [...lastChord, key].sort(keySort)
-        ];
-    }
-
-    return chords;
-};
-
-const defaultChordShift = {
-    enabled: false,
-    mode: "portamento",
-    chords: [],
-    activeKeys: [],
-    value: 0
-};
-
-const chordShift = (state = defaultChordShift, action, keys) => {
-    const key = {
-        number: action.keyNumber
-    };
-
-    switch (action.type) {
-
-        case Actions.MIDI_MODULATION_WHEEL:
-        case Actions.KEYBOARD_CHORD_SHIFT:
-            return {
-                ...state,
-                value: action.value
-            };
-
-        case Actions.CHORD_SHIFT_ENABLE:
-            return {
-                ...state,
-                chords: keys.length > 0 ? [keys] : [],
-                activeKeys: keys,
-                enabled: true
-            };
-
-        case Actions.CHORD_SHIFT_DISABLE:
-            return {
-                ...state,
-                activeKeys: [],
-                chords: [],
-                enabled: false
-            };
-
-        case Actions.KEYBOARD_CHORD_SHIFT_TOGGLE:
-            return {
-                ...state,
-                chords: state.enabled || keys.length < 1 ? [] : [keys],
-                activeKeys: state.enabled ? [] : keys,
-                enabled: !state.enabled
-            };
-
-        case Actions.KEYBOARD_KEY_DOWN:
-        case Actions.MIDI_KEY_DOWN:
-            const isNewChord = state.activeKeys.length === 0;
-
-            return {
-                ...state,
-                chords:  addKeyToChords(state.chords, key, isNewChord),
-                activeKeys: containsKey(state.activeKeys, key) ? state.activeKeys : [...state.activeKeys, key].sort(keySort)
-            };
-
-        case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI_KEY_UP:
-            const found = containsKey(state.activeKeys, key);
-
-            if (found) {
-                const index = state.activeKeys.indexOf(found);
-
-                return {
-                    ...state,
-                    activeKeys: [
-                        ...state.activeKeys.slice(0, index),
-                        ...state.activeKeys.slice(index + 1)
-                    ]
-                };
-            }
-
-            return state;
-    }
-
-    return state;
-};
-
 const hold = (state = false, action) => {
     switch (action.type) {
         case "TODO":
@@ -181,23 +97,24 @@ const hold = (state = false, action) => {
 };
 
 const defaultPlayState = {
-    keys: [],
-    chordShift: defaultChordShift,
+    keys: {},
+    chordShift: chordShift(),
     midiClock: defaultMidiClockState,
     hold: false,
     pitchShift: 0
 };
 
+const keyReducer = (arr, key) => {
+    arr[key.number] = {down: true};
+    return arr;
+};
+
 const playState = (state = defaultPlayState, action) => {
-    const keyReducer = (arr, key) => {
-        arr[key.number] = {down: true};
-        return arr;
-    };
 
     function disable () {
         return {
             ...state,
-            keys: [...state.chordShift.activeKeys.reduce(keyReducer, [])],
+            keys: {...state.chordShift.activeKeys},
             chordShift: chordShift(state.chordShift, action)
         };
     }
@@ -205,8 +122,8 @@ const playState = (state = defaultPlayState, action) => {
     function enable () {
         return {
             ...state,
-            keys: [],
-            chordShift: chordShift(state.chordShift, action, [...(state.keys.map((key, number) => {if (key && key.down) {return {number};}}).filter(k => !!k))])
+            keys: {},
+            chordShift: chordShift(state.chordShift, action, state.keys)
         };
     }
 
@@ -229,23 +146,40 @@ const playState = (state = defaultPlayState, action) => {
         case Actions.MIDI_KEY_DOWN:
         case Actions.MIDI_KEY_UP:
             if (!state.chordShift.enabled) {
-                return {
-                    ...state,
-                    keys: keys(state.keys, action)
-                };
+                const newKeysState = keys(state.keys, action);
+                if (newKeysState !== state.keys) {
+
+                    return {
+                        ...state,
+                        keys: newKeysState
+                    };
+                }
+                break;
             }
 
-            return {
-                ...state,
-                chordShift: chordShift(state.chordShift, action)
-            };
+            const newChordShiftState = chordShift(state.chordShift, action);
+
+            if (newChordShiftState !== state.chordShift) {
+                return {
+                    ...state,
+                    chordShift: newChordShiftState
+                };
+            }
+            break;
 
         case Actions.MIDI_MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
-            return {
-                ...state,
-                chordShift: chordShift(state.chordShift, action)
-            };
+            if (state.chordShift.enabled) {
+                const newChordShiftState = chordShift(state.chordShift, action);
+
+                if (newChordShiftState !== state.chordShift) {
+                    return {
+                        ...state,
+                        chordShift: newChordShiftState
+                    };
+                }
+            }
+            break;
 
         case Actions.CHORD_SHIFT_DISABLE:
             return disable();

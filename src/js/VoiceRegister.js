@@ -9,21 +9,31 @@ import Voice from "./Voice";
  *
  **/
 
+const sortKeysByNumber = (keyA, keyB) => {
+    const numberA = parseInt(keyA.number);
+    const numberB = parseInt(keyB.number);
+
+    if (isNaN(numberA) || isNaN(numberB)) {
+        return keyA < keyB ? -1 : 1;
+    }
+    return numberA < numberB ? -1 : 1;
+};
+
 class VoiceRegister {
 
     constructor (store, context, modulationMatrix) {
 
         this.store = store;
         this.state = {...this.store.getState()};
-        this.activeKeys = [...this.state.playState.keys];
+        this.activeKeys = new Set(...Object.keys(this.state.playState.keys));
         this.context = context;
 
-        this.activeVoices = [];
-        this.stoppedVoices = [];
+        this.activeVoices = {};
+        this.stoppedVoices = {};
         this.chordShifter = {
             enabled: false,
             chords: [],
-            activeKeys: []
+            activeKeys: {}
         };
 
         this.mainMix = context.createGain();
@@ -41,7 +51,8 @@ class VoiceRegister {
 
     startVoice (key, freq) {
         if (!this.activeVoices[key]) {
-            const frequency = (typeof key === "number") ? this.tuning[key] : freq;
+            const keyNumber = parseInt(key, 10);
+            const frequency = (typeof keyNumber === "number") ? this.tuning[keyNumber] : freq;
             const voice = new Voice(this.context, this.store, frequency);
 
             if (this.totalVoicesCount === 0) {
@@ -51,7 +62,7 @@ class VoiceRegister {
 
             voice.connect(this.mainMix);
             this.activeVoices[key] = voice;
-            this.activeKeys[key] = true;
+            this.activeKeys.add(key);
 
             voice.start(this.context.currentTime);
         }
@@ -89,14 +100,16 @@ class VoiceRegister {
     }
 
     get totalVoicesCount () {
-        const activeCount = this.activeVoices.reduce((prev, curr) => {return (curr ? (prev + 1) : prev);}, 0);
-        const stoppedCount = this.stoppedVoices.reduce((prev, curr) => {return (curr ? (prev + 1) : prev);}, 0);
+        const activeCount = Object.keys(this.activeVoices).length;
+        const stoppedCount = Object.keys(this.stoppedVoices).length;
 
         return activeCount + stoppedCount;
     }
 
     stopVoice (key) {
-        const voice = this.activeVoices[key];
+        const {
+            [key]: voice
+        } = this.activeVoices;
 
         if (voice) {
 
@@ -107,7 +120,7 @@ class VoiceRegister {
 
             this.stoppedVoices[key] = voice;
             delete this.activeVoices[key];
-            delete this.activeKeys[key];
+            this.activeKeys.delete(key);
         }
 
     }
@@ -115,17 +128,21 @@ class VoiceRegister {
     @autobind
     deleteVoice (voice) {
         const notVoice = (v) => v === null;
-        let voiceIndex = this.stoppedVoices.indexOf(voice);
+        let [stoppedVoiceKey = null] = Object.entries(this.stoppedVoices)
+            .filter(([key, stoppedVoice]) => voice === stoppedVoice)
+            .map(([key]) => key);
 
-        if (voiceIndex !== -1) {
-            delete this.stoppedVoices[voiceIndex];
+        if (stoppedVoiceKey !== null) {
+            delete this.stoppedVoices[stoppedVoiceKey];
 
         } else {
 
-            voiceIndex = this.activeVoices.indexOf(voice);
+            let [activeVoiceKey = null] = Object.entries(this.activeVoices)
+                .filter(([key, activeVoice]) => voice === activeVoice)
+                .map(([key]) => key);
 
-            if (voiceIndex !== -1) {
-                delete this.activeVoices[voiceIndex];
+            if (activeVoiceKey !== null) {
+                delete this.activeVoices[activeVoiceKey];
             }
         }
 
@@ -160,11 +177,19 @@ class VoiceRegister {
         if (!(newChordShiftState && newChordShiftState.enabled)) {
             if (this.activeKeys !== newKeyState) {
 
-                const downs = newKeyState.reduce(VoiceRegister.reduceDownKeys(this.activeKeys), []);
-                const ups = this.activeKeys.reduce(VoiceRegister.reduceUpKeys(newKeyState), []);
+                const downs = Object.entries(newKeyState)
+                    .filter(([keyNumber, keyState]) => !this.activeKeys.has(keyNumber));
+
+                const ups = [];
+
+                for (let keyNumber of this.activeKeys.values()) {
+                    if (!(newKeyState.hasOwnProperty(keyNumber)) || !newKeyState[keyNumber].down) {
+                        ups.push(keyNumber);
+                    }
+                }
 
                 ups.forEach(k => this.stopVoice(k));
-                downs.forEach(k => this.startVoice(k));
+                downs.forEach(([keyNumber, keyState]) => this.startVoice(keyNumber, keyState.frequency));
             }
         }
 
@@ -176,9 +201,9 @@ class VoiceRegister {
 
             this.tuning = newTuningState;
 
-            this.activeVoices.forEach((voice, noteNumber) => {
+            Object.entries(this.activeVoices).forEach(([noteNumber, voice]) => {
                 voice.frequency = this.tuning[noteNumber];
-            });
+            }, this);
         }
     }
 
@@ -194,30 +219,33 @@ class VoiceRegister {
 
 
     set chordShift (state) {
-        const {value, chords} = state;
-        const keys = [];
+        const {
+            value,
+            chords,
+            enabled
+        } = state;
 
-        if (state.enabled) {
+        if (enabled) {
 
             const q = value * (chords.length - 1);
             const chordIndex = Math.floor(q);
             const chordRatio = q - chordIndex;
 
-            const indexReducer = (acc, curr, index) => curr ? [...acc, index] : acc;
-            const voiceIndexes = this.activeVoices.reduce(indexReducer, []);
+            const isLastChord = (chordIndex === chords.length - 1);
 
+            const chord1 = Object.values(chords[chordIndex]).sort(sortKeysByNumber);
+            const chord2 = isLastChord ? null : Object.values(chords[chordIndex + 1]).sort(sortKeysByNumber);
 
-            for (let i = 0, j = voiceIndexes.length; i < j; i += 1) {
+            const voices = Object.entries(this.activeVoices);
 
-                const voice = this.activeVoices[voiceIndexes[i]];
-                const key1 = chords[chordIndex][i];
-                const isLastChord = (chordIndex === chords.length - 1);
+            voices.forEach(([keyNumber, voice], voiceIndex) => {
 
+                const key1 = chord1[voiceIndex];
                 let frequency;
 
 
                 if (!isLastChord) {
-                    const key2 = chords[chordIndex + 1][i];
+                    const key2 = chord2[voiceIndex];
 
                     if (state.mode === "portamento") {
                         /* contious shift between frequencies: */
@@ -240,7 +268,7 @@ class VoiceRegister {
                 if (!isNaN(frequency)) {
                     voice.frequency = frequency;
                 }
-            }
+            });
         }
 
         this.chordShifter = state;

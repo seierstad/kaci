@@ -48,6 +48,10 @@ body {
 
 button {
     min-height: 3em;
+
+    .keys & {
+        min-height: auto;
+    }
 }
 
 section {

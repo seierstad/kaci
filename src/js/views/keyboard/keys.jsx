@@ -1,7 +1,7 @@
 import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {NOTE_NAMES} from "../../constants";
-import {chordShiftShape} from "../../propdefs";
+import {chordShiftShape, keyStateShape} from "../../propdefs";
 import {keyboard as configuration} from "../../configuration";
 
 import Key from "./key.jsx";
@@ -14,7 +14,7 @@ class Keys extends Component {
     static propTypes = {
         "chordShift": chordShiftShape,
         "endKey": PropTypes.number,
-        "keys": PropTypes.array.isRequired,
+        "keys": PropTypes.objectOf(keyStateShape).isRequired,
         "startKey": PropTypes.number
     }
 

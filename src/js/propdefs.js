@@ -360,18 +360,18 @@ export const keyStateShape = shape({
     "aftertouch": number
 });
 
-export const chordShape = arrayOf(keyStateShape);
+export const chordShape = objectOf(keyStateShape);
 
 export const chordShiftShape = shape({
     "value": number.isRequired,
-    "activeKeys": arrayOf(keyStateShape).isRequired,
+    "activeKeys": objectOf(keyStateShape).isRequired,
     "chords": arrayOf(chordShape)
 });
 
 export const playStateShape = shape({
     "chordShift": chordShiftShape.isRequired,
     "hold": bool,
-    "keys": arrayOf(keyStateShape).isRequired,
+    "keys": objectOf(keyStateShape).isRequired,
     "pitchShift": number.isRequired
 });
 
