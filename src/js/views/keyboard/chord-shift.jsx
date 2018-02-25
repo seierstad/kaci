@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import {chordShiftShape} from "../../propdefs";
 
-import Keys from "./keys.jsx";
+import Chords from "./chords.jsx";
 
 
 class ChordShift extends Component {
@@ -21,7 +21,7 @@ class ChordShift extends Component {
 
         return (
             <section className="chord-shift">
-                {chords.map((chord, index) => <Keys key={index + "-" + Object.keys(chord).join("-")} keys={chord} />)}
+                <Chords chords={chords} />
             </section>
         );
     }

@@ -1,5 +1,8 @@
 import * as Actions from "../actions";
 
+import chord from "./chord-reducer";
+
+
 const defaultChordShift = {
     enabled: false,
     mode: "portamento",
@@ -14,32 +17,6 @@ const containsKey = (chord = {}, key) => {
 
 const keySort = (a, b) => a.number > b.number ? -1 : 1;
 
-const addKeyToChords = (chords = [], key, newChord = true) => {
-    if (newChord) {
-        return [
-            ...chords,
-            {
-                [key.number]: key
-            }
-        ];
-    }
-
-    const lastChordIndex = chords.length - 1;
-    const lastChord = chords[lastChordIndex];
-
-    if (!lastChord.hasOwnProperty(key.number)) {
-        const result = [
-            ...chords
-        ];
-        result[lastChordIndex] = {
-            ...lastChord,
-            [key.number]: key
-        };
-        return result;
-    }
-
-    return chords;
-};
 
 const chordShift = (state = defaultChordShift, action = {}, keys) => {
     const {
@@ -96,16 +73,31 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
 
         case Actions.KEYBOARD_KEY_DOWN:
         case Actions.MIDI_KEY_DOWN:
-            const isNewChord = Object.keys(state.activeKeys).length === 0;
+            const activeKeys = chord(state.activeKeys, action);
 
-            if (!containsKey(state.activeKeys, key)) {
+            if (activeKeys !== state.activeKeys) {
+                if (state.chords && state.chords[0] && Object.keys(activeKeys).length === Object.keys(state.chords[0]).length) {
+                    // add the following test to require each chord to be different from the preceeding chord
+                    // && state.chords[state.chords.length - 1].some(note => !activeKeys.hasOwnProperty(note.number))) {
+                    const chordClone = Object.entries(activeKeys).reduce((acc, [number, key]) => ({
+                        ...acc,
+                        [number]: {
+                            ...key
+                        }
+                    }), {});
+
+                    return {
+                        ...state,
+                        chords: [
+                            ...state.chords,
+                            chordClone
+                        ],
+                        activeKeys
+                    };
+                }
                 return {
                     ...state,
-                    chords: isNewChord ? [...state.chords, {[key.number]: key}] : addKeyToChords(state.chords, key, false),
-                    activeKeys:  {
-                        ...state.activeKeys,
-                        key
-                    }
+                    activeKeys
                 };
             }
             break;

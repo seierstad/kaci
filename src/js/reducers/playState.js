@@ -1,5 +1,7 @@
 import * as Actions from "../actions";
+import chord from "./chord-reducer";
 import chordShift from "./chord-shift-reducer";
+
 
 const key = (state = {down: false}, action) => {
     switch (action.type) {
@@ -16,44 +18,6 @@ const key = (state = {down: false}, action) => {
                 down: false
             };
     }
-};
-
-const keys = (state = {}, action = {}) => {
-    const {
-        afterTouch,
-        keyNumber,
-        type,
-        velocity
-    } = action;
-
-    switch (type) {
-        case Actions.MIDI_KEY_DOWN:
-        case Actions.KEYBOARD_KEY_DOWN:
-            if (!state.hasOwnProperty(keyNumber)) {
-                return {
-                    ...state,
-                    [keyNumber]: {
-                        "down": true,
-                        "number": keyNumber,
-                        velocity,
-                        afterTouch
-                    }
-                };
-            }
-            break;
-        case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI_KEY_UP:
-            if (state.hasOwnProperty(keyNumber)) {
-                const result = {
-                    ...state
-                };
-                delete result[keyNumber];
-                return result;
-            }
-            break;
-    }
-
-    return state;
 };
 
 const defaultMidiClockState = {
@@ -146,7 +110,7 @@ const playState = (state = defaultPlayState, action) => {
         case Actions.MIDI_KEY_DOWN:
         case Actions.MIDI_KEY_UP:
             if (!state.chordShift.enabled) {
-                const newKeysState = keys(state.keys, action);
+                const newKeysState = chord(state.keys, action);
                 if (newKeysState !== state.keys) {
 
                     return {
