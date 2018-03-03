@@ -14,6 +14,7 @@ class Keys extends Component {
     static propTypes = {
         "chordShift": chordShiftShape,
         "endKey": PropTypes.number,
+        "keyHandlers": PropTypes.objectOf(PropTypes.func),
         "keys": PropTypes.objectOf(keyStateShape).isRequired,
         "startKey": PropTypes.number
     }
@@ -22,10 +23,16 @@ class Keys extends Component {
         const {
             startKey = configuration.startKey,
             endKey = configuration.endKey,
+            keyHandlers,
             keys,
             chordShift = {}
         } = this.props;
-        const {CSenabled = false, CSchords = [], CSvalue = 0, CSactiveKeys = []} = chordShift;
+        const {
+            CSenabled = false,
+            CSchords = [],
+            CSvalue = 0,
+            CSactiveKeys = []
+        } = chordShift;
 
         const whiteKeys = [];
         const blackKeys = [];
@@ -54,6 +61,7 @@ class Keys extends Component {
                     chordRatio={CSenabled ? chordRatio : null}
                     chordShiftActiveKey={CSenabled ? !!findKey(CSactiveKeys, i) : null}
                     chordShiftChordCount={CSenabled ? CSchords.length : null}
+                    handlers={keyHandlers}
                     highChordIndex={CSenabled && CSchords.length > chordIndex + 1 ? chordIndex + 1 : null}
                     inChordShiftChords={CSenabled ? findChordIndexes(CSchords) : null}
                     key={i + "-" + noteName}

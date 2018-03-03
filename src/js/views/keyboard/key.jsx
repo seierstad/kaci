@@ -7,7 +7,7 @@ import {keyStateShape} from "../../propdefs";
 import * as Actions from "../../actions";
 
 
-class KeyPresentation extends Component {
+class Key extends Component {
 
     static propTypes = {
         "chordRatio": PropTypes.number,
@@ -94,16 +94,6 @@ class KeyPresentation extends Component {
         return button;
     }
 }
-
-
-const mapDispatch = (dispatch) => ({
-    "handlers": {
-        "down": (keyNumber) => {dispatch({"type": Actions.KEYBOARD_KEY_DOWN, keyNumber});},
-        "up": (keyNumber) => {dispatch({"type": Actions.KEYBOARD_KEY_UP, keyNumber});}
-    }
-});
-
-const Key = connect(null, mapDispatch)(KeyPresentation);
 
 
 export default Key;

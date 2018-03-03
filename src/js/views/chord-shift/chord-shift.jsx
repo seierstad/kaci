@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {chordShiftShape} from "../../propdefs";
 
 import Chords from "./chords.jsx";
-
+import Keys from "./keys.jsx";
 
 class ChordShift extends Component {
 
@@ -15,13 +15,15 @@ class ChordShift extends Component {
     render () {
         const {
             chordShift: {
+                activeKeys = {},
                 chords = []
-            } = {}
+            } = {},
+            keyHandlers
         } = this.props;
 
         return (
             <section className="chord-shift">
-                <Chords chords={chords} />
+                <Chords activeKeys={activeKeys} chords={chords} keyHandlers={keyHandlers} />
             </section>
         );
     }

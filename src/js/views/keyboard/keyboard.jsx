@@ -1,7 +1,13 @@
 import React, {Component} from "react"; import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
-import {KEYBOARD_PITCH_SHIFT, KEYBOARD_CHORD_SHIFT, KEYBOARD_CHORD_SHIFT_TOGGLE} from "../../actions";
+import {
+    KEYBOARD_PITCH_SHIFT,
+    KEYBOARD_CHORD_SHIFT,
+    KEYBOARD_CHORD_SHIFT_TOGGLE,
+    KEYBOARD_KEY_DOWN,
+    KEYBOARD_KEY_UP
+} from "../../actions";
 import {playStateShape} from "../../propdefs";
 
 import RangeInput from "../RangeInput.jsx";
@@ -16,6 +22,7 @@ class KeyboardViewPresentation extends Component {
             "handleChordShift": PropTypes.func.isRequired,
             "handlePitchShift": PropTypes.func.isRequired
         }).isRequired,
+        "keyHandlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "playState": playStateShape.isRequired
     }
 
@@ -24,7 +31,7 @@ class KeyboardViewPresentation extends Component {
     }
 
     render () {
-        const {handlers, playState, configuration} = this.props;
+        const {handlers, keyHandlers, playState, configuration} = this.props;
         const {handlePitchShift, handleChordShift, handleChordShiftToggle} = handlers;
         const {startKey, endKey} = configuration;
 
@@ -33,6 +40,7 @@ class KeyboardViewPresentation extends Component {
                 <Keys
                     chordShift={playState.chordShift}
                     endKey={endKey}
+                    keyHandlers={keyHandlers}
                     keys={playState.keys}
                     startKey={startKey}
                 />
@@ -74,6 +82,10 @@ const mapDispatch = (dispatch) => ({
         "handlePitchShift": (value) => {dispatch({"type": KEYBOARD_PITCH_SHIFT, value});},
         "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT, value});},
         "handleChordShiftToggle": () => {dispatch({"type": KEYBOARD_CHORD_SHIFT_TOGGLE});}
+    },
+    "keyHandlers": {
+        "down": (keyNumber) => {dispatch({"type": KEYBOARD_KEY_DOWN, keyNumber});},
+        "up": (keyNumber) => {dispatch({"type": KEYBOARD_KEY_UP, keyNumber});}
     }
 });
 const KeyboardView = connect(mapState, mapDispatch)(KeyboardViewPresentation);
