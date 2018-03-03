@@ -18,7 +18,7 @@ class SubOscillator {
         "ratio"
     ];
 
-    constructor (context, dc, patch, frequencyParam, scaleBaseNumber = 2) {
+    constructor (context, dc, patch, scaleBaseNumber = 2) {
 
         /* start common constructor code */
 
@@ -70,9 +70,6 @@ class SubOscillator {
         this.beatNode.connect(this.ratioNode);
         this.ratioNode.connect(this.generator.frequency);
         this.generator.connect(this.outputStage.input);
-
-
-        frequencyParam.connect(this.frequencyNode);
 
         //this.frequency = frequency;
         this.scaleBaseNumber = scaleBaseNumber;

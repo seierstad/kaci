@@ -3,7 +3,9 @@ import autobind from "autobind-decorator";
 import {inputNode, outputNode} from "./shared-functions";
 
 import Tunings from "./Tunings";
-import Voice from "./Voice";
+import Voice, {prefixKeys} from "./Voice";
+import ChordShifter from "./chord-shifter";
+
 
 /**
  *  class VoiceRegister
@@ -11,7 +13,7 @@ import Voice from "./Voice";
  *
  **/
 
-const sortKeysByNumber = (keyA, keyB) => {
+export const sortKeysByNumber = (keyA, keyB) => {
     const numberA = parseInt(keyA.number);
     const numberB = parseInt(keyB.number);
 
@@ -35,11 +37,15 @@ class VoiceRegister {
         this.stoppedVoices = {};
         this.frequencies = {};
 
-        this.chordShifter = {
-            enabled: false,
-            chords: [],
-            activeKeys: {}
-        };
+        this.connections = {
+            envelopes: {},
+            lfos: {},
+            morse: {}
+        }; // values set in ModulationMatrix.patchVoice
+
+        this.lfos = [];
+        this.morse = [];
+        this.envelopes = [];
 
         this.mainMix = context.createGain();
         this.mainMix.connect(context.destination);
@@ -49,15 +55,22 @@ class VoiceRegister {
         this.tuningState = {};
         this.tuning = this.state.settings.tuning;
 
-        this.parameters = {
-            "chord shift": {
-                "value": inputNode(context)
-            }
-        };
-
-        this.chordShift = this.state.playState.chordShift;
+        this.chordShiftState = this.state.playState.chordShift;
+        this.chordShifter = new ChordShifter(store, context, this.tuning);
 
         this.store.subscribe(this.stateChangeHandler);
+
+        this.parameters = {
+            ...(prefixKeys(this.chordShifter.targets, "chordshift."))
+        };
+    }
+
+    get sources () {
+        return {
+            "lfos": this.lfos,
+            "morse": this.morse,
+            "envelopes": this.envelopes
+        };
     }
 
     get targets () {
@@ -69,10 +82,8 @@ class VoiceRegister {
             const keyNumber = parseInt(key, 10);
             const frequency = (typeof keyNumber === "number") ? this.tuning[keyNumber] : freq;
             const frequencyNode = outputNode(this.context, this.dc, frequency);
-
-            this.frequencies[key] = frequencyNode;
-
-            const voice = new Voice(this.context, this.store, frequencyNode);
+            const voice = new Voice(this.context, this.store);
+            frequencyNode.connect(voice.frequency);
 
             if (this.totalVoicesCount === 0) {
                 this.modulationMatrix.startGlobalModulators();
@@ -80,6 +91,8 @@ class VoiceRegister {
             this.modulationMatrix.patchVoice(voice, this.patch);
 
             voice.connect(this.mainMix);
+
+            this.frequencies[key] = frequencyNode;
             this.activeVoices[key] = voice;
             this.activeKeys.add(key);
 
@@ -107,6 +120,10 @@ class VoiceRegister {
                         const {ratios} = scale;
                         this.scale = Tunings.getRationalScale(ratios)(min, max, baseKey, frequency);
                         break;
+                }
+
+                if (this.chordShifter) {
+                    this.chordShifter.scale = this.scale;
                 }
             }
         }
@@ -153,6 +170,7 @@ class VoiceRegister {
 
         if (stoppedVoiceKey !== null) {
             delete this.stoppedVoices[stoppedVoiceKey];
+            delete this.frequencies[stoppedVoiceKey];
 
         } else {
 
@@ -162,8 +180,11 @@ class VoiceRegister {
 
             if (activeVoiceKey !== null) {
                 delete this.activeVoices[activeVoiceKey];
+                delete this.frequencies[activeVoiceKey];
             }
+
         }
+
 
         //    this.modulationMatrix.unpatchVoice(voice);
 
@@ -212,13 +233,15 @@ class VoiceRegister {
             }
         }
 
-        if (this.chordShifter !== newChordShiftState) {
-            this.chordShift = newChordShiftState;
+        if (this.chordShiftState !== newChordShiftState) {
+            this.chordShiftState = newChordShiftState;
         }
 
         if (newTuningState !== this.tuningState) {
 
             this.tuning = newTuningState;
+
+            this.chordShifter.tuning = this.tuning;
 
             Object.entries(this.activeVoices).forEach(([noteNumber, voice]) => {
                 voice.frequency = this.tuning[noteNumber];
@@ -226,75 +249,36 @@ class VoiceRegister {
         }
     }
 
-    static getKey (value, key1, key2) {
-        const diff = key2.number - key1.number;
-
-        if (diff < 0) {
-            return key1.number + Math.ceil(value * (diff - 1));
-        }
-
-        return key1.number + Math.floor(value * (diff + 1));
+    get chordShiftState () {
+        return this.state.playState.chordShift;
     }
 
-
-    set chordShift (state) {
+    set chordShiftState (chordShiftState) {
         const {
-            value,
-            chords,
-            enabled
-        } = state;
+            enabled,
+            chords = []
+        } = chordShiftState;
 
-        if (enabled) {
+        if (enabled !== this.chordShiftState.enabled) {
+            if (enabled) {
+                this.chordShifter.enable();
 
-            const q = value * (chords.length - 1);
-            const chordIndex = Math.floor(q);
-            const chordRatio = q - chordIndex;
-
-            const isLastChord = (chordIndex === chords.length - 1);
-
-            const chord1 = Object.values(chords[chordIndex]).sort(sortKeysByNumber);
-            const chord2 = isLastChord ? null : Object.values(chords[chordIndex + 1]).sort(sortKeysByNumber);
-
-            const voices = Object.entries(this.activeVoices);
-
-            voices.forEach(([keyNumber, voice], voiceIndex) => {
-
-                const key1 = chord1[voiceIndex];
-                let frequency;
-
-
-                if (!isLastChord) {
-                    const key2 = chord2[voiceIndex];
-
-                    if (state.mode === "portamento") {
-                        /* contious shift between frequencies: */
-                        const frequency1 = this.tuning[key1.number];
-                        const frequency2 = this.tuning[key2.number];
-                        frequency = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
-                        /* end continous shift */
-                    }
-
-                    if (state.mode === "glissando") {
-                        /* stepwise (semitone, glissando) shift between frequencies: */
-                        frequency = this.tuning[VoiceRegister.getKey(chordRatio, key1, key2)];
-                        /* end stepwise shift */
-                    }
-
-                } else {
-                    frequency = this.tuning[key1.number];
-                }
-
-                if (!isNaN(frequency)) {
-                    voice.frequency = frequency;
-                }
-            });
+                Object.values(this.frequencies).forEach((frequencyNode) => frequencyNode.disconnect());
+                this.chordShifter.connect([...Object.values(this.activeVoices)]);
+            } else {
+                this.chordShifter.disconnect();
+                Object.entries(this.frequencies).forEach(([key, frequencyNode]) => frequencyNode.connect(this.activeVoices[key].frequency));
+            }
         }
 
-        this.chordShifter = state;
-    }
+        if (chords !== this.chordShiftState.chords) {
+            this.chordShifter.chords = chords;
+        }
 
-    set chordShiftMode (mode) {
-
+        this.state.playState = {
+            ...this.state.playState,
+            chordShift: chordShiftState
+        };
     }
 
     pitchBendHandler () {

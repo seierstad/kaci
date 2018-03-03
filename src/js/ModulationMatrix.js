@@ -256,7 +256,8 @@ class ModulationMatrix {
         }
     }
 
-    patchVoice (voice) {
+    @autobind
+    patcher (patchable) {
 
         const {
             sources: {
@@ -264,16 +265,16 @@ class ModulationMatrix {
                 envelopes,
                 morse
             } = {},
-            targets: voiceTargets = {}
-        } = voice;
+            targets: patchableTargets = {}
+        } = patchable;
 
         const envelopeConnections = {};
         const lfoConnections = {};
         const morseConnections = {};
 
-        for (let key in voiceTargets) {
+        for (let key in patchableTargets) {
             if (this.targets[key]) {
-                this.targets[key].connect(voiceTargets[key]);
+                this.targets[key].connect(patchableTargets[key]);
             }
 
 
@@ -289,7 +290,7 @@ class ModulationMatrix {
                 );
             });
             parameterEnvelopes.forEach(p => {
-                envelopes[p.source.index].connect(voiceTargets[key].gain);
+                envelopes[p.source.index].connect(patchableTargets[key].gain);
                 envelopeConnections[key] = envelopes[p.source.index];
             });
 
@@ -301,7 +302,7 @@ class ModulationMatrix {
                 );
             });
             parameterLfos.forEach(p => {
-                lfos[p.source.index].connect(voiceTargets[key]);
+                lfos[p.source.index].connect(patchableTargets[key]);
                 lfoConnections[key] = lfos[p.source.index];
             });
 
@@ -313,15 +314,23 @@ class ModulationMatrix {
                 );
             });
             parameterMorse.forEach(p => {
-                morse[p.source.index].connect(voiceTargets[key]);
+                morse[p.source.index].connect(patchableTargets[key]);
                 morseConnections[key] = morse[p.source.index];
             });
         }
 
 
-        voice.envelopeConnections = envelopeConnections;
-        voice.lfoConnections = lfoConnections;
-        voice.morseConnections = morseConnections;
+        patchable.envelopeConnections = envelopeConnections;
+        patchable.lfoConnections = lfoConnections;
+        patchable.morseConnections = morseConnections;
+    }
+
+    patchVoice (voice) {
+        this.patcher(voice);
+    }
+
+    patchVoiceRegister (voiceRegister) {
+        this.patcher(voiceRegister);
     }
 
     /*

@@ -1,6 +1,7 @@
 import autobind from "autobind-decorator";
 
 import DC from "./DCGenerator";
+import {inputNode} from "./shared-functions";
 import EnvelopeGenerator from "./EnvelopeGenerator";
 import PDOscillator from "./PDOscillator";
 import NoiseGenerator from "./NoiseGenerator";
@@ -12,7 +13,7 @@ import OutputStage from "./output-stage";
 
 //import WavyJones from "../../lib/wavy-jones";
 
-const prefixKeys = (object, prefix) => {
+export const prefixKeys = (object, prefix) => {
     const result = {};
     Object.keys(object).forEach(key => {
         result[prefix + key] = object[key];
@@ -21,7 +22,7 @@ const prefixKeys = (object, prefix) => {
 };
 
 class Voice {
-    constructor (context, store, frequencyParam) {
+    constructor (context, store) {
         this.dc = new DC(context);
         this.context = context;
 
@@ -53,11 +54,12 @@ class Voice {
         }; // values set in ModulationMatrix.patchVoice
 
         this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
-        this.sub = new SubOscillator(context, this.dc, this.state.sub, frequencyParam);
-        this.oscillator = new PDOscillator(context, this.dc, this.state.oscillator, frequencyParam);
+        this.sub = new SubOscillator(context, this.dc, this.state.sub);
+        this.oscillator = new PDOscillator(context, this.dc, this.state.oscillator);
 
-        frequencyParam.connect(this.oscillator.targets.frequency);
-        frequencyParam.connect(this.sub.frequencyNode);
+        this.frequency = inputNode(context);
+        this.frequency.connect(this.oscillator.targets.frequency);
+        this.frequency.connect(this.sub.frequencyNode);
 
         this.sub.connect(this.mainOut.input);
         this.oscillator.connect(this.mainOut.input);
@@ -171,13 +173,6 @@ class Voice {
             "envelopes": this.envelopes
         };
     }
-
-    /*
-    set frequency (frequency) {
-        this.oscillator.frequency = frequency;
-        this.sub.frequency = frequency;
-    }
-    */
 
     set envelopeConnections (connections) {
         this.connections.envelopes = connections;

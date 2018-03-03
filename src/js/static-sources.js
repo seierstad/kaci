@@ -11,7 +11,8 @@ class StaticSources {
 
         this.context = context;
         this.store = store;
-        this.state = store.getState().patch;
+        this.patchState = store.getState().patch;
+        this.playState = store.getState().playState;
 
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
@@ -23,7 +24,25 @@ class StaticSources {
             const targetModule = configuration[moduleName];
 
             for (const parameterName in targetModule) {
-                const limits = targetModule[parameterName];
+                const {
+                    [moduleName]: {
+                        [parameterName]: patchValue
+                    } ={}
+                } = this.patchState;
+
+                const {
+                    [moduleName]: {
+                        [parameterName]: playStateValue
+                    } ={}
+                } = this.playState;
+
+                const {
+                    [parameterName]: {
+                        default: defaultValue = 0,
+                        ...limits
+                    } = {}
+                } = targetModule;
+
                 const name = [moduleName, parameterName].join(".");
                 const node = context.createGain();
 
@@ -31,8 +50,8 @@ class StaticSources {
                 this.limits[name] = limits;
                 this.parameters[name] = node.gain;
 
-                const patchValue = this.state[moduleName][parameterName];
-                const scaledValue = scale(patchValue, limits, normalized);
+                const value = patchValue || playStateValue || defaultValue;
+                const scaledValue = scale(value, limits, normalized);
                 node.gain.setValueAtTime(scaledValue, context.currentTime);
                 dc.connect(node);
             }
@@ -42,11 +61,11 @@ class StaticSources {
 
     @autobind
     stateChangeHandler () {
-        const newState = this.store.getState().patch;
-        if (this.state !== newState) {
-            for (const modName in this.state) {
-                const {[modName]: mod} = this.state;
-                const {[modName]: modNew} = newState;
+        const newState = this.store.getState();
+        if (this.patchState !== newState.patch) {
+            for (const modName in this.patchState) {
+                const {[modName]: mod} = this.patchState;
+                const {[modName]: modNew} = newState.patch;
 
                 if (mod !== modNew) {
                     for (const paramName in mod) {
@@ -66,8 +85,34 @@ class StaticSources {
                 }
             }
 
-            this.state = newState;
+            this.patchState = newState.patch;
         }
+        if (this.playState !== newState.playState) {
+            for (const modName in this.playState) {
+                const {[modName]: mod} = this.playState;
+                const {[modName]: modNew} = newState.playState;
+
+                if (mod !== modNew) {
+                    for (const paramName in mod) {
+                        const {[paramName]: param} = mod;
+                        const {[paramName]: newParam} = modNew;
+
+
+                        if (param !== newParam) {
+                            const key = [modName, paramName].join(".");
+                            if (this.parameters[key]) {
+                                const normalizedValue = scale(newParam, this.limits[key], normalized);
+                                this.parameters[key].setValueAtTime(normalizedValue, this.context.currentTime);
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            this.playState = newState.playState;
+        }
+
     }
 }
 

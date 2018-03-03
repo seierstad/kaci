@@ -301,6 +301,13 @@ const configuration = {
             },
             "noise": {
                 ...outputStageTargets
+            },
+            "chordshift": {
+                "value": {
+                    "default": 0,
+                    "min": 0,
+                    "max": 1
+                }
             }
         }
     }

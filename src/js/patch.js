@@ -181,6 +181,17 @@ const patch = {
                     "index": 1
                 }
             }]
+        },
+        "chordshift": {
+            "value": [{
+                "amount": 0.5,
+                "polarity": "positive",
+                "enabled": true,
+                "source": {
+                    "type": "lfo",
+                    "index": 0
+                }
+            }]
         }
     }
 };
