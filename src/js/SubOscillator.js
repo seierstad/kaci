@@ -5,12 +5,9 @@ import OutputStage from "./output-stage";
 
 class SubOscillator {
 
-    static inputDefs = [
-        {
-            "name": "detune"
-        }, {
-            "name": "beat"
-        }
+    static inputNames = [
+        "detune",
+        "beat"
     ];
 
     static gains = [
@@ -21,7 +18,7 @@ class SubOscillator {
         "ratio"
     ];
 
-    constructor (context, dc, patch, frequency, scaleBaseNumber = 2) {
+    constructor (context, dc, patch, frequencyParam, scaleBaseNumber = 2) {
 
         /* start common constructor code */
 
@@ -39,8 +36,8 @@ class SubOscillator {
         this.parameters = {...this.outputStage.targets};
 
 
-        this.constructor.inputDefs.forEach((def) => {
-            this.parameters[def.name] = inputNode(context);
+        this.constructor.inputNames.forEach(inputName => {
+            this.parameters[inputName] = inputNode(context);
         });
 
 
@@ -68,13 +65,16 @@ class SubOscillator {
         this.detuneMultiplierNode.gain.setValueAtTime(100, context.currentTime);
         this.detuneMultiplierNode.connect(this.generator.detune);
 
+        this.frequencyNode.gain.setValueAtTime(1, this.context.currentTime);
         this.frequencyNode.connect(this.ratioNode);
         this.beatNode.connect(this.ratioNode);
         this.ratioNode.connect(this.generator.frequency);
         this.generator.connect(this.outputStage.input);
 
 
-        this.frequency = frequency;
+        frequencyParam.connect(this.frequencyNode);
+
+        //this.frequency = frequency;
         this.scaleBaseNumber = scaleBaseNumber;
         this.depth = patch.depth;
         this.mode = patch.mode;
@@ -89,9 +89,11 @@ class SubOscillator {
         this.outputStage.active = active;
     }
 
+    /*
     set frequency (frequency) {
         this.frequencyNode.gain.setValueAtTime(frequency, this.context.currentTime);
     }
+    */
 
     set scaleBaseNumber (scaleBaseNumber) {
         this.ratioNode.gain.setValueAtTime(Math.pow(scaleBaseNumber, this.state.depth), this.context.currentTime);

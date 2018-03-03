@@ -9,23 +9,14 @@ import OutputStage from "./output-stage";
 
 
 class PDOscillator {
-    static inputDefs = [
-        {
-            name: "frequency",
-            defaultValue: 440
-        }, {
-            name: "detune",
-            defaultValue: 0
-        }, {
-            name: "resonance",
-            defaultValue: 1
-        }, {
-            name: "mix",
-            defaultValue: 0
-        }
-    ]
+    static inputNames = [
+        "frequency",
+        "detune",
+        "resonance",
+        "mix"
+    ];
 
-    constructor (context, dc, patch, frequency) {
+    constructor (context, dc, patch) {
 
         this.context = context;
         this.state = patch;
@@ -34,13 +25,13 @@ class PDOscillator {
         this.outputStage = new OutputStage(context, dc, !!patch.active);
 
         this.parameters = {...this.outputStage.parameters};
-        this.mergedInput = context.createChannelMerger(this.constructor.inputDefs.length);
+        this.mergedInput = context.createChannelMerger(this.constructor.inputNames.length);
 
-        this.constructor.inputDefs.forEach((def, index) => {
-            this.parameters[def.name] = inputNode(context);
+        this.constructor.inputNames.forEach((inputName, index) => {
+            this.parameters[inputName] = inputNode(context);
 
             //connect input to merge node
-            this.parameters[def.name].connect(this.mergedInput, null, index);
+            this.parameters[inputName].connect(this.mergedInput, null, index);
         });
 
         this.phase = 0;
@@ -53,7 +44,7 @@ class PDOscillator {
             calculatedResonanceFrequency: 0
         };
 
-        this.generator = context.createScriptProcessor(BUFFER_LENGTH, this.constructor.inputDefs.length, 1);
+        this.generator = context.createScriptProcessor(BUFFER_LENGTH, this.constructor.inputNames.length, 1);
 
         this.pdFunctions = [];
 
@@ -63,14 +54,14 @@ class PDOscillator {
         this.counterMax = fractionsLcm(harmonics);
 
         //set frequency
-        dc.connect(this.parameters.frequency);
-        this.parameters.frequency.gain.setValueAtTime(440, context.currentTime);
+        //dc.connect(this.parameters.frequency.gain);
+        //this.parameters.frequency.gain.setValueAtTime(1, context.currentTime);
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);
 
         this.pd = patch.pd;
-        this.frequency = frequency;
+        //this.frequency = frequency;
         this.active = patch.active;
         this.waveform = patch.waveform;
         this.mode = patch.mode;
@@ -109,9 +100,11 @@ class PDOscillator {
         return this.state.mode;
     }
 
+    /*
     set frequency (frequency) {
         this.parameters.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
     }
+    */
 
     set harmonics (harmonics) {
         this.state.harmonics = harmonics;
@@ -245,9 +238,9 @@ class PDOscillator {
     }
 
     destroy () {
-        this.constructor.inputDefs.forEach((def) => {
-            this.parameters[def.name].disconnect();
-            this.parameters[def.name] = null;
+        this.constructor.inputNames.forEach(inputName => {
+            this.parameters[inputName].disconnect();
+            this.parameters[inputName] = null;
         });
 
         this.mergedInput.disconnect();

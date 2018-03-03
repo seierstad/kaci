@@ -34,7 +34,7 @@ if (window.AudioContext) {
     new KeyboardInput(store);
 
     const modulationMatrix = new ModulationMatrix(ctx, store, dc);
-    new VoiceRegister(store, ctx, modulationMatrix);
+    new VoiceRegister(store, ctx, modulationMatrix, dc);
 
     const kaciWrapper = document.getElementById("kaci");
 

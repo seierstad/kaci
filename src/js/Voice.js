@@ -21,15 +21,13 @@ const prefixKeys = (object, prefix) => {
 };
 
 class Voice {
-    constructor (context, store, frequency) {
+    constructor (context, store, frequencyParam) {
         this.dc = new DC(context);
+        this.context = context;
 
         this.store = store;
         this.state = store.getState().patch;
-
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
-
-        this.context = context;
 
         this.mainOut = new OutputStage(context, this.dc, !!this.state.main.active);
 
@@ -55,8 +53,11 @@ class Voice {
         }; // values set in ModulationMatrix.patchVoice
 
         this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
-        this.sub = new SubOscillator(context, this.dc, this.state.sub, frequency);
-        this.oscillator = new PDOscillator(context, this.dc, this.state.oscillator, frequency);
+        this.sub = new SubOscillator(context, this.dc, this.state.sub, frequencyParam);
+        this.oscillator = new PDOscillator(context, this.dc, this.state.oscillator, frequencyParam);
+
+        frequencyParam.connect(this.oscillator.targets.frequency);
+        frequencyParam.connect(this.sub.frequencyNode);
 
         this.sub.connect(this.mainOut.input);
         this.oscillator.connect(this.mainOut.input);
@@ -171,10 +172,12 @@ class Voice {
         };
     }
 
+    /*
     set frequency (frequency) {
         this.oscillator.frequency = frequency;
         this.sub.frequency = frequency;
     }
+    */
 
     set envelopeConnections (connections) {
         this.connections.envelopes = connections;

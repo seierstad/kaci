@@ -2,6 +2,7 @@ import autobind from "autobind-decorator";
 
 import * as Actions from "./actions";
 
+
 class KeyboardInput {
 
     constructor (store) {
@@ -95,5 +96,6 @@ class KeyboardInput {
     }
 
 }
+
 
 export default KeyboardInput;

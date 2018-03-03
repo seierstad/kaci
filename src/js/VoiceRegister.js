@@ -1,5 +1,7 @@
 import autobind from "autobind-decorator";
 
+import {inputNode, outputNode} from "./shared-functions";
+
 import Tunings from "./Tunings";
 import Voice from "./Voice";
 
@@ -21,15 +23,18 @@ const sortKeysByNumber = (keyA, keyB) => {
 
 class VoiceRegister {
 
-    constructor (store, context, modulationMatrix) {
+    constructor (store, context, modulationMatrix, dc) {
 
         this.store = store;
         this.state = {...this.store.getState()};
         this.activeKeys = new Set(...Object.keys(this.state.playState.keys));
         this.context = context;
+        this.dc = dc;
 
         this.activeVoices = {};
         this.stoppedVoices = {};
+        this.frequencies = {};
+
         this.chordShifter = {
             enabled: false,
             chords: [],
@@ -44,16 +49,30 @@ class VoiceRegister {
         this.tuningState = {};
         this.tuning = this.state.settings.tuning;
 
+        this.parameters = {
+            "chord shift": {
+                "value": inputNode(context)
+            }
+        };
+
         this.chordShift = this.state.playState.chordShift;
 
         this.store.subscribe(this.stateChangeHandler);
+    }
+
+    get targets () {
+        return this.parameters;
     }
 
     startVoice (key, freq) {
         if (!this.activeVoices[key]) {
             const keyNumber = parseInt(key, 10);
             const frequency = (typeof keyNumber === "number") ? this.tuning[keyNumber] : freq;
-            const voice = new Voice(this.context, this.store, frequency);
+            const frequencyNode = outputNode(this.context, this.dc, frequency);
+
+            this.frequencies[key] = frequencyNode;
+
+            const voice = new Voice(this.context, this.store, frequencyNode);
 
             if (this.totalVoicesCount === 0) {
                 this.modulationMatrix.startGlobalModulators();
