@@ -31,7 +31,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
 
     switch (type) {
 
-        case Actions.MIDI_MODULATION_WHEEL:
+        case Actions.MIDI.MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
             if (state.value !== value) {
                 return {
@@ -41,7 +41,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
             }
             break;
 
-        case Actions.CHORD_SHIFT_ENABLE:
+        case Actions.CHORD_SHIFT.ENABLE:
             if (!state.enabled) {
                 return {
                     ...state,
@@ -52,7 +52,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
             }
             break;
 
-        case Actions.CHORD_SHIFT_DISABLE:
+        case Actions.CHORD_SHIFT.DISABLE:
             if (state.enabled) {
                 return {
                     ...state,
@@ -72,7 +72,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
             };
 
         case Actions.KEYBOARD_KEY_DOWN:
-        case Actions.MIDI_KEY_DOWN:
+        case Actions.MIDI.KEY_DOWN:
             const activeKeys = chord(state.activeKeys, action);
 
             if (activeKeys !== state.activeKeys) {
@@ -103,7 +103,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
             break;
 
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI_KEY_UP:
+        case Actions.MIDI.KEY_UP:
             const found = containsKey(state.activeKeys, key);
 
             if (found) {

@@ -52,7 +52,7 @@ class KeyboardInput {
             this.pressed[key] = true;
         } else if (event.keyCode === this.layout.controls.CHORD_SHIFT_TOGGLE && !this.pressedControlKeys[this.layout.controls.CHORD_SHIFT_TOGGLE]) {
             this.store.dispatch({
-                "type": Actions.CHORD_SHIFT_ENABLE
+                "type": Actions.CHORD_SHIFT.ENABLE
             });
             event.preventDefault();
             event.stopPropagation();
@@ -80,7 +80,7 @@ class KeyboardInput {
             this.pressed[key] = false;
         } else if (event.keyCode === this.layout.controls.CHORD_SHIFT_TOGGLE) {
             this.store.dispatch({
-                "type": Actions.CHORD_SHIFT_DISABLE
+                "type": Actions.CHORD_SHIFT.DISABLE
             });
             event.preventDefault();
             event.stopPropagation();

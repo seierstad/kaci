@@ -27,9 +27,9 @@ const keyboard = (state = {}, action) => {
 
 const midiPorts = (state = [], action) => {
     switch (action.type) {
-        case Actions.MIDI_ADD_INPUT_PORT:
-        case Actions.MIDI_PORT_CONNECTION_CHANGE:
-        case Actions.MIDI_PORT_STATE_CHANGE:
+        case Actions.MIDI.ADD_INPUT_PORT:
+        case Actions.MIDI.PORT_CONNECTION_CHANGE:
+        case Actions.MIDI.PORT_STATE_CHANGE:
             const index = state.findIndex(p => p.id === action.value.id);
             if (index === -1) {
                 return [
@@ -52,21 +52,21 @@ const midiPorts = (state = [], action) => {
 
 const midi = (state = {}, action) => {
     switch (action.type) {
-        case Actions.MIDI_TOGGLE:
+        case Actions.MIDI.TOGGLE:
             return {
                 ...state,
                 active: !state.active
             };
 
-        case Actions.MIDI_PORT_CONNECTION_CHANGE:
-        case Actions.MIDI_PORT_STATE_CHANGE:
-        case Actions.MIDI_ADD_INPUT_PORT:
+        case Actions.MIDI.PORT_CONNECTION_CHANGE:
+        case Actions.MIDI.PORT_STATE_CHANGE:
+        case Actions.MIDI.ADD_INPUT_PORT:
             return {
                 ...state,
                 ports: midiPorts(state.ports, action)
             };
 
-        case Actions.MIDI_PORT_SELECT:
+        case Actions.MIDI.PORT_SELECT:
             if (state.ports.some((item) => item.id === action.value) || action.value === "") {
                 return {
                     ...state,
@@ -75,7 +75,7 @@ const midi = (state = {}, action) => {
             }
             break;
 
-        case Actions.MIDI_CHANNEL_SELECT:
+        case Actions.MIDI.CHANNEL_SELECT:
             return {
                 ...state,
                 channel: action.value

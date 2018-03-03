@@ -10,11 +10,13 @@ import {
 } from "../../actions";
 import {playStateShape} from "../../propdefs";
 
+import ChordShift from "../chord-shift/chord-shift.jsx";
 import RangeInput from "../RangeInput.jsx";
-import Keys from "./keys.jsx";
-import ChordShift from "./chord-shift.jsx";
 
-class KeyboardViewPresentation extends Component {
+import Keys from "./keys.jsx";
+
+
+class KeyboardView extends Component {
 
     static propTypes = {
         "configuration": PropTypes.object.isRequired,
@@ -32,7 +34,7 @@ class KeyboardViewPresentation extends Component {
 
     render () {
         const {handlers, keyHandlers, playState, configuration} = this.props;
-        const {handlePitchShift, handleChordShift, handleChordShiftToggle} = handlers;
+        const {handlePitchShift} = handlers;
         const {startKey, endKey} = configuration;
 
         return (
@@ -52,19 +54,6 @@ class KeyboardViewPresentation extends Component {
                         configuration={{max: 1, min: -1, step: 0.01}}
                         label="Pitch shift"
                         value={playState.pitchShift}
-                    />
-                    <RangeInput
-                        changeHandler={handleChordShift}
-                        className="chord-shift"
-                        configuration={{max: 1, min: 0, step: 0.01}}
-                        label="Chord shift"
-                        value={playState.chordShift.value}
-                    />
-                    <input
-                        checked={playState.chordShift.enabled}
-                        id="chord-shift-enabled"
-                        onChange={handleChordShiftToggle}
-                        type="checkbox"
                     />
                 </div>
             </section>
@@ -88,7 +77,11 @@ const mapDispatch = (dispatch) => ({
         "up": (keyNumber) => {dispatch({"type": KEYBOARD_KEY_UP, keyNumber});}
     }
 });
-const KeyboardView = connect(mapState, mapDispatch)(KeyboardViewPresentation);
+const KeyboardViewConnected = connect(mapState, mapDispatch)(KeyboardView);
 
 
-export default KeyboardView;
+export {
+    KeyboardView
+};
+
+export default KeyboardViewConnected;

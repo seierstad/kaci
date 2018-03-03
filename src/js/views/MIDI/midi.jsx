@@ -71,10 +71,10 @@ const mapDispatch = (dispatch) => ({
     "handlers": {
         "portChange": (event) => {
             const value = event.target.value;
-            dispatch({type: Actions.MIDI_PORT_SELECT, value});
+            dispatch({type: Actions.MIDI.PORT_SELECT, value});
         },
-        "channelChange": (value) => {dispatch({type: Actions.MIDI_CHANNEL_SELECT, value});},
-        "toggle": () => dispatch({type: Actions.MIDI_TOGGLE})
+        "channelChange": (value) => {dispatch({type: Actions.MIDI.CHANNEL_SELECT, value});},
+        "toggle": () => dispatch({type: Actions.MIDI.TOGGLE})
     }
 });
 

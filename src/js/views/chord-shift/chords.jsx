@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import {chordShape} from "../../propdefs";
 
-import Keys from "./keys.jsx";
+import Keys from "../keyboard/keys.jsx";
 
 
 class Chords extends Component {

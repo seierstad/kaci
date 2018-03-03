@@ -5,14 +5,14 @@ import chordShift from "./chord-shift-reducer";
 
 const key = (state = {down: false}, action) => {
     switch (action.type) {
-        case Actions.MIDI_KEY_DOWN:
+        case Actions.MIDI.KEY_DOWN:
         case Actions.KEYBOARD_KEY_DOWN:
             return {
                 ...state,
                 down: true
             };
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI_KEY_UP:
+        case Actions.MIDI.KEY_UP:
             return {
                 ...state,
                 down: false
@@ -29,7 +29,7 @@ const defaultMidiClockState = {
 const midiClock = (state = defaultMidiClockState, action) => {
 
     switch (action.type) {
-        case Actions.MIDI_TEMPO_CHANGE:
+        case Actions.MIDI.TEMPO_CHANGE:
             const {tempo, sync, quarterNoteDuration} = action;
 
             return {
@@ -45,7 +45,7 @@ const midiClock = (state = defaultMidiClockState, action) => {
 
 const pitchShift = (state = 0, action) => {
     switch (action.type) {
-        case Actions.MIDI_PITCHBEND:
+        case Actions.MIDI.PITCHBEND:
         case Actions.KEYBOARD_PITCH_SHIFT:
             return action.value;
     }
@@ -92,13 +92,13 @@ const playState = (state = defaultPlayState, action) => {
     }
 
     switch (action.type) {
-        case Actions.MIDI_TEMPO_CHANGE:
+        case Actions.MIDI.TEMPO_CHANGE:
             return {
                 ...state,
                 midiClock: midiClock(state.midiClock, action)
             };
 
-        case Actions.MIDI_PITCHBEND:
+        case Actions.MIDI.PITCHBEND:
         case Actions.KEYBOARD_PITCH_SHIFT:
             return {
                 ...state,
@@ -107,8 +107,8 @@ const playState = (state = defaultPlayState, action) => {
 
         case Actions.KEYBOARD_KEY_DOWN:
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI_KEY_DOWN:
-        case Actions.MIDI_KEY_UP:
+        case Actions.MIDI.KEY_DOWN:
+        case Actions.MIDI.KEY_UP:
             if (!state.chordShift.enabled) {
                 const newKeysState = chord(state.keys, action);
                 if (newKeysState !== state.keys) {
@@ -131,7 +131,7 @@ const playState = (state = defaultPlayState, action) => {
             }
             break;
 
-        case Actions.MIDI_MODULATION_WHEEL:
+        case Actions.MIDI.MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
             if (state.chordShift.enabled) {
                 const newChordShiftState = chordShift(state.chordShift, action);
@@ -145,10 +145,10 @@ const playState = (state = defaultPlayState, action) => {
             }
             break;
 
-        case Actions.CHORD_SHIFT_DISABLE:
+        case Actions.CHORD_SHIFT.DISABLE:
             return disable();
 
-        case Actions.CHORD_SHIFT_ENABLE:
+        case Actions.CHORD_SHIFT.ENABLE:
             return enable();
 
         case Actions.KEYBOARD_CHORD_SHIFT_TOGGLE:
