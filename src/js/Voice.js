@@ -8,6 +8,7 @@ import NoiseGenerator from "./NoiseGenerator";
 import SubOscillator from "./SubOscillator";
 import LFO from "./LFO";
 import MorseGenerator from "./morse-generator";
+import StepSequencer from "./modulators/step-sequencer";
 
 import OutputStage from "./output-stage";
 
@@ -46,10 +47,18 @@ class Voice {
             return acc;
         }, []);
 
+        this.steps = this.state.steps.reduce((acc, steps, index) => {
+            if (steps.mode === "voice") {
+                acc[index] = new StepSequencer(this.context, this.store, steps, this.dc, index);
+            }
+            return acc;
+        }, []);
+
         this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(context, store, index));
         this.connections = {
             envelopes: {},
             lfos: {},
+            steps: {},
             morse: {}
         }; // values set in ModulationMatrix.patchVoice
 
@@ -170,6 +179,7 @@ class Voice {
         return {
             "lfos": this.lfos,
             "morse": this.morse,
+            "steps": this.steps,
             "envelopes": this.envelopes
         };
     }
@@ -191,6 +201,10 @@ class Voice {
 
         this.morse.forEach(morse => {
             morse.start();
+        });
+
+        this.steps.forEach(steps => {
+            steps.start();
         });
 
         this.envelopes.forEach(envelope => envelope.trigger(time));
@@ -244,6 +258,12 @@ class Voice {
             morse.stop();
             morse.disconnect();
             morse.destroy();
+        });
+
+        this.steps.forEach(steps => {
+            steps.stop();
+            steps.disconnect();
+            steps.destroy();
         });
 
         this.oscillator.destroy();

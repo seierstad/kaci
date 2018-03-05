@@ -12,12 +12,18 @@ export const MODULATION_SOURCE_MODE = {
 export const MODULATION_SOURCE_TYPE = {
     "ENVELOPE": "env",
     "LFO": "lfo",
-    "MORSE": "morse"
+    "MORSE": "morse",
+    "STEPS": "steps"
 };
 
 export const OSCILLATOR_MODE = {
     "RESONANT": "resonant",
     "HARMONICS": "harmonics"
+};
+
+export const CHORD_SHIFT_MODE = {
+    "PORTAMENTO": "portamento",
+    "GLISSANDO": "glissando"
 };
 
 export const RANGE = {

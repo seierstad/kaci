@@ -14,7 +14,8 @@ class ModulationTargetModule extends Component {
         "lfoCount": PropTypes.number.isRequired,
         "module": PropTypes.string.isRequired,
         "morseCount": PropTypes.number.isRequired,
-        "patch": modulationTargetModuleShape
+        "patch": modulationTargetModuleShape,
+        "stepsCount": PropTypes.number.isRequired
     }
 
     shouldComponentUpdate (nextProps) {

@@ -1,6 +1,13 @@
 import {PropTypes} from "prop-types";
 
-import {MODULATION_SOURCE_MODE, MODULATION_SOURCE_TYPE, RANGE, OSCILLATOR_MODE} from "./constants";
+import {
+    MODULATION_SOURCE_MODE,
+    MODULATION_SOURCE_TYPE,
+    RANGE,
+    OSCILLATOR_MODE,
+    CHORD_SHIFT_MODE
+} from "./constants";
+
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
 import {waveforms, wrappers, noise} from "./waveforms";
 
@@ -395,4 +402,10 @@ export const patchShape = shape({
     "lfos": lfosPatchShape.isRequired,
     "envelopes": envelopesPatchShape.isRequired,
     "modulation": modulationPatchShape.isRequired
+});
+
+const chordShiftModes = Object.values(CHORD_SHIFT_MODE);
+
+export const chordShiftPatchShape = shape({
+    "mode": oneOf(chordShiftModes).isRequired
 });

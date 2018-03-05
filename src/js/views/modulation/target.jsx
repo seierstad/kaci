@@ -15,7 +15,8 @@ class ModulationTarget extends Component {
         "morseCount": PropTypes.number.isRequired,
         "parameter": PropTypes.string.isRequired,
         "patch": modulationTargetParameterShape,
-        "path": PropTypes.arrayOf(PropTypes.string).isRequired
+        "path": PropTypes.arrayOf(PropTypes.string).isRequired,
+        "stepsCount": PropTypes.number.isRequired
     }
 
     shouldComponentUpdate (nextProps) {
@@ -23,10 +24,11 @@ class ModulationTarget extends Component {
     }
 
     render () {
-        const {moduleHead, patch = [], lfoCount, envCount, morseCount, parameter, path, ...rest} = this.props;
+        const {moduleHead, patch = [], lfoCount, stepsCount, envCount, morseCount, parameter, path, ...rest} = this.props;
 
         const lfoPatch = patch.filter(p => p.source.type === "lfo").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
         const morsePatch = patch.filter(p => p.source.type === "morse").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
+        const stepsPatch = patch.filter(p => p.source.type === "steps").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
         const envPatch = patch.filter(p => p.source.type === "env").reduce((result, connection) => {result[connection.source.index] = connection; return result;}, []);
         const noEnvelope = !envPatch.some(env => env.enabled);
 
@@ -55,6 +57,19 @@ class ModulationTarget extends Component {
                     patch={morsePatch[i]}
                     path={[...path, parameter]}
                     type="morse"
+                />
+            );
+        }
+
+        for (let i = 0; i < stepsCount; i += 1) {
+            connections.push(
+                <Connection
+                    {...rest}
+                    index={i}
+                    key={"steps" + i}
+                    patch={stepsPatch[i]}
+                    path={[...path, parameter]}
+                    type="steps"
                 />
             );
         }

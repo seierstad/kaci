@@ -19,6 +19,7 @@ class ModulationMatrixPresentation extends Component {
         const {configuration, patch, handlers} = this.props;
         const lfoCount = configuration.source.lfo.count;
         const morseCount = configuration.source.morse.count;
+        const stepsCount = configuration.source.steps.count;
         const envCount = configuration.source.envelope.count;
 
 
@@ -28,6 +29,9 @@ class ModulationMatrixPresentation extends Component {
         }
         for (let i = 0; i < morseCount; i += 1) {
             sourceNumbers.push(<th key={"morse" + i} scope="col">{i + 1}</th>);
+        }
+        for (let i = 0; i < stepsCount; i += 1) {
+            sourceNumbers.push(<th key={"step" + i} scope="col">{i + 1}</th>);
         }
         for (let i = 0; i < envCount; i += 1) {
             sourceNumbers.push(<th key={"env" + i} scope="col">{i + 1}</th>);
@@ -45,6 +49,7 @@ class ModulationMatrixPresentation extends Component {
                             <td colSpan="2" rowSpan="2" scope="col" />
                             <th colSpan={lfoCount} scope="colspan">LFO</th>
                             <th colSpan={morseCount} scope="colspan">Morse</th>
+                            <th colSpan={stepsCount} scope="colspan">Steps</th>
                             <th colSpan={envCount + 1} scope="colspan">Envelope</th>
                         </tr>
                         <tr>
@@ -62,6 +67,7 @@ class ModulationMatrixPresentation extends Component {
                             module={module}
                             morseCount={morseCount}
                             patch={patch[module]}
+                            stepsCount={stepsCount}
                         />
                     ))}
                 </table>

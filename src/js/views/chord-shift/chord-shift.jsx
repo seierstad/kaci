@@ -12,6 +12,7 @@ import {
 import RangeInput from "../RangeInput.jsx";
 
 import Chords from "./chords.jsx";
+import Mode from "./chord-shift-mode-view.jsx";
 
 
 class ChordShiftView extends Component {
@@ -28,9 +29,11 @@ class ChordShiftView extends Component {
                 enabled = false,
                 value = 0
             } = {},
+            patch = {},
             handlers: {
                 handleChordShift,
-                handleChordShiftToggle
+                handleChordShiftToggle,
+                modeChangeHandler
             },
             keyHandlers
         } = this.props;
@@ -50,6 +53,7 @@ class ChordShiftView extends Component {
                     onChange={handleChordShiftToggle}
                     type="checkbox"
                 />
+                <Mode changeHandler={modeChangeHandler} patch={patch} />
                 <Chords activeKeys={activeKeys} chords={chords} keyHandlers={keyHandlers} />
             </section>
         );
@@ -58,8 +62,9 @@ class ChordShiftView extends Component {
 
 const mapDispatch = (dispatch) => ({
     "handlers": {
-        "handleChordShift": (value) => {dispatch({"type": KEYBOARD_CHORD_SHIFT, value});},
-        "handleChordShiftToggle": () => {dispatch({"type": KEYBOARD_CHORD_SHIFT_TOGGLE});}
+        "handleChordShift": (value) => dispatch({"type": KEYBOARD_CHORD_SHIFT, value}),
+        "handleChordShiftToggle": () => dispatch({"type": KEYBOARD_CHORD_SHIFT_TOGGLE}),
+        "modeChangeHandler": (mode) => dispatch({"type": CHORD_SHIFT.MODE_CHANGE, mode})
     },
     "keyHandlers": {
         "down": (chordIndex, keyNumber) => {dispatch({"type": CHORD_SHIFT.KEY_DOWN, chordIndex, keyNumber});},
@@ -67,7 +72,11 @@ const mapDispatch = (dispatch) => ({
     }
 });
 
-const ChordShiftViewConnected = connect(null, mapDispatch)(ChordShiftView);
+const mapState = (state) => ({
+    "patch": state.patch.chordshift
+});
+
+const ChordShiftViewConnected = connect(mapState, mapDispatch)(ChordShiftView);
 
 
 export default ChordShiftViewConnected;

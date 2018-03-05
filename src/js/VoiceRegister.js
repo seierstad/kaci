@@ -40,12 +40,14 @@ class VoiceRegister {
         this.connections = {
             envelopes: {},
             lfos: {},
+            steps: {},
             morse: {}
         }; // values set in ModulationMatrix.patchVoice
 
         this.lfos = [];
         this.morse = [];
         this.envelopes = [];
+        this.steps = [];
 
         this.mainMix = context.createGain();
         this.mainMix.connect(context.destination);
@@ -69,6 +71,7 @@ class VoiceRegister {
         return {
             "lfos": this.lfos,
             "morse": this.morse,
+            "steps": this.steps,
             "envelopes": this.envelopes
         };
     }

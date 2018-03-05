@@ -4,10 +4,11 @@ import * as Actions from "../actions";
 import defaultPatch from "../patch";
 
 
-import envelopes, {steps} from "./envelopes";
+import envelopes from "./envelopes";
 import lfos from "./lfos";
 import modulation from "./modulation";
 import morse from "./morse";
+import steps from "./steps-reducer";
 import syncReducer from "./sync";
 import oscillator from "./oscillator";
 
@@ -96,6 +97,24 @@ const sub = (state = {}, action) => {
 };
 
 
+const chordshift = (state = {"mode": "portamento"}, action) => {
+    switch (action.type) {
+        case Actions.CHORD_SHIFT.MODE_CHANGE:
+            if (state.mode !== action.mode) {
+                return {
+                    ...state,
+                    "mode": action.mode
+                };
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return state;
+};
+
 const patch = (state, action) => {
 
     switch (action.type) {
@@ -119,9 +138,11 @@ const patch = (state, action) => {
         noise,
         sub,
         lfos,
+        steps,
         envelopes,
         morse,
-        modulation
+        modulation,
+        chordshift
     })(state, action);
 };
 

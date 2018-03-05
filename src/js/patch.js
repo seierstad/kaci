@@ -16,16 +16,6 @@ const patch = {
         }],
         "harmonics": [{
             "numerator": 1,
-            "denominator": 4,
-            "level": 0,
-            "enabled": true
-        }, {
-            "numerator": 1,
-            "denominator": 1,
-            "level": 0.5,
-            "enabled": true
-        }, {
-            "numerator": 2,
             "denominator": 1,
             "level": 0.5,
             "enabled": true
@@ -49,7 +39,7 @@ const patch = {
         "depth": 0,
         "mode": "beat",
         "detune": 0,
-        "beat": 0,
+        "beat": 0.2,
         "beat_sync": {
             "enabled": false,
             "numerator": 16,
@@ -64,9 +54,12 @@ const patch = {
         "gain": 1,
         "pan": 0
     },
+    "chordshift": {
+        "mode": "glissando"
+    },
     "lfos": [{
         "waveform": "sinus",
-        "frequency": 1.34,
+        "frequency": 0.034,
         "amount": 1,
         "active": true,
         "mode": "global"
@@ -133,6 +126,19 @@ const patch = {
         },
         "mode": "global"
     }],
+    "steps": [{
+        "active": true,
+        "amount": 1.0,
+        "frequency": 2.0,
+        "levels": 5,
+        "steps": [0, 0.5, 1, 0.25],
+        "sync": {
+            "enabled": false,
+            "numerator": 1,
+            "denominator": 1
+        },
+        "mode": "global"
+    }],
     "morse": [{
         "text": "H2O",
         "frequency": 1,
@@ -166,16 +172,25 @@ const patch = {
             "resonance": [{
                 "amount": 0.5,
                 "polarity": "positive",
-                "enabled": true,
+                "enabled": false,
                 "source": {
                     "type": "morse",
+                    "index": 0
+                }
+            }],
+            "detune": [{
+                "amount": 1,
+                "polarity": "positive",
+                "enabled": true,
+                "source": {
+                    "type": "steps",
                     "index": 0
                 }
             }],
             "gain": [{
                 "amount": 0.5,
                 "polarity": "positive",
-                "enabled": true,
+                "enabled": false,
                 "source": {
                     "type": "lfo",
                     "index": 1
@@ -184,7 +199,7 @@ const patch = {
         },
         "chordshift": {
             "value": [{
-                "amount": 0.5,
+                "amount": 1,
                 "polarity": "positive",
                 "enabled": true,
                 "source": {

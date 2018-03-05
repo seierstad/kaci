@@ -30,16 +30,24 @@ class ChordShifter {
         this.store = store;
         const state = this.store.getState();
         const {
+            patch: {
+                chordshift: patchState = {}
+            },
             playState: {
-                chordShift: chordShiftState = {}
+                chordShift: playState = {}
             } = {}
         } = state;
 
+        this.storedPatchState = patchState;
+        this.storedPlayState = playState;
+
         this.state = {
-            chordShift: chordShiftState
+            ...playState,
+            ...patchState
         };
         this.context = context;
         this.scale = scale;
+        this.mode = patchState.mode || "portamento";
         this.processor = null;
         this.outputNode = null;
 
@@ -51,6 +59,9 @@ class ChordShifter {
         this.outputs = [];
         this.samples = 0;
         this.sortedChords = [];
+        this.previousInput = null;
+        this.previousSortedChords = [];
+        this.previousOutputs = [];
     }
 
     @autobind
@@ -64,48 +75,70 @@ class ChordShifter {
             outputs.push(event.outputBuffer.getChannelData(channelIndex));
         }
 
-
+        let rise = false;
         const bufferLength = outputs[0].length;
 
         for (let i = 0; i < bufferLength; i += 1) {
+            if (
+                inputData[i] === this.previousInput
+                && this.sortedChords === this.previousSortedChords
+                && this.mode === this.previousMode
+            ) {
 
-            const q = inputData[i] * (this.sortedChords.length - 1);
-            const chordIndex = Math.floor(q);
-            const chordRatio = q - chordIndex;
+                // input value and chords are the same as previous sample -> copy previous output values
+                outputs.forEach((output, index) => output[i] = this.previousOutputs[index]);
 
-            const isLastChord = (chordIndex === this.sortedChords.length - 1);
+            } else {
+                const q = inputData[i] * (this.sortedChords.length - 1);
+                const chordIndex = Math.floor(q);
+                const chordRatio = q - chordIndex;
 
-            const chord1 = this.sortedChords[chordIndex];
-            const chord2 = isLastChord ? null : this.sortedChords[chordIndex + 1];
+                const isLastChord = (chordIndex === this.sortedChords.length - 1);
 
-            outputs.forEach((output, index) => {
-                const key1 = chord1[index];
+                const chord1 = this.sortedChords[chordIndex];
+                const chord2 = isLastChord ? null : this.sortedChords[chordIndex + 1];
 
-                if (!isLastChord) {
-                    const key2 = chord2[index];
+                outputs.forEach((output, index) => {
+                    const key1 = chord1[index];
 
-                    switch (this.state.chordShift.mode) {
+                    if (!isLastChord) {
+                        const key2 = chord2[index];
 
-                        case "portamento": {
-                            /* contious shift between frequencies: */
-                            const frequency1 = this.scale[key1.number];
-                            const frequency2 = this.scale[key2.number];
-                            output[i] = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
-                            /* end continous shift */
-                            break;
+                        switch (this.mode) {
+
+                            case "portamento": {
+                                /* contious shift between frequencies: */
+                                const frequency1 = this.scale[key1.number];
+                                const frequency2 = this.scale[key2.number];
+                                output[i] = frequency1 * Math.pow(frequency2 / frequency1, chordRatio);
+                                /* end continous shift */
+                                break;
+                            }
+                            case "glissando":
+                                /* stepwise (semitone, glissando) shift between frequencies: */
+                                output[i] = this.scale[getKey(chordRatio, key1, key2)];
+                                /* end stepwise shift */
+                                break;
                         }
-                        case "glissando":
-                            /* stepwise (semitone, glissando) shift between frequencies: */
-                            output[i] = this.scale[getKey(chordRatio, key1, key2)];
-                            /* end stepwise shift */
-                            break;
+                    } else {
+                        output[i] = this.scale[key1.number];
                     }
-                } else {
-                    output[i] = this.scale[key1.number];
-                }
 
-                //output[i] = 440 + (voiceIndex * 100) + (inputData[i] * 500);
-            }, this);
+                    this.previousOutputs[index] = output[i];
+
+                    //output[i] = 440 + (voiceIndex * 100) + (inputData[i] * 500);
+                }, this);
+            }
+
+            if (this.sortedChords !== this.previousSortedChords) {
+                this.previousSortedChords = this.sortedChords;
+            }
+
+            if (this.mode !== this.previousMode) {
+                this.previousMode = this.mode;
+            }
+
+            this.previousInput = inputData[i];
         }
     }
 
@@ -122,7 +155,6 @@ class ChordShifter {
         if (chords.length > 0) {
             this.chords = chords;
             const numberOfVoices = Object.keys(chords[0]).length;
-            console.log(numberOfVoices);
             this.processor = this.context.createScriptProcessor(BUFFER_LENGTH, 1, numberOfVoices);
             this.parameters.value.connect(this.processor);
             this.processor.addEventListener("audioprocess", this.audioProcessHandler);
@@ -143,6 +175,8 @@ class ChordShifter {
 
             this.processor = null;
             this.outputNode = null;
+            this.previousInput = null;
+            this.previousOutputs = [];
         }
     }
 
@@ -174,20 +208,37 @@ class ChordShifter {
     @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
-        const newChordShiftState = newState.playState.chordShift;
 
-        if (this.chordShiftState !== newChordShiftState) {
-            this.chordShiftState = newChordShiftState;
+        const newPlayState = newState.playState.chordShift;
+        if (this.storedPlayState !== newPlayState) {
+            if (this.storedPlayState.chords !== newPlayState.chords) {
+                this.chords = newPlayState.chords;
+            }
+            if (this.storedPlayState.mode !== newPlayState.mode) {
+                this.mode = newPlayState.mode;
+            }
+            this.storedPlayState = newPlayState;
+        }
+
+        const newPatchState = newState.patch.chordshift;
+        if (this.storedPatchState !== newPatchState) {
+            if (this.storedPatchState.mode !== newPatchState.mode) {
+                this.mode = newPatchState.mode;
+            }
+            this.storedPatchState = newPatchState;
         }
     }
 
     set chords (chords = []) {
-        console.log("set chords: ", chords);
         this.sortedChords = chords.map(chord => [...Object.values(chord).sort(sortKeysByNumber)]);
     }
 
     set mode (mode) {
+        this.state.mode = mode;
+    }
 
+    get mode () {
+        return this.state.mode;
     }
 }
 

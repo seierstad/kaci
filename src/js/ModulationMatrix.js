@@ -7,7 +7,7 @@ import {MODULATION_SOURCE_TYPE, RANGE} from "./constants";
 import LFOs from "./LFOs";
 import StaticSources from "./static-sources";
 import MorseGenerators from "./morse-generators";
-
+import StepSequencers from "./modulators/step-sequencers";
 
 class ModulationMatrix {
 
@@ -32,6 +32,7 @@ class ModulationMatrix {
 
 
         this.lfos = new LFOs(context, store, this.configuration, dc);
+        this.steps = new StepSequencers(context, store, this.configuration, dc);
         this.morse = new MorseGenerators(context, store, this.configuration, dc);
 
         const flatConfig = new StaticSources(context, store, this.configuration.target, dc);
@@ -39,6 +40,7 @@ class ModulationMatrix {
         this.sources = {
             static: flatConfig.nodes,
             lfos: this.lfos.lfos,
+            steps: this.steps.sequencers,
             morse: this.morse.generators
         };
 
@@ -62,11 +64,13 @@ class ModulationMatrix {
 
     startGlobalModulators () {
         this.lfos.start();
+        this.steps.start();
         this.morse.start();
     }
 
     stopGlobalModulators () {
         this.lfos.stop();
+        this.steps.stop();
         this.morse.stop();
     }
 
@@ -94,6 +98,9 @@ class ModulationMatrix {
             case MODULATION_SOURCE_TYPE.MORSE:
                 sourceArray = this.sources.morse;
                 break;
+
+            case MODULATION_SOURCE_TYPE.STEPS:
+                sourceArray = this.sources.steps;
         }
 
         if (sourceArray[index]) {
@@ -256,20 +263,22 @@ class ModulationMatrix {
         }
     }
 
-    @autobind
     patcher (patchable) {
 
         const {
             sources: {
                 lfos,
                 envelopes,
+                steps,
                 morse
             } = {},
             targets: patchableTargets = {}
         } = patchable;
 
+
         const envelopeConnections = {};
         const lfoConnections = {};
+        const stepsConnections = {};
         const morseConnections = {};
 
         for (let key in patchableTargets) {
@@ -306,6 +315,18 @@ class ModulationMatrix {
                 lfoConnections[key] = lfos[p.source.index];
             });
 
+            const parameterSteps = parameter.filter(p => {
+                return (
+                    p.enabled
+                    && p.source.type === MODULATION_SOURCE_TYPE.STEPS
+                    && steps[p.source.index]
+                );
+            });
+            parameterSteps.forEach(p => {
+                steps[p.source.index].connect(patchableTargets[key]);
+                stepsConnections[key] = steps[p.source.index];
+            });
+
             const parameterMorse = parameter.filter(p => {
                 return (
                     p.enabled
@@ -323,6 +344,7 @@ class ModulationMatrix {
         patchable.envelopeConnections = envelopeConnections;
         patchable.lfoConnections = lfoConnections;
         patchable.morseConnections = morseConnections;
+        patchable.stepsConnections = stepsConnections;
     }
 
     patchVoice (voice) {
@@ -342,7 +364,7 @@ class ModulationMatrix {
             split = key.split(".");
             this.targets[key].outputNode.disconnect(voice[split[0]][split[1]]);
         }
-        console.log("voice unpatched");
+        //console.log("voice unpatched");
     }
     */
 }

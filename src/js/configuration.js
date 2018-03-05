@@ -35,11 +35,29 @@ export const defaultEnvParameters = {
     "mode": "voice"
 };
 
-export const defaultMorseParameters = {
-    "text": "",
+export const defaultStepsParameters = {
     "active": true,
     "amount": 1.0,
     "frequency": 1.0,
+    "levels": 4,
+    "steps": [0, 0, 0, 0],
+    "sync": {
+        "enabled": false,
+        "numerator": 1,
+        "denominator": 1
+    },
+    "mode": "global"
+};
+
+export const defaultMorseParameters = {
+    "text": "MORSE",
+    "active": true,
+    "amount": 1.0,
+    "fillToFit": true,
+    "frequency": 1.0,
+    "padding": 0,
+    "shift": 0,
+    "speedUnit": 4,
     "sync": {
         "enabled": false,
         "numerator": 1,
@@ -52,7 +70,7 @@ export const defaultMorseParameters = {
         "Too choosy, too hesitant, too lazy, too busy.",
         "The secret of a happy life is to know when to stop - and then go that bit further."
     ],
-    "mode": "voice"
+    "mode": "global"
 };
 
 export const defaultScale = {
@@ -244,8 +262,28 @@ const configuration = {
                     "editSustain": false
                 }
             },
-            "morse": {
+            "steps": {
                 "count": 1,
+                "amount": {
+                    "min": 0,
+                    "max": 1,
+                    "step": 1 / 12
+                },
+                "frequency": {
+                    "min": 0.001,
+                    "max": 5,
+                    "step": 0.01,
+                    "exponential": true
+                },
+                "sync": {
+                    ...defaultSyncConfiguration
+                },
+                "default": {
+                    ...defaultStepsParameters
+                }
+            },
+            "morse": {
+                "count": 2,
                 "amount": {
                     "min": 0,
                     "max": 1,
