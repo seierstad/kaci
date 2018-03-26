@@ -4,17 +4,25 @@ export const defaultModulationConnectionParameters = {
     "amount": 0
 };
 
-export const defaultLfoParameters = {
-    "waveform": "sinus",
-    "frequency": 1.0,
+export const defaultModulatorParameters = {
     "amount": 1.0,
-    "active": true,
+    "frequency": 1.0,
+    "mode": "global"
+};
+
+export const defaultSyncParameters = {
+    "enabled": false,
+    "numerator": 1,
+    "denominator": 1
+};
+
+export const defaultLfoParameters = {
+    ...defaultModulatorParameters,
     "sync": {
-        "enabled": false,
-        "numerator": 1,
-        "denominator": 1
+        ...defaultSyncParameters
     },
-    "mode": "global" /* "voice"  TODO: implement voice LFOs */
+    "active": true,
+    "waveform": "sinus"
 };
 
 export const defaultEnvParameters = {
@@ -35,42 +43,36 @@ export const defaultEnvParameters = {
     "mode": "voice"
 };
 
+
+
 export const defaultStepsParameters = {
-    "active": true,
-    "amount": 1.0,
-    "frequency": 1.0,
-    "levels": 4,
-    "steps": [0, 0, 0, 0],
+    ...defaultModulatorParameters,
     "sync": {
-        "enabled": false,
-        "numerator": 1,
-        "denominator": 1
+        ...defaultSyncParameters
     },
-    "mode": "global"
+    "active": true,
+    "levels": 4,
+    "steps": [0, 0, 0, 0]
 };
 
 export const defaultMorseParameters = {
+    ...defaultModulatorParameters,
+    "sync": {
+        ...defaultSyncParameters
+    },
     "text": "MORSE",
     "active": true,
-    "amount": 1.0,
     "fillToFit": true,
-    "frequency": 1.0,
     "padding": 0,
     "shift": 0,
     "speedUnit": 4,
-    "sync": {
-        "enabled": false,
-        "numerator": 1,
-        "denominator": 1
-    },
     "texts": [
         "KACI O5",
         "What hath God wrought?",
         "Come at once. We have struck an iceberg",
         "Too choosy, too hesitant, too lazy, too busy.",
         "The secret of a happy life is to know when to stop - and then go that bit further."
-    ],
-    "mode": "global"
+    ]
 };
 
 export const defaultScale = {
@@ -274,6 +276,11 @@ const configuration = {
                     "max": 5,
                     "step": 0.01,
                     "exponential": true
+                },
+                "glide": {
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
                 },
                 "sync": {
                     ...defaultSyncConfiguration

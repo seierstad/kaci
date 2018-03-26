@@ -167,8 +167,8 @@ class Periodic {
 
         const shaper = this.context.createWaveShaper();
 
-        if (range && range.length === 2) {
-            shaper.curve = new Float32Array(range);
+        if (range && range.length >= 2) {
+            shaper.curve = Float32Array.of(...range);
         }
 
         this.outputs[name] = shaper;

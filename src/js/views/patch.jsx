@@ -10,6 +10,7 @@ import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
 import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./lfo/lfos.jsx";
+import StepSequencers from "./step-sequencer/step-sequencers.jsx";
 import MorseGenerators from "./morse/morse-generators.jsx";
 import ModulationMatrix from "./modulation/matrix.jsx";
 import Oscillator from "./oscillator/oscillator.jsx";
@@ -67,6 +68,11 @@ class PatchPresentation extends Component {
                     configuration={source.lfo}
                     handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.lfo}}
                     patch={patch.lfos}
+                />
+                <StepSequencers
+                    configuration={source.steps}
+                    handlers={{...handlers.modulator, ...handlers.periodic, ...handlers.steps}}
+                    patch={patch.steps}
                 />
                 <MorseGenerators
                     configuration={source.morse}
@@ -182,6 +188,18 @@ const mapDispatchToProps = (dispatch) => ({
             "changeWaveform": (value, module, index) => {
                 dispatch({"type": Actions.LFO_WAVEFORM_CHANGE, index, module, value});
             }
+        },
+        "steps": {
+            "addStep": (index) => {
+                dispatch({"type": Actions.STEPS.STEP_ADD, index});
+            },
+            "stepValueChange": (index, step, value) => {
+                dispatch({"type": Actions.STEPS.STEP_VALUE_CHANGE, index, step, value});
+            },
+            "addValue": (index) => {
+                dispatch({"type": Actions.STEPS.VALUE_ADD, index});
+            },
+            "changeGlide": (index, value) => dispatch({"type": Actions.STEPS.CHANGE_GLIDE, index, value})
         },
         "morse": {
             "speedUnitChange": (module, index, value) => {

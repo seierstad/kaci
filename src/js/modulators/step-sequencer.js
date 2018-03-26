@@ -1,12 +1,14 @@
 import autobind from "autobind-decorator";
 import Periodic from "../decorators/periodic";
 import {outputNode} from "../shared-functions";
+import LoggerNode from "../logger";
 
 class StepOscillator {
     constructor (context, dc, patch = {}) {
         const {
-            steps = [0, 1, 0.5],
-            slew = 0,
+            steps = [],
+            levels,
+            glide = 0,
             frequency = 1
         } = patch;
 
@@ -14,13 +16,17 @@ class StepOscillator {
         this.context = context;
         this.phase = 0;
         this.generator = outputNode(context, dc, 1);
-        //this.generator = context.createOscillator();
-        //this.generator.frequency.setValueAtTime(2, context.currentTime);
+        this.waveShaperNode = context.createWaveShaper();
+        this.waveShaperNode.curve = Float32Array.of(-1, -1, 1);
+        this.generator.connect(this.waveShaperNode);
+
         this.steps = steps;
-        this.slew = slew;
+        this.levels = levels;
+        this.glide = 0.5;
         this.frequency = frequency;
         this.interval = null;
         this.stepFunction = () => null;
+        this.previousScheduledValue = 0;
     }
 
     set steps (steps) {
@@ -31,55 +37,70 @@ class StepOscillator {
         return this.state.steps;
     }
 
-    set slew (slew) {
-        this.state.slew = slew;
+    set levels (levels) {
+        this.state.levels = levels;
     }
 
-    get slew () {
-        return this.state.slew;
+    get levels () {
+        return this.state.levels;
+    }
+
+    set glide (glide) {
+        this.state.glide = glide;
+    }
+
+    get glide () {
+        return this.state.glide;
     }
 
     set frequency (f) {
         this.state.frequency = f;
-        //this.generator.frequency.setValueAtTime(f, this.context.currentTime);
     }
 
     get frequency () {
         return this.state.frequency;
     }
 
-    getStepFunction (steps, frequency, offset) {
+    getStepFunction (steps, frequency, glide, offset) {
         return () => {
             const now = this.context.currentTime;
             const stepDuration = 1.0 / (frequency * steps.length);
 
             steps.forEach((step, index) => {
                 const time = now + (stepDuration * index);
-                console.log(stepDuration, index, now, step, time);
-                this.generator.gain.setValueAtTime(step, time);
+                const scaledValue = step / (this.levels - 1);
+                if (this.glide === 0) {
+                    this.generator.gain.setValueAtTime(scaledValue, time);
+                    this.previousScheduledValue = scaledValue;
+                } else {
+                    this.generator.gain.setValueAtTime(this.previousScheduledValue, time);
+                    this.generator.gain.linearRampToValueAtTime(scaledValue, time + (stepDuration * this.glide));
+                    this.previousScheduledValue = scaledValue;
+                }
             }, this);
         };
     }
 
     start () {
-        //this.generator.start();
-        this.stepFunction = this.getStepFunction(this.steps, this.frequency);
+        this.generator.gain.setValueAtTime(this.steps[0], this.context.currentTime);
+        this.previousScheduledValue = this.steps[0];
+
+        this.stepFunction = this.getStepFunction(this.steps, this.frequency, this.glide);
         this.stepFunction();
         this.interval = setInterval(this.stepFunction, (1000.0 / this.frequency));
     }
 
     stop () {
-        //this.generator.stop();
         clearInterval(this.interval);
         this.generator.gain.cancelScheduledValues(this.context.currentTime);
     }
 
     connect (...args) {
-        this.generator.connect(...args);
+        this.waveShaperNode.connect(...args);
     }
 
     disconnect (...args) {
-        this.generator.disconnect(...args);
+        this.waveShaperNode.disconnect(...args);
     }
 }
 
@@ -106,8 +127,6 @@ class StepSequencer extends Periodic {
         }
 
         this.parameters = {...this.oscillator.targets};
-
-        this.waveform = this.state.waveform;
     }
 
 
@@ -126,8 +145,17 @@ class StepSequencer extends Periodic {
             super.updateState(newStepsState);
 
             if (this.storedState.steps !== newStepsState.steps) {
-                this.steps = newStepsState.steps;
+                this.oscillator.steps = newStepsState.steps;
             }
+
+            if (this.storedState.levels !== newStepsState.levels) {
+                this.oscillator.levels = newStepsState.levels;
+            }
+
+            if (this.storedState.glide !== newStepsState.glide) {
+                this.oscillator.glide = newStepsState.glide;
+            }
+
 
             this.storedState = newStepsState;
         }

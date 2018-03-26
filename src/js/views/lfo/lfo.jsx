@@ -1,5 +1,6 @@
 /*global document, module, require, CustomEvent */
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import {lfoPatchShape, modulationLfoSourcesConfigShape} from "../../propdefs";

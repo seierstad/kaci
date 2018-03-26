@@ -202,6 +202,13 @@ export const morseGeneratorViewStateShape = shape({
     "guides": arrayOf(number)
 });
 
+export const stepsPatchShape = shape({
+    ...modulatorPatchProperties,
+    ...periodicPatchProperties,
+    "levels": number.isRequired,
+    "steps": arrayOf(number).isRequired
+});
+
 const envelopePointShape = (props, propName, componentName) => {
     const prop = props[propName];
     if (!Array.isArray(prop)
@@ -298,6 +305,12 @@ export const modulationMorseSourcesConfigShape = shape({
     "default": morseGeneratorPatchShape
 });
 
+export const modulationStepsSourcesConfigShape = shape({
+    ...modulatorConfigProperties,
+    ...periodicConfigProperties,
+    "default": stepsPatchShape
+});
+
 export const modulatorsConfigShape = shape({
     "envelope": modulationEnvelopeSourcesShape.isRequired,
     "lfo": modulationLfoSourcesConfigShape.isRequired,
@@ -369,14 +382,14 @@ export const keyStateShape = shape({
 
 export const chordShape = objectOf(keyStateShape);
 
-export const chordShiftShape = shape({
+export const chordShiftPlayStateShape = shape({
     "value": number.isRequired,
     "activeKeys": objectOf(keyStateShape).isRequired,
     "chords": arrayOf(chordShape)
 });
 
 export const playStateShape = shape({
-    "chordShift": chordShiftShape.isRequired,
+    "chordShift": chordShiftPlayStateShape.isRequired,
     "hold": bool,
     "keys": objectOf(keyStateShape).isRequired,
     "pitchShift": number.isRequired

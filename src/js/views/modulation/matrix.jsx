@@ -42,7 +42,7 @@ class ModulationMatrixPresentation extends Component {
                 <h2>Modulation</h2>
                 <table className="modulation-matrix">
                     <colgroup>
-                        {[2, lfoCount, morseCount, envCount + 1].map((colSpan, index) => <col key={index} span={colSpan} />)}
+                        {[2, lfoCount, morseCount, stepsCount, envCount + 1].map((colSpan, index) => <col key={index} span={colSpan} />)}
                     </colgroup>
                     <thead>
                         <tr>

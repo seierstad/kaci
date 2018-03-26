@@ -1,38 +1,24 @@
 import * as Actions from "../actions";
 import {defaultLfoParameters} from "../configuration";
 
+import modulatorReducer from "./modulator-reducer";
 import syncReducer from "./sync";
 
 
 const lfo = (state = {...defaultLfoParameters}, action) => {
     switch (action.type) {
+
         case Actions.MODULATOR_FREQUENCY_CHANGE:
-            return {
-                ...state,
-                "frequency": action.value
-            };
-
         case Actions.MODULATOR_AMOUNT_CHANGE:
-            return {
-                ...state,
-                "amount": action.value
-            };
-
         case Actions.MODULATOR_MODE_CHANGE:
-            return {
-                ...state,
-                "mode": action.value
-            };
+        case Actions.MODULATOR_RESET:
+            return modulatorReducer(state, action);
 
         case Actions.LFO_WAVEFORM_CHANGE:
             return {
                 ...state,
                 "waveform": action.value
             };
-
-        case Actions.MODULATOR_RESET:
-            // possible implementation: timestamp in the viewState?
-            return state;
 
         case Actions.SYNC_NUMERATOR_CHANGE:
         case Actions.SYNC_DENOMINATOR_CHANGE:
