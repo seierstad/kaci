@@ -2,7 +2,10 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
 
-import {chordShiftShape} from "../../propdefs";
+import {
+    chordShiftPlayStateShape,
+    chordShiftPatchShape
+} from "../../propdefs";
 import {
     KEYBOARD_CHORD_SHIFT,
     KEYBOARD_CHORD_SHIFT_TOGGLE,
@@ -18,12 +21,13 @@ import Mode from "./chord-shift-mode-view.jsx";
 class ChordShiftView extends Component {
 
     static propTypes = {
-        "chordShift": chordShiftShape.isRequired
+        "patch": chordShiftPatchShape,
+        "playState": chordShiftPlayStateShape.isRequired
     }
 
     render () {
         const {
-            chordShift: {
+            playState: {
                 activeKeys = {},
                 chords = [],
                 enabled = false,

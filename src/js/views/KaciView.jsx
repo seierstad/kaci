@@ -8,6 +8,7 @@ import {configurationShape, viewStateShape, playStateShape, patchShape} from "..
 import SystemSettingsView from "./SystemSettingsView.jsx";
 import Patch from "./patch.jsx";
 import Keyboard from "./keyboard/keyboard.jsx";
+import ChordShift from "./chord-shift/chord-shift.jsx";
 
 
 class KaciReactViewPresentation extends Component {
@@ -21,7 +22,13 @@ class KaciReactViewPresentation extends Component {
     }
 
     render () {
-        const {configuration, patch, handlers, viewState, playState} = this.props;
+        const {
+            configuration = {},
+            patch = {},
+            handlers,
+            viewState = {},
+            playState = {}
+        } = this.props;
         return (
             <div>
                 <SystemSettingsView
@@ -34,6 +41,10 @@ class KaciReactViewPresentation extends Component {
                     configuration={configuration}
                     patch={patch}
                     viewState={viewState}
+                />
+                <ChordShift
+                    patch={patch.chordShift}
+                    playState={playState.chordShift}
                 />
                 <Keyboard />
             </div>

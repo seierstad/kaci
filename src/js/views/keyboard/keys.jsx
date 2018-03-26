@@ -1,7 +1,7 @@
 import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {NOTE_NAMES} from "../../constants";
-import {chordShiftShape, keyStateShape} from "../../propdefs";
+import {chordShiftPlayStateShape, keyStateShape} from "../../propdefs";
 import {keyboard as configuration} from "../../configuration";
 
 import Key from "./key.jsx";
@@ -12,7 +12,7 @@ const findKey = (chord, keyNumber) => chord.find(key => key.number === keyNumber
 class Keys extends Component {
 
     static propTypes = {
-        "chordShift": chordShiftShape,
+        "chordShift": chordShiftPlayStateShape,
         "endKey": PropTypes.number,
         "keyHandlers": PropTypes.objectOf(PropTypes.func),
         "keys": PropTypes.objectOf(keyStateShape).isRequired,

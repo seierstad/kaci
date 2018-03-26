@@ -10,7 +10,6 @@ import {
 } from "../../actions";
 import {playStateShape} from "../../propdefs";
 
-import ChordShift from "../chord-shift/chord-shift.jsx";
 import RangeInput from "../RangeInput.jsx";
 
 import Keys from "./keys.jsx";
@@ -46,7 +45,6 @@ class KeyboardView extends Component {
                     keys={playState.keys}
                     startKey={startKey}
                 />
-                <ChordShift chordShift={playState.chordShift} />
                 <div className="sliders">
                     <RangeInput
                         changeHandler={handlePitchShift}
