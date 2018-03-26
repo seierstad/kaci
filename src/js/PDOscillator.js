@@ -53,15 +53,10 @@ class PDOscillator {
 
         this.counterMax = fractionsLcm(harmonics);
 
-        //set frequency
-        //dc.connect(this.parameters.frequency.gain);
-        //this.parameters.frequency.gain.setValueAtTime(1, context.currentTime);
-
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);
 
         this.pd = patch.pd;
-        //this.frequency = frequency;
         this.active = patch.active;
         this.waveform = patch.waveform;
         this.mode = patch.mode;
@@ -100,12 +95,6 @@ class PDOscillator {
         return this.state.mode;
     }
 
-    /*
-    set frequency (frequency) {
-        this.parameters.frequency.gain.setValueAtTime(frequency, this.context.currentTime);
-    }
-    */
-
     set harmonics (harmonics) {
         this.state.harmonics = harmonics;
     }
@@ -141,6 +130,8 @@ class PDOscillator {
         const mix = event.inputBuffer.getChannelData(3);
         const output = event.outputBuffer.getChannelData(0);
 
+
+
         output.forEach((v, i, out) => {
             out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], mix[i]);
         });
@@ -168,7 +159,6 @@ class PDOscillator {
         }
 
         this.previous.calculatedFrequency = calculatedFrequency;
-
 
         this.incrementPhase(calculatedFrequency);
 
@@ -205,8 +195,6 @@ class PDOscillator {
             default:
                 return 0;
         }
-
-
     }
 
     incrementPhase (frequency) {
