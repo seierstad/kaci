@@ -112,10 +112,8 @@ class StepSequencer extends Periodic {
         super(context, store, patch, dc, index, isSyncMaster);
 
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
-        this.storedState = patch;
 
         this.oscillator = new StepOscillator(context, dc, patch);
-
         this.oscillator.connect(this.postGain);
 
         for (let name in this.outputs) {
@@ -127,8 +125,23 @@ class StepSequencer extends Periodic {
         }
 
         this.parameters = {...this.oscillator.targets};
+
+        this.steps = this.state.steps;
+        this.levels = this.state.levels;
+        this.glide = this.state.glide;
     }
 
+    set steps (steps) {
+        this.oscillator.steps = steps;
+    }
+
+    set levels (levels) {
+        this.oscillator.levels = levels;
+    }
+
+    set glide (glide) {
+        this.oscillator.glide = glide;
+    }
 
     @autobind
     stateChangeHandler () {
@@ -141,23 +154,23 @@ class StepSequencer extends Periodic {
             } = {}
         } = newState;
 
-        if (newStepsState && (newStepsState !== this.storedState)) {
+        if (newStepsState && (newStepsState !== this.state)) {
             super.updateState(newStepsState);
 
-            if (this.storedState.steps !== newStepsState.steps) {
+            if (this.state.steps !== newStepsState.steps) {
                 this.oscillator.steps = newStepsState.steps;
             }
 
-            if (this.storedState.levels !== newStepsState.levels) {
+            if (this.state.levels !== newStepsState.levels) {
                 this.oscillator.levels = newStepsState.levels;
             }
 
-            if (this.storedState.glide !== newStepsState.glide) {
+            if (this.state.glide !== newStepsState.glide) {
                 this.oscillator.glide = newStepsState.glide;
             }
 
 
-            this.storedState = newStepsState;
+            this.state = newStepsState;
         }
     }
 

@@ -130,9 +130,22 @@ const patch = {
         "active": true,
         "amount": 1.0,
         "frequency": 2.0,
-        "levels": 5,
+        "levels": 13,
         "glide": 0.25,
         "steps": [0, 2, 4, 1],
+        "sync": {
+            "enabled": false,
+            "numerator": 1,
+            "denominator": 1
+        },
+        "mode": "global"
+    }, {
+        "active": true,
+        "amount": 1.0,
+        "frequency": 1.0,
+        "levels": 13,
+        "glide": 0.25,
+        "steps": [0, 12, 4, 1],
         "sync": {
             "enabled": false,
             "numerator": 1,

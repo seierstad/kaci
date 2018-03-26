@@ -265,7 +265,7 @@ const configuration = {
                 }
             },
             "steps": {
-                "count": 1,
+                "count": 2,
                 "amount": {
                     "min": 0,
                     "max": 1,

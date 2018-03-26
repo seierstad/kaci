@@ -9,6 +9,9 @@ import StaticSources from "./static-sources";
 import MorseGenerators from "./morse-generators";
 import StepSequencers from "./modulators/step-sequencers";
 
+const connectionSourceFilter = (typeName, index) => c => c.source.type === typeName && c.source.index === index;
+
+
 class ModulationMatrix {
 
     constructor (context, store, dc) {
@@ -178,8 +181,6 @@ class ModulationMatrix {
     @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
-
-        const connectionSourceFilter = (typeName, index) => c => c.source.type === typeName && c.source.index === index;
 
         if (newState.patch.modulation !== this.patch) {
             const patch = this.patch;
