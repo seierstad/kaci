@@ -12,22 +12,42 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
                 ...state,
                 steps: [
                     ...state.steps,
-                    0
+                    {"value": 0}
                 ]
             };
 
-        case Actions.STEPS.STEP_VALUE_CHANGE:
+        case Actions.STEPS.STEP_VALUE_CHANGE: {
             const result = {
                 ...state,
                 steps: [
                     ...state.steps
                 ]
             };
-            if (action.value !== result.steps[action.step]) {
-                result.steps[action.step] = action.value;
+            if (action.value !== result.steps[action.step]["value"]) {
+                result.steps[action.step] = {
+                    ...result.steps[action.step],
+                    "value": action.value
+                };
                 return result;
             }
             break;
+        }
+
+        case Actions.STEPS.STEP_GLIDE_TOGGLE: {
+            const result = {
+                ...state,
+                steps: [
+                    ...state.steps
+                ]
+            };
+
+            result.steps[action.step] = {
+                ...result.steps[action.step],
+                "glide": !result.steps[action.step].glide
+            };
+
+            return result;
+        }
 
         case Actions.STEPS.LEVELS_COUNT_CHANGE:
             return {
@@ -66,6 +86,7 @@ const steps = (state = [], action) => {
         case Actions.STEPS.CHANGE_GLIDE:
         case Actions.STEPS.STEP_ADD:
         case Actions.STEPS.STEP_VALUE_CHANGE:
+        case Actions.STEPS.STEP_GLIDE_TOGGLE:
         case Actions.STEPS.LEVELS_COUNT_CHANGE: {
             const result = [
                 ...state

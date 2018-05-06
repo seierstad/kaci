@@ -1,8 +1,9 @@
 import autobind from "autobind-decorator";
 import {BUFFER_LENGTH} from "../constants";
 import {inputNode} from "../shared-functions";
+import KaciNode from "../kaci-node";
 
-class Oscillator {
+class Oscillator extends KaciNode {
 
     static inputDefs = [
         {
@@ -14,22 +15,21 @@ class Oscillator {
         }
     ];
 
-    constructor (context, dc) {
+    constructor (...args) {
+        super(...args);
 
-        this.context = context;
-        this.dc = dc;
         this.phase = 0;
         this.paused = false;
 
-        this.mergedInput = context.createChannelMerger(this.constructor.inputDefs.length);
+        this.mergedInput = this.context.createChannelMerger(this.constructor.inputDefs.length);
 
         this.parameters = {};
 
         const p = this.parameters;
         this.constructor.inputDefs.forEach((def, i) => {
-            p[def.name] = inputNode(context, dc);
+            p[def.name] = inputNode(this.context, this.dc);
             p[def.name].gain.setValueAtTime(def.defaultValue, this.context.currentTime);
-            dc.connect(p[def.name]);
+            this.dc.connect(p[def.name]);
             p[def.name].connect(this.mergedInput, null, i);
         });
 
@@ -39,7 +39,7 @@ class Oscillator {
             "calculatedFrequency": 0
         };
 
-        this.generator = context.createScriptProcessor(BUFFER_LENGTH, this.constructor.inputDefs.length, 1);
+        this.generator = this.context.createScriptProcessor(BUFFER_LENGTH, this.constructor.inputDefs.length, 1);
         this.mergedInput.connect(this.generator);
     }
 

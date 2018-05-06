@@ -196,6 +196,9 @@ const mapDispatchToProps = (dispatch) => ({
             "stepValueChange": (index, step, value) => {
                 dispatch({"type": Actions.STEPS.STEP_VALUE_CHANGE, index, step, value});
             },
+            "stepGlideToggle": (index, step) => {
+                dispatch({"type": Actions.STEPS.STEP_GLIDE_TOGGLE, index, step});
+            },
             "addValue": (index) => {
                 dispatch({"type": Actions.STEPS.VALUE_ADD, index});
             },

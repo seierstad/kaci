@@ -104,7 +104,7 @@ class SubViewPresentation extends Component {
                                 configuration={defaultSyncConfiguration}
                                 handlers={syncHandlers}
                                 module="sub"
-                                patch={patch.beat_sync}
+                                patch={patch.sync}
                             />
                         </div>
                         :

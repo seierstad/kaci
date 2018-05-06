@@ -7,8 +7,8 @@ import Oscillator from "./decorators/oscillator";
 
 class IdealOscillator extends Oscillator {
 
-    constructor (context, dc) {
-        super(context, dc);
+    constructor (...args) {
+        super(...args);
 
         this.sampleAndHoldBuffer = {
             value: null,

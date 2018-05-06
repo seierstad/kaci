@@ -11,7 +11,8 @@
             flex-direction: column;
         }
 
-        legend {
+        legend,
+        .label-text {
             @extend %squish-text;
         }
     }

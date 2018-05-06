@@ -1,15 +1,17 @@
 import autobind from "autobind-decorator";
-
+import KaciNode from "./kaci-node";
 import {scale} from "./Utils";
 
 const normalized = {min: -1, max: 1};
 
 
-class StaticSources {
+class StaticSources extends KaciNode {
 
-    constructor (context, store, configuration, dc) {
+    constructor (...args) {
+        super(...args);
 
-        this.context = context;
+        const [context, dc, store, configuration] = args;
+
         this.store = store;
         this.patchState = store.getState().patch;
         this.playState = store.getState().playState;
@@ -53,7 +55,7 @@ class StaticSources {
                 const value = patchValue || playStateValue || defaultValue;
                 const scaledValue = scale(value, limits, normalized);
                 node.gain.setValueAtTime(scaledValue, context.currentTime);
-                dc.connect(node);
+                this.dc.connect(node);
             }
         }
 

@@ -1,5 +1,5 @@
 import autobind from "autobind-decorator";
-
+import KaciNode from "./kaci-node";
 import DC from "./DCGenerator";
 import {inputNode} from "./shared-functions";
 import EnvelopeGenerator from "./EnvelopeGenerator";
@@ -22,39 +22,39 @@ export const prefixKeys = (object, prefix) => {
     return result;
 };
 
-class Voice {
-    constructor (context, store) {
-        this.dc = new DC(context);
-        this.context = context;
+class Voice extends KaciNode {
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store] = args;
 
         this.store = store;
         this.state = store.getState().patch;
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.mainOut = new OutputStage(context, this.dc, !!this.state.main.active);
+        this.mainOut = new OutputStage(this.context, this.dc, !!this.state.main.active);
 
         this.lfos = this.state.lfos.reduce((acc, lfo, index) => {
             if (lfo.mode === "voice") {
-                acc[index] = new LFO(this.context, this.store, lfo, this.dc, index);
+                acc[index] = new LFO(this.context, this.dc, this.store, lfo, index);
             }
             return acc;
         }, []);
 
         this.morse = this.state.morse.reduce((acc, morse, index) => {
             if (morse.mode === "voice") {
-                acc[index] = new MorseGenerator(this.context, this.store, morse, this.dc, index);
+                acc[index] = new MorseGenerator(this.context, this.dc, this.store, morse, index);
             }
             return acc;
         }, []);
 
         this.steps = this.state.steps.reduce((acc, steps, index) => {
             if (steps.mode === "voice") {
-                acc[index] = new StepSequencer(this.context, this.store, steps, this.dc, index);
+                acc[index] = new StepSequencer(this.context, this.dc, this.store, steps, index);
             }
             return acc;
         }, []);
 
-        this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(context, store, index));
+        this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(this.context, this.dc, this.store, envPatch, index));
         this.connections = {
             envelopes: {},
             lfos: {},
@@ -62,17 +62,18 @@ class Voice {
             morse: {}
         }; // values set in ModulationMatrix.patchVoice
 
-        this.noise = new NoiseGenerator(context, this.dc, this.state.noise);
-        this.sub = new SubOscillator(context, this.dc, this.state.sub);
-        this.oscillator = new PDOscillator(context, this.dc, this.state.oscillator);
+        this.sub = new SubOscillator(this.context, this.dc, this.store, this.state.sub);
+        this.oscillator = new PDOscillator(this.context, this.dc, this.store, this.state.oscillator);
+        this.noise = new NoiseGenerator(this.context, this.dc, this.store, this.state.noise);
 
         this.frequency = inputNode(context);
         this.frequency.connect(this.oscillator.targets.frequency);
         this.frequency.connect(this.sub.frequencyNode);
 
         this.sub.connect(this.mainOut.input);
-        this.oscillator.connect(this.mainOut.input);
         this.noise.connect(this.mainOut.input);
+        this.oscillator.connect(this.mainOut.input);
+
 
         this.targetNodes = {
             ...(prefixKeys(this.mainOut.targets, "main.")),
@@ -239,7 +240,7 @@ class Voice {
         this.sub.stop(this.stopTime);
         this.sub.disconnect();
         this.sub.destroy();
-        this.noise.stop();
+        this.noise.stop(this.stopTime);
         this.noise.disconnect();
         this.noise.destroy();
 

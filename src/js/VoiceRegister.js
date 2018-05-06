@@ -5,6 +5,7 @@ import {inputNode, outputNode} from "./shared-functions";
 import Tunings from "./Tunings";
 import Voice, {prefixKeys} from "./Voice";
 import ChordShifter from "./chord-shifter";
+import KaciNode from "./kaci-node";
 
 
 /**
@@ -23,15 +24,15 @@ export const sortKeysByNumber = (keyA, keyB) => {
     return numberA < numberB ? -1 : 1;
 };
 
-class VoiceRegister {
+class VoiceRegister extends KaciNode {
 
-    constructor (store, context, modulationMatrix, dc) {
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, modulationMatrix] = args;
 
         this.store = store;
         this.state = {...this.store.getState()};
         this.activeKeys = new Set(...Object.keys(this.state.playState.keys));
-        this.context = context;
-        this.dc = dc;
 
         this.activeVoices = {};
         this.stoppedVoices = {};
@@ -58,7 +59,7 @@ class VoiceRegister {
         this.tuning = this.state.settings.tuning;
 
         this.chordShiftState = this.state.playState.chordShift;
-        this.chordShifter = new ChordShifter(store, context, this.tuning);
+        this.chordShifter = new ChordShifter(this.context, this.dc, this.store, this.tuning);
 
         this.store.subscribe(this.stateChangeHandler);
 
@@ -85,7 +86,7 @@ class VoiceRegister {
             const keyNumber = parseInt(key, 10);
             const frequency = (typeof keyNumber === "number") ? this.tuning[keyNumber] : freq;
             const frequencyNode = outputNode(this.context, this.dc, frequency);
-            const voice = new Voice(this.context, this.store);
+            const voice = new Voice(this.context, this.dc, this.store);
             frequencyNode.connect(voice.frequency);
 
             if (this.totalVoicesCount === 0) {

@@ -144,7 +144,7 @@ export const outputStagePatchShape = shape({
 
 export const subPatchShape = shape({
     "beat": number.isRequired,
-    "beat_sync": syncPatchShape.isRequired,
+    "sync": syncPatchShape.isRequired,
     "depth": number.isRequired,
     "detune": number.isRequired,
     "mode": oneOf(["semitone", "beat"]).isRequired,
@@ -202,11 +202,16 @@ export const morseGeneratorViewStateShape = shape({
     "guides": arrayOf(number)
 });
 
+const stepPatchShape = shape({
+    "glide": bool,
+    "value": number.isRequired
+});
+
 export const stepsPatchShape = shape({
     ...modulatorPatchProperties,
     ...periodicPatchProperties,
     "levels": number.isRequired,
-    "steps": arrayOf(number).isRequired
+    "steps": arrayOf(stepPatchShape).isRequired
 });
 
 const envelopePointShape = (props, propName, componentName) => {

@@ -1,5 +1,7 @@
 import autobind from "autobind-decorator";
 
+import KaciNode from "../kaci-node";
+
 /*
     handles common functions for periodic modulators:
     - frequency
@@ -18,43 +20,19 @@ import autobind from "autobind-decorator";
 
  */
 
-class Periodic {
+class Modulator extends KaciNode {
 
     constructor (...args) {
+        super(...args);
 
-        const [context, store, patch, dc, index, isSyncMaster] = args;
-
-        this.context = context;
+        const [context, dc, store, patch, index] = args;
         this.index = index;
-        this.store = store;
-        this.state = {...patch};
 
-        this.postGain = context.createGain(); // set gain.value to 0 to mute the lfo output
+        this.postGain = this.context.createGain(); // set gain.value to 0 to mute the lfo output
 
         this.outputs = {};
         this.addOutput("positive", [0, 0.5, 1]);
         this.addOutput("negative", [-1, -0.5, 0]);
-
-        this.isSyncMaster = isSyncMaster;
-
-        /*
-        if (patch.syncEnabled && patch.syncRatioNumerator && patch.syncRatioDenominator) {
-            this.syncToMaster();
-        }
-        */
-
-        /*
-        this.isSyncMaster = isSyncMaster;
-        if (this.state && this.state.sync && typeof this.state.sync.master === "number") {
-            this.syncMasterState = store.getState().patch.lfos[this.state.sync.master];
-            this.syncRatio = context.createGain();
-        }
-        */
-        /*
-        if (!this.state.sync || !this.state.sync.enabled) {
-            this.frequency = this.state.frequency;
-        }
-        */
 
         this.amount = this.state.amount;
         this.active = this.state.active;
@@ -68,10 +46,6 @@ class Periodic {
     set amount (value) {
         this.postGain.gain.setValueAtTime(value, this.context.currentTime);
         setTimeout(this.updateOutputRanges(value), 1);
-    }
-
-    set sync ({numerator, denominator}) {
-        this.syncRatio.gain.setValueAtTime(numerator / denominator, this.context.currentTime);
     }
 
     set frequency (frequency) {
@@ -101,26 +75,14 @@ class Periodic {
     'lfo.master.zeroPhase'
     */
 
-
-    syncToMaster () {
-        let that = this;
-
-        const masterFrequencyHandler = (event) => {
-            let syncedFrequency;
-
-            if (!isNaN(event.detail)) {
-                if (that.sync.enabled) {
-                    syncedFrequency = event.detail * that.sync.ratio.denominator / that.sync.ratio.numerator;
-                    that.setFrequency(syncedFrequency);
-                }
-            }
-            that.context.removeEventListener("lfo.master.frequency", masterFrequencyHandler);
-        };
-        const masterZeroPhaseHandler = (event) => {
-            masterFrequencyHandler(event);
-            that.reset();
-            that.context.removeEventListener("lfo.master.zeroPhase", masterZeroPhaseHandler);
-        };
+    @autobind
+    updateOutputRanges (amount) {
+        if (this.outputs.positive) {
+            this.outputs.positive.curve = new Float32Array([0, amount]);
+        }
+        if (this.outputs.negative) {
+            this.outputs.negative.curve = new Float32Array([-amount, 0]);
+        }
     }
 
     updateState (newState) {
@@ -147,16 +109,6 @@ class Periodic {
                     this.sync = {numerator, denominator};
                 }
             }
-        }
-    }
-
-    @autobind
-    updateOutputRanges (amount) {
-        if (this.outputs.positive) {
-            this.outputs.positive.curve = new Float32Array([0, amount]);
-        }
-        if (this.outputs.negative) {
-            this.outputs.negative.curve = new Float32Array([-amount, 0]);
         }
     }
 
@@ -187,10 +139,10 @@ class Periodic {
     }
 
     destroy () {
-        this.context = null;
         this.index = null;
-        this.store = null;
-        this.state = null;
+        this.oscillator.disconnect();
+        this.oscillator.destroy();
+        this.oscillator = null;
 
         for (let name in this.outputs) {
             this.outputs[name].disconnect();
@@ -198,9 +150,7 @@ class Periodic {
 
         this.postGain.disconnect();
         this.postGain = null;
-        this.oscillator.destroy();
-        this.oscillator = null;
     }
 }
 
-export default Periodic;
+export default Modulator;

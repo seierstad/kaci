@@ -82,12 +82,13 @@ class StepSequencerView extends Component {
         for (let s = 0; s < patch.steps.length; s += 1) {
             steps.push(
                 <Step
+                    glide={patch.steps[s].glide}
                     handlers={handlers}
                     key={["steps", index, s].join("-")}
                     levels={patch.levels}
                     sequencerIndex={index}
                     stepIndex={s}
-                    value={patch.steps[s]}
+                    value={patch.steps[s].value}
                 />
             );
         }

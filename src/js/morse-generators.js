@@ -3,7 +3,7 @@ import MorseGenerator from "./morse-generator";
 
 class MorseGenerators {
 
-    constructor (context, store, configuration, dc) {
+    constructor (context, dc, store, configuration) {
 
         this.context = context;
         this.store = store;
@@ -29,7 +29,7 @@ class MorseGenerators {
         for (i = 0, j = configuration.count; i < j; i += 1) {
             const p = patch[i] || configuration.default;
             if (p.mode === "global" || p.mode === "retrigger") {
-                result[i] = new MorseGenerator(this.context, this.store, p, dc, i);
+                result[i] = new MorseGenerator(this.context, dc, this.store, p, i);
             }
         }
 

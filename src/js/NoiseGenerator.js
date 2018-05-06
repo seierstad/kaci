@@ -1,16 +1,16 @@
 import autobind from "autobind-decorator";
 
+import KaciAudioNode from "./kaci-audio-node";
 import {BUFFER_LENGTH} from "./constants";
 import {noise} from "./waveforms";
 import OutputStage from "./output-stage";
 
-class Noise {
-    constructor (context, dc, patch) {
+class Noise extends KaciAudioNode {
 
-        this.state = {...patch};
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, patch] = args;
 
-        // gain, pan and mute
-        this.outputStage = new OutputStage(context, dc, !!patch.active);
         this.parameters = {...this.outputStage.parameters};
 
         this.generator = context.createScriptProcessor(BUFFER_LENGTH, 0, 1);
@@ -30,10 +30,6 @@ class Noise {
         }
     }
 
-    set active (active) {
-        this.outputStage.active = active;
-    }
-
     start () {
         this.generator.addEventListener("audioprocess", this.audioProcessHandler);
     }
@@ -44,26 +40,15 @@ class Noise {
 
     @autobind
     audioProcessHandler (event) {
-        let output = event.outputBuffer.getChannelData(0);
+        const output = event.outputBuffer.getChannelData(0);
+
         this.generatorFunction(output);
     }
 
-    connect (node) {
-        this.outputStage.connect(node);
-    }
-
-    disconnect () {
-        this.outputStage.disconnect();
-    }
-
     destroy () {
-        this.audioProcessHandler = null;
-        this.generatorFunction = null;
         this.generator.disconnect();
         this.generator = null;
-        this.state = null;
-        this.outputStage.destroy();
-        this.outputStage = null;
+        super.destroy();
     }
 }
 

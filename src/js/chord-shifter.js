@@ -1,5 +1,6 @@
 import autobind from "autobind-decorator";
 
+import KaciNode from "./kaci-node";
 import {inputNode, outputNode} from "./shared-functions";
 import {BUFFER_LENGTH} from "./constants";
 import Tunings from "./Tunings";
@@ -23,9 +24,11 @@ function getKey (value, key1, key2) {
  **/
 
 
-class ChordShifter {
+class ChordShifter extends KaciNode {
 
-    constructor (store, context, scale) {
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, scale] = args;
 
         this.store = store;
         const state = this.store.getState();
@@ -45,7 +48,6 @@ class ChordShifter {
             ...playState,
             ...patchState
         };
-        this.context = context;
         this.scale = scale;
         this.mode = patchState.mode || "portamento";
         this.processor = null;

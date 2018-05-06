@@ -52,7 +52,12 @@ export const defaultStepsParameters = {
     },
     "active": true,
     "levels": 4,
-    "steps": [0, 0, 0, 0]
+    "steps": [
+        {"value": 0},
+        {"value": 0},
+        {"value": 0},
+        {"value": 0}
+    ]
 };
 
 export const defaultMorseParameters = {

@@ -7,12 +7,28 @@ import autobind from "autobind-decorator";
 class Step extends Component {
 
     static propTypes = {
+        "glide": PropTypes.bool,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "levels": PropTypes.number.isRequired,
         "sequencerIndex": PropTypes.number.isRequired,
         "stepIndex": PropTypes.number.isRequired,
         "value": PropTypes.number.isRequired
     }
+
+    @autobind
+    handleStepGlideToggle (event) {
+        const {
+            handlers: {
+                stepGlideToggle = () => null
+            } = {},
+            sequencerIndex,
+            stepIndex
+        } = this.props;
+
+        stepGlideToggle(sequencerIndex, stepIndex);
+        event.stopPropagation();
+    }
+
 
     @autobind
     handleStepValueChange (event) {
@@ -30,6 +46,7 @@ class Step extends Component {
 
     render () {
         const {
+            glide = false,
             handlers = {},
             levels,
             stepIndex,
@@ -41,14 +58,18 @@ class Step extends Component {
 
         for (let l = levels - 1; l >= 0; l -= 1) {
             inputs.push(
-                <input
-                    checked={l === value}
+                <label
                     key={[stepIndex, l].join("-")}
-                    name={["steps", sequencerIndex, "step", stepIndex].join("-")}
-                    onChange={this.handleStepValueChange}
-                    type="radio"
-                    value={l}
-                />
+                >
+                    <span className="label-text">{l}</span>
+                    <input
+                        checked={l === value}
+                        name={["steps", sequencerIndex, "step", stepIndex].join("-")}
+                        onChange={this.handleStepValueChange}
+                        type="radio"
+                        value={l}
+                    />
+                </label>
             );
         }
 
@@ -57,6 +78,18 @@ class Step extends Component {
                 <legend>Step {stepIndex}</legend>
                 <div className="flex-wrapper">
                     {inputs}
+                    <label
+                        key={[stepIndex, "glide"].join("-")}
+                    >
+                        <span className="label-text">glide</span>
+                        <input
+                            checked={glide}
+                            name={["steps", sequencerIndex, "step", stepIndex, "glide", "toggle"].join("-")}
+                            onChange={this.handleStepGlideToggle}
+                            type="checkbox"
+                            value="glide"
+                        />
+                    </label>
                 </div>
             </fieldset>
         );

@@ -1,5 +1,5 @@
 import autobind from "autobind-decorator";
-
+import KaciAudioNode from "./kaci-audio-node";
 import {waveforms, wrappers} from "./waveforms";
 
 import {mixValues, phaseDistortionFunction, inputNode, lcmReducer, fractionsLcm} from "./shared-functions";
@@ -8,7 +8,7 @@ import {BUFFER_LENGTH, OSCILLATOR_MODE} from "./constants";
 import OutputStage from "./output-stage";
 
 
-class PDOscillator {
+class PDOscillator extends KaciAudioNode {
     static inputNames = [
         "frequency",
         "detune",
@@ -16,13 +16,11 @@ class PDOscillator {
         "mix"
     ];
 
-    constructor (context, dc, patch) {
+    constructor (...args) {
+        super(...args);
 
-        this.context = context;
+        const [context, dc, store, patch] = args;
         this.state = patch;
-
-        // gain, pan and mute
-        this.outputStage = new OutputStage(context, dc, !!patch.active);
 
         this.parameters = {...this.outputStage.parameters};
         this.mergedInput = context.createChannelMerger(this.constructor.inputNames.length);
@@ -65,10 +63,6 @@ class PDOscillator {
 
     get targets () {
         return this.parameters;
-    }
-
-    set active (active) {
-        this.outputStage.active = active;
     }
 
     set waveform (waveformName) {
@@ -129,8 +123,6 @@ class PDOscillator {
         const resonance = event.inputBuffer.getChannelData(2);
         const mix = event.inputBuffer.getChannelData(3);
         const output = event.outputBuffer.getChannelData(0);
-
-
 
         output.forEach((v, i, out) => {
             out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], mix[i]);
@@ -217,14 +209,6 @@ class PDOscillator {
         return frequency * Math.pow(2, detune / 1200);
     }
 
-    connect (node) {
-        this.outputStage.connect(node);
-    }
-
-    disconnect () {
-        this.outputStage.disconnect();
-    }
-
     destroy () {
         this.constructor.inputNames.forEach(inputName => {
             this.parameters[inputName].disconnect();
@@ -236,6 +220,8 @@ class PDOscillator {
         this.generator.disconnect();
         this.generator.removeEventListener("audioprocess", this.audioprocessHandler);
         this.generator = null;
+        super.destroy();
+
         if (this.destroyCallback && typeof this.destroyCallback === "function") {
             this.destroyCallback(this);
         }

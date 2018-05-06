@@ -1,14 +1,15 @@
 import autobind from "autobind-decorator";
-
+import KaciNode from "../kaci-node";
 import {MODULATION_SOURCE_MODE} from "../constants";
 import StepSequencer from "./step-sequencer";
 
 
-class StepSequencers {
+class StepSequencers extends KaciNode {
 
-    constructor (context, store, configuration, dc) {
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, configuration] = args;
 
-        this.context = context;
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
@@ -35,7 +36,7 @@ class StepSequencers {
             } = patch;
 
             if (p.mode === MODULATION_SOURCE_MODE.GLOBAL || p.mode === MODULATION_SOURCE_MODE.RETRIGGER) {
-                result[i] = new StepSequencer(this.context, this.store, dc, i, p);
+                result[i] = new StepSequencer(this.context, this.dc, this.store, p, i);
             }
         }
 

@@ -1,9 +1,9 @@
+import KaciAudioNode from "./kaci-audio-node";
+
 import {inputNode} from "./shared-functions";
 
 
-import OutputStage from "./output-stage";
-
-class SubOscillator {
+class SubOscillator extends KaciAudioNode {
 
     static inputNames = [
         "detune",
@@ -18,11 +18,11 @@ class SubOscillator {
         "ratio"
     ];
 
-    constructor (context, dc, patch, scaleBaseNumber = 2) {
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, patch, scaleBaseNumber = 2] = args;
 
         /* start common constructor code */
-
-        this.context = context;
         this.state = {
             ...patch,
             beat_sync: {
@@ -30,14 +30,11 @@ class SubOscillator {
             }
         };
 
-        // gain, pan and mute
-        this.outputStage = new OutputStage(context, dc, !!patch.active);
-
         this.parameters = {...this.outputStage.targets};
 
 
         this.constructor.inputNames.forEach(inputName => {
-            this.parameters[inputName] = inputNode(context);
+            this.parameters[inputName] = inputNode(this.context);
         });
 
 
@@ -56,9 +53,9 @@ class SubOscillator {
         this.parameters.detune.connect(this.detuneNode.gain);
 
         // connect dc
-        dc.connect(this.frequencyNode);
-        dc.connect(this.beatNode);
-        dc.connect(this.detuneNode);
+        this.dc.connect(this.frequencyNode);
+        this.dc.connect(this.beatNode);
+        this.dc.connect(this.detuneNode);
 
         this.detuneNode.connect(this.detuneMultiplierNode);
         // multiply semitones by 100 to get cents
@@ -80,10 +77,6 @@ class SubOscillator {
 
     get targets () {
         return this.parameters;
-    }
-
-    set active (active) {
-        this.outputStage.active = active;
     }
 
     /*
@@ -129,14 +122,6 @@ class SubOscillator {
         this.generator.stop();
     }
 
-    connect (node) {
-        this.outputStage.connect(node);
-    }
-
-    disconnect () {
-        this.outputStage.disconnect();
-    }
-
     destroy () {
         this.frequencyNode.disconnect();
         this.frequencyNode = null;
@@ -146,8 +131,7 @@ class SubOscillator {
         this.beatNode = null;
         this.generator.disconnect();
         this.generator = null;
-        this.outputStage.destroy();
-        this.outputStage = null;
+        super.destroy();
     }
 }
 

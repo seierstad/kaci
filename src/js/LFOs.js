@@ -1,18 +1,18 @@
 import autobind from "autobind-decorator";
-
+import KaciNode from "./kaci-node";
 import LFO from "./LFO";
 
 
-class LFOs {
+class LFOs extends KaciNode {
 
-    constructor (context, store, configuration, dc) {
-
-        this.context = context;
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, configuration] = args;
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos, dc);
+        this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos, this.dc);
     }
 
     @autobind
@@ -31,7 +31,7 @@ class LFOs {
         for (let i = 0; i < j; i += 1) {
             const p = patch[i] || configuration.default;
             if (p.mode === "global" || p.mode === "retrigger") {
-                result[i] = new LFO(this.context, this.store, p, dc, i);
+                result[i] = new LFO(this.context, this.dc, this.store, p, i);
             }
         }
 

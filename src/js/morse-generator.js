@@ -2,9 +2,10 @@
 import autobind from "autobind-decorator";
 
 import {BUFFER_LENGTH} from "./constants";
-import Periodic from "./decorators/periodic";
+import KaciNode from "./kaci-node";
 import {inputNode, morseEncode, padPattern, shiftPattern, fillPatternToMultipleOf} from "./shared-functions";
 import Oscillator from "./decorators/oscillator";
+import Modulator from "./decorators/modulator";
 
 
 class MorseOscillator extends Oscillator {
@@ -39,14 +40,15 @@ class MorseOscillator extends Oscillator {
 }
 
 
-class MorseGenerator extends Periodic {
+class MorseGenerator extends Modulator {
 
-    constructor (context, store, patch, dc, index, isSyncMaster) {
-        super(context, store, patch, dc, index, isSyncMaster);
+    constructor (...args) {
+        super(...args);
 
+        const [context, dc, store, patch, index] = args;
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.oscillator = new MorseOscillator(context, dc);
+        this.oscillator = new MorseOscillator(this.context, this.dc);
         this.oscillator.connect(this.postGain);
 
         for (let name in this.outputs) {
@@ -103,11 +105,12 @@ class MorseGenerator extends Periodic {
 
     @autobind
     stateChangeHandler () {
-
         const newState = this.store.getState().patch.morse[this.index];
 
         if (newState && (newState !== this.state)) {
-            super.updateState(newState);
+            if (typeof super.stateChangeHandler === "function") {
+                super.stateChangeHandler();
+            }
             this.updateState(newState);
         }
     }

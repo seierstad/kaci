@@ -21,7 +21,13 @@ const patch = {
             "enabled": true
         }],
         "resonance": 3,
-        "wrapper": {"name": "gaussian", "parameters": {mu: 0.5, sig: 0.2}},
+        "wrapper": {
+            "name": "gaussian",
+            "parameters": {
+                "mu": 0.5,
+                "sig": 0.2
+            }
+        },
         "mix": 0,
         "mode": "harmonics", //"resonant",
         "detune": 0,
@@ -30,9 +36,9 @@ const patch = {
         "pan": 0
     },
     "noise": {
-        "color": "white",
+        "color": "pink", //white, pink, geometric, (blue, violet, brown, red)
         "active": false,
-        "gain": 0.75,
+        "gain": 0.25,
         "pan": 0
     },
     "sub": {
@@ -40,10 +46,14 @@ const patch = {
         "mode": "beat",
         "detune": 0,
         "beat": 0.2,
-        "beat_sync": {
+        "sync": {
             "enabled": false,
             "numerator": 16,
-            "denominator": 3
+            "denominator": 3,
+            "source": {
+                "type": "lfo", // "morse", "tempo", "midi_tempo",
+                "index": 0
+            }
         },
         "active": false,
         "gain": 0.51,
@@ -71,8 +81,7 @@ const patch = {
         "sync": {
             "enabled": false,
             "numerator": 32,
-            "denominator": 1,
-            "master": 0
+            "denominator": 1
         },
         "mode": "global"
     }, {
@@ -83,8 +92,7 @@ const patch = {
         "sync": {
             "enabled": false,
             "numerator": 1,
-            "denominator": 4,
-            "master": 0
+            "denominator": 4
         },
         "mode": "global"
     }],
@@ -132,7 +140,12 @@ const patch = {
         "frequency": 2.0,
         "levels": 13,
         "glide": 0.25,
-        "steps": [0, 2, 4, 1],
+        "steps": [
+            {"value": 0, "glide": true},
+            {"value": 12, "glide": false},
+            {"value": 4, "glide": true},
+            {"value": 2}
+        ],
         "sync": {
             "enabled": false,
             "numerator": 1,
@@ -145,7 +158,12 @@ const patch = {
         "frequency": 1.0,
         "levels": 13,
         "glide": 0.25,
-        "steps": [0, 12, 4, 1],
+        "steps": [
+            {"value": 0, "glide": true},
+            {"value": 12, "glide": true},
+            {"value": 4, "glide": true},
+            {"value": 2, "glide": true}
+        ],
         "sync": {
             "enabled": false,
             "numerator": 1,
@@ -166,8 +184,7 @@ const patch = {
         "sync": {
             "enabled": false,
             "numerator": 1,
-            "denominator": 4,
-            "master": 0
+            "denominator": 4
         }
     }],
     "modulation": {

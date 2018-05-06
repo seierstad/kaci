@@ -1,36 +1,57 @@
 import autobind from "autobind-decorator";
-import Periodic from "../decorators/periodic";
+import Modulator from "../decorators/modulator";
 import {outputNode} from "../shared-functions";
 import LoggerNode from "../logger";
+import KaciNode from "../kaci-node";
 
-class StepOscillator {
-    constructor (context, dc, patch = {}) {
+class StepOscillator extends KaciNode {
+    constructor (...args) {
+        super(...args);
+
+        const [context, dc, store, patch = {}] = args;
         const {
-            steps = [],
-            levels,
+            steps = [0],
+            levels = 1,
             glide = 0,
-            frequency = 1
+            frequency = 1,
+            speedUnit = steps.length || 1
         } = patch;
 
         this.state = {};
-        this.context = context;
         this.phase = 0;
-        this.generator = outputNode(context, dc, 1);
+        this.generator = outputNode(this.context, this.dc, 1);
         this.waveShaperNode = context.createWaveShaper();
         this.waveShaperNode.curve = Float32Array.of(-1, -1, 1);
         this.generator.connect(this.waveShaperNode);
 
         this.steps = steps;
-        this.levels = levels;
-        this.glide = 0.5;
+
         this.frequency = frequency;
+        this.speedUnit = speedUnit;
+
+        this.levels = levels;
+        this.glide = glide;
+
         this.interval = null;
         this.stepFunction = () => null;
         this.previousScheduledValue = 0;
+        this.startTime = null;
+        this.running = false;
+
+    }
+
+    updateState (property, value) {
+        const offset = this.offset;
+
+        this.state[property] = value;
+
+        if (offset !== 0) {
+            this.updateSequence(offset);
+        }
     }
 
     set steps (steps) {
-        this.state.steps = steps;
+        this.updateState("steps", steps);
     }
 
     get steps () {
@@ -38,7 +59,7 @@ class StepOscillator {
     }
 
     set levels (levels) {
-        this.state.levels = levels;
+        this.updateState("levels", levels);
     }
 
     get levels () {
@@ -46,74 +67,120 @@ class StepOscillator {
     }
 
     set glide (glide) {
-        this.state.glide = glide;
+        this.updateState("glide", glide);
     }
 
     get glide () {
         return this.state.glide;
     }
 
-    set frequency (f) {
-        this.state.frequency = f;
+    set frequency (frequency) {
+        this.updateState("frequency", frequency);
     }
 
     get frequency () {
         return this.state.frequency;
     }
 
-    getStepFunction (steps, frequency, glide, offset) {
+    set speedUnit (speedUnit) {
+        this.updateState("speedUnit", speedUnit);
+    }
+
+    get speedUnit () {
+        return this.state.speedUnit;
+    }
+
+    get speedUnitDuration () {
+        return 1.0 / this.frequency;
+    }
+
+    get stepDuration () {
+        return this.speedUnitDuration / this.speedUnit;
+    }
+
+    get sequenceDuration () {
+        return this.steps.length * this.stepDuration;
+    }
+
+    get offset () {
+        if (!this.running) {
+            return 0;
+        }
+        const timeOffset = this.context.currentTime - this.startTime;
+        return this.sequenceDuration / timeOffset;
+    }
+
+    getStepFunction () {
         return () => {
             const now = this.context.currentTime;
-            const stepDuration = 1.0 / (frequency * steps.length);
 
-            steps.forEach((step, index) => {
-                const time = now + (stepDuration * index);
-                const scaledValue = step / (this.levels - 1);
-                if (this.glide === 0) {
+            this.steps.forEach((step, index) => {
+                const {
+                    value,
+                    glide = false
+                } = step;
+
+                const time = now + (this.stepDuration * index);
+                const scaledValue = value / (this.levels - 1);
+
+                if (!glide || this.glide === 0) {
                     this.generator.gain.setValueAtTime(scaledValue, time);
-                    this.previousScheduledValue = scaledValue;
                 } else {
                     this.generator.gain.setValueAtTime(this.previousScheduledValue, time);
-                    this.generator.gain.linearRampToValueAtTime(scaledValue, time + (stepDuration * this.glide));
-                    this.previousScheduledValue = scaledValue;
+                    this.generator.gain.linearRampToValueAtTime(scaledValue, time + (this.stepDuration * this.glide));
                 }
+                this.previousScheduledValue = scaledValue;
+
             }, this);
+            this.startTime = now;
         };
     }
 
     start () {
-        this.generator.gain.setValueAtTime(this.steps[0], this.context.currentTime);
-        this.previousScheduledValue = this.steps[0];
+        // this.generator.gain.setValueAtTime(this.steps[0], this.context.currentTime);
+        this.previousScheduledValue = this.steps[0].value;
 
-        this.stepFunction = this.getStepFunction(this.steps, this.frequency, this.glide);
+        this.stepFunction = this.getStepFunction();
         this.stepFunction();
-        this.interval = setInterval(this.stepFunction, (1000.0 / this.frequency));
+        this.running = true;
+        this.interval = setInterval(this.stepFunction, 1000.0 * this.sequenceDuration);
     }
 
     stop () {
         clearInterval(this.interval);
+        this.interval = null;
         this.generator.gain.cancelScheduledValues(this.context.currentTime);
+        this.running = false;
     }
 
-    connect (...args) {
-        this.waveShaperNode.connect(...args);
+    updateSequence (offset) {
+        clearInterval(this.interval);
+        setTimeout(() => {
+            this.stepFunction();
+            this.interval = setInterval(this.stepFunction, 1000.0 * this.sequenceDuration);
+        }, this.sequenceDuration * (1 - offset));
     }
 
-    disconnect (...args) {
-        this.waveShaperNode.disconnect(...args);
+    connect (node) {
+        this.waveShaperNode.connect(node);
+    }
+
+    disconnect (node) {
+        this.waveShaperNode.disconnect(node);
     }
 }
 
 
-class StepSequencer extends Periodic {
+class StepSequencer extends Modulator {
 
 
-    constructor (context, store, dc, index, patch, isSyncMaster) {
-        super(context, store, patch, dc, index, isSyncMaster);
+    constructor (...args) {
+        super(...args);
+        const [context, dc, store, patch, index] = args;
 
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.oscillator = new StepOscillator(context, dc, patch);
+        this.oscillator = new StepOscillator(...args);
         this.oscillator.connect(this.postGain);
 
         for (let name in this.outputs) {
@@ -168,7 +235,6 @@ class StepSequencer extends Periodic {
             if (this.state.glide !== newStepsState.glide) {
                 this.oscillator.glide = newStepsState.glide;
             }
-
 
             this.state = newStepsState;
         }
