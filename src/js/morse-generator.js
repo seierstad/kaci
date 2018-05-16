@@ -44,9 +44,11 @@ class MorseGenerator extends Modulator {
 
     constructor (...args) {
         super(...args);
-
         const [context, dc, store, patch, index] = args;
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+
+        this.stateSelector = ["patch", "morse", index];
+        this.changeHandler = this.stateChangeHandler.bind(this);
+        this.unsubscribe = this.store.subscribe(this.changeHandler);
 
         this.oscillator = new MorseOscillator(this.context, this.dc);
         this.oscillator.connect(this.postGain);
@@ -56,13 +58,14 @@ class MorseGenerator extends Modulator {
         }
 
         this.parameters = {...this.oscillator.targets};
-        this.pattern = patch;
 
-        this.updateFrequency(this.state.frequency);
+
+        this.pattern = patch;
+        this.frequency = this.state.frequency;
     }
 
-    updateFrequency (frequency) {
-        this.frequency = frequency * (this.state.speedUnit / this.oscillator.pattern.length);
+    set frequency (frequency) {
+        this.oscillator.frequency = frequency * (this.state.speedUnit / this.oscillator.pattern.length);
     }
 
     set pattern ({text, speedUnit, shift, padding, fillToFit}) {
@@ -97,27 +100,18 @@ class MorseGenerator extends Modulator {
         }
 
         if (patternChanged || this.state.frequency !== newState.frequency) {
-            this.updateFrequency(newState.frequency);
+            this.frequency = newState.frequency;
+        }
+
+        if (typeof super.updateState === "function") {
+            super.updateState(newState);
         }
 
         this.state = newState;
     }
 
-    @autobind
-    stateChangeHandler () {
-        const newState = this.store.getState().patch.morse[this.index];
-
-        if (newState && (newState !== this.state)) {
-            if (typeof super.stateChangeHandler === "function") {
-                super.stateChangeHandler();
-            }
-            this.updateState(newState);
-        }
-    }
-
     destroy () {
         super.destroy();
-
         this.unsubscribe();
 
         this.stateChangeHandler = null;

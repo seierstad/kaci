@@ -3,6 +3,7 @@ import autobind from "autobind-decorator";
 import Modulator from "./decorators/modulator";
 import IdealOscillator from "./IdealOscillator";
 import SyncSource from "./decorators/sync-source";
+import SyncTarget from "./decorators/sync-target";
 import KaciNode from "./kaci-node";
 /**
     LFO: three outputs
@@ -15,9 +16,11 @@ class LFO extends Modulator {
 
     constructor (...args) {
         super(...args);
-
         const [context, dc, store, patch, index] = args;
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+
+        this.stateSelector = ["patch", "lfos", index];
+        this.changeHandler = this.stateChangeHandler.bind(this);
+        this.unsubscribe = this.store.subscribe(this.changeHandler);
 
         this.oscillator = new IdealOscillator(this.context, this.dc);
         this.oscillator.connect(this.postGain);
@@ -26,8 +29,9 @@ class LFO extends Modulator {
             this.oscillator.connect(this.outputs[name]);
         }
 
-        this.parameters = {...this.oscillator.targets};
+        this.parameters = {...this.oscillator.parameters};
 
+        this.frequency = this.state.frequency;
         this.waveform = this.state.waveform;
     }
 
@@ -36,24 +40,20 @@ class LFO extends Modulator {
         this.oscillator.waveform = waveformName;
     }
 
-    @autobind
-    stateChangeHandler () {
-        const newState = this.store.getState().patch.lfos[this.index];
-
-        if (newState && (newState !== this.state)) {
-            super.updateState(newState);
-
-            if (this.state.waveform !== newState.waveform) {
-                this.waveform = newState.waveform;
-            }
-
-            this.state = newState;
+    updateState (newState) {
+        if (this.state.waveform !== newState.waveform) {
+            this.waveform = newState.waveform;
         }
+
+        if (typeof super.updateState === "function") {
+            super.updateState(newState);
+        }
+
+        this.state = newState;
     }
 
     destroy () {
         super.destroy();
-
         this.unsubscribe();
 
         this.stateChangeHandler = null;
@@ -66,4 +66,4 @@ export {
     LFO
 };
 
-export default SyncSource(LFO);
+export default SyncTarget(SyncSource(LFO));

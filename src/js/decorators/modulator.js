@@ -86,28 +86,16 @@ class Modulator extends KaciNode {
     }
 
     updateState (newState) {
+        if (typeof super.updateState === "function") {
+            super.updateState(newState);
+        }
+
         if (this.state.amount !== newState.amount) {
             this.amount = newState.amount;
         }
         if (this.state.frequency !== newState.frequency) {
             if (!newState.sync || !newState.sync.enabled) {
                 this.frequency = newState.frequency;
-            }
-        }
-        if (this.state.sync !== newState.sync) {
-            if (this.state.sync && this.state.sync.enabled && !newState.sync.enabled) {
-                // sync disabled
-                this.frequency = newState.frequency;
-            }
-            if ((!this.state.sync || this.state.sync && !this.state.sync.enabled) && newState.sync.enabled) {
-                // sync enabled
-                this.syncMasterState = this.store.getState().patch.lfos[newState.sync.master];
-            }
-            if (this.state.sync && this.state.sync.enabled) {
-                if (this.state.sync.numerator !== newState.sync.numerator || this.state.sync.denominator !== newState.sync.denominator) {
-                    const {numerator, denominator} = newState.sync;
-                    this.sync = {numerator, denominator};
-                }
             }
         }
     }

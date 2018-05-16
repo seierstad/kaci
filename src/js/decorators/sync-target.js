@@ -16,21 +16,34 @@ const SyncTarget = Sup => class SyncTarget extends Sup {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch, index] = args;
+        const [context, dc, store, patch = {}, index] = args;
+        const {sync} = patch;
+
         this.syncInput = {
-            frequency: this.context.createGain()
+            frequency: this.context.createGain(),
+            phase: this.context.createGain()
         };
 
-        this.sync = patch.sync;
+        if (sync) {
+            this.sync = sync;
+            this.syncEnabled = sync.enabled;
+        }
         this.state = {...patch};
     }
 
     set sync ({numerator, denominator}) {
+        console.log("synck!");
         this.syncInput.frequency.gain.setValueAtTime(numerator / denominator, this.context.currentTime);
     }
 
-    connectSync (syncSource) {
-        syncSource.syncOutput.frequency.connect(this.syncInput.frequency);
+    set syncEnabled (enabled) {
+        if (enabled) {
+            this.parameters.frequency.disconnect(this.mergedInput);
+            this.syncInput.frequency.connect(this.oscillator.mergedInput, 0);
+        } else {
+            this.syncInput.frequency.disconnect(this.mergedInput);
+            this.parameters.frequency.connect(this.oscillator.mergedInput, 0);
+        }
     }
 
     /*
@@ -65,24 +78,19 @@ const SyncTarget = Sup => class SyncTarget extends Sup {
     }
 
     updateState (newState) {
+        if (this.state.sync !== newState.sync) {
+            if (this.state.sync.enabled !== newState.sync.enabled) {
+                this.syncEnabled = !!newState.sync.enabled;
+            }
+            if (this.state.sync.numerator !== newState.sync.numerator || this.state.sync.denominator !== newState.sync.denominator) {
+                const {numerator, denominator} = newState.sync;
+                this.sync = {numerator, denominator};
+            }
+            this.sync = newState.sync;
+        }
+
         if (typeof super.updateState === "function") {
             super.updateState(newState);
-        }
-        if (this.state.sync !== newState.sync) {
-            if (this.state.sync && this.state.sync.enabled && !newState.sync.enabled) {
-                // sync disabled
-                this.frequency = newState.frequency;
-            }
-            if ((!this.state.sync || this.state.sync && !this.state.sync.enabled) && newState.sync.enabled) {
-                // sync enabled
-                this.syncMasterState = this.store.getState().patch.lfos[newState.sync.master];
-            }
-            if (this.state.sync && this.state.sync.enabled) {
-                if (this.state.sync.numerator !== newState.sync.numerator || this.state.sync.denominator !== newState.sync.denominator) {
-                    const {numerator, denominator} = newState.sync;
-                    this.sync = {numerator, denominator};
-                }
-            }
         }
     }
 
@@ -91,6 +99,10 @@ const SyncTarget = Sup => class SyncTarget extends Sup {
             if (this.syncInput.frequency) {
                 this.syncInput.frequency.disconnect();
                 this.syncInput.frequency = null;
+            }
+            if (this.syncInput.phase) {
+                this.syncInput.phase.disconnect();
+                this.syncInput.phase = null;
             }
         }
         super.destroy();

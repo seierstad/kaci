@@ -13,9 +13,25 @@ class KaciNode {
         this.context = context;
         this.dc = dc;
         this.store = store;
-        this.state = {...patch};
+        this.state = {
+            ...patch
+        };
     }
 
+    getNewState () {
+        return [...this.stateSelector].reduce((acc, current) => {
+            return acc[current];
+        }, this.store.getState());
+    }
+
+    stateChangeHandler () {
+        const newState = this.getNewState();
+
+        if (newState && (newState !== this.state)) {
+            console.log("forskjellig!", newState);
+            this.updateState(newState);
+        }
+    }
 
     @autobind
     destroy () {
