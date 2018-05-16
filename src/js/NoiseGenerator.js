@@ -3,7 +3,7 @@ import autobind from "autobind-decorator";
 import KaciAudioNode from "./kaci-audio-node";
 import {BUFFER_LENGTH} from "./constants";
 import {noise} from "./waveforms";
-import OutputStage from "./output-stage";
+
 
 class Noise extends KaciAudioNode {
 
@@ -46,6 +46,7 @@ class Noise extends KaciAudioNode {
     }
 
     destroy () {
+        this.disabled = true;
         this.generator.disconnect();
         this.generator = null;
         super.destroy();
