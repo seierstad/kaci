@@ -193,16 +193,22 @@ const mapDispatchToProps = (dispatch) => ({
             "addStep": (index) => {
                 dispatch({"type": Actions.STEPS.STEP_ADD, index});
             },
+            "deleteStep": (index, step) => {
+                dispatch({"type": Actions.STEPS.STEP_DELETE, index, step});
+            },
             "stepValueChange": (index, step, value) => {
                 dispatch({"type": Actions.STEPS.STEP_VALUE_CHANGE, index, step, value});
             },
             "stepGlideToggle": (index, step) => {
                 dispatch({"type": Actions.STEPS.STEP_GLIDE_TOGGLE, index, step});
             },
-            "addValue": (index) => {
-                dispatch({"type": Actions.STEPS.VALUE_ADD, index});
+            "increaseLevelCount": (index) => {
+                dispatch({"type": Actions.STEPS.LEVELS_COUNT_INCREASE, index});
             },
-            "changeGlide": (index, value) => dispatch({"type": Actions.STEPS.CHANGE_GLIDE, index, value})
+            "decreaseLevelCount": (index) => {
+                dispatch({"type": Actions.STEPS.LEVELS_COUNT_DECREASE, index});
+            },
+            "changeGlide": (index, value) => dispatch({"type": Actions.STEPS.GLIDE_TIME_CHANGE, index, value})
         },
         "morse": {
             "speedUnitChange": (module, index, value) => {

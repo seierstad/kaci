@@ -16,6 +16,15 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
                 ]
             };
 
+        case Actions.STEPS.STEP_DELETE:
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.slice(0, action.step),
+                    ...state.steps.slice(action.step + 1)
+                ]
+            };
+
         case Actions.STEPS.STEP_VALUE_CHANGE: {
             const result = {
                 ...state,
@@ -49,13 +58,39 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             return result;
         }
 
-        case Actions.STEPS.LEVELS_COUNT_CHANGE:
+        case Actions.STEPS.LEVELS_COUNT_INCREASE:
             return {
                 ...state,
-                levels: action.levels
+                levels: state.levels + 1
             };
 
-        case Actions.STEPS.CHANGE_GLIDE:
+        case Actions.STEPS.LEVELS_COUNT_DECREASE: {
+            let stepsChanged = false;
+
+            const result = {
+                ...state,
+                levels: state.levels - 1
+            };
+
+            const newSteps = state.steps.map(step => {
+                if (step.value >= result.levels) {
+                    stepsChanged = true;
+                    return {
+                        ...step,
+                        value: result.levels - 1
+                    };
+                }
+                return step;
+            });
+
+            if (stepsChanged) {
+                result.steps = newSteps;
+            }
+
+            return result;
+        }
+
+        case Actions.STEPS.GLIDE_TIME_CHANGE:
             return {
                 ...state,
                 glide: action.value
@@ -83,11 +118,13 @@ const steps = (state = [], action) => {
 
     switch (action.type) {
 
-        case Actions.STEPS.CHANGE_GLIDE:
+        case Actions.STEPS.GLIDE_TIME_CHANGE:
         case Actions.STEPS.STEP_ADD:
+        case Actions.STEPS.STEP_DELETE:
         case Actions.STEPS.STEP_VALUE_CHANGE:
         case Actions.STEPS.STEP_GLIDE_TOGGLE:
-        case Actions.STEPS.LEVELS_COUNT_CHANGE: {
+        case Actions.STEPS.LEVELS_COUNT_DECREASE:
+        case Actions.STEPS.LEVELS_COUNT_INCREASE: {
             const result = [
                 ...state
             ];

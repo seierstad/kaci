@@ -63,6 +63,30 @@ class StepSequencerView extends Component {
     }
 
     @autobind
+    handleIncreaseLevelCount (event) {
+        const {
+            index,
+            handlers: {
+                increaseLevelCount
+            } = {}
+        } = this.props;
+
+        increaseLevelCount(index);
+    }
+
+    @autobind
+    handleDecreaseLevelCount (event) {
+        const {
+            index,
+            handlers: {
+                decreaseLevelCount
+            } = {}
+        } = this.props;
+
+        decreaseLevelCount(index);
+    }
+
+    @autobind
     handleGlideChange (value) {
         const {
             index,
@@ -99,6 +123,8 @@ class StepSequencerView extends Component {
                 <div className="steps-grid">
                     {steps}
                     <button className="step-add" onClick={this.handleAddStep} title="add step" type="button">add</button>
+                    <button className="levels-increase" onClick={this.handleIncreaseLevelCount} title="increase level count" type="button">+</button>
+                    <button className="levels-decrease" onClick={this.handleDecreaseLevelCount} title="decrease level count" type="button">-</button>
                 </div>
                 <RangeInput
                     changeHandler={this.handleGlideChange}

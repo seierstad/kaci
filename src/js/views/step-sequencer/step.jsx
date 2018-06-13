@@ -44,6 +44,20 @@ class Step extends Component {
         event.stopPropagation();
     }
 
+    @autobind
+    handleStepDelete (event) {
+        const {
+            handlers: {
+                deleteStep = () => null
+            } = {},
+            sequencerIndex,
+            stepIndex
+        } = this.props;
+
+        deleteStep(sequencerIndex, stepIndex);
+        event.stopPropagation();
+    }
+
     render () {
         const {
             glide = false,
@@ -77,6 +91,7 @@ class Step extends Component {
             <fieldset className="step">
                 <legend>Step {stepIndex}</legend>
                 <div className="flex-wrapper">
+                    <button onClick={this.handleStepDelete} title="delete">x</button>
                     {inputs}
                     <label
                         key={[stepIndex, "glide"].join("-")}
