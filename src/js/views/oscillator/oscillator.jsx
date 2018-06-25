@@ -129,33 +129,35 @@ class OscillatorPresentation extends Component {
                     selected={patch.waveform}
                     waveforms={this.waveforms}
                 />
-                <PhaseDistortion
-                    handlers={envelopeHandlers}
-                    index={0}
-                    key="pdEnvelope0"
-                    module="oscillator"
-                    patch={patch.pd[0]}
-                    viewState={viewState.pd[0]}
-                    waveFunction={this.pdFunction0}
-                    waveformName={patch.waveform}
-                />
-                <PhaseDistortion
-                    handlers={envelopeHandlers}
-                    index={1}
-                    key="pdEnvelope1"
-                    module="oscillator"
-                    patch={patch.pd[1]}
-                    viewState={viewState.pd[1]}
-                    waveFunction={this.pdFunction1}
-                    waveformName={patch.waveform}
-                />
-                <Mix
-                    changeHandler={handlers.mix}
-                    configuration={configuration.mix}
-                    dependencies={mixDependencies}
-                    patch={patch.mix}
-                    waveFunction={this.mixFunction}
-                />
+                <div className="pd-and-mix-wrapper">
+                    <PhaseDistortion
+                        handlers={envelopeHandlers}
+                        index={0}
+                        key="pdEnvelope0"
+                        module="oscillator"
+                        patch={patch.pd[0]}
+                        viewState={viewState.pd[0]}
+                        waveFunction={this.pdFunction0}
+                        waveformName={patch.waveform}
+                    />
+                    <PhaseDistortion
+                        handlers={envelopeHandlers}
+                        index={1}
+                        key="pdEnvelope1"
+                        module="oscillator"
+                        patch={patch.pd[1]}
+                        viewState={viewState.pd[1]}
+                        waveFunction={this.pdFunction1}
+                        waveformName={patch.waveform}
+                    />
+                    <Mix
+                        changeHandler={handlers.mix}
+                        configuration={configuration.mix}
+                        dependencies={mixDependencies}
+                        patch={patch.mix}
+                        waveFunction={this.mixFunction}
+                    />
+                </div>
                 <Mode
                     handler={handlers.mode}
                     patch={patch.mode}

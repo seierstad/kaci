@@ -34,7 +34,7 @@ class LFOs extends Component {
             );
         }
 
-        return <div>{lfos}</div>;
+        return <div className="lfos">{lfos}</div>;
     }
 }
 

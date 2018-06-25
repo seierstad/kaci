@@ -1,7 +1,7 @@
 .waveform {
     &-selector {
         .flex-wrapper {
-            flex-flow: row wrap;
+            display: grid;
 
             > label {
                 $button-bevel-shadow: 4px 4px 12px 1px rgba(255, 255, 255, 1) inset, 0 0 9px 1px rgba(0, 0, 0, 0.5) inset;
@@ -15,6 +15,10 @@
                 position: relative;
                 text-align: center;
                 transition-property: transform;
+
+                &:nth-of-type(4) {
+                    grid-column: 4;
+                }
 
                 &,
                 &::before {

@@ -15,8 +15,8 @@ import KaciNode from "./kaci-node";
  **/
 
 export const sortKeysByNumber = (keyA, keyB) => {
-    const numberA = parseInt(keyA.number);
-    const numberB = parseInt(keyB.number);
+    const numberA = parseInt(keyA.number, 10);
+    const numberB = parseInt(keyB.number, 10);
 
     if (isNaN(numberA) || isNaN(numberB)) {
         return keyA < keyB ? -1 : 1;
