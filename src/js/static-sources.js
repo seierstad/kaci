@@ -2,7 +2,10 @@ import autobind from "autobind-decorator";
 import KaciNode from "./kaci-node";
 import {scale} from "./Utils";
 
-const normalized = {min: -1, max: 1};
+const normalized = {
+    min: -1,
+    max: 1
+};
 
 
 class StaticSources extends KaciNode {
@@ -29,21 +32,19 @@ class StaticSources extends KaciNode {
                 const {
                     [moduleName]: {
                         [parameterName]: patchValue
-                    } ={}
+                    } = {}
                 } = this.patchState;
 
                 const {
                     [moduleName]: {
                         [parameterName]: playStateValue
-                    } ={}
+                    } = {}
                 } = this.playState;
 
                 const {
-                    [parameterName]: {
-                        default: defaultValue = 0,
-                        ...limits
-                    } = {}
-                } = targetModule;
+                    default: defaultValue = 0,
+                    ...limits
+                } = targetModule[parameterName];
 
                 const name = [moduleName, parameterName].join(".");
                 const node = context.createGain();
@@ -58,12 +59,12 @@ class StaticSources extends KaciNode {
                 this.dc.connect(node);
             }
         }
-
     }
 
     @autobind
     stateChangeHandler () {
         const newState = this.store.getState();
+
         if (this.patchState !== newState.patch) {
             for (const modName in this.patchState) {
                 const {[modName]: mod} = this.patchState;
@@ -89,6 +90,7 @@ class StaticSources extends KaciNode {
 
             this.patchState = newState.patch;
         }
+
         if (this.playState !== newState.playState) {
             for (const modName in this.playState) {
                 const {[modName]: mod} = this.playState;

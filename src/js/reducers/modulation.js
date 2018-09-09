@@ -93,7 +93,7 @@ const parameter = (state = [], action) => {
 };
 
 
-const module = (state = {}, action) => {
+const moduleReducer = (state = {}, action) => {
     switch (action.type) {
         case Actions.MODULATION_CONNECTION_TOGGLE:
         case Actions.MODULATION_POLARITY_CHANGE:
@@ -113,7 +113,7 @@ const modulation = (state = {}, action) => {
         case Actions.MODULATION_AMOUNT_CHANGE:
             return {
                 ...state,
-                [action.module]: module(state[action.module], action)
+                [action.module]: moduleReducer(state[action.module], action)
             };
     }
     return state;

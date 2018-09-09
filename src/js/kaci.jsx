@@ -18,6 +18,7 @@ import MidiInput from "./MidiInput";
 import SystemSettings from "./SystemSettings";
 import defaultSettings from "./configuration";
 
+import "../styles/styles.scss";
 
 // window.Perf = Perf;
 

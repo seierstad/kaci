@@ -26,7 +26,8 @@ import rollup from "rollup-stream";
 import rollupJson from "rollup-plugin-json";
 import size from "rollup-plugin-sizes";
 import source from "vinyl-source-stream";
-import uglify from "rollup-plugin-uglify";
+//import {terser} from "rollup-plugin-terser";
+import {uglify} from "rollup-plugin-uglify";
 import uglifyEs, {minify} from "uglify-es";
 
 /* styles related libraries */
@@ -86,14 +87,13 @@ const isDevelopment = () => {
 };
 
 const TARGET_DIR = {
-    ROOT: "./build",
+    ROOT: "./dist",
     CSS: "./build/css",
     SCRIPT: "./build/js",
     IMAGES: "./build/images",
     LINT: "./reports/lint",
     TEST: "./reports/test"
 };
-
 
 
 const REV_MANIFEST_CONFIG = {
@@ -192,7 +192,10 @@ gulp.task("scripts:build", (cb) => {
             jsnext: true,
             browser: true,
             preferBuiltins: false,
-            modulesOnly: false
+            modulesOnly: false,
+            customResolveOptions: {
+                moduleDirectory: "node_modules"
+            }
         }),
         commonjs({
             include: "node_modules/**",
