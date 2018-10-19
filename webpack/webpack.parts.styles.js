@@ -19,9 +19,7 @@ export const load = ({include, exclude, svgPath, sourceMap = false, dev = false}
             use: [{
                 loader: dev ? "style-loader" : MiniCssExtractPlugin.loader,
                 options: {
-                    publicPath: "/styles",
                     sourceMap
-
                 }
             }, {
                 loader: "css-loader",

@@ -18,7 +18,9 @@ const PATHS = {
 const commonConfig = merge([
     {
         "context": rootPath,
-        "entry": path.join(PATHS.app, "kaci.jsx"),
+        "entry": {
+            "main": path.join(PATHS.app, "kaci.jsx")
+        },
         "output": {
             "filename": "[name].[hash:6].js",
             "path": path.resolve(PATHS.build),
@@ -64,8 +66,12 @@ const commonConfig = merge([
 
 
 const loadJSOptions = {
-    exclude: /(node_modules)/,
+    exclude: /(node_modules|src\/js\/worklets)/,
     include: PATHS.app
+};
+
+const loadWorkletsOptions = {
+    include: /(src\/js\/worklets)/
 };
 
 const minifyJSOptions = {};
@@ -81,6 +87,7 @@ const productionConfig = merge([
         "recordsPath": path.join(rootPath, "records-prod.json")
     },
     parts.loadJS(loadJSOptions),
+    parts.loadWorklets(loadWorkletsOptions),
     parts.minifyJS(),
     parts.loadCSS(loadCSSOptions),
     parts.minifyCSS(),
@@ -95,6 +102,7 @@ const developmentConfig = merge([
         ...loadJSOptions,
         sourceMap: true
     }),
+    parts.loadWorklets(loadWorkletsOptions),
     parts.minifyJS({
         ...minifyJSOptions,
         sourceMap: true

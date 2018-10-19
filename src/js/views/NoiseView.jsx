@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import {modulationTargetShape, noisePatchShape} from "../propdefs";
-import {noise} from "../waveforms";
+import noise from "../noise";
 import OutputStage from "./output-stage.jsx";
 
 class NoiseView extends Component {

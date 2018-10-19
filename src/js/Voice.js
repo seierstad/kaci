@@ -62,25 +62,37 @@ class Voice extends KaciNode {
             morse: {}
         }; // values set in ModulationMatrix.patchVoice
 
+        this.frequency = inputNode(context);
+
+    }
+
+    @autobind
+    init () {
         this.sub = new SubOscillator(this.context, this.dc, this.store, this.state.sub);
         this.oscillator = new PDOscillator(this.context, this.dc, this.store, this.state.oscillator);
         this.noise = new NoiseGenerator(this.context, this.dc, this.store, this.state.noise);
 
-        this.frequency = inputNode(context);
-        this.frequency.connect(this.oscillator.targets.frequency);
-        this.frequency.connect(this.sub.frequencyNode);
+        return Promise.all([
+            this.sub.init(),
+            this.oscillator.init(),
+            this.noise.init()
+        ]).then((elements) => {
+            console.log({elements});
+            this.frequency.connect(this.oscillator.targets.frequency);
+            this.frequency.connect(this.sub.frequencyNode);
 
-        this.sub.connect(this.mainOut.input);
-        this.noise.connect(this.mainOut.input);
-        this.oscillator.connect(this.mainOut.input);
+            this.sub.connect(this.mainOut.input);
+            this.noise.connect(this.mainOut.input);
+            this.oscillator.connect(this.mainOut.input);
 
-
-        this.targetNodes = {
-            ...(prefixKeys(this.mainOut.targets, "main.")),
-            ...(prefixKeys(this.oscillator.targets, "oscillator.")),
-            ...(prefixKeys(this.noise.targets, "noise.")),
-            ...(prefixKeys(this.sub.targets, "sub."))
-        };
+            this.targetNodes = {
+                ...(prefixKeys(this.mainOut.targets, "main.")),
+                ...(prefixKeys(this.oscillator.targets, "oscillator.")),
+                ...(prefixKeys(this.noise.targets, "noise.")),
+                ...(prefixKeys(this.sub.targets, "sub."))
+            };
+            return this;
+        });
     }
 
     @autobind
@@ -124,7 +136,6 @@ class Voice extends KaciNode {
                     if (pdNew[1] !== pd[1]) {
                         this.oscillator.pd1 = pdNew[1];
                     }
-
                 }
 
                 if (h !== hNew) {
@@ -143,7 +154,6 @@ class Voice extends KaciNode {
                 if (c !== cNew) {
                     this.noise.color = cNew;
                 }
-
             }
 
             if (s !== sNew) {

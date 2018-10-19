@@ -1,3 +1,4 @@
+import autobind from "autobind-decorator";
 import KaciAudioNode from "./kaci-audio-node";
 
 import {inputNode} from "./shared-functions";
@@ -112,6 +113,13 @@ class SubOscillator extends KaciAudioNode {
         }
 
         this.state.mode = mode;
+    }
+
+    @autobind
+    init () {
+        return new Promise((resolve, reject) => {
+            resolve(this);
+        });
     }
 
     start () {

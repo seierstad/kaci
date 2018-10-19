@@ -87,20 +87,23 @@ class VoiceRegister extends KaciNode {
             const frequency = (typeof keyNumber === "number") ? this.tuning[keyNumber] : freq;
             const frequencyNode = outputNode(this.context, this.dc, frequency);
             const voice = new Voice(this.context, this.dc, this.store);
-            frequencyNode.connect(voice.frequency);
 
-            if (this.totalVoicesCount === 0) {
-                this.modulationMatrix.startGlobalModulators();
-            }
-            this.modulationMatrix.patchVoice(voice, this.patch);
+            voice.init().then(voice => {
+                frequencyNode.connect(voice.frequency);
 
-            voice.connect(this.mainMix);
+                if (this.totalVoicesCount === 0) {
+                    this.modulationMatrix.startGlobalModulators();
+                }
+                this.modulationMatrix.patchVoice(voice, this.patch);
 
-            this.frequencies[key] = frequencyNode;
-            this.activeVoices[key] = voice;
-            this.activeKeys.add(key);
+                voice.connect(this.mainMix);
 
-            voice.start(this.context.currentTime);
+                this.frequencies[key] = frequencyNode;
+                this.activeVoices[key] = voice;
+                this.activeKeys.add(key);
+
+                voice.start(this.context.currentTime);
+            });
         }
     }
 

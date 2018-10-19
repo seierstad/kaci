@@ -106,6 +106,13 @@ class PDOscillator extends KaciAudioNode {
         this.pdFunctions[1] = phaseDistortionFunction(pd.steps);
     }
 
+    @autobind
+    init () {
+        return new Promise((resolve, reject) => {
+            resolve(this);
+        });
+    }
+
     start () {
         this.generator.addEventListener("audioprocess", this.audioProcessHandler);
     }

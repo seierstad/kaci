@@ -13,6 +13,7 @@ const parts = {
     loadSVG: () => {},
     lintJS: js.lint,
     loadJS: js.load,
+    loadWorklets: js.worklets,
     minifyJS: js.minify,
     getFonts: () => {},
     loadFonts: () => {},

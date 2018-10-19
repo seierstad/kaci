@@ -9,7 +9,8 @@ import {
 } from "./constants";
 
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
-import {waveforms, wrappers, noise} from "./waveforms";
+import {waveforms, wrappers} from "./waveforms";
+import noise from "./noise";
 
 const {string, number, shape, oneOf, oneOfType, arrayOf, array, object, objectOf, func, bool} = PropTypes;
 

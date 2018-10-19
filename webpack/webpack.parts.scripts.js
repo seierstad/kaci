@@ -27,6 +27,25 @@ export const load = ({include, exclude, sourceMap = false} = {}) => ({
     }
 });
 
+export const worklets = ({include, exclude, sourceMap = false} = {}) => ({
+    "module": {
+        rules: [{
+            test: /\.worklet\.js$/,
+            include,
+            exclude,
+            use: [{
+                loader: "worklet-loader"
+            }, {
+                "loader": "babel-loader",
+                "options": {
+                    cacheDirectory: true,
+                    sourceMap
+                }
+            }]
+        }]
+    }
+});
+
 export const minify = ({sourceMap = false} = {}) => ({
     optimization: {
         minimizer: [
