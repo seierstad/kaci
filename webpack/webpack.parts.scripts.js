@@ -1,5 +1,3 @@
-import util from "util";
-
 //import {Plugin as ESlintLoaderCombinedReportPlugin from} "eslint-loader";
 import UglifyWebpackPlugin from "uglifyjs-webpack-plugin";
 //import CheckstyleFormatter from "eslint/lib/formatters/checkstyle";
@@ -26,6 +24,7 @@ export const load = ({include, exclude, sourceMap = false} = {}) => ({
         }]
     }
 });
+
 
 export const worklets = ({include, exclude, sourceMap = false} = {}) => ({
     "module": {
