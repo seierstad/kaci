@@ -38,7 +38,9 @@ export const inputNode = (context) => {
     return node;
 };
 
-export const outputNode = (context, dc, value) => {
+export const outputNode = (context, value) => {
+    const dc = context.createConstantSource();
+    dc.start();
     const node = context.createGain();
     node.gain.setValueAtTime(value, context.currentTime);
     dc.connect(node);

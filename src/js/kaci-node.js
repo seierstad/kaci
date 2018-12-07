@@ -9,9 +9,10 @@ import autobind from "autobind-decorator";
 class KaciNode {
 
     constructor (...args) {
-        const [context, dc, store, patch] = args;
+        const [context, store, patch] = args;
         this.context = context;
-        this.dc = dc;
+        this.dc = context.createConstantSource();
+        this.dc.start();
         this.store = store;
         this.state = {
             ...patch

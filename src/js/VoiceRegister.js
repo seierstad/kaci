@@ -1,6 +1,6 @@
 import autobind from "autobind-decorator";
 
-import {inputNode, outputNode} from "./shared-functions";
+import {outputNode} from "./shared-functions";
 
 import Tunings from "./Tunings";
 import Voice, {prefixKeys} from "./Voice";
@@ -28,7 +28,7 @@ class VoiceRegister extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, modulationMatrix] = args;
+        const [context, store, modulationMatrix] = args;
 
         this.store = store;
         this.state = {...this.store.getState()};
@@ -59,7 +59,7 @@ class VoiceRegister extends KaciNode {
         this.tuning = this.state.settings.tuning;
 
         this.chordShiftState = this.state.playState.chordShift;
-        this.chordShifter = new ChordShifter(this.context, this.dc, this.store, this.tuning);
+        this.chordShifter = new ChordShifter(this.context, this.store, this.tuning);
 
         this.store.subscribe(this.stateChangeHandler);
 
@@ -85,8 +85,8 @@ class VoiceRegister extends KaciNode {
         if (!this.activeVoices[key]) {
             const keyNumber = parseInt(key, 10);
             const frequency = (typeof keyNumber === "number") ? this.tuning[keyNumber] : freq;
-            const frequencyNode = outputNode(this.context, this.dc, frequency);
-            const voice = new Voice(this.context, this.dc, this.store);
+            const frequencyNode = outputNode(this.context, frequency);
+            const voice = new Voice(this.context, this.store);
 
             voice.init().then(voice => {
                 frequencyNode.connect(voice.frequency);

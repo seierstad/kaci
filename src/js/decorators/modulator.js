@@ -25,7 +25,7 @@ class Modulator extends KaciNode {
     constructor (...args) {
         super(...args);
 
-        const [context, dc, store, patch, index] = args;
+        const [context, store, patch, index] = args;
         this.index = index;
 
         this.postGain = this.context.createGain(); // set gain.value to 0 to mute the lfo output

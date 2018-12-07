@@ -1,5 +1,9 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
-import {envelopeViewStateShape, envelopePatchShape} from "../../propdefs";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import {
+    envelopeViewStateShape,
+    envelopePatchShape
+} from "../propdefs";
 import Circle from "./circle.jsx";
 import {toPercent} from "./shared-functions";
 

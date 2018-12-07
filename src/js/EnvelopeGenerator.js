@@ -1,9 +1,9 @@
-import autobind from "autobind-decorator";
+import {boundMethod} from "autobind-decorator";
 
 class EnvelopeGenerator {
     constructor (...args) {
 
-        const [context, dc, store, patch, index] = args;
+        const [context, store, patch, index] = args;
         this.outputs = {};
         this.triggerTime = null;
         this.releaseTime = null;

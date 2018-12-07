@@ -21,7 +21,7 @@ class SubOscillator extends KaciAudioNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch, scaleBaseNumber = 2] = args;
+        const [context, store, patch, scaleBaseNumber = 2] = args;
 
         /* start common constructor code */
         this.state = {

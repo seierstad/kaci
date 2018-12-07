@@ -16,7 +16,7 @@ const SyncTarget = Sup => class SyncTarget extends Sup {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch = {}, index] = args;
+        const [context, store, patch = {}, index] = args;
         const {sync} = patch;
 
         this.syncInput = {

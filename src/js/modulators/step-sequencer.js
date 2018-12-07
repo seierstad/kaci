@@ -8,7 +8,7 @@ class StepOscillator extends KaciNode {
     constructor (...args) {
         super(...args);
 
-        const [context, dc, store, patch = {}] = args;
+        const [context, store, patch = {}] = args;
         const {
             steps = [0],
             levels = 1,
@@ -19,7 +19,7 @@ class StepOscillator extends KaciNode {
 
         this.state = {};
         this.phase = 0;
-        this.generator = outputNode(this.context, this.dc, 1);
+        this.generator = outputNode(this.context, 1);
         this.waveShaperNode = context.createWaveShaper();
         this.waveShaperNode.curve = Float32Array.of(-1, -1, 1);
         this.generator.connect(this.waveShaperNode);
@@ -176,7 +176,7 @@ class StepSequencer extends Modulator {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch, index] = args;
+        const [context, store, patch, index] = args;
 
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 

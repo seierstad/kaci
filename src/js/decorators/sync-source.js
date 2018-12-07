@@ -25,7 +25,7 @@ const SyncSource = Sup => class SyncSource extends Sup {
     constructor (...args) {
         super(...args);
 
-        const [context, dc, store, patch, index, isSyncMaster] = args;
+        const [context, store, patch, index, isSyncMaster] = args;
 
         this.syncOutput = {
             frequency: this.context.createGain()

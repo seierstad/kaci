@@ -2,6 +2,7 @@ import autobind from "autobind-decorator";
 // import WavyJones from "../../lib/wavy-jones";
 import Modulator from "./decorators/modulator";
 import IdealOscillator from "./IdealOscillator";
+//import Oscillator from "./oscillator";
 import SyncSource from "./decorators/sync-source";
 import SyncTarget from "./decorators/sync-target";
 import KaciNode from "./kaci-node";
@@ -16,25 +17,33 @@ class LFO extends Modulator {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch, index] = args;
+        const [context, store, patch, index] = args;
 
         this.stateSelector = ["patch", "lfos", index];
         this.changeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.changeHandler);
 
         this.oscillator = new IdealOscillator(this.context, this.dc);
-        this.oscillator.connect(this.postGain);
-
-        for (let name in this.outputs) {
-            this.oscillator.connect(this.outputs[name]);
-        }
-
-        this.parameters = {...this.oscillator.parameters};
-
-        this.frequency = this.state.frequency;
-        this.waveform = this.state.waveform;
+        //this.oscillator = new Oscillator(this.context, this.dc);
+        this.parameters = null;
     }
 
+    init () {
+        const that = this;
+        return new Promise((resolve, reject) => resolve(this)).then(() => {
+            //        return this.oscillator.init().then(oscillator => {
+
+            this.oscillator.connect(that.postGain);
+
+            for (let name in this.outputs) {
+                this.oscillator.connect(that.outputs[name]);
+            }
+
+            this.parameters = {...this.oscillator.parameters};
+            this.frequency = this.state.frequency;
+            this.waveform = this.state.waveform;
+        });
+    }
 
     set waveform (waveformName) {
         this.oscillator.waveform = waveformName;
@@ -66,4 +75,5 @@ export {
     LFO
 };
 
-export default SyncTarget(SyncSource(LFO));
+//export default SyncTarget(SyncSource(LFO));
+export default LFO;

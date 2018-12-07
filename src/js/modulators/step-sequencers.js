@@ -8,13 +8,13 @@ class StepSequencers extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, configuration] = args;
+        const [context, store, configuration] = args;
 
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.sequencers = this.setupSequencers(configuration.source.steps, this.state.patch.steps, dc);
+        this.sequencers = this.setupSequencers(configuration.source.steps, this.state.patch.steps);
     }
 
     @autobind
@@ -26,7 +26,7 @@ class StepSequencers extends KaciNode {
         this.state = newState;
     }
 
-    setupSequencers (configuration, patch = {}, dc) {
+    setupSequencers (configuration, patch = {}) {
         const result = [];
         const j = configuration.count;
 
@@ -36,7 +36,7 @@ class StepSequencers extends KaciNode {
             } = patch;
 
             if (p.mode === MODULATION_SOURCE_MODE.GLOBAL || p.mode === MODULATION_SOURCE_MODE.RETRIGGER) {
-                result[i] = new StepSequencer(this.context, this.dc, this.store, p, i);
+                result[i] = new StepSequencer(this.context, this.store, p, i);
             }
         }
 

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {envelopePatchShape} from "../../propdefs";
+import {envelopePatchShape} from "../propdefs";
 
 import {toPercent} from "./shared-functions";
 

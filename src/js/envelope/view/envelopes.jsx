@@ -5,7 +5,7 @@ import {
     envelopesPatchShape,
     modulationEnvelopeSourcesShape,
     sustainEnvelopeViewStateShape
-} from "../../propdefs";
+} from "../propdefs";
 
 import SustainEnvelope from "./sustain-envelope.jsx";
 

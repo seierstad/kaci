@@ -1,6 +1,5 @@
 import autobind from "autobind-decorator";
 import KaciNode from "./kaci-node";
-import DC from "./DCGenerator";
 import {inputNode} from "./shared-functions";
 import EnvelopeGenerator from "./EnvelopeGenerator";
 import PDOscillator from "./PDOscillator";
@@ -25,36 +24,36 @@ export const prefixKeys = (object, prefix) => {
 class Voice extends KaciNode {
     constructor (...args) {
         super(...args);
-        const [context, dc, store] = args;
+        const [context, store] = args;
 
         this.store = store;
         this.state = store.getState().patch;
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.mainOut = new OutputStage(this.context, this.dc, !!this.state.main.active);
+        this.mainOut = new OutputStage(this.context, !!this.state.main.active);
 
         this.lfos = this.state.lfos.reduce((acc, lfo, index) => {
             if (lfo.mode === "voice") {
-                acc[index] = new LFO(this.context, this.dc, this.store, lfo, index);
+                acc[index] = new LFO(this.context, this.store, lfo, index);
             }
             return acc;
         }, []);
 
         this.morse = this.state.morse.reduce((acc, morse, index) => {
             if (morse.mode === "voice") {
-                acc[index] = new MorseGenerator(this.context, this.dc, this.store, morse, index);
+                acc[index] = new MorseGenerator(this.context, this.store, morse, index);
             }
             return acc;
         }, []);
 
         this.steps = this.state.steps.reduce((acc, steps, index) => {
             if (steps.mode === "voice") {
-                acc[index] = new StepSequencer(this.context, this.dc, this.store, steps, index);
+                acc[index] = new StepSequencer(this.context, this.store, steps, index);
             }
             return acc;
         }, []);
 
-        this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(this.context, this.dc, this.store, envPatch, index));
+        this.envelopes = this.state.envelopes.map((envPatch, index) => new EnvelopeGenerator(this.context, this.store, envPatch, index));
         this.connections = {
             envelopes: {},
             lfos: {},
@@ -68,9 +67,9 @@ class Voice extends KaciNode {
 
     @autobind
     init () {
-        this.sub = new SubOscillator(this.context, this.dc, this.store, this.state.sub);
-        this.oscillator = new PDOscillator(this.context, this.dc, this.store, this.state.oscillator);
-        this.noise = new NoiseGenerator(this.context, this.dc, this.store, this.state.noise);
+        this.sub = new SubOscillator(this.context, this.store, this.state.sub);
+        this.oscillator = new PDOscillator(this.context, this.store, this.state.oscillator);
+        this.noise = new NoiseGenerator(this.context, this.store, this.state.noise);
 
         return Promise.all([
             this.sub.init(),

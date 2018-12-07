@@ -13,14 +13,14 @@ class KaciAudioNode extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch] = args;
+        const [context, store, patch] = args;
 
         // used in generator functions to stop signal generation in the middle
         // of an audioprocess event
         this.disabled = false;
 
         // gain, pan and mute
-        this.outputStage = new OutputStage(this.context, this.dc, !!patch.active);
+        this.outputStage = new OutputStage(this.context, !!patch.active);
     }
 
     set active (active) {

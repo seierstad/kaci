@@ -7,12 +7,16 @@ class LFOs extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, configuration] = args;
+        const [context, store, configuration] = args;
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos, this.dc);
+        this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos);
+    }
+
+    init () {
+        return Promise.all(this.lfos.map(lfo => lfo.init()));
     }
 
     @autobind
@@ -24,14 +28,14 @@ class LFOs extends KaciNode {
         this.state = newState;
     }
 
-    setupLFOs (configuration, patch, dc) {
+    setupLFOs (configuration, patch) {
         const result = [];
         const j = configuration.count;
 
         for (let i = 0; i < j; i += 1) {
             const p = patch[i] || configuration.default;
             if (p.mode === "global" || p.mode === "retrigger") {
-                result[i] = new LFO(this.context, this.dc, this.store, p, i);
+                result[i] = new LFO(this.context, this.store, p, i);
             }
         }
 

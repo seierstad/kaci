@@ -1,62 +1,19 @@
 /* general libraries */
 import fs from "fs";
 import del from "del";
-import mkdirp from "mkdirp-promise";
-import gulp from "gulp";
-import runSequence from "run-sequence";
-import gulpif from "gulp-if";
-import sourcemaps from "gulp-sourcemaps";
-import gutil from "gulp-util";
-import pump from "pump";
-import rename from "gulp-rename";
-import flatmap from "gulp-flatmap";
-import es from "event-stream";
-import clone from "gulp-clone";
 
-/* scrips related libraries */
-import babel from "rollup-plugin-babel";
-import buffer from "vinyl-buffer";
-import builtins from "rollup-plugin-node-builtins";
-import commonjs from "rollup-plugin-commonjs";
-import eslint from "gulp-eslint";
-import globals from "rollup-plugin-node-globals";
-import replace from "rollup-plugin-replace";
-import resolve from "rollup-plugin-node-resolve";
-import rollup from "rollup-stream";
-import rollupJson from "rollup-plugin-json";
-import size from "rollup-plugin-sizes";
-import source from "vinyl-source-stream";
 //import {terser} from "rollup-plugin-terser";
-import {uglify} from "rollup-plugin-uglify";
 import uglifyEs, {minify} from "uglify-es";
 
 /* styles related libraries */
-import stylelint from "gulp-stylelint";
 import stylelintCheckstyleFormatter from "stylelint-checkstyle-formatter";
-import sass from "gulp-sass";
-import autoprefixer from "gulp-autoprefixer";
 
-/* images related libraries */
-import svgmin from "gulp-svgmin";
-import svg2png from "gulp-svg2png-node7fix";
-import optimizeImage from "gulp-image";
-
-/* versioning / cache busting libraries */
-import rev from "gulp-rev";
-import revReplace from "gulp-rev-replace";
-import revdel from "gulp-rev-delete-original";
-
-/* markup related libraries */
-import htmllint from "gulp-htmllint";
 
 /* testing related libraries */
 /*
 import webdriver from "selenium-webdriver";
 import "chromedriver";
 /
-
-/* server/build environment related libraries */
-import connect from "gulp-connect";
 
 /* build target configuration */
 import browsers from "./build-target-configuration";
@@ -101,42 +58,6 @@ const REV_MANIFEST_CONFIG = {
     path: TARGET_DIR.ROOT + "/rev-manifest.json",
     merge: true
 };
-
-
-/*
-    create directories
-*/
-
-gulp.task("create:target:report:lint", () => {
-    return mkdirp(TARGET_DIR.LINT);
-});
-
-gulp.task("create:target:report:test", () => {
-    return mkdirp(TARGET_DIR.TEST);
-});
-
-gulp.task("build:mkdir:root", () => {
-    return mkdirp(TARGET_DIR.ROOT);
-});
-
-gulp.task("icons:mkdir", ["build:mkdir:root"], () => {
-    return mkdirp(TARGET_DIR.IMAGES);
-});
-
-
-/*
-    scripts tasks
-*/
-
-const scriptSources = ["gulpfile.es6.js", "src/**/*.js", "src/**/*.jsx", "!src/js/lib/**/*.js", "!src/js/lib/**/*.jsx"];
-
-gulp.task("scripts:lint", ["create:target:report:lint"], () => {
-    return gulp.src(scriptSources)
-        .pipe(eslint())
-        .pipe(eslint.format("checkstyle", fs.createWriteStream(TARGET_DIR.LINT + "/checkstyle-eslint.xml")))
-        .pipe(eslint.format("stylish", process.stdout))
-        .pipe(eslint.failOnError());
-});
 
 const DEV_UGLIFY_OPTIONS = {
     "compress": {
@@ -240,79 +161,6 @@ gulp.task("scripts:build", (cb) => {
 });
 
 
-gulp.task("workers:build", () => {
-    return gulp.src("src/js/workers/**")
-        .pipe(gulp.dest(TARGET_DIR.ROOT));
-});
-
-gulp.task("scripts:update", (cb) => {
-    runSequence(
-        "scripts:lint",
-        "scripts:build",
-        "markup",
-        cb
-    );
-});
-
-
-gulp.task("watch:scripts", () => {
-    return gulp.watch(scriptSources, ["scripts:update"]);
-});
-
-
-/*
-    styles tasks
-*/
-
-const styleSources = ["./src/styles/*.scss"];
-
-gulp.task("styles:lint", ["create:target:report:lint"], () => {
-
-    return gulp.src(styleSources)
-        .pipe(stylelint({
-            syntax: "scss",
-            failAfterError: true,
-            reportOutputDir: TARGET_DIR.LINT,
-            reporters: [
-                {formatter: "verbose", console: true},
-                {formatter: stylelintCheckstyleFormatter, save: "checkstyle-stylelint.xml"}
-            ]
-        }));
-});
-
-gulp.task("styles:build", function () {
-    return gulp.src(styleSources)
-        .pipe(buffer())
-        .pipe(gulpif(isDevelopment, sourcemaps.init()))
-        .pipe(sass({
-            style: "expanded",
-            errLogToConsole: true
-        }))
-        .pipe(autoprefixer({
-            browsers: browsers,
-            cascade: false
-        }))
-        .pipe(rev())
-        .pipe(gulpif(isDevelopment, sourcemaps.write(".")))
-        .pipe(gulp.dest(TARGET_DIR.CSS))
-        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-        .pipe(gulp.dest(TARGET_DIR.ROOT));
-});
-
-gulp.task("update:styles", (cb) => {
-    runSequence(
-        "styles:lint",
-        "styles:build",
-        "markup",
-        cb
-    );
-});
-
-
-gulp.task("watch:styles", () => {
-    return gulp.watch(styleSources, ["update:styles"]);
-});
-
 
 /*
     images tasks
@@ -393,29 +241,6 @@ gulp.task("svg:build", () => {
         .pipe(gulp.dest(TARGET_DIR.ROOT));
 });
 
-/*
-    service worker tasks
-*/
-
-gulp.task("version:cache", () => {
-    return gulp.src(REV_MANIFEST_CONFIG.path)
-        .pipe(clone())
-        .pipe(rename({
-            basename: "kaci-cache",
-            extname: ""
-        }))
-        .pipe(rev())
-        .pipe(rev.manifest(REV_MANIFEST_CONFIG))
-        .pipe(gulp.dest(TARGET_DIR.ROOT));
-});
-
-gulp.task("serviceworker:build", ["version:cache"], () => {
-    const revManifest = gulp.src(REV_MANIFEST_CONFIG.path);
-
-    return gulp.src("src/js/service-worker.js")
-        .pipe(revReplace({manifest: revManifest}))
-        .pipe(gulp.dest(TARGET_DIR.ROOT));
-});
 
 /*
     markup tasks
@@ -478,56 +303,3 @@ gulp.task("server", function () {
 });
 
 
-/*
-    tests
-*/
-/*
-gulp.task("test:selenium", () => {
-    const browser = new webdriver.Builder().usingServer().withCapabilities({browserName: "chrome"}).build();
-
-    browser.get("http://en.wikipedia.org/wiki/Wiki");
-    browser.findElements(webdriver.By.css('[href^="/wiki/"]')).then((links) => {
-        console.log("Found", links.length, "Wiki links.");
-        browser.quit();
-    });
-});
-*/
-/*
-    collection tasks
-*/
-
-gulp.task("scripts", (cb) => {
-    runSequence("scripts:lint", "scripts:build", cb);
-});
-
-gulp.task("styles", (cb) => {
-    runSequence("styles:lint", "styles:build", cb);
-});
-
-gulp.task("images", (cb) => {
-    runSequence("icons", "svg:build", cb);
-});
-
-
-gulp.task("markup", (cb) => {
-    runSequence("markup:lint", "markup:build", cb);
-});
-
-
-gulp.task("watch", ["watch:scripts", "watch:styles"]);
-
-/*
-    command line/deployment tasks
-*/
-
-gulp.task("default", ["env:production"], (cb) => {
-    runSequence("scripts", "images", "styles", "markup", cb);
-});
-
-gulp.task("dev", ["env:development"], (cb) => {
-    runSequence("clean", "scripts", "images", "styles", "markup", "server", "watch", cb);
-});
-
-gulp.task("prod", ["env:production"], (cb) => {
-    runSequence("clean", "default", "server", cb);
-});

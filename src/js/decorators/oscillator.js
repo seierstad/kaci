@@ -27,11 +27,11 @@ class Oscillator extends KaciNode {
 
         const p = this.parameters;
         this.constructor.inputDefs.forEach((def, i) => {
-            p[def.name] = inputNode(this.context, this.dc);
+            p[def.name] = inputNode(this.context);
             p[def.name].gain.setValueAtTime(def.defaultValue, this.context.currentTime);
-            this.dc.connect(p[def.name]);
+            //this.dc.connect(p[def.name]);
             p[def.name].connect(this.mergedInput, null, i);
-        });
+        }, this);
 
         this.previous = {
             "frequency": 0,

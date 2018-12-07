@@ -1,9 +1,7 @@
 //import WavyJones from "../../lib/wavy-jones";
 import autobind from "autobind-decorator";
 
-import {BUFFER_LENGTH} from "./constants";
-import KaciNode from "./kaci-node";
-import {inputNode, morseEncode, padPattern, shiftPattern, fillPatternToMultipleOf} from "./shared-functions";
+import {morseEncode, padPattern, shiftPattern, fillPatternToMultipleOf} from "./shared-functions";
 import Oscillator from "./decorators/oscillator";
 import Modulator from "./decorators/modulator";
 
@@ -44,13 +42,13 @@ class MorseGenerator extends Modulator {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch, index] = args;
+        const [context, store, patch, index] = args;
 
         this.stateSelector = ["patch", "morse", index];
         this.changeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.changeHandler);
 
-        this.oscillator = new MorseOscillator(this.context, this.dc);
+        this.oscillator = new MorseOscillator(this.context);
         this.oscillator.connect(this.postGain);
 
         for (let name in this.outputs) {

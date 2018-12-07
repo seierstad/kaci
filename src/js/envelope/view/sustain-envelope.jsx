@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
-import {sustainEnvelopePatchShape} from "../../propdefs";
+import {sustainEnvelopePatchShape} from "../propdefs";
 
 import Envelope from "./envelope.jsx";
 import Sustain from "./sustain.jsx";

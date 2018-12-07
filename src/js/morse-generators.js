@@ -3,14 +3,14 @@ import MorseGenerator from "./morse-generator";
 
 class MorseGenerators {
 
-    constructor (context, dc, store, configuration) {
+    constructor (context, store, configuration) {
 
         this.context = context;
         this.store = store;
         this.state = store.getState();
 
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
-        this.generators = this.setupGenerators(configuration.source.morse, this.state.patch.morse, dc);
+        this.generators = this.setupGenerators(configuration.source.morse, this.state.patch.morse);
     }
 
     @autobind
@@ -22,14 +22,14 @@ class MorseGenerators {
         this.state = newState;
     }
 
-    setupGenerators (configuration, patch, dc) {
+    setupGenerators (configuration, patch) {
         let i, j;
         const result = [];
 
         for (i = 0, j = configuration.count; i < j; i += 1) {
             const p = patch[i] || configuration.default;
             if (p.mode === "global" || p.mode === "retrigger") {
-                result[i] = new MorseGenerator(this.context, dc, this.store, p, i);
+                result[i] = new MorseGenerator(this.context, this.store, p, i);
             }
         }
 

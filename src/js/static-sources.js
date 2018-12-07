@@ -13,7 +13,7 @@ class StaticSources extends KaciNode {
     constructor (...args) {
         super(...args);
 
-        const [context, dc, store, configuration] = args;
+        const [context, store, configuration] = args;
 
         this.store = store;
         this.patchState = store.getState().patch;

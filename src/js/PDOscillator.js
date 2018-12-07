@@ -19,7 +19,7 @@ class PDOscillator extends KaciAudioNode {
     constructor (...args) {
         super(...args);
 
-        const [context, dc, store, patch] = args;
+        const [context, store, patch] = args;
         this.state = patch;
 
         this.parameters = {...this.outputStage.parameters};

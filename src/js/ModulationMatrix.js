@@ -14,7 +14,7 @@ const connectionSourceFilter = (typeName, index) => c => c.source.type === typeN
 
 class ModulationMatrix {
 
-    constructor (context, dc, store) {
+    constructor (context, store) {
         /*
         constructor:
             - initialize static parameters
@@ -34,11 +34,11 @@ class ModulationMatrix {
         this.patch = state.patch.modulation;
 
 
-        this.lfos = new LFOs(context, dc, store, this.configuration);
-        this.steps = new StepSequencers(context, dc, store, this.configuration);
-        this.morse = new MorseGenerators(context, dc, store, this.configuration);
+        this.lfos = new LFOs(context, store, this.configuration);
+        this.steps = new StepSequencers(context, store, this.configuration);
+        this.morse = new MorseGenerators(context, store, this.configuration);
 
-        const flatConfig = new StaticSources(context, dc, store, this.configuration.target);
+        const flatConfig = new StaticSources(context, store, this.configuration.target);
 
         this.sources = {
             static: flatConfig.nodes,
@@ -61,8 +61,14 @@ class ModulationMatrix {
 
         this.connections = {};
 
-        this.initPatch(this.connections, this.state);
 
+    }
+
+    init () {
+        this.initPatch(this.connections, this.state);
+        return Promise.all([
+            this.lfos.init()
+        ]).then(() => this);
     }
 
     startGlobalModulators () {

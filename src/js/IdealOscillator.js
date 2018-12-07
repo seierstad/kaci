@@ -1,7 +1,5 @@
 import autobind from "autobind-decorator";
-import {BUFFER_LENGTH} from "./constants";
 import {waveforms} from "./waveforms";
-import {inputNode} from "./shared-functions";
 import Oscillator from "./decorators/oscillator";
 
 

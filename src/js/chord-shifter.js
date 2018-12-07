@@ -28,7 +28,7 @@ class ChordShifter extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, scale] = args;
+        const [context, store, scale] = args;
 
         this.store = store;
         const state = this.store.getState();

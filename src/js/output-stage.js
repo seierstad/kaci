@@ -11,7 +11,7 @@ class OutputStage {
         }
     ];
 
-    constructor (context, dc, active) {
+    constructor (context, active) {
 
         this.context = context;
         this.input = context.createGain();

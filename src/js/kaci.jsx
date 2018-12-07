@@ -1,8 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {Provider} from "react-redux";
-import {createStore} from "redux";
 // import Perf from "react-addons-perf";
+
+import {
+    createStore,
+    applyMiddleware
+} from "redux";
+import {
+    composeWithDevTools
+} from "redux-devtools-extension/logOnlyInProduction";
 
 // import WavyJones from "../../lib/wavy-jones";
 
@@ -22,31 +29,39 @@ import "../styles/styles.scss";
 
 // window.Perf = Perf;
 
+const middleware = [];
+
 if (window.AudioContext) {
     const ctx = new window.AudioContext();
-    const dc = new DCGenerator(ctx);
+
+    const composeEnhancers = composeWithDevTools({
+        // options like actionSanitizer, stateSanitizer
+    });
 
     const initialState = {patch: {...patch}, settings: {...defaultSettings}};
-    const store = createStore(reducer, initialState, (window.devToolsExtension ? window.devToolsExtension() : undefined));
+    const store = createStore(reducer, initialState, composeEnhancers(
+        applyMiddleware(...middleware),
+        // other store enhancers if any
+    ));
 
     new SystemSettings(ctx, store);
 
     new MidiInput(store);
     new KeyboardInput(store);
 
-    const modulationMatrix = new ModulationMatrix(ctx, dc, store);
-    const voiceRegister = new VoiceRegister(ctx, dc, store, modulationMatrix);
-    modulationMatrix.patchVoiceRegister(voiceRegister);
+    new ModulationMatrix(ctx, store).init().then((modulationMatrix) => {
+        const voiceRegister = new VoiceRegister(ctx, store, modulationMatrix);
+        modulationMatrix.patchVoiceRegister(voiceRegister);
 
-    const kaciWrapper = document.getElementById("kaci");
+        const kaciWrapper = document.getElementById("kaci");
 
-    ReactDOM.render(
-        <Provider store={store}>
-            <KaciView />
-        </Provider>
-        , kaciWrapper
-    );
-
+        ReactDOM.render(
+            <Provider store={store}>
+                <KaciView />
+            </Provider>
+            , kaciWrapper
+        );
+    });
 
     //    var shaperCurve = new Float32Array([-.5, 0, .5]);
     //    var shaper = ctx.createWaveShaper();
