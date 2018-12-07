@@ -1,5 +1,3 @@
-//import KaciAudioNode from "./kaci-audio-node";
-
 import autobind from "autobind-decorator";
 import noise from "../noise";
 
@@ -27,8 +25,6 @@ class NoiseProcessor extends AudioWorkletProcessor {
 
     @autobind
     messageHandler (event) {
-        console.log("fra noise-worklet-processor");
-        console.log(event.data);
         const {
             color
         } = JSON.parse(event.data);

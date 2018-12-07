@@ -2,7 +2,7 @@ import React, {Component} from "react"; import PropTypes from "prop-types";
 
 import {configurationShape, playStateShape} from "../propdefs";
 
-import MidiView from "./MIDI/midi.jsx";
+import MidiView from "../midi/views/midi.jsx";
 import KeyboardInputView from "./KeyboardInputView.jsx";
 import Tuning from "./tuning.jsx";
 

@@ -3,14 +3,14 @@ import autobind from "autobind-decorator";
 import KaciAudioNode from "./kaci-audio-node";
 import {BUFFER_LENGTH} from "./constants";
 import noise from "./noise";
-import worklet from "./worklets/noise.worklet.js";
-import NoiseWorkletNode from "./noise-worklet-node";
+import worklet from "./worklets/oscillator.worklet.js";
+import NoiseWorkletNode from "./oscillator-worklet-node";
 
 class Noise extends KaciAudioNode {
 
     constructor (...args) {
         super(...args);
-        const [context, dc, store, patch] = args;
+        const [context, store, patch] = args;
 
         this.generator = null;
         this.parameters = {...this.outputStage.parameters};
@@ -42,11 +42,12 @@ class Noise extends KaciAudioNode {
     @autobind
     init () {
         const that = this;
-        if (this.isWorklet === true) {
+        if (this.isWorklet) {
             return this.context.audioWorklet.addModule(worklet).then(() => {
-                that.generator = new NoiseWorkletNode(that.context);
-                that.generator.connect(that.outputStage.input);
+                this.generator = new NoiseWorkletNode(this.context);
+                this.generator.connect(this.outputStage.input);
                 this.color = this.state.color;
+                this.generator.port.postMessage(JSON.stringify({"waveform": "saw"}));
                 return that;
             });
         }
@@ -59,12 +60,16 @@ class Noise extends KaciAudioNode {
     start () {
         if (!this.isWorklet) {
             this.generator.addEventListener("audioprocess", this.audioProcessHandler);
+        } else {
+            this.generator.port.postMessage(JSON.stringify({"command": "start"}));
         }
     }
 
     stop () {
         if (!this.isWorklet) {
             this.generator.removeEventListener("audioprocess", this.audioProcessHandler);
+        } else {
+            this.generator.port.postMessage(JSON.stringify({"command": "stop"}));
         }
     }
 

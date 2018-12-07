@@ -1,4 +1,5 @@
 import defaultEnvParameters from "./envelope/defaults";
+import defaultMidi from "./midi/defaults";
 
 export const defaultModulationConnectionParameters = {
     "enabled": false,
@@ -207,10 +208,7 @@ export const keyboard = {
 const configuration = {
     keyboard,
     "midi": {
-        "active": false,
-        "selectedPort": "",
-        "channel": "all",
-        "ports": []
+        ...defaultMidi
     },
     "tuning": {
         ...defaultTuning

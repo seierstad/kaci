@@ -1,5 +1,5 @@
 import * as Actions from "../actions";
-
+import * as MIDI from "../midi/actions";
 
 const chord = (state = {}, action = {}) => {
     const {
@@ -10,7 +10,7 @@ const chord = (state = {}, action = {}) => {
     } = action;
 
     switch (type) {
-        case Actions.MIDI.KEY_DOWN:
+        case MIDI.KEY_DOWN:
         case Actions.KEYBOARD_KEY_DOWN:
             if (!state.hasOwnProperty(keyNumber)) {
                 return {
@@ -26,7 +26,7 @@ const chord = (state = {}, action = {}) => {
             break;
 
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI.KEY_UP:
+        case MIDI.KEY_UP:
             if (state.hasOwnProperty(keyNumber)) {
                 const result = {
                     ...state

@@ -1,5 +1,4 @@
 export * as CHORD_SHIFT from "./actions/chord-shift-actions";
-export * as MIDI from "./actions/midi-actions";
 export * as STEPS from "./actions/steps-actions";
 
 export const SET_SYSTEM_CONFIGURATION = "SET_SYSTEM_CONFIGURATION";

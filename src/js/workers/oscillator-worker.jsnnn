@@ -23,13 +23,13 @@ class PDOscillator {
         }
     ]
 
-    constructor (context, dc, patch, frequency) {
+    constructor (context, patch, frequency) {
 
         this.context = context;
         this.state = patch;
 
         // gain, pan and mute
-        this.outputStage = new OutputStage(context, dc, !!patch.active);
+        this.outputStage = new OutputStage(context, !!patch.active);
 
         this.parameters = {...this.outputStage.parameters};
         this.mergedInput = context.createChannelMerger(this.constructor.inputDefs.length);

@@ -41,6 +41,12 @@ export const waveforms = {
 
     sinus: () => (phase) => Math.sin(phase * DOUBLE_PI),
 
+
+    cycloid: () => (phase) => {
+        const radPhase = phase * Math.PI / 2;
+        return Math.acos(1 - radPhase) - Math.sqrt(2 * radPhase - Math.pow(radPhase, 2)) * 2 - 0.5;
+    },
+
     square: () => (phase) => ((phase % 1) > 0.5) ? -1 : 1,
 
     additiveSquare: ({maxHarmonic = 8} = {}) => (phase) => {

@@ -8,7 +8,7 @@ import {
     CHORD_SHIFT_MODE
 } from "./constants";
 
-import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
+
 import {waveforms, wrappers} from "./waveforms";
 import noise from "./noise";
 import {
@@ -17,6 +17,10 @@ import {
     modulationEnvelopeSourcesShape,
     sustainEnvelopeViewStateShape
 } from "./envelope/propdefs";
+import {
+    midiShape
+} from "./midi/propdefs";
+
 
 const {
     array,
@@ -44,27 +48,6 @@ export const keyboardLayoutShape = shape({
 export const keyboardConfigShape = shape({
     "activeLayout": string.isRequired,
     "layouts": arrayOf(keyboardLayoutShape).isRequired
-});
-
-export const midiPortShape = shape({
-    "id": string.isRequired,
-    "manufacturer": string.isRequired,
-    "name": string.isRequired
-});
-
-export const midiChannelShape = oneOf(MIDI_CHANNELS);
-
-export const midiShape = shape({
-    "active": bool,
-    "portId": string,
-    "channel": midiChannelShape.isRequired,
-    "ports": arrayOf(midiPortShape).isRequired
-});
-
-export const midiClockPlayStateShape = shape({
-    "tempo": number,
-    "sync": number,
-    "quarterNoteDuration": number
 });
 
 export const temperedScaleShape = shape({

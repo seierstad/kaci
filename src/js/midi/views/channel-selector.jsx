@@ -1,14 +1,14 @@
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
-import {CHANNELS} from "../../midiConstants";
-import {midiChannelShape} from "../../propdefs";
+import {CHANNELS} from "../constants";
+import {midiChannelShape} from "../propdefs";
 
 let midiChannelSelectorCounter = 0;
 
 
-class MidiChannelSelector extends Component {
+class MidiChannelSelector extends PureComponent {
 
     static propTypes = {
         "channelChangeHandler": PropTypes.func.isRequired,
@@ -34,7 +34,6 @@ class MidiChannelSelector extends Component {
 
     render () {
         const {selectedChannel} = this.props;
-        const channel= c => <option key={c} value={c}>{(typeof c === "number") ? (c + 1) : c}</option>;
 
         return (
             <div>
@@ -45,7 +44,7 @@ class MidiChannelSelector extends Component {
                     ref={s => this.selector = s}
                     value={selectedChannel}
                 >
-                    {CHANNELS.map(channel)}
+                    {CHANNELS.map(c => <option key={c} value={c}>{(typeof c === "number") ? (c + 1) : c}</option>)}
                 </select>
             </div>
         );

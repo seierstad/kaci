@@ -1,5 +1,5 @@
 import * as Actions from "../actions";
-
+import * as MIDI from "../midi/actions";
 import chord from "./chord-reducer";
 
 
@@ -31,7 +31,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
 
     switch (type) {
 
-        case Actions.MIDI.MODULATION_WHEEL:
+        case MIDI.MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
             if (state.value !== value) {
                 return {
@@ -72,7 +72,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
             };
 
         case Actions.KEYBOARD_KEY_DOWN:
-        case Actions.MIDI.KEY_DOWN:
+        case MIDI.KEY_DOWN:
             const activeKeys = chord(state.activeKeys, action);
 
             if (activeKeys !== state.activeKeys) {
@@ -103,7 +103,7 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
             break;
 
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI.KEY_UP:
+        case MIDI.KEY_UP:
             const found = containsKey(state.activeKeys, key);
 
             if (found) {

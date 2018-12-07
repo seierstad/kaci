@@ -1,10 +1,9 @@
 import {combineReducers} from "redux";
 
+import midi from "../midi/reducers/settings";
 import * as Actions from "../actions";
 import defaultSettings, {defaultScale} from "../configuration";
-import {PORT} from "../midiConstants";
 
-const {STATE} = PORT;
 const nullReducer = (state = {}) => state;
 
 const keyboard = (state = {}, action) => {
@@ -25,71 +24,6 @@ const keyboard = (state = {}, action) => {
     }
 };
 
-const midiPorts = (state = [], action) => {
-    switch (action.type) {
-        case Actions.MIDI.ADD_INPUT_PORT:
-        case Actions.MIDI.PORT_CONNECTION_CHANGE:
-        case Actions.MIDI.PORT_STATE_CHANGE:
-            const index = state.findIndex(p => p.id === action.value.id);
-            if (index === -1) {
-                return [
-                    ...state,
-                    action.value
-                ];
-            }
-            return [
-                ...(state.slice(0, index)),
-                action.value,
-                ...(state.slice(index + 1))
-            ];
-
-        case Actions.SYSTEM_RESET:
-            return [...state.filter(p => p.state === STATE.CONNECTED)];
-
-    }
-    return state;
-};
-
-const midi = (state = {}, action) => {
-    switch (action.type) {
-        case Actions.MIDI.TOGGLE:
-            return {
-                ...state,
-                active: !state.active
-            };
-
-        case Actions.MIDI.PORT_CONNECTION_CHANGE:
-        case Actions.MIDI.PORT_STATE_CHANGE:
-        case Actions.MIDI.ADD_INPUT_PORT:
-            return {
-                ...state,
-                ports: midiPorts(state.ports, action)
-            };
-
-        case Actions.MIDI.PORT_SELECT:
-            if (state.ports.some((item) => item.id === action.value) || action.value === "") {
-                return {
-                    ...state,
-                    selectedPort: action.value
-                };
-            }
-            break;
-
-        case Actions.MIDI.CHANNEL_SELECT:
-            return {
-                ...state,
-                channel: action.value
-            };
-
-        case Actions.SYSTEM_RESET:
-            return {
-                ...defaultSettings.midi,
-                ports: midiPorts(state.ports, action)
-            };
-    }
-    return state;
-
-};
 
 const scale = (state = {}, action) => {
     switch (action.type) {

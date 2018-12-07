@@ -1,18 +1,19 @@
 import * as Actions from "../actions";
+import * as MIDI from "../midi/actions";
+import {midiClock} from "../midi/reducers/play-state";
 import chord from "./chord-reducer";
 import chordShift from "./chord-shift-reducer";
 
-
 const key = (state = {down: false}, action) => {
     switch (action.type) {
-        case Actions.MIDI.KEY_DOWN:
+        case MIDI.KEY_DOWN:
         case Actions.KEYBOARD_KEY_DOWN:
             return {
                 ...state,
                 down: true
             };
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI.KEY_UP:
+        case MIDI.KEY_UP:
             return {
                 ...state,
                 down: false
@@ -20,32 +21,9 @@ const key = (state = {down: false}, action) => {
     }
 };
 
-const defaultMidiClockState = {
-    tempo: null,
-    sync: 0,
-    quarterNoteDuration: 0
-};
-
-const midiClock = (state = defaultMidiClockState, action) => {
-
-    switch (action.type) {
-        case Actions.MIDI.TEMPO_CHANGE:
-            const {tempo, sync, quarterNoteDuration} = action;
-
-            return {
-                ...state,
-                tempo,
-                sync,
-                quarterNoteDuration
-            };
-    }
-
-    return state;
-};
-
 const pitchShift = (state = 0, action) => {
     switch (action.type) {
-        case Actions.MIDI.PITCHBEND:
+        case MIDI.PITCHBEND:
         case Actions.KEYBOARD_PITCH_SHIFT:
             return action.value;
     }
@@ -63,7 +41,7 @@ const hold = (state = false, action) => {
 const defaultPlayState = {
     keys: {},
     chordShift: chordShift(),
-    midiClock: defaultMidiClockState,
+    midiClock: midiClock(),
     hold: false,
     pitchShift: 0
 };
@@ -92,13 +70,13 @@ const playState = (state = defaultPlayState, action) => {
     }
 
     switch (action.type) {
-        case Actions.MIDI.TEMPO_CHANGE:
+        case MIDI.TEMPO_CHANGE:
             return {
                 ...state,
                 midiClock: midiClock(state.midiClock, action)
             };
 
-        case Actions.MIDI.PITCHBEND:
+        case MIDI.PITCHBEND:
         case Actions.KEYBOARD_PITCH_SHIFT:
             return {
                 ...state,
@@ -107,8 +85,8 @@ const playState = (state = defaultPlayState, action) => {
 
         case Actions.KEYBOARD_KEY_DOWN:
         case Actions.KEYBOARD_KEY_UP:
-        case Actions.MIDI.KEY_DOWN:
-        case Actions.MIDI.KEY_UP:
+        case MIDI.KEY_DOWN:
+        case MIDI.KEY_UP:
             if (!state.chordShift.enabled) {
                 const newKeysState = chord(state.keys, action);
                 if (newKeysState !== state.keys) {
@@ -131,7 +109,7 @@ const playState = (state = defaultPlayState, action) => {
             }
             break;
 
-        case Actions.MIDI.MODULATION_WHEEL:
+        case MIDI.MODULATION_WHEEL:
         case Actions.KEYBOARD_CHORD_SHIFT:
             if (state.chordShift.enabled) {
                 const newChordShiftState = chordShift(state.chordShift, action);

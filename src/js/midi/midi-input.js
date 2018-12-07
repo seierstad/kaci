@@ -1,6 +1,6 @@
 import autobind from "autobind-decorator";
-import * as Actions from "./actions";
-import * as c from "./midiConstants";
+import * as MIDI from "./actions";
+import * as c from "./constants";
 
 
 class MidiInput {
@@ -9,7 +9,7 @@ class MidiInput {
 
         if (!navigator || typeof navigator.requestMIDIAccess !== "function") {
             this.store.dispatch({
-                type: Actions.MIDI.UNAVAILABLE
+                type: MIDI.UNAVAILABLE
             });
             return null;
         }
@@ -35,62 +35,62 @@ class MidiInput {
             "BANK_SELECT": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.BANK_SELECT
+                "action": MIDI.BANK_SELECT
             },
             "MODULATION_WHEEL": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.MODULATION_WHEEL
+                "action": MIDI.MODULATION_WHEEL
             },
             "BREATH_CONTROLLER": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.BREATH_CONTROLLER
+                "action": MIDI.BREATH_CONTROLLER
             },
             "FOOT_PEDAL": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.FOOT_PEDAL
+                "action": MIDI.FOOT_PEDAL
             },
             "PORTAMENTO_TIME": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.PORTAMENTO_TIME
+                "action": MIDI.PORTAMENTO_TIME
             },
             "DATA_ENTRY": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.DATA_ENTRY
+                "action": MIDI.DATA_ENTRY
             },
             "VOLUME": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.VOLUME
+                "action": MIDI.VOLUME
             },
             "BALANCE": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.BALANCE
+                "action": MIDI.BALANCE
             },
             "PAN_POSITION": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.PAN_POSITION
+                "action": MIDI.PAN_POSITION
             },
             "EXPRESSION": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.EXPRESSION
+                "action": MIDI.EXPRESSION
             },
             "EFFECT_CONTROL_1": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.EFFECT_CONTROL_1
+                "action": MIDI.EFFECT_CONTROL_1
             },
             "EFFECT_CONTROL_2": {
                 "coarse": null,
                 "fine": null,
-                "action": Actions.MIDI.EFFECT_CONTROL_2
+                "action": MIDI.EFFECT_CONTROL_2
             }
         };
 
@@ -132,18 +132,18 @@ class MidiInput {
 
         if (is) {
             if (connection !== is.connection) {
-                this.store.dispatch({type: Actions.MIDI.PORT_CONNECTION_CHANGE, value});
+                this.store.dispatch({type: MIDI.PORT_CONNECTION_CHANGE, value});
                 is.connection = connection;
             }
             if (state !== is.state) {
-                this.store.dispatch({type: Actions.MIDI.PORT_STATE_CHANGE, value});
+                this.store.dispatch({type: MIDI.PORT_STATE_CHANGE, value});
                 is.state = state;
             }
         } else {
             if (port.type === "input") {
                 this.inputState.push(value);
                 this.store.dispatch({
-                    type: Actions.MIDI.ADD_INPUT_PORT,
+                    type: MIDI.ADD_INPUT_PORT,
                     value
                 });
             }
@@ -158,7 +158,7 @@ class MidiInput {
     midiAccessFailure (exception) {
         console.log("MIDI failure: " + exception);
         this.store.dispatch({
-            type: Actions.MIDI.UNAVAILABLE
+            type: MIDI.UNAVAILABLE
         });
     }
 
@@ -177,7 +177,7 @@ class MidiInput {
             this.inputState.push(value);
 
             this.store.dispatch({
-                type: Actions.MIDI.ADD_INPUT_PORT,
+                type: MIDI.ADD_INPUT_PORT,
                 value
             });
         }
@@ -327,7 +327,7 @@ class MidiInput {
                     this.clock.tempo = tempo;
 
                     this.store.dispatch({
-                        "type": Actions.MIDI.TEMPO_CHANGE,
+                        "type": MIDI.TEMPO_CHANGE,
                         "tempo": this.clock.tempo,
                         "sync": this.clock.sync,
                         "quarterNoteDuration": diff * 24
@@ -360,7 +360,7 @@ class MidiInput {
             case c.MESSAGE_TYPE.NOTE_OFF: // note off
                 this.runningStatusBuffer = type;
                 this.store.dispatch({
-                    "type": Actions.MIDI.KEY_UP,
+                    "type": MIDI.KEY_UP,
                     "keyNumber": byte1,
                     "velocity": byte2
                 });
@@ -368,7 +368,7 @@ class MidiInput {
             case c.MESSAGE_TYPE.NOTE_ON: // note on
                 this.runningStatusBuffer = type;
                 this.store.dispatch({
-                    "type": Actions.MIDI.KEY_DOWN,
+                    "type": MIDI.KEY_DOWN,
                     "keyNumber": byte1,
                     "velocity": byte2
                 });
@@ -393,7 +393,7 @@ class MidiInput {
                 const value = data[index + 2] << 7 | data[index + 1];
 
                 this.store.dispatch({
-                    "type": Actions.MIDI.PITCHBEND,
+                    "type": MIDI.PITCHBEND,
                     "fine": byte1,
                     "coarse": byte2,
                     "MIDIvalue": value,
