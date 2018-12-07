@@ -11,8 +11,26 @@ import {
 import {CHANNELS as MIDI_CHANNELS} from "./midiConstants";
 import {waveforms, wrappers} from "./waveforms";
 import noise from "./noise";
+import {
+    envelopePatchShape,
+    envelopesPatchShape,
+    modulationEnvelopeSourcesShape,
+    sustainEnvelopeViewStateShape
+} from "./envelope/propdefs";
 
-const {string, number, shape, oneOf, oneOfType, arrayOf, array, object, objectOf, func, bool} = PropTypes;
+const {
+    array,
+    arrayOf,
+    bool,
+    func,
+    number,
+    object,
+    objectOf,
+    oneOf,
+    oneOfType,
+    shape,
+    string
+} = PropTypes;
 
 
 export const polarityShape = oneOf(Object.values(RANGE));
@@ -161,7 +179,7 @@ export const mainOutPatchShape = shape({
     ...outputStagePatchProperties
 });
 
-const modulatorModeShape = oneOf(Object.values(MODULATION_SOURCE_MODE));
+export const modulatorModeShape = oneOf(Object.values(MODULATION_SOURCE_MODE));
 
 const modulatorPatchProperties = {
     "active": bool.isRequired,
@@ -215,60 +233,11 @@ export const stepsPatchShape = shape({
     "steps": arrayOf(stepPatchShape).isRequired
 });
 
-const envelopePointShape = (props, propName, componentName) => {
-    const prop = props[propName];
-    if (!Array.isArray(prop)
-        || prop.length !== 2
-        || typeof prop[0] !== "number"
-        || props[0] > 1
-        || props[0] < 0
-        || typeof prop[1] !== "number"
-        || props[1] > 1
-        || props[1] < 0
-    ) {
-
-        return new Error(
-            "Invalid prop `" + propName + "` supplied to" +
-            " `" + componentName + "`. Validation failed."
-        );
-    }
-    return true;
-};
-
-export const envelopePatchShape = arrayOf(envelopePointShape);
-
 export const pdPatchShape = shape({
     "steps": envelopePatchShape.isRequired
 });
 
 export const oscillatorPdPatchShape = arrayOf(pdPatchShape);
-
-export const envelopeStagePatchShape = shape({
-    "steps": envelopePatchShape.isRequired,
-    "duration": number.isRequired
-});
-
-export const sustainEnvelopePatchShape = shape({
-    "attack": envelopeStagePatchShape.isRequired,
-    "release": envelopeStagePatchShape.isRequired,
-    "mode": modulatorModeShape.isRequired
-});
-
-export const envelopesPatchShape = arrayOf(sustainEnvelopePatchShape);
-
-export const envelopeViewStateShape = array;
-
-export const sustainEnvelopeViewStateShape = shape({
-    "attack": envelopeViewStateShape.isRequired,
-    "editSustain": bool.isRequired,
-    "release": envelopeViewStateShape.isRequired
-});
-
-export const modulationEnvelopeSourcesShape = shape({
-    "count": number.isRequired,
-    "default": sustainEnvelopePatchShape.isRequired,
-    "defaultState": sustainEnvelopeViewStateShape.isRequired
-});
 
 export const viewStateShape = shape({
     "envelopes": arrayOf(sustainEnvelopeViewStateShape),

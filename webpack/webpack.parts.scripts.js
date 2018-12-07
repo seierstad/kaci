@@ -1,5 +1,5 @@
 //import {Plugin as ESlintLoaderCombinedReportPlugin from} "eslint-loader";
-import UglifyWebpackPlugin from "uglifyjs-webpack-plugin";
+import TerserWebpackPlugin from "terser-webpack-plugin";
 //import CheckstyleFormatter from "eslint/lib/formatters/checkstyle";
 
 export const lint = (options = {}) => ({
@@ -45,27 +45,27 @@ export const worklets = ({include, exclude, sourceMap = false} = {}) => ({
     }
 });
 
-export const minify = ({sourceMap = false} = {}) => ({
+export const minify = ({sourceMap = false, cache = true} = {}) => ({
     optimization: {
         minimizer: [
-            new UglifyWebpackPlugin({
-                uglifyOptions: {
-                    compress: {
-                        warnings: false,
-                        conditionals: true,
-                        unused: true,
-                        comparisons: true,
-                        sequences: true,
-                        dead_code: true,
-                        evaluate: true,
-                        if_return: true,
-                        join_vars: true
-                    },
-                    output: {
-                        comments: false
-                    }
-                },
-                sourceMap
+            new TerserWebpackPlugin({
+                cache,
+                sourceMap,
+                terserOptions: {
+                    ecma: undefined,
+                    warnings: false,
+                    parse: {},
+                    compress: {},
+                    mangle: true, // Note `mangle.properties` is `false` by default.
+                    module: false,
+                    output: null,
+                    toplevel: false,
+                    nameCache: null,
+                    ie8: false,
+                    keep_classnames: undefined,
+                    keep_fnames: false,
+                    safari10: false
+                }
             })
         ]
     }

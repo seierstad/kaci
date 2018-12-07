@@ -30,44 +30,6 @@ const connection = (state = {...config.modulation.connection["default"]}, action
     return state;
 };
 
-/*
-const envelopes = (state = [], action) => {
-    const {type, source, index} = action;
-
-    if (source === "envelope") {
-        switch (type) {
-            case Actions.MODULATION_CONNECTION_TOGGLE:
-                let result = [...state];
-                const target = action.module + "." + action.parameter;
-
-
-                result.forEach((envelope, i) => {
-                    Object.keys(envelope).forEach(t => {
-                        if (t === target) {
-                            result[i][t] = {...state[i][t], "enabled": false};
-                        }
-                    });
-                });
-
-                if (action.index === null) {
-                    return result;
-                }
-
-                result[action.index] = modulator(state[action.index], action);
-                return result;
-
-            case Actions.MODULATION_POLARITY_CHANGE:
-            case Actions.MODULATION_AMOUNT_CHANGE:
-                return {
-                    ...state,
-                    [action.index]: modulator(state[action.index], action)
-                };
-        }
-    }
-    return state;
-};
-*/
-
 const parameter = (state = [], action) => {
     const result = [...state];
 

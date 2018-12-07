@@ -1,3 +1,5 @@
+import defaultEnvParameters from "./envelope/defaults";
+
 export const defaultModulationConnectionParameters = {
     "enabled": false,
     "polarity": "full",
@@ -24,26 +26,6 @@ export const defaultLfoParameters = {
     "active": true,
     "waveform": "sinus"
 };
-
-export const defaultEnvParameters = {
-    "attack": {
-        "steps": [
-            [0, 0],
-            [1, 1]
-        ],
-        "duration": 1
-    },
-    "release": {
-        "steps": [
-            [0, 1],
-            [1, 0]
-        ],
-        "duration": 1
-    },
-    "mode": "voice"
-};
-
-
 
 export const defaultStepsParameters = {
     ...defaultModulatorParameters,

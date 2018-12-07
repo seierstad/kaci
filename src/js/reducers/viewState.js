@@ -1,83 +1,14 @@
 import {combineReducers} from "redux";
-
+import {
+    ENVELOPE_BLUR,
+    ENVELOPE_POINT_ADD,
+    ENVELOPE_POINT_EDIT_END,
+    ENVELOPE_POINT_EDIT_START
+} from "../envelope/actions";
 import * as Actions from "../actions";
-import config from "../configuration";
 
+import {envelope, envelopes} from "../envelope/viewstate-reducers";
 
-const envelope = (state = [], action) => {
-    switch (action.type) {
-        case Actions.ENVELOPE_POINT_ADD:
-            return [
-                ...state.map(el => (el >= action.index ? el + 1 : el)),
-                action.index
-            ];
-        case Actions.ENVELOPE_BLUR:
-            return [];
-        case Actions.ENVELOPE_POINT_EDIT_START:
-            if (state.indexOf(action.index) === -1) {
-                return [...state, action.index];
-            }
-            break;
-        case Actions.ENVELOPE_POINT_EDIT_END:
-            const index = state.indexOf(action.index);
-            if (index !== -1) {
-                return [
-                    ...state.slice(0, index),
-                    ...state.slice(index + 1)
-                ];
-            }
-            break;
-
-    }
-    return state;
-};
-
-const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
-    switch (action.type) {
-        case Actions.ENVELOPE_SUSTAIN_CHANGE:
-        case Actions.ENVELOPE_SUSTAIN_EDIT_START:
-            return {
-                ...state,
-                editSustain: true
-            };
-        case Actions.ENVELOPE_SUSTAIN_EDIT_END:
-            return {
-                ...state,
-                editSustain: false
-            };
-    }
-
-    switch (action.envelopePart) {
-        case "attack":
-            return {
-                ...state,
-                attack: envelope(state.attack, action)
-            };
-        case "release":
-            return {
-                ...state,
-                release: envelope(state.release, action)
-            };
-    }
-    return state;
-};
-
-
-const envelopes = (state = new Array(config.modulation.source.envelope.count).fill(config.modulation.source.envelope.defaultState), action) => {
-    const index = action.envelopeIndex;
-
-    if (!isNaN(index) && action.module === "envelopes") {
-
-        let result = [
-            ...state
-        ];
-        result[index] = sustainedEnvelope(state[index], action);
-
-        return result;
-    }
-
-    return state;
-};
 
 const harmonics = (state = {}, action) => {
     if (action.submodule === "harmonics") {
@@ -131,10 +62,10 @@ const oscillator = (state = {"pd": [[], []]}, action) => {
 
             switch (action.type) {
 
-                case Actions.ENVELOPE_POINT_ADD:
-                case Actions.ENVELOPE_BLUR:
-                case Actions.ENVELOPE_POINT_EDIT_START:
-                case Actions.ENVELOPE_POINT_EDIT_END:
+                case ENVELOPE_POINT_ADD:
+                case ENVELOPE_BLUR:
+                case ENVELOPE_POINT_EDIT_START:
+                case ENVELOPE_POINT_EDIT_END:
                     const pd = [...state.pd];
                     pd[action.envelopeIndex] = envelope([...state.pd[action.envelopeIndex]], action);
 

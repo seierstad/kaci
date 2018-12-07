@@ -12,8 +12,6 @@ export const load = (options = {}) => {
                 test: /\.html$/,
                 use: [{
                     loader: "html-loader"
-                }, {
-                    loader: "htmllint-loader"
                 }]
             }]
         },

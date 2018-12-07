@@ -1,14 +1,14 @@
 import React, {Component} from "react"; import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
+import Envelopes from "../envelope/view/envelopes.jsx";
+import envelopeHandlers from "../envelope/dispatchers";
+
 import * as Actions from "../actions";
 import {patchShape, viewStateShape, configurationShape} from "../propdefs";
 
-import {getValuePair} from "./ViewUtils";
-
 import NoiseView from "./NoiseView.jsx";
 import SubView from "./SubView.jsx";
-import Envelopes from "./envelope/envelopes.jsx";
 import LFOs from "./lfo/lfos.jsx";
 import StepSequencers from "./step-sequencer/step-sequencers.jsx";
 import MorseGenerators from "./morse/morse-generators.jsx";
@@ -60,7 +60,6 @@ class PatchPresentation extends Component {
                 />
                 <Envelopes
                     configuration={source.envelope}
-                    handlers={handlers.envelope}
                     patch={patch.envelopes}
                     viewState={viewState.envelopes}
                 />
@@ -92,87 +91,7 @@ class PatchPresentation extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
     "handlers": {
-        "envelope": {
-            "circleClick": (event, module, envelopeIndex, envelopePart, index, first, last) => {
-                if (event.shiftKey) {
-                    dispatch({
-                        type: Actions.ENVELOPE_POINT_DELETE,
-                        module,
-                        envelopeIndex,
-                        envelopePart,
-                        index
-                    });
-                } else {
-                    if ((envelopePart === "sustain") || (envelopePart === "release" && first) || envelopePart === "attack" && last) {
-                        dispatch({type: Actions.ENVELOPE_SUSTAIN_EDIT_START, module, envelopeIndex});
-                    } else {
-                        dispatch({type: Actions.ENVELOPE_POINT_EDIT_START, module, envelopeIndex, envelopePart, index});
-                    }
-                }
-            },
-            "mouseOut": (event, module, envelopeIndex, envelopePart) => {
-                const pos = getValuePair(event, event.currentTarget);
-                if (pos.x > 1 || pos.x < 0 || pos.y > 1 || pos.y < 0) {
-                    if (envelopePart === "sustain") {
-                        dispatch({type: Actions.ENVELOPE_SUSTAIN_EDIT_END, module, envelopeIndex});
-                    } else {
-                        dispatch({type: Actions.ENVELOPE_BLUR, module, envelopeIndex, envelopePart});
-                    }
-                }
-            },
-            "activeCircleMouseUp": (event, module, envelopeIndex, envelopePart, index) => {
-                dispatch({
-                    type: Actions.ENVELOPE_POINT_EDIT_END,
-                    module,
-                    envelopeIndex,
-                    envelopePart,
-                    index
-                });
-            },
-            "circleBlur": (event, module, envelopeIndex, envelopePart, index, first, last) => {
-                if ((envelopePart === "sustain") || (envelopePart === "release" && last) || envelopePart === "attack" && first) {
-                    dispatch({type: Actions.ENVELOPE_SUSTAIN_EDIT_END, module, envelopeIndex});
-                } else {
-                    dispatch({type: Actions.ENVELOPE_POINT_EDIT_END, module, envelopeIndex, envelopePart, index});
-                }
-            },
-            "backgroundClick": (event, module, steps, envelopeIndex, envelopePart) => {
-                const {x, y} = getValuePair(event, event.target);
-                const index = steps.findIndex(e => e[0] > x);
-
-                dispatch({type: Actions.ENVELOPE_POINT_ADD, module, envelopeIndex, envelopePart, index, x, y});
-            },
-            "sustainBackgroundClick": (event, module, envelopeIndex) => {
-                const {y} = getValuePair(event, event.target);
-                dispatch({type: Actions.ENVELOPE_SUSTAIN_CHANGE, module, envelopeIndex, value: y});
-            },
-            "circleMouseDrag": (event, module, envelopeIndex, envelopePart, background, index, first, last) => {
-                const {x, y} = getValuePair(event, background);
-
-                if ((envelopePart === "sustain") || (envelopePart === "release" && first) || (envelopePart === "attack" && last)) {
-
-                    dispatch({
-                        type: Actions.ENVELOPE_SUSTAIN_CHANGE,
-                        module,
-                        envelopeIndex,
-                        envelopePart,
-                        value: y
-                    });
-                } else {
-                    dispatch({type: Actions.ENVELOPE_POINT_CHANGE, module, envelopeIndex, envelopePart, index, x, y});
-                }
-            },
-            "durationChange": (module, envelopeIndex, envelopePart, value) => {
-                dispatch({
-                    type: Actions.ENVELOPE_DURATION_CHANGE,
-                    module,
-                    envelopeIndex,
-                    envelopePart,
-                    value
-                });
-            }
-
-        },
+        "envelope": envelopeHandlers(dispatch),
         "modulator": {
             "reset": (event, module, index) => {
                 dispatch({"type": Actions.MODULATOR_RESET, module, index});

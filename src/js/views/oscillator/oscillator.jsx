@@ -21,7 +21,6 @@ class OscillatorPresentation extends Component {
 
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
-        "envelopeHandlers": PropTypes.object.isRequired,
         "handlers": PropTypes.object.isRequired,
         "patch": oscillatorPatchShape.isRequired,
         "viewState": PropTypes.object.isRequired
@@ -29,11 +28,6 @@ class OscillatorPresentation extends Component {
 
     constructor () {
         super();
-        /*
-        this.pdFunction0 = this.pdFunction0.bind(this);
-        this.pdFunction1 = this.pdFunction1.bind(this);
-        this.mixFunction = this.mixFunction.bind(this);
-        */
         this.waveforms = {};
     }
 
@@ -91,7 +85,7 @@ class OscillatorPresentation extends Component {
     }
 
     render () {
-        const {configuration, patch, viewState, handlers, envelopeHandlers} = this.props;
+        const {configuration, patch, viewState, handlers} = this.props;
         const {outputStageHandlers} = handlers;
 
 
@@ -131,7 +125,6 @@ class OscillatorPresentation extends Component {
                 />
                 <div className="pd-and-mix-wrapper">
                     <PhaseDistortion
-                        handlers={envelopeHandlers}
                         index={0}
                         key="pdEnvelope0"
                         module="oscillator"
@@ -141,7 +134,6 @@ class OscillatorPresentation extends Component {
                         waveformName={patch.waveform}
                     />
                     <PhaseDistortion
-                        handlers={envelopeHandlers}
                         index={1}
                         key="pdEnvelope1"
                         module="oscillator"

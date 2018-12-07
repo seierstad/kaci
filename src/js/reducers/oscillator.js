@@ -1,5 +1,10 @@
 import * as Actions from "../actions";
-import {steps} from "./envelopes";
+import {steps} from "../envelope/reducers";
+import {
+    ENVELOPE_POINT_ADD,
+    ENVELOPE_POINT_CHANGE,
+    ENVELOPE_POINT_DELETE
+} from "../envelope/actions";
 
 export const defaultHarmonicParameters = {
     denominator: 1,
@@ -124,9 +129,9 @@ const oscillator = (state = {}, action) => {
         // generic actions targeting oscillator parameters
 
         switch (action.type) {
-            case Actions.ENVELOPE_POINT_DELETE:
-            case Actions.ENVELOPE_POINT_ADD:
-            case Actions.ENVELOPE_POINT_CHANGE:
+            case ENVELOPE_POINT_DELETE:
+            case ENVELOPE_POINT_ADD:
+            case ENVELOPE_POINT_CHANGE:
                 const pd = [
                     ...state.pd
                 ];

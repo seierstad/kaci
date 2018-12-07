@@ -4,7 +4,7 @@ import * as Actions from "../actions";
 import defaultPatch from "../patch";
 
 
-import envelopes from "./envelopes";
+import envelopes from "../envelope/reducers";
 import lfos from "./lfos";
 import modulation from "./modulation";
 import morse from "./morse";

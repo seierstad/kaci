@@ -1,5 +1,16 @@
 import {combineReducers} from "redux";
-import * as Actions from "../actions";
+import {
+    ENVELOPE_DURATION_CHANGE,
+    ENVELOPE_MODE_CHANGE,
+    ENVELOPE_POINT_ADD,
+    ENVELOPE_POINT_CHANGE,
+    ENVELOPE_POINT_DELETE,
+    ENVELOPE_POINT_EDIT_END,
+    ENVELOPE_POINT_EDIT_START,
+    ENVELOPE_SUSTAIN_CHANGE,
+    ENVELOPE_SUSTAIN_EDIT_END,
+    ENVELOPE_SUSTAIN_EDIT_START
+} from "./actions";
 
 
 const sortByX = (a, b) => (a[0] < b[0]) ? -1 : 1;
@@ -9,16 +20,16 @@ const steps = (state = [], action) => {
     const point = [x, y];
 
     switch (action.type) {
-        case Actions.ENVELOPE_POINT_DELETE:
+        case ENVELOPE_POINT_DELETE:
             return [
                 ...state.slice(0, action.index),
                 ...state.slice(action.index + 1)
             ];
 
-        case Actions.ENVELOPE_POINT_ADD:
+        case ENVELOPE_POINT_ADD:
             return [...state, point].sort(sortByX);
 
-        case Actions.ENVELOPE_POINT_CHANGE:
+        case ENVELOPE_POINT_CHANGE:
             if (action.index === 0) {
                 point[0] = 0;
             } else if (action.index === state.length - 1) {
@@ -52,7 +63,7 @@ const steps = (state = [], action) => {
 
 
 const duration = (state = 0, action) => {
-    if (action.type === Actions.ENVELOPE_DURATION_CHANGE) {
+    if (action.type === ENVELOPE_DURATION_CHANGE) {
         return action.value;
     }
     return state;
@@ -66,13 +77,13 @@ const envelopePart = combineReducers({
 const sustainedEnvelope = (state = {}, action) => {
 
     switch (action.type) {
-        case Actions.ENVELOPE_MODE_CHANGE:
+        case ENVELOPE_MODE_CHANGE:
             return {
                 ...state,
                 mode: action.value
             };
 
-        case Actions.ENVELOPE_SUSTAIN_CHANGE:
+        case ENVELOPE_SUSTAIN_CHANGE:
             const a = state.attack.steps;
             const r = state.release.steps;
 
@@ -114,16 +125,16 @@ const sustainedEnvelope = (state = {}, action) => {
 
 const envelopes = (state = [], action) => {
     switch (action.type) {
-        case Actions.ENVELOPE_POINT_DELETE:
-        case Actions.ENVELOPE_POINT_ADD:
-        case Actions.ENVELOPE_POINT_EDIT_START:
-        case Actions.ENVELOPE_POINT_EDIT_END:
-        case Actions.ENVELOPE_POINT_CHANGE:
-        case Actions.ENVELOPE_SUSTAIN_EDIT_START:
-        case Actions.ENVELOPE_SUSTAIN_EDIT_END:
-        case Actions.ENVELOPE_SUSTAIN_CHANGE:
-        case Actions.ENVELOPE_MODE_CHANGE:
-        case Actions.ENVELOPE_DURATION_CHANGE:
+        case ENVELOPE_POINT_DELETE:
+        case ENVELOPE_POINT_ADD:
+        case ENVELOPE_POINT_EDIT_START:
+        case ENVELOPE_POINT_EDIT_END:
+        case ENVELOPE_POINT_CHANGE:
+        case ENVELOPE_SUSTAIN_EDIT_START:
+        case ENVELOPE_SUSTAIN_EDIT_END:
+        case ENVELOPE_SUSTAIN_CHANGE:
+        case ENVELOPE_MODE_CHANGE:
+        case ENVELOPE_DURATION_CHANGE:
             const index = action.envelopeIndex;
 
             let result = [

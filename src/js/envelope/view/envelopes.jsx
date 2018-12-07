@@ -1,5 +1,8 @@
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
+import {connect} from "react-redux";
+
+import dispatchers from "../dispatchers";
 
 import {
     envelopesPatchShape,
@@ -10,17 +13,13 @@ import {
 import SustainEnvelope from "./sustain-envelope.jsx";
 
 
-class Envelopes extends Component {
+class Envelopes extends PureComponent {
 
     static propTypes = {
         "configuration": modulationEnvelopeSourcesShape.isRequired,
-        "handlers": PropTypes.object,
+        "handlers": PropTypes.object.isRequired,
         "patch": envelopesPatchShape,
         "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return this.props.patch !== nextProps.patch || this.props.viewState !== nextProps.viewState;
     }
 
     render () {
@@ -71,5 +70,10 @@ class Envelopes extends Component {
 
 */
 
+const EnvelopesConnected = connect(null, dispatchers)(Envelopes);
 
-export default Envelopes;
+export {
+    Envelopes
+};
+
+export default EnvelopesConnected;

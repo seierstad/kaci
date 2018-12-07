@@ -1,9 +1,11 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import {connect} from "react-redux";
 
 import drawWaveform from "../drawWaveform";
 
-import Envelope from "../envelope/envelope.jsx";
-
+import Envelope from "../../envelope/view/envelope.jsx";
+import dispatchers from "../../envelope/dispatchers";
 
 class PhaseDistortion extends Component {
 
@@ -58,5 +60,10 @@ class PhaseDistortion extends Component {
     }
 }
 
+const PhaseDistortionConnected = connect(null, dispatchers)(PhaseDistortion);
 
-export default PhaseDistortion;
+export {
+    PhaseDistortion
+};
+
+export default PhaseDistortionConnected;
