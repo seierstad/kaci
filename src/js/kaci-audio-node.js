@@ -1,7 +1,7 @@
 import autobind from "autobind-decorator";
 
 import KaciNode from "./kaci-node";
-import OutputStage from "./output-stage";
+import OutputStage from "./output-stage/output-stage";
 
 /*
     @class KaciNode

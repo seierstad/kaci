@@ -8,9 +8,9 @@ import {
 } from "prop-types";
 
 /* copied from ../propdefs */
-import {MODULATION_SOURCE_MODE} from "../constants";
+import {MODULATOR_MODE} from "../modulator/constants";
 
-export const modulatorModeShape = oneOf(Object.values(MODULATION_SOURCE_MODE));
+export const modulatorModeShape = oneOf(Object.values(MODULATOR_MODE));
 /* end copied from ../propdefs */
 
 const envelopePointShape = (props, propName, componentName) => {
@@ -57,7 +57,7 @@ export const sustainEnvelopeViewStateShape = shape({
     "release": envelopeViewStateShape.isRequired
 });
 
-export const modulationEnvelopeSourcesShape = shape({
+export const envelopeConfigShape = shape({
     "count": number.isRequired,
     "default": sustainEnvelopePatchShape.isRequired,
     "defaultState": sustainEnvelopeViewStateShape.isRequired

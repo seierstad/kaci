@@ -2,14 +2,14 @@ import autobind from "autobind-decorator";
 import KaciNode from "./kaci-node";
 import {inputNode} from "./shared-functions";
 import EnvelopeGenerator from "./envelope/EnvelopeGenerator";
-import PDOscillator from "./PDOscillator";
-import NoiseGenerator from "./NoiseGenerator";
-import SubOscillator from "./SubOscillator";
-import LFO from "./LFO";
-import MorseGenerator from "./morse-generator";
-import StepSequencer from "./modulators/step-sequencer";
+import PDOscillator from "./oscillator/pd-oscillator";
+import NoiseGenerator from "./noise/noise-generator";
+import SubOscillator from "./sub/sub-oscillator";
+import LFO from "./lfo/lfo";
+import MorseGenerator from "./morse/morse-generator";
+import StepSequencer from "./steps/step-sequencer";
 
-import OutputStage from "./output-stage";
+import OutputStage from "./output-stage/output-stage";
 
 //import WavyJones from "../../lib/wavy-jones";
 

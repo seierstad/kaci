@@ -2,9 +2,9 @@ import autobind from "autobind-decorator";
 
 import {outputNode} from "./shared-functions";
 
-import Tunings from "./Tunings";
+import Tunings from "./tuning/tunings";
 import Voice, {prefixKeys} from "./Voice";
-import ChordShifter from "./chord-shifter";
+import ChordShifter from "./chord-shift/chord-shifter";
 import KaciNode from "./kaci-node";
 
 

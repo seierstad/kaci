@@ -1,14 +1,19 @@
 import React, {Component} from "react"; import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
-import * as Actions from "../actions";
-import {configurationShape, viewStateShape, playStateShape, patchShape} from "../propdefs";
+import {RESET as SYSTEM_RESET} from "../settings/actions";
+import {playStateShape} from "../play-state/propdefs";
+import {
+    configurationShape,
+    viewStateShape
+} from "../propdefs";
 
-
-import SystemSettingsView from "./SystemSettingsView.jsx";
-import Patch from "./patch.jsx";
-import Keyboard from "./keyboard/keyboard.jsx";
-import ChordShift from "./chord-shift/chord-shift.jsx";
+import {patchShape} from "../patch/propdefs";
+import {LAYOUT_CHANGE as KEYBOARD_LAYOUT_CHANGE} from "../keyboard/actions";
+import SystemSettingsView from "../settings/settings.jsx";
+import Patch from "../patch/views/patch.jsx";
+import Keyboard from "../keyboard/views/keyboard.jsx";
+import ChordShift from "../chord-shift/views/chord-shift.jsx";
 
 
 class KaciReactViewPresentation extends Component {
@@ -66,11 +71,11 @@ const mapDispatchToProps = (dispatch) => {
             "keyboard": {
                 "layoutChange": (event) => {
                     const value = event.target.value;
-                    dispatch({type: Actions.KEYBOARD_LAYOUT_CHANGE, value});
+                    dispatch({type: KEYBOARD_LAYOUT_CHANGE, value});
                 }
             },
             "systemReset": () => {
-                dispatch({type: Actions.SYSTEM_RESET});
+                dispatch({type: SYSTEM_RESET});
             }
         }
     };

@@ -17,11 +17,11 @@ import reducer from "./reducers/kaci";
 import KaciView from "./views/KaciView.jsx";
 
 import VoiceRegister from "./VoiceRegister";
-import ModulationMatrix from "./ModulationMatrix";
-import KeyboardInput from "./KeyboardInput";
-import patch from "./patch";
+import ModulationMatrix from "./modulation/modulation-matrix";
+import KeyboardInput from "./keyboard/keyboard-input";
+import patch from "./patch/defaults";
 import MidiInput from "./midi/midi-input";
-import SystemSettings from "./SystemSettings";
+import SystemSettings from "./settings/settings";
 import defaultSettings from "./configuration";
 
 import "../styles/styles.scss";

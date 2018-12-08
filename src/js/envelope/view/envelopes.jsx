@@ -6,7 +6,7 @@ import dispatchers from "../dispatchers";
 
 import {
     envelopesPatchShape,
-    modulationEnvelopeSourcesShape,
+    envelopeConfigShape,
     sustainEnvelopeViewStateShape
 } from "../propdefs";
 
@@ -16,7 +16,7 @@ import SustainEnvelope from "./sustain-envelope.jsx";
 class Envelopes extends PureComponent {
 
     static propTypes = {
-        "configuration": modulationEnvelopeSourcesShape.isRequired,
+        "configuration": envelopeConfigShape.isRequired,
         "handlers": PropTypes.object.isRequired,
         "patch": envelopesPatchShape,
         "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)

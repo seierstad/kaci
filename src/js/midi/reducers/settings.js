@@ -1,4 +1,4 @@
-import {SYSTEM_RESET} from "../../actions";
+import {RESET as SYSTEM_RESET} from "../../settings/actions";
 import {PORT} from "../constants";
 import defaultSettings from "../defaults";
 import {
