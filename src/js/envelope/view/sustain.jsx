@@ -2,72 +2,58 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
+import {getValuePair} from "../../views/ViewUtils";
 import {toPercent} from "./shared-functions";
 
 
 class Sustain extends Component {
 
     static propTypes = {
-        "active": PropTypes.bool,
-        "envelopeIndex": PropTypes.number,
+        "data": PropTypes.object.isRequired,
         "handlers": PropTypes.shape({
             "activeCircleMouseUp": PropTypes.func.isRequired,
+            "backgroundClick": PropTypes.func.isRequired,
             "circleBlur": PropTypes.func.isRequired,
             "circleClick": PropTypes.func.isRequired,
             "circleMouseDrag": PropTypes.func.isRequired,
-            "mouseOut": PropTypes.func.isRequired,
-            "sustainBackgroundClick": PropTypes.func.isRequired
+            "mouseOut": PropTypes.func.isRequired
         }).isRequired,
-        "module": PropTypes.string.isRequired,
-        "part": PropTypes.string,
-        "value": PropTypes.number.isRequired,
         "width": PropTypes.string,
         "x": PropTypes.string
     }
 
-    shouldComponentUpdate (nextProps) {
-        return (
-            this.props.value !== nextProps.value
-            || this.props.active !== nextProps.active
-            || this.props.x !== nextProps.x
-        );
+    constructor (props) {
+        super(props);
+        this.background = React.createRef();
     }
 
     @autobind
     handleBackgroundClick (event) {
-        const {module, envelopeIndex, handlers} = this.props;
-        handlers.sustainBackgroundClick(event, module, envelopeIndex);
+        const point = getValuePair(event, event.target);
+        const {handlers} = this.props;
+        handlers.backgroundClick("sustain", point);
     }
 
     @autobind
     handleBlur (event) {
-        const {module, envelopeIndex, part, handlers} = this.props;
-        handlers.circleBlur(event, module, envelopeIndex, part);
+        const {handlers} = this.props;
+        handlers.circleBlur("sustain", event);
     }
 
     @autobind
     handleMouseDrag (event) {
-        const {module, envelopeIndex, part, handlers} = this.props;
-        handlers.circleMouseDrag(event, module, envelopeIndex, part, this.background);
+        const {handlers} = this.props;
+        handlers.circleMouseDrag("sustain", event);
     }
 
     @autobind
     handleClick (event) {
-        const {module, envelopeIndex, part, handlers} = this.props;
-        handlers.circleClick(event, module, envelopeIndex, part);
+        const {handlers} = this.props;
+        handlers.circleClick("sustain", event);
     }
 
     render () {
-        const {value, width, active, x} = this.props;
-        const background = (
-            <rect
-                height="100%"
-                onMouseDown={this.handleBackgroundClick}
-                opacity="0"
-                ref={(bg) => this.background = bg}
-                width="100%"
-            />
-        );
+        const {data: {value, active}, width, x} = this.props;
         const y = toPercent(1 - value);
 
         return (
@@ -77,7 +63,13 @@ class Sustain extends Component {
                 width={width ? width : "100%"}
                 x={x ? x : 0}
             >
-                {background}
+                <rect
+                    height="100%"
+                    onMouseDown={this.handleBackgroundClick}
+                    opacity="0"
+                    ref={this.background}
+                    width="100%"
+                />
                 <line
                     className={"sustain-bar" + (active ? " active" : "")}
                     onMouseDown={active ? null : this.handleClick}

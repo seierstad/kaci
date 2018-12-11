@@ -1,4 +1,6 @@
 import {combineReducers} from "redux";
+import {defaultEnvParameters} from "./defaults";
+
 import {
     ENVELOPE_DURATION_CHANGE,
     ENVELOPE_MODE_CHANGE,
@@ -74,7 +76,7 @@ const envelopePart = combineReducers({
     duration
 });
 
-const sustainedEnvelope = (state = {}, action) => {
+const sustainedEnvelope = (state = {...defaultEnvParameters}, action) => {
 
     switch (action.type) {
         case ENVELOPE_MODE_CHANGE:

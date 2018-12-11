@@ -74,8 +74,6 @@ class PatchPresentation extends Component {
                 />
                 <Envelopes
                     configuration={source.envelope}
-                    patch={patch.envelopes}
-                    viewState={viewState.envelopes}
                 />
                 <LFOs
                     configuration={source.lfo}

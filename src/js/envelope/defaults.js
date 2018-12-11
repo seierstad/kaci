@@ -16,4 +16,13 @@ const defaultEnvParameters = {
     "mode": "voice"
 };
 
-export default defaultEnvParameters;
+const defaultEnvViewState = {
+    attack: [],
+    release: [],
+    editSustain: false
+};
+
+export {
+    defaultEnvParameters,
+    defaultEnvViewState
+};

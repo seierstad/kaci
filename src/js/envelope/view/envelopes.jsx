@@ -4,11 +4,7 @@ import {connect} from "react-redux";
 
 import dispatchers from "../dispatchers";
 
-import {
-    envelopesPatchShape,
-    envelopeConfigShape,
-    sustainEnvelopeViewStateShape
-} from "../propdefs";
+import {envelopeConfigShape} from "../propdefs";
 
 import SustainEnvelope from "./sustain-envelope.jsx";
 
@@ -17,29 +13,35 @@ class Envelopes extends PureComponent {
 
     static propTypes = {
         "configuration": envelopeConfigShape.isRequired,
-        "handlers": PropTypes.object.isRequired,
-        "patch": envelopesPatchShape,
-        "viewState": PropTypes.arrayOf(sustainEnvelopeViewStateShape)
+        "handlers": PropTypes.object.isRequired
+    }
+
+    constructor (props) {
+        super(props);
+        const {
+            handlers = {}
+        } = this.props;
+
+        this.boundHandlers = Object.entries(handlers).reduce((acc, [name, func]) => {
+            acc[name] = func.bind(this, "envelopes");
+            return acc;
+        }, {});
     }
 
     render () {
-        const {patch, configuration, viewState, handlers} = this.props;
-        let envelopes = [];
+        const {configuration} = this.props;
 
-        for (let i = 0; i < configuration.count; i += 1) {
-            envelopes.push(
-                <SustainEnvelope
-                    handlers={handlers}
-                    index={i}
-                    key={i}
-                    module="envelopes"
-                    patch={patch[i] || configuration["default"]}
-                    viewState={viewState[i]}
-                />
-            );
-        }
-
-        return <div>{envelopes}</div>;
+        return (
+            <div className="envelopes">
+                {new Array(configuration.count).fill(null).map((_, index) => (
+                    <SustainEnvelope
+                        handlers={this.boundHandlers}
+                        index={index}
+                        key={index}
+                    />
+                ))}
+            </div>
+        );
     }
 }
 

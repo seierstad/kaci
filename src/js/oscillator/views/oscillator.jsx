@@ -134,6 +134,7 @@ class OscillatorPresentation extends Component {
                         key="pdEnvelope0"
                         module="oscillator"
                         patch={patch.pd[0]}
+                        subIndex={0}
                         viewState={viewState.pd[0]}
                         waveFunction={this.pdFunction0}
                         waveformName={patch.waveform}
@@ -143,6 +144,7 @@ class OscillatorPresentation extends Component {
                         key="pdEnvelope1"
                         module="oscillator"
                         patch={patch.pd[1]}
+                        subIndex={1}
                         viewState={viewState.pd[1]}
                         waveFunction={this.pdFunction1}
                         waveformName={patch.waveform}

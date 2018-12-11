@@ -1,5 +1,5 @@
 import config from "../configuration";
-
+import {defaultEnvViewState} from "./defaults";
 import {
     ENVELOPE_BLUR,
     ENVELOPE_POINT_ADD,
@@ -38,7 +38,7 @@ const envelope = (state = [], action) => {
     return state;
 };
 
-const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
+const sustainedEnvelope = (state = {...defaultEnvViewState}, action) => {
     switch (action.type) {
         case ENVELOPE_SUSTAIN_CHANGE:
         case ENVELOPE_SUSTAIN_EDIT_START:
@@ -69,7 +69,8 @@ const sustainedEnvelope = (state = {attack: [], release: []}, action) => {
 };
 
 
-const envelopes = (state = new Array(config.modulation.source.envelope.count).fill(config.modulation.source.envelope.defaultState), action) => {
+const envelopes = (
+    state = new Array(config.modulation.source.envelope.count).fill({...defaultEnvViewState}), action) => {
     const index = action.envelopeIndex;
 
     if (!isNaN(index) && action.module === "envelopes") {

@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
+import {connect} from "react-redux";
 
-import {sustainEnvelopePatchShape} from "../propdefs";
-
+import {getSustainEnvelopeByIndex} from "../selectors";
 import Envelope from "./envelope.jsx";
 import Sustain from "./sustain.jsx";
 
@@ -11,40 +11,47 @@ import Sustain from "./sustain.jsx";
 class SustainEnvelope extends Component {
 
     static propTypes = {
+        "envelopeViewObject": PropTypes.object.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "index": PropTypes.number.isRequired,
-        "module": PropTypes.string.isRequired,
-        "patch": sustainEnvelopePatchShape.isRequired,
-        "viewState": PropTypes.object
+        "index": PropTypes.number.isRequired
     }
 
-    shouldComponentUpdate (nextProps) {
-        return (this.props.patch !== nextProps.patch) || (this.props.viewState !== nextProps.viewState);
+    constructor (props) {
+        super(props);
+        const {
+            handlers = {},
+            index
+        } = this.props;
+
+        this.boundHandlers = Object.entries(handlers).reduce((acc, [name, func]) => {
+            acc[name] = func.bind(this, index);
+            return acc;
+        }, {});
     }
 
     @autobind
     handleMouseOut (event) {
-        const {module, index, handlers} = this.props;
+        const {index, handlers} = this.props;
         handlers.mouseOut(event, module, index);
     }
 
     @autobind
     handleAttackDurationChange (event) {
-        const {module, index, handlers} = this.props;
-        handlers.durationChange(module, index, "attack", parseFloat(event.target.value));
+        this.boundHandlers.durationChange("attack", parseFloat(event.target.value));
     }
 
     @autobind
     handleReleaseDurationChange (event) {
-        const {module, index, handlers} = this.props;
-        handlers.durationChange(module, index, "release", parseFloat(event.target.value));
+        this.boundHandlers.durationChange("release", parseFloat(event.target.value));
     }
 
     render () {
-        const {module, index, patch, viewState, handlers} = this.props;
+        console.log(this.props);
+        const {envelopeViewObject = {}, index} = this.props;
+        const {attack, release, sustain} = envelopeViewObject;
 
-        const attackPart = patch.attack.duration / (patch.attack.duration + patch.release.duration);
-        const releasePart = patch.release.duration / (patch.attack.duration + patch.release.duration);
+        const attackPart = attack.duration / (attack.duration + release.duration);
+        const releasePart = release.duration / (attack.duration + release.duration);
         const sustainWidth = 10;
         const attackWidth = attackPart * (100 - sustainWidth);
         const releaseWidth = releasePart * (100 - sustainWidth);
@@ -54,38 +61,26 @@ class SustainEnvelope extends Component {
                 <h1><abbr title="envelope">Env</abbr> {index + 1}</h1>
                 <svg
                     className="sustain-envelope controller"
-                    onMouseOut={viewState.editSustain ? this.handleMouseOut : null}
+                    onMouseOut={envelopeViewObject.editSustain ? this.handleMouseOut : null}
                 >
 
                     <Envelope
-                        activeIndex={viewState.editSustain ? patch.attack.steps.length - 1 : null}
-                        handlers={handlers}
-                        index={index}
-                        module={module}
+                        data={attack}
+                        handlers={this.boundHandlers}
                         part="attack"
-                        patch={patch.attack}
-                        viewState={viewState.attack}
                         width={attackWidth + "%"}
                     />
 
                     <Envelope
-                        activeIndex={viewState.editSustain ? 0 : null}
-                        handlers={handlers}
-                        index={index}
-                        module={module}
+                        data={release}
+                        handlers={this.boundHandlers}
                         part="release"
-                        patch={patch.release}
-                        viewState={viewState.release}
                         width={releaseWidth + "%"}
                         x={(attackWidth + sustainWidth) + "%"}
                     />
                     <Sustain
-                        active={!!viewState.editSustain}
-                        envelopeIndex={index}
-                        handlers={handlers}
-                        module={module}
-                        part="sustain"
-                        value={patch.attack.steps.slice(-1)[0][1]}
+                        data={sustain}
+                        handlers={this.boundHandlers}
                         width={sustainWidth + "%"}
                         x={attackWidth + "%"}
                     />
@@ -97,7 +92,7 @@ class SustainEnvelope extends Component {
                     onChange={this.handleAttackDurationChange}
                     onInput={this.handleAttackDurationChange}
                     type="number"
-                    value={patch.attack.duration}
+                    value={attack.duration}
                 />
                 <label htmlFor={"env-" + index + "-release-duration"}>release duration</label>
                 <input
@@ -106,12 +101,17 @@ class SustainEnvelope extends Component {
                     onChange={this.handleReleaseDurationChange}
                     onInput={this.handleReleaseDurationChange}
                     type="number"
-                    value={patch.release.duration}
+                    value={release.duration}
                 />
             </section>
         );
     }
 }
 
+const mapStateToProps = (state, ownProps) => ({
+    envelopeViewObject: getSustainEnvelopeByIndex(state, ownProps)
+});
 
-export default SustainEnvelope;
+const SustainEnvelopeConnected = connect(mapStateToProps)(SustainEnvelope);
+
+export default SustainEnvelopeConnected;

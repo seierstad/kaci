@@ -1,12 +1,12 @@
-import React, {Component} from "react";
-import {envelopePatchShape} from "../propdefs";
+import React, {PureComponent} from "react";
+import PropTypes from "prop-types";
 
 import {toPercent} from "./shared-functions";
 
-class EnvelopeLines extends Component {
+class EnvelopeLines extends PureComponent {
 
     static propTypes = {
-        "steps": envelopePatchShape.isRequired
+        "steps": PropTypes.arrayOf(PropTypes.object.isRequired).isRequired
     }
 
     render () {
@@ -15,13 +15,14 @@ class EnvelopeLines extends Component {
             if (index === 0) {
                 return null;
             }
+            const prevStep = arr[index - 1];
             return (
                 <line
                     key={"line-" + index + "_of_" + arr.length}
-                    x1={toPercent(arr[index - 1][0])}
-                    x2={toPercent(arr[index][0])}
-                    y1={toPercent(1 - arr[index - 1][1])}
-                    y2={toPercent(1 - arr[index][1])}
+                    x1={toPercent(prevStep.x)}
+                    x2={toPercent(step.x)}
+                    y1={toPercent(1 - prevStep.y)}
+                    y2={toPercent(1 - step.y)}
                 />
             );
         };

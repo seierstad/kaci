@@ -1,7 +1,10 @@
 import React, {Component} from "react";
+import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
+import {getValuePair} from "../../views/ViewUtils";
+import {getEnvelopeCached} from "../selectors";
 import Lines from "./lines.jsx";
 import Circles from "./circles.jsx";
 
@@ -9,82 +12,96 @@ import Circles from "./circles.jsx";
 class Envelope extends Component {
 
     static propTypes = {
-        "activeIndex": PropTypes.number,
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-        "index": PropTypes.number,
-        "module": PropTypes.string.isRequired,
         "part": PropTypes.string,
-        "patch": PropTypes.shape({
-            "steps": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
-        }).isRequired,
-        "viewState": PropTypes.array,
         "width": PropTypes.string,
         "x": PropTypes.string
     }
 
-    shouldComponentUpdate (nextProps) {
-        return (
-            this.props.patch !== nextProps.patch
-            || this.props.viewState !== nextProps.viewState
-            || this.props.activeIndex !== nextProps.activeIndex
-            || this.props.x !== nextProps.x
-            || this.props.width !== nextProps.width
-        );
+    constructor (props) {
+        super(props);
+        const {
+            handlers = {},
+            part
+        } = this.props;
+
+        this.background = React.createRef();
+
+        this.boundHandlers = Object.entries(handlers).reduce((acc, [name, func]) => {
+            acc[name] = func.bind(this, part);
+            return acc;
+        }, {});
     }
 
     @autobind
     handleBackgroundClick (event) {
-        const {module, index, part, patch, handlers} = this.props;
-        handlers.backgroundClick(event, module, patch.steps, index, part);
+        const point = getValuePair(event, this.background.current);
+        const {part, handlers, data: {steps}} = this.props;
+        const index = steps.findIndex(step => step.x > point.x);
+        handlers.backgroundClick(part, point, index);
     }
 
     @autobind
     handleMouseOut (event) {
-        const {module, index, part, handlers} = this.props;
-        handlers.mouseOut(event, module, index, part);
+        const {part, handlers} = this.props;
+        handlers.mouseOut(part);
+    }
+
+    @autobind
+    circleMouseDragHandler (index, event) {
+        const point = getValuePair(event, this.background.current);
+        this.boundHandlers.circleMouseDrag(index, point);
     }
 
     render () {
-        const {handlers, index, module, patch, viewState, activeIndex, width, x, part} = this.props;
+        const {
+            data,
+            part,
+            width,
+            x
+        } = this.props;
 
-        this.patch = patch;
-
-        const background = (
-            <rect
-                height="100%"
-                onMouseDown={this.handleBackgroundClick}
-                opacity="0"
-                ref={(bg) => this.background = bg}
-                width="100%"
-            />
-        );
+        const classNames = ["controller", "envelope"];
+        if (part) {
+            classNames.push(part);
+        }
 
         return (
             <svg
-                className={"controller envelope" + (part ? " " + part : "")}
+                className={classNames.join(" ")}
                 height="100%"
                 onMouseOut={this.handleMouseOut}
                 width={width ? width : "100%"}
                 x={x}
             >
-                {background}
+                <rect
+                    height="100%"
+                    onMouseDown={this.handleBackgroundClick}
+                    opacity="0"
+                    ref={this.background}
+                    width="100%"
+                />
                 <Lines
-                    steps={patch.steps}
+                    steps={data.steps}
                 />
                 <Circles
-                    activeIndex={activeIndex}
-                    background={this.background}
-                    envelopeIndex={index}
-                    handlers={handlers}
-                    module={module}
-                    part={part}
-                    steps={patch.steps}
-                    viewState={viewState}
+                    circleMouseDragHandler={this.circleMouseDragHandler}
+                    handlers={this.boundHandlers}
+                    steps={data.steps}
                 />
             </svg>
         );
     }
 }
 
+const mapStateToProps = (state, ownProps) => ({
+    "data": getEnvelopeCached(state, ownProps)
+});
+
+const EnvelopeConnected = connect(mapStateToProps)(Envelope);
+
+export {
+    EnvelopeConnected
+};
 
 export default Envelope;

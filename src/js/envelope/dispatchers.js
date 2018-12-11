@@ -14,7 +14,7 @@ import {
 
 const dispatchHandlers = (dispatch) => ({
     "handlers": {
-        "circleClick": (event, module, envelopeIndex, envelopePart, index, first, last) => {
+        "circleClick": (module, envelopeIndex, envelopePart, index, first, last) => {
             if (event.shiftKey) {
                 dispatch({
                     type: ENVELOPE_POINT_DELETE,
@@ -31,7 +31,7 @@ const dispatchHandlers = (dispatch) => ({
                 }
             }
         },
-        "mouseOut": (event, module, envelopeIndex, envelopePart) => {
+        "mouseOut": (module, envelopeIndex, envelopePart) => {
             const pos = getValuePair(event, event.currentTarget);
             if (pos.x > 1 || pos.x < 0 || pos.y > 1 || pos.y < 0) {
                 if (envelopePart === "sustain") {
@@ -41,7 +41,7 @@ const dispatchHandlers = (dispatch) => ({
                 }
             }
         },
-        "activeCircleMouseUp": (event, module, envelopeIndex, envelopePart, index) => {
+        "activeCircleMouseUp": (module, envelopeIndex, envelopePart, index) => {
             dispatch({
                 type: ENVELOPE_POINT_EDIT_END,
                 module,
@@ -50,27 +50,27 @@ const dispatchHandlers = (dispatch) => ({
                 index
             });
         },
-        "circleBlur": (event, module, envelopeIndex, envelopePart, index, first, last) => {
+        "circleBlur": (module, envelopeIndex, envelopePart, index, first, last) => {
             if ((envelopePart === "sustain") || (envelopePart === "release" && last) || envelopePart === "attack" && first) {
                 dispatch({type: ENVELOPE_SUSTAIN_EDIT_END, module, envelopeIndex});
             } else {
                 dispatch({type: ENVELOPE_POINT_EDIT_END, module, envelopeIndex, envelopePart, index});
             }
         },
-        "backgroundClick": (event, module, steps, envelopeIndex, envelopePart) => {
-            const {x, y} = getValuePair(event, event.target);
-            const index = steps.findIndex(e => e[0] > x);
+        "backgroundClick": (module, envelopeIndex, part, point, index) => {
+            const {x, y} = point;
 
-            dispatch({type: ENVELOPE_POINT_ADD, module, envelopeIndex, envelopePart, index, x, y});
-        },
-        "sustainBackgroundClick": (event, module, envelopeIndex) => {
-            const {y} = getValuePair(event, event.target);
-            dispatch({type: ENVELOPE_SUSTAIN_CHANGE, module, envelopeIndex, value: y});
-        },
-        "circleMouseDrag": (event, module, envelopeIndex, envelopePart, background, index, first, last) => {
-            const {x, y} = getValuePair(event, background);
+            if (part === "sustain") {
+                dispatch({type: ENVELOPE_SUSTAIN_CHANGE, module, envelopeIndex, value: y});
+            } else {
+                dispatch({type: ENVELOPE_POINT_ADD, module, envelopeIndex, envelopePart: part, x, y, index});
+            }
 
-            if ((envelopePart === "sustain") || (envelopePart === "release" && first) || (envelopePart === "attack" && last)) {
+        },
+        "circleMouseDrag": (module, envelopeIndex, envelopePart, index, point, isSustain) => {
+            const {x, y} = point; //getValuePair(event, background);
+
+            if ((envelopePart === "sustain") || isSustain) {
 
                 dispatch({
                     type: ENVELOPE_SUSTAIN_CHANGE,

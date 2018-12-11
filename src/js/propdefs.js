@@ -4,7 +4,6 @@ import {
     shape
 } from "prop-types";
 
-import {rangeShape} from "./static-source/propdefs";
 import {tuningShape} from "./tuning/propdefs";
 import {keyboardConfigShape} from "./keyboard/propdefs";
 import {modulationConfigShape} from "./modulation/propdefs";

@@ -1,4 +1,4 @@
-import defaultEnvParameters from "./envelope/defaults";
+import {defaultEnvParameters, defaultEnvViewState} from "./envelope/defaults";
 import defaultMidi from "./midi/defaults";
 import defaultMorseParameters from "./morse/defaults";
 import {defaultModulationConnectionParameters} from "./modulation/defaults";
@@ -60,11 +60,7 @@ const configuration = {
             "envelope": {
                 "count": 2,
                 "default": defaultEnvParameters,
-                "defaultState": {
-                    "attack": [],
-                    "release": [],
-                    "editSustain": false
-                }
+                "defaultState": defaultEnvViewState
             },
             "steps": {
                 "count": 2,
