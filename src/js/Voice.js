@@ -76,7 +76,6 @@ class Voice extends KaciNode {
             this.oscillator.init(),
             this.noise.init()
         ]).then((elements) => {
-            console.log({elements});
             this.frequency.connect(this.oscillator.targets.frequency);
             this.frequency.connect(this.sub.frequencyNode);
 

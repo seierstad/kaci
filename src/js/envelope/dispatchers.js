@@ -31,8 +31,7 @@ const dispatchHandlers = (dispatch) => ({
                 }
             }
         },
-        "mouseOut": (module, envelopeIndex, envelopePart) => {
-            const pos = getValuePair(event, event.currentTarget);
+        "mouseOut": (module, envelopeIndex, envelopePart, pos) => {
             if (pos.x > 1 || pos.x < 0 || pos.y > 1 || pos.y < 0) {
                 if (envelopePart === "sustain") {
                     dispatch({type: ENVELOPE_SUSTAIN_EDIT_END, module, envelopeIndex});

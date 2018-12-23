@@ -130,7 +130,6 @@ class OscillatorPresentation extends Component {
                 />
                 <div className="pd-and-mix-wrapper">
                     <PhaseDistortion
-                        index={0}
                         key="pdEnvelope0"
                         module="oscillator"
                         patch={patch.pd[0]}
@@ -140,7 +139,6 @@ class OscillatorPresentation extends Component {
                         waveformName={patch.waveform}
                     />
                     <PhaseDistortion
-                        index={1}
                         key="pdEnvelope1"
                         module="oscillator"
                         patch={patch.pd[1]}

@@ -12,6 +12,9 @@ import Circles from "./circles.jsx";
 class Envelope extends Component {
 
     static propTypes = {
+        "data": PropTypes.shape({
+            "steps": PropTypes.arrayOf(PropTypes.object).isRequired
+        }).isRequired,
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "part": PropTypes.string,
         "width": PropTypes.string,
@@ -43,8 +46,8 @@ class Envelope extends Component {
 
     @autobind
     handleMouseOut (event) {
-        const {part, handlers} = this.props;
-        handlers.mouseOut(part);
+        const pos = getValuePair(event, this.background.current);
+        this.boundHandlers.mouseOut(pos);
     }
 
     @autobind

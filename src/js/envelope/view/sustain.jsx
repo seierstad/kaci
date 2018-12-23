@@ -24,32 +24,34 @@ class Sustain extends Component {
 
     constructor (props) {
         super(props);
+        const {handlers = {}} = this.props;
         this.background = React.createRef();
+        this.boundHandlers = Object.entries(handlers).reduce((acc, [name, func]) => {
+            acc[name] = func.bind(this, "sustain");
+            return acc;
+        }, {});
     }
 
     @autobind
     handleBackgroundClick (event) {
         const point = getValuePair(event, event.target);
-        const {handlers} = this.props;
-        handlers.backgroundClick("sustain", point);
+        this.boundHandlers.backgroundClick(point);
     }
 
     @autobind
     handleBlur (event) {
-        const {handlers} = this.props;
-        handlers.circleBlur("sustain", event);
+        this.boundHandlers.circleBlur(event);
     }
 
     @autobind
     handleMouseDrag (event) {
-        const {handlers} = this.props;
-        handlers.circleMouseDrag("sustain", event);
+        const pos = getValuePair(event, this.background.current);
+        this.boundHandlers.circleMouseDrag(null, pos);
     }
 
     @autobind
     handleClick (event) {
-        const {handlers} = this.props;
-        handlers.circleClick("sustain", event);
+        this.boundHandlers.circleClick(event);
     }
 
     render () {

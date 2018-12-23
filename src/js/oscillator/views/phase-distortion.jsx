@@ -22,6 +22,17 @@ class PhaseDistortion extends Component {
     constructor (props) {
         super(props);
         this.waveform = React.createRef();
+
+        const {
+            handlers,
+            module,
+            subIndex
+        } = this.props;
+
+        this.boundHandlers = Object.entries(handlers).reduce((acc, [name, func]) => {
+            acc[name] = func.bind(this, "oscillator", subIndex);
+            return acc;
+        }, {});
     }
 
     componentDidMount () {
@@ -46,13 +57,14 @@ class PhaseDistortion extends Component {
 
 
     render () {
-        const {subIndex, handlers} = this.props;
+        const {subIndex, patch} = this.props;
 
         return (
             <div className="oscillator-pd-view">
                 <canvas ref={this.waveform} />
                 <Envelope
-                    handlers={handlers}
+                    data={patch.steps}
+                    handlers={this.boundHandlers}
                     module="oscillator"
                     part="pd"
                     subIndex={subIndex}

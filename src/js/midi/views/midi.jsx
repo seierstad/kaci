@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import autobind from "autobind-decorator";
 
+import ModuleToggle from "../../views/module-toggle.jsx";
+
 import {midiShape, midiClockPlayStateShape} from "../propdefs";
 import dispatchMap from "../dispatchers";
-
-import ModuleToggle from "../../views/module-toggle.jsx";
 
 import ChannelSelector from "./channel-selector.jsx";
 import PortSelector from "./port-selector.jsx";
@@ -47,19 +47,13 @@ class MidiViewPresentation extends Component {
                     ports={ports}
                     selectedPort={selectedPort}
                 />
-                {ports.findIndex(p => p.id === selectedPort) !== -1 ?
+                {(ports.findIndex(p => p.id === selectedPort) !== -1) && (
                     <ChannelSelector
                         channelChangeHandler={handlers.channelChange}
                         selectedChannel={channel}
                     />
-                    :
-                    null
-                }
-                {playState.tempo ?
-                    <dl><dt>Sync tempo:</dt><dd>{playState.tempo}</dd></dl>
-                    :
-                    null
-                }
+                )}
+                {playState.tempo && (<dl><dt>Sync tempo:</dt><dd>{playState.tempo}</dd></dl>)}
             </fieldset>
         );
     }
