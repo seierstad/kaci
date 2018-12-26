@@ -67,10 +67,12 @@ class ModulationMatrix {
     }
 
     init () {
-        this.initPatch(this.connections, this.state);
         return Promise.all([
             this.lfos.init()
-        ]).then(() => this);
+        ]).then(() => {
+            this.initPatch(this.connections, this.state);
+            return this;
+        });
     }
 
     startGlobalModulators () {

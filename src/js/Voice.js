@@ -74,7 +74,8 @@ class Voice extends KaciNode {
         return Promise.all([
             this.sub.init(),
             this.oscillator.init(),
-            this.noise.init()
+            this.noise.init(),
+            ...this.lfos.filter(l => typeof l === "object").map(l => l.init())
         ]).then((elements) => {
             this.frequency.connect(this.oscillator.targets.frequency);
             this.frequency.connect(this.sub.frequencyNode);
@@ -205,7 +206,7 @@ class Voice extends KaciNode {
         this.oscillator.start(time);
 
         this.lfos.forEach(lfo => {
-            lfo.start();
+            lfo.init().then(l => l.start());
         });
 
         this.morse.forEach(morse => {

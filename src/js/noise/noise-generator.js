@@ -2,11 +2,11 @@ import autobind from "autobind-decorator";
 
 import KaciAudioNode from "../kaci-audio-node";
 import {BUFFER_LENGTH} from "../constants";
-import NoiseWorkletNode from "../oscillator-worklet-node";
+import NoiseWorkletNode from "./noise-worklet-node";
 import noise from "./noise";
 
 /* eslint-disable */
-import worklet from "../worklets/oscillator.worklet.js";
+import worklet from "./noise.worklet.js";
 /* eslint-enable */
 
 class Noise extends KaciAudioNode {
@@ -50,7 +50,6 @@ class Noise extends KaciAudioNode {
                 this.generator = new NoiseWorkletNode(this.context);
                 this.generator.connect(this.outputStage.input);
                 this.color = this.state.color;
-                this.generator.port.postMessage(JSON.stringify({"waveform": "saw"}));
                 return that;
             });
         }

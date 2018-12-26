@@ -211,10 +211,10 @@ const patch = {
             }],
             "detune": [{
                 "amount": 1,
-                "polarity": "positive",
+                "polarity": "full",
                 "enabled": true,
                 "source": {
-                    "type": "steps",
+                    "type": "lfo",
                     "index": 0
                 }
             }],

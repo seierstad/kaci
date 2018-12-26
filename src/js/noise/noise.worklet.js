@@ -1,10 +1,10 @@
 import autobind from "autobind-decorator";
-import noise from "../noise";
+import noise from "./noise";
 
 class NoiseProcessor extends AudioWorkletProcessor {
 
     // Static getter to define AudioParam objects in this custom processor.
-    static get parameterDescriptors() {
+    static get parameterDescriptors () {
         return [{
             name: "myParam",
             defaultValue: 0.707

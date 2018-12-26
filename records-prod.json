@@ -14,7 +14,7 @@
         "byName": {},
         "bySource": {},
         "usedIds": [
-          0
+          1
         ]
       }
     }
@@ -123,7 +123,26 @@
       "node_modules/redux-devtools-extension/logOnly.js": 42,
       "node_modules/redux-devtools-extension/utils/assign.js": 43,
       "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx f6ebdbf7a09f3a410f354f0bbc22801c": 44,
-      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 7b4ec3f835ef250390ad5eb1c2d77bc5": 44
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 7b4ec3f835ef250390ad5eb1c2d77bc5": 44,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 6007d0a29363da8ac38a5f56664870cd": 44,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 4531c5085c3fdcdd2e6d43bbfbdc3cfc": 44,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 365aa35e096edf5993e4dd794119983c": 44,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js": 44,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 3f8164b03812c3d43984741f7fd08a4b": 45,
+      "node_modules/autobind-decorator/lib/esm/index.js": 45,
+      "node_modules/react-redux/es/index.js 5705a13e59335b5785fdb976dfb5f636": 46,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/shared-functions.js": 71,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/views/ViewUtils.js": 73,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/envelope.jsx 386cb9e9f0847d190d56a6cf4d578d57": 74,
+      "node_modules/re-reselect/dist/index.js": 75,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/selectors.js": 76,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/sustain-envelope.jsx": 77,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/sustain.jsx": 78,
+      "node_modules/reselect/es/index.js": 79,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx e839032daf2d11c48a69b801c9a54a37": 80,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx bad1eeb7bbb62cdc079c1ec7b6918476": 80,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js": 80,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 47bc4da50dc9d441f08f0b2de17de4db": 81
     },
     "usedIds": {
       "0": 0,
@@ -323,7 +342,10 @@
           "node_modules/core-js/modules/_to-object.js": 46,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js 69cb5f0c1d871156d90f56c61df50fb2": 47,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js a84d0b21ac90d94baf25a22b4b419940": 24,
-          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js acbecfa5b03fbf64cb22caeb7e7ab348": 24
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js acbecfa5b03fbf64cb22caeb7e7ab348": 24,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js d7c8eb02e4b18c8d2272d5d9e1ac355a": 24,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js fa71a1b365cd369c37b01dfb78834859": 24,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 5e58b31eb4730c77b72a5eaae62fd8c4": 24
         },
         "usedIds": {
           "0": 0,
@@ -374,6 +396,118 @@
           "45": 45,
           "46": 46,
           "47": 47
+        }
+      },
+      "chunks": {
+        "byName": {
+          "main": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    },
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/core-js/modules/_global.js": 0,
+          "node_modules/core-js/modules/_hide.js": 1,
+          "node_modules/core-js/modules/_wks.js": 2,
+          "node_modules/core-js/modules/_descriptors.js": 3,
+          "node_modules/core-js/modules/_has.js": 4,
+          "node_modules/core-js/modules/_core.js": 5,
+          "node_modules/core-js/modules/_uid.js": 6,
+          "node_modules/core-js/modules/_object-dp.js": 7,
+          "node_modules/core-js/modules/_an-object.js": 8,
+          "node_modules/core-js/modules/_is-object.js": 9,
+          "node_modules/core-js/modules/_iterators.js": 10,
+          "node_modules/core-js/modules/_to-iobject.js": 11,
+          "node_modules/core-js/modules/_redefine.js": 12,
+          "node_modules/core-js/modules/_shared-key.js": 13,
+          "node_modules/core-js/modules/_shared.js": 14,
+          "node_modules/core-js/modules/_library.js": 15,
+          "node_modules/core-js/modules/_fails.js": 16,
+          "node_modules/core-js/modules/_dom-create.js": 17,
+          "node_modules/core-js/modules/_property-desc.js": 18,
+          "node_modules/core-js/modules/_defined.js": 19,
+          "node_modules/core-js/modules/_object-keys.js": 20,
+          "node_modules/core-js/modules/_to-integer.js": 21,
+          "node_modules/core-js/modules/_enum-bug-keys.js": 22,
+          "node_modules/core-js/modules/_set-to-string-tag.js": 23,
+          "node_modules/core-js/modules/web.dom.iterable.js": 24,
+          "node_modules/core-js/modules/es6.array.iterator.js": 25,
+          "node_modules/core-js/modules/_add-to-unscopables.js": 26,
+          "node_modules/core-js/modules/_ie8-dom-define.js": 27,
+          "node_modules/core-js/modules/_to-primitive.js": 28,
+          "node_modules/core-js/modules/_iter-step.js": 29,
+          "node_modules/core-js/modules/_iobject.js": 30,
+          "node_modules/core-js/modules/_cof.js": 31,
+          "node_modules/core-js/modules/_iter-define.js": 32,
+          "node_modules/core-js/modules/_export.js": 33,
+          "node_modules/core-js/modules/_ctx.js": 34,
+          "node_modules/core-js/modules/_a-function.js": 35,
+          "node_modules/core-js/modules/_iter-create.js": 36,
+          "node_modules/core-js/modules/_object-create.js": 37,
+          "node_modules/core-js/modules/_object-dps.js": 38,
+          "node_modules/core-js/modules/_object-keys-internal.js": 39,
+          "node_modules/core-js/modules/_array-includes.js": 40,
+          "node_modules/core-js/modules/_to-length.js": 41,
+          "node_modules/core-js/modules/_to-absolute-index.js": 42,
+          "node_modules/core-js/modules/_html.js": 43,
+          "node_modules/core-js/modules/_object-gpo.js": 44,
+          "node_modules/core-js/modules/_to-object.js": 45,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 5e58b31eb4730c77b72a5eaae62fd8c4": 46,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js fa71a1b365cd369c37b01dfb78834859": 46
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7,
+          "8": 8,
+          "9": 9,
+          "10": 10,
+          "11": 11,
+          "12": 12,
+          "13": 13,
+          "14": 14,
+          "15": 15,
+          "16": 16,
+          "17": 17,
+          "18": 18,
+          "19": 19,
+          "20": 20,
+          "21": 21,
+          "22": 22,
+          "23": 23,
+          "24": 24,
+          "25": 25,
+          "26": 26,
+          "27": 27,
+          "28": 28,
+          "29": 29,
+          "30": 30,
+          "31": 31,
+          "32": 32,
+          "33": 33,
+          "34": 34,
+          "35": 35,
+          "36": 36,
+          "37": 37,
+          "38": 38,
+          "39": 39,
+          "40": 40,
+          "41": 41,
+          "42": 42,
+          "43": 43,
+          "44": 44,
+          "45": 45,
+          "46": 46
         }
       },
       "chunks": {

@@ -1,7 +1,12 @@
 import autobind from "autobind-decorator";
 // import WavyJones from "../../lib/wavy-jones";
 import Modulator from "../modulator/modulator";
-import IdealOscillator from "../oscillator/ideal-oscillator";
+import Oscillator from "../oscillator/ideal-oscillator";
+import OscillatorWorkletNode from "../oscillator/oscillator-worklet-node";
+
+/* eslint-disable */
+import worklet from "../oscillator/oscillator.worklet.js";
+/* eslint-enable */
 
 /**
     LFO: three outputs
@@ -20,25 +25,43 @@ class LFO extends Modulator {
         this.changeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.changeHandler);
 
-        this.oscillator = new IdealOscillator(this.context, this.dc);
-        //this.oscillator = new Oscillator(this.context, this.dc);
         this.parameters = null;
-    }
 
-    init () {
-        const that = this;
-        return new Promise((resolve, reject) => resolve(this)).then(() => {
-            //        return this.oscillator.init().then(oscillator => {
+        this.isWorklet = true;
 
-            this.oscillator.connect(that.postGain);
-
-            for (let name in this.outputs) {
-                this.oscillator.connect(that.outputs[name]);
-            }
-
+        if (!this.context.audioWorklet) {
+            this.isWorklet = false;
+            this.oscillator = new Oscillator(this.context);
+            this.oscillator.connect(this.postGain);
             this.parameters = {...this.oscillator.parameters};
             this.frequency = this.state.frequency;
             this.waveform = this.state.waveform;
+
+
+            for (let name in this.outputs) {
+                this.oscillator.connect(this.outputs[name]);
+            }
+        }
+    }
+
+    init () {
+
+        const that = this;
+        if (this.isWorklet) {
+            return this.context.audioWorklet.addModule(worklet).then(() => {
+                this.oscillator = new OscillatorWorkletNode(this.context);
+                this.oscillator.connect(this.postGain);
+                for (let name in this.outputs) {
+                    this.oscillator.connect(that.outputs[name]);
+                }
+                this.waveform = this.state.waveform;
+                return that;
+            });
+        }
+
+
+        return new Promise((resolve) => {
+            resolve(this);
         });
     }
 

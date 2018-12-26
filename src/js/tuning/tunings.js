@@ -17,7 +17,7 @@ export const scaleRatios = function (base, teller, nevner) {
 
         if (r > base || r < 1) {
             const f = Math.log(r) / Math.log(base);
-            console.log("f: ", f, "t: ", t, "n: ", n, "r: ", r);
+            // console.log("f: ", f, "t: ", t, "n: ", n, "r: ", r);
 
             if (r < 1) {
                 t *= Math.pow(base, -Math.trunc(f));
@@ -25,7 +25,7 @@ export const scaleRatios = function (base, teller, nevner) {
                 n *= Math.pow(base, Math.trunc(f));
             }
         }
-        console.log("t:", t, "n: ", n, "r: ", t/n);
+        // console.log("t:", t, "n: ", n, "r: ", t/n);
     };
 };
 

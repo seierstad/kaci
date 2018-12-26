@@ -1,17 +1,16 @@
-
 import path from "path";
 import webpack from "webpack";
 import merge from "webpack-merge";
 import parts from "./webpack.parts";
-//import metaParts from "./webpack.parts.meta";
+import * as metaParts from "./webpack.parts.meta";
 
 const rootPath = path.normalize(__dirname + "/..");
 
 const PATHS = {
     app: path.join(rootPath, "src", "js"),
     build: path.join(rootPath, "dist"),
-    reports: path.join("reports"),
-    svg: path.join("src", "images", "svg")
+    reports: path.join(rootPath, "reports"),
+    svg: path.join(rootPath, "src", "images", "svg")
 };
 
 
@@ -47,7 +46,7 @@ const commonConfig = merge([
     parts.lintJS({
         formatter: "checkstyle",
         filePath: path.join(PATHS.reports, "checkstyle-eslint-report.xml")
-    })
+    }),
     /*,
     parts.loadSVG(),
     parts.favicons({
@@ -60,18 +59,19 @@ const commonConfig = merge([
     })
     //parts.generateServiceWorker()
     //metaParts.bundleTracker()
-    //metaParts.analyzeBundle()
     */
+    metaParts.analyzeBundle({reportsPath: PATHS.reports})
+
 ]);
 
 
 const loadJSOptions = {
-    exclude: /(node_modules|src\/js\/worklets)/,
+    exclude: /(node_modules|worklet.js)/,
     include: PATHS.app
 };
 
 const loadWorkletsOptions = {
-    include: /(src\/js\/worklets)/
+    include: /worklet.js/
 };
 
 const minifyJSOptions = {};
