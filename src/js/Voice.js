@@ -71,15 +71,19 @@ class Voice extends KaciNode {
         this.oscillator = new PDOscillator(this.context, this.store, this.state.oscillator);
         this.noise = new NoiseGenerator(this.context, this.store, this.state.noise);
 
+        const voiceLFOs =  this.lfos.filter(l => typeof l === "object");
+
+
         return Promise.all([
             this.sub.init(),
             this.oscillator.init(),
             this.noise.init(),
-            ...this.lfos.filter(l => typeof l === "object").map(l => l.init())
+            ...voiceLFOs.map(l => l.init())
         ]).then((elements) => {
             this.frequency.connect(this.oscillator.targets.frequency);
             this.frequency.connect(this.sub.frequencyNode);
 
+            voiceLFOs.map(l => l.start());
             this.sub.connect(this.mainOut.input);
             this.noise.connect(this.mainOut.input);
             this.oscillator.connect(this.mainOut.input);

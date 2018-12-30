@@ -1,11 +1,6 @@
 import * as HARMONIC from "../harmonics/actions";
 import harmonics from "../harmonics/viewstate-reducer";
-import {
-    ENVELOPE_BLUR,
-    ENVELOPE_POINT_ADD,
-    ENVELOPE_POINT_EDIT_END,
-    ENVELOPE_POINT_EDIT_START
-} from "../envelope/actions";
+import * as ENVELOPE from "../envelope/actions";
 
 import {envelope} from "../envelope/viewstate-reducers";
 
@@ -17,10 +12,10 @@ const oscillator = (state = {"pd": [[], []]}, action) => {
 
             switch (action.type) {
 
-                case ENVELOPE_POINT_ADD:
-                case ENVELOPE_BLUR:
-                case ENVELOPE_POINT_EDIT_START:
-                case ENVELOPE_POINT_EDIT_END:
+                case ENVELOPE.POINT_ADD:
+                case ENVELOPE.BLUR:
+                case ENVELOPE.POINT_EDIT_START:
+                case ENVELOPE.POINT_EDIT_END:
                     const pd = [...state.pd];
                     pd[action.envelopeIndex] = envelope([...state.pd[action.envelopeIndex]], action);
 

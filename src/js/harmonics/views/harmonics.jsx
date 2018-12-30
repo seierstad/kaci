@@ -5,7 +5,7 @@ import autobind from "autobind-decorator";
 import {harmonicShape} from "../propdefs";
 import {fractionsLcm} from "../../shared-functions";
 
-import WaveformCanvas from "../../oscillator/views/waveform-canvas.jsx";
+import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import Harmonic from "./harmonic.jsx";
 import HarmonicNew from "./harmonic-new.jsx";
 

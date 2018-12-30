@@ -1,9 +1,9 @@
 import {oneOf, oneOfType, object, shape, arrayOf, number} from "prop-types";
 import {harmonicShape} from "../harmonics/propdefs";
 import {envelopePatchShape} from "../envelope/propdefs";
+import {waveforms, wrappers} from "../waveform/waveforms";
 import {outputStagePatchProperties} from "../output-stage/propdefs";
 import {OSCILLATOR_MODE} from "./constants";
-import {waveforms, wrappers} from "./waveforms";
 
 export const oscillatorModeShape = oneOf(Object.values(OSCILLATOR_MODE));
 

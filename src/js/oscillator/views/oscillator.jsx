@@ -5,17 +5,17 @@ import {connect} from "react-redux";
 import {modulationTargetShape} from "../../modulation/propdefs";
 import {getDistortedPhase, mixValues} from "../../shared-functions";
 import Harmonics from "../../harmonics/views/harmonics.jsx";
-import * as HARMONIC from "../../harmonics/actions";
+import harmonicDispatchers from "../../harmonics/dispatchers";
 import OutputStage from "../../output-stage/views/output-stage.jsx";
 import RangeInput from "../../static-source/views/range-input.jsx";
 import * as OUTPUT from "../../output-stage/actions";
+import {waveforms} from "../../waveform/waveforms";
+import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
 
 import * as OSCILLATOR from "../actions";
 import {OSCILLATOR_MODE} from "../constants";
-import {waveforms} from "../waveforms";
 import {oscillatorPatchShape} from "../propdefs";
 
-import WaveformSelector from "./waveform-selector.jsx";
 import PhaseDistortion from "./phase-distortion.jsx";
 import Mix from "./mix.jsx";
 import Resonance from "./resonance.jsx";
@@ -131,7 +131,6 @@ class OscillatorPresentation extends Component {
                 <div className="pd-and-mix-wrapper">
                     <PhaseDistortion
                         key="pdEnvelope0"
-                        module="oscillator"
                         patch={patch.pd[0]}
                         subIndex={0}
                         viewState={viewState.pd[0]}
@@ -140,7 +139,6 @@ class OscillatorPresentation extends Component {
                     />
                     <PhaseDistortion
                         key="pdEnvelope1"
-                        module="oscillator"
                         patch={patch.pd[1]}
                         subIndex={1}
                         viewState={viewState.pd[1]}
@@ -159,7 +157,7 @@ class OscillatorPresentation extends Component {
                     handler={handlers.mode}
                     patch={patch.mode}
                 >
-                    {(patch.mode === OSCILLATOR_MODE.RESONANT) ? (
+                    {(patch.mode === OSCILLATOR_MODE.RESONANT) && (
                         <Resonance
                             configuration={configuration.resonance}
                             dependencies={resonanceDependencies}
@@ -167,8 +165,8 @@ class OscillatorPresentation extends Component {
                             mixFunction={this.mixFunction}
                             patch={patch}
                         />
-                    ) : null}
-                    {(patch.mode === OSCILLATOR_MODE.HARMONICS) ? (
+                    )}
+                    {(patch.mode === OSCILLATOR_MODE.HARMONICS) && (
                         <Harmonics
                             configuration={configuration.harmonics}
                             dependencies={resonanceDependencies}
@@ -177,7 +175,7 @@ class OscillatorPresentation extends Component {
                             patch={patch.harmonics}
                             viewState={viewState.harmonics}
                         />
-                    ) : null}
+                    )}
                 </Mode>
                 <RangeInput
                     changeHandler={handlers.detune}
@@ -198,17 +196,7 @@ const mapDispatch = (dispatch) => ({
             "toggle": () => dispatch({"type": OSCILLATOR.RESONANCE_TOGGLE}),
             "wrapperChange": (waveform) => dispatch({"type": OSCILLATOR.WRAPPER_CHANGE, "value": waveform})
         },
-        "harmonics": {
-            "add": (numerator, denominator) => dispatch({type: HARMONIC.ADD, module: "oscillator", submodule: "harmonics", numerator, denominator}),
-            "denominatorChange": (value) => dispatch({type: HARMONIC.DENOMINATOR_CHANGE, module: "oscillator", submodule: "harmonics", value}),
-            "handleNormalize": () => dispatch({type: HARMONIC.LEVELS_NORMALIZE, module: "oscillator", submodule: "harmonics"}),
-            "handleNew": () => dispatch({type: HARMONIC.NEW, module: "oscillator", submodule: "harmonics"}),
-            "levelChange": (value, {numerator, denominator}) => dispatch({type: HARMONIC.LEVEL_CHANGE, module: "oscillator", submodule: "harmonics", value, numerator, denominator}),
-            "numeratorChange": (value) => dispatch({type: HARMONIC.NUMERATOR_CHANGE, module: "oscillator", submodule: "harmonics", value}),
-            "phaseChange": (value, {numerator, denominator}) => dispatch({type: HARMONIC.PHASE_CHANGE, module: "oscillator", submodule: "harmonics", value, numerator, denominator}),
-            "remove": (module, index, {numerator, denominator}) => dispatch({type: HARMONIC.REMOVE, module: "oscillator", submodule: "harmonics", numerator, denominator}),
-            "toggle": (module, index, {numerator, denominator}) => dispatch({type: HARMONIC.TOGGLE, module: "oscillator", submodule: "harmonics", numerator, denominator})
-        },
+        "harmonics": harmonicDispatchers(dispatch),
         "outputStageHandlers": {
             "handleToggle": () => dispatch({type: OUTPUT.TOGGLE, module: "oscillator"}),
             "handleGainInput": (value) => dispatch({type: OUTPUT.GAIN_CHANGE, value, module: "oscillator"}),

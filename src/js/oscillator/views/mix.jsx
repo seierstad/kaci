@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {rangeShape} from "../../static-source/propdefs";
 import RangeInput from "../../static-source/views/range-input.jsx";
 
-import WaveformCanvas from "./waveform-canvas.jsx";
+import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 
 
 class Mix extends Component {

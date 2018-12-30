@@ -8,7 +8,7 @@ import {
     lcmReducer,
     fractionsLcm
 } from "../shared-functions";
-import {waveforms, wrappers} from "./waveforms";
+import {waveforms, wrappers} from "../waveform/waveforms";
 import {OSCILLATOR_MODE} from "./constants";
 
 

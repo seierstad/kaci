@@ -1,10 +1,10 @@
 /*global document, module, require, CustomEvent */
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import autobind from "autobind-decorator";
+import {boundMethod} from "autobind-decorator";
 
-import WaveformSelector from "../../oscillator/views/waveform-selector.jsx";
-import {waveforms} from "../../oscillator/waveforms";
+import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
+import {waveforms} from "../../waveform/waveforms";
 import Modulator from "../../modulator/views/modulator.jsx";
 import Periodic from "../../periodic/views/periodic.jsx";
 import {lfoPatchShape} from "../propdefs";
@@ -20,7 +20,7 @@ class LFO extends Component {
 
     constructor (props) {
         super(props);
-        this.waveformSelector = null;
+        this.waveformSelector = React.createRef();
         this.waveforms = {};
         this.module = "lfos";
     }
@@ -32,7 +32,7 @@ class LFO extends Component {
     }
 
     componentDidMount () {
-        this.phaseIndicator = this.waveformSelector.phaseIndicator;
+        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
         this.updatePhaseIndicator(true);
     }
 
@@ -41,12 +41,23 @@ class LFO extends Component {
     }
 
     componentDidUpdate () {
-        this.phaseIndicator = this.waveformSelector.phaseIndicator;
+        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
         this.updatePhaseIndicator(true);
     }
 
-    @autobind
-    updatePhaseIndicator (time, phase) {
+    @boundMethod
+    onWaveformChange (waveformName) {
+        const {
+            handlers: {
+                changeWaveform
+            },
+            index
+        } = this.props;
+        changeWaveform("lfos", index, waveformName);
+    }
+
+    @boundMethod
+    updatePhaseIndicator () {
         this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
     }
 
@@ -58,12 +69,12 @@ class LFO extends Component {
             <section className="lfo" id={"lfo-" + index + "-view"}>
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
                 <WaveformSelector
-                    changeHandler={handlers.changeWaveform}
+                    changeHandler={this.onWaveformChange}
                     includePhaseIndicator
                     index={index}
                     module={this.module}
                     parameter="waveform"
-                    ref={w => this.waveformSelector = w}
+                    ref={this.waveformSelector}
                     selected={patch.waveform}
                     waveforms={this.waveforms}
                 />

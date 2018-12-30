@@ -55,6 +55,7 @@ class LFO extends Modulator {
                     this.oscillator.connect(that.outputs[name]);
                 }
                 this.waveform = this.state.waveform;
+                this.frequency = this.state.frequency;
                 return that;
             });
         }

@@ -1,5 +1,5 @@
 import {boundMethod} from "autobind-decorator";
-import {waveforms} from "./waveforms";
+import {waveforms} from "../waveform/waveforms";
 
 class OscillatorWorkletProcessor extends AudioWorkletProcessor {
 

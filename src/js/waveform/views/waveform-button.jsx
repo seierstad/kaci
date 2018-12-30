@@ -1,42 +1,42 @@
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import drawWaveform from "./draw-waveform";
 
 
-class WaveformButton extends Component {
+class WaveformButton extends PureComponent {
 
     static propTypes = {
         "controlName": PropTypes.string,
         "includePhaseIndicator": PropTypes.bool,
-        "index": PropTypes.number,
-        "module": PropTypes.string.isRequired,
         "onChange": PropTypes.func.isRequired,
         "selected": PropTypes.bool,
         "waveform": PropTypes.func.isRequired,
         "waveformName": PropTypes.string.isRequired
     }
 
+    constructor (props) {
+        super(props);
+        this.phaseIndicator = React.createRef();
+        this.canvas = React.createRef();
+    }
+
     componentDidMount () {
-        drawWaveform(this.props.waveform, this.canvas);
+        drawWaveform(this.props.waveform, this.canvas.current);
 
         if (this.props.includePhaseIndicator) {
             const propNames = ["maskImage", "webkitMaskImage"];
-            const s = this.phaseIndicator.style;
+            const s = this.phaseIndicator.current.style;
 
             const maskImageProperty = propNames.find(p => typeof s[p] !== "undefined");
 
             if (maskImageProperty) {
-                this.phaseIndicator.style[maskImageProperty] = "url('" + this.canvas.toDataURL() + "')";
+                this.phaseIndicator.current.style[maskImageProperty] = "url('" + this.canvas.current.toDataURL() + "')";
             } else {
                 this.phaseIndicator.classList.add("no-mask");
             }
         }
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return nextProps.selected !== this.props.selected;
     }
 
     @autobind
@@ -50,7 +50,12 @@ class WaveformButton extends Component {
     }
 
     render () {
-        const {controlName, waveformName, selected, includePhaseIndicator} = this.props;
+        const {
+            controlName,
+            waveformName,
+            selected,
+            includePhaseIndicator
+        } = this.props;
 
         return (
             <label>
@@ -61,15 +66,19 @@ class WaveformButton extends Component {
                     type="radio"
                     value={waveformName}
                 />
-                <canvas height="50px" ref={c => this.canvas = c} role="presentation" width="50px" />
-                {includePhaseIndicator ? (
+                <canvas
+                    height="50px"
+                    ref={this.canvas}
+                    role="presentation"
+                    width="50px"
+                />
+                {includePhaseIndicator && (
                     <div
                         className="phase-indicator"
-                        ref={p => this.phaseIndicator = p}
+                        ref={this.phaseIndicator}
                         role="presentation"
-                    />)
-                    : null
-                }
+                    />
+                )}
                 <span className="waveform-name">{waveformName}</span>
             </label>
         );

@@ -1,6 +1,6 @@
 import autobind from "autobind-decorator";
+import {waveforms} from "../waveform/waveforms";
 import Oscillator from "./oscillator";
-import {waveforms} from "./waveforms";
 
 class IdealOscillator extends Oscillator {
 

@@ -3,12 +3,11 @@ import PropTypes from "prop-types";
 
 import RangeInput from "../../static-source/views/range-input.jsx";
 import {rangeShape} from "../../static-source/propdefs";
-import {waveforms, wrappers} from "../waveforms";
+import {waveforms, wrappers} from "../../waveform/waveforms";
+import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
+import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
+
 import {oscillatorPatchShape} from "../propdefs";
-
-
-import WaveformSelector from "./waveform-selector.jsx";
-import WaveformCanvas from "./waveform-canvas.jsx";
 
 
 const getWrapperFunction = (wrapper, waveform, resonance) => (phase) => {

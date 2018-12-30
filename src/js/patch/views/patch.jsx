@@ -118,8 +118,8 @@ const mapDispatchToProps = (dispatch) => ({
         "envelope": envelopeHandlers(dispatch),
         "modulator": modulatorHandlers(dispatch),
         "lfo": {
-            "changeWaveform": (value, module, index) => {
-                dispatch({"type": LFO.WAVEFORM_CHANGE, index, module, value});
+            "changeWaveform": (module, index, value) => {
+                dispatch({"type": LFO.WAVEFORM_CHANGE, module, index, value});
             }
         },
         "steps": {

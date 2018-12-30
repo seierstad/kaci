@@ -55,7 +55,7 @@ const morse = (state = [], action) => {
             case MODULATOR.FREQUENCY_CHANGE:
             case MODULATOR.MODE_CHANGE:
             case MODULATOR.RESET:
-                result[action.index] = modulatorReducer(state, action);
+                result[action.index] = modulatorReducer(state[action.index], action);
                 break;
 
             case SYNC.DENOMINATOR_CHANGE:

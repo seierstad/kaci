@@ -2,11 +2,7 @@ import * as HARMONIC from "../harmonics/actions";
 import harmonics from "../harmonics/reducers";
 import * as OSCILLATOR from "../oscillator/actions";
 import {steps} from "../envelope/reducers";
-import {
-    ENVELOPE_POINT_ADD,
-    ENVELOPE_POINT_CHANGE,
-    ENVELOPE_POINT_DELETE
-} from "../envelope/actions";
+import * as ENVELOPE from "../envelope/actions";
 
 
 const oscillator = (state = {}, action) => {
@@ -52,9 +48,9 @@ const oscillator = (state = {}, action) => {
         // generic actions targeting oscillator parameters
 
         switch (action.type) {
-            case ENVELOPE_POINT_DELETE:
-            case ENVELOPE_POINT_ADD:
-            case ENVELOPE_POINT_CHANGE:
+            case ENVELOPE.POINT_DELETE:
+            case ENVELOPE.POINT_ADD:
+            case ENVELOPE.POINT_CHANGE:
                 const pd = [
                     ...state.pd
                 ];

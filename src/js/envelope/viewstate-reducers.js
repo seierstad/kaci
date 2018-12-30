@@ -1,30 +1,30 @@
 import config from "../configuration";
 import {defaultEnvViewState} from "./defaults";
 import {
-    ENVELOPE_BLUR,
-    ENVELOPE_POINT_ADD,
-    ENVELOPE_POINT_EDIT_END,
-    ENVELOPE_POINT_EDIT_START,
-    ENVELOPE_SUSTAIN_CHANGE,
-    ENVELOPE_SUSTAIN_EDIT_END,
-    ENVELOPE_SUSTAIN_EDIT_START
+    BLUR,
+    POINT_ADD,
+    POINT_EDIT_END,
+    POINT_EDIT_START,
+    SUSTAIN_CHANGE,
+    SUSTAIN_EDIT_END,
+    SUSTAIN_EDIT_START
 } from "./actions";
 
 const envelope = (state = [], action) => {
     switch (action.type) {
-        case ENVELOPE_POINT_ADD:
+        case POINT_ADD:
             return [
                 ...state.map(el => (el >= action.index ? el + 1 : el)),
                 action.index
             ];
-        case ENVELOPE_BLUR:
+        case BLUR:
             return [];
-        case ENVELOPE_POINT_EDIT_START:
+        case POINT_EDIT_START:
             if (state.indexOf(action.index) === -1) {
                 return [...state, action.index];
             }
             break;
-        case ENVELOPE_POINT_EDIT_END:
+        case POINT_EDIT_END:
             const index = state.indexOf(action.index);
             if (index !== -1) {
                 return [
@@ -40,13 +40,13 @@ const envelope = (state = [], action) => {
 
 const sustainedEnvelope = (state = {...defaultEnvViewState}, action) => {
     switch (action.type) {
-        case ENVELOPE_SUSTAIN_CHANGE:
-        case ENVELOPE_SUSTAIN_EDIT_START:
+        case SUSTAIN_CHANGE:
+        case SUSTAIN_EDIT_START:
             return {
                 ...state,
                 editSustain: true
             };
-        case ENVELOPE_SUSTAIN_EDIT_END:
+        case SUSTAIN_EDIT_END:
             return {
                 ...state,
                 editSustain: false

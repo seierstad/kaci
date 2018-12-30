@@ -4,14 +4,13 @@ import {connect} from "react-redux";
 
 import {EnvelopeConnected as Envelope} from "../../envelope/view/envelope.jsx";
 import dispatchers from "../../envelope/dispatchers";
-import drawWaveform from "./draw-waveform";
+import drawWaveform from "../../waveform/views/draw-waveform";
 
 
 class PhaseDistortion extends Component {
 
     static propTypes = {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-        "module": PropTypes.string.isRequired,
         "patch": PropTypes.object.isRequired,
         "subIndex": PropTypes.number.isRequired,
         "viewState": PropTypes.array,
@@ -25,7 +24,6 @@ class PhaseDistortion extends Component {
 
         const {
             handlers,
-            module,
             subIndex
         } = this.props;
 

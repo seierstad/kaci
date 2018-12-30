@@ -1,4 +1,5 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import WaveformButton from "./waveform-button.jsx";
@@ -11,8 +12,6 @@ class WaveformSelector extends Component {
     static propTypes = {
         "changeHandler": PropTypes.func.isRequired,
         "includePhaseIndicator": PropTypes.bool,
-        "index": PropTypes.number,
-        "module": PropTypes.string.isRequired,
         "selected": PropTypes.oneOfType([
             PropTypes.string,
             PropTypes.shape({
@@ -46,12 +45,12 @@ class WaveformSelector extends Component {
 
     @autobind
     handleChange (waveformName) {
-        const {changeHandler, module, index} = this.props;
-        changeHandler(waveformName, module, index);
+        const {changeHandler} = this.props;
+        changeHandler(waveformName);
     }
 
     render () {
-        const {waveforms, selected, index, module, includePhaseIndicator} = this.props;
+        const {waveforms, selected, includePhaseIndicator} = this.props;
         const controlName = "waveform-" + waveformSelectorCounter;
         waveformSelectorCounter += 1;
 
@@ -68,9 +67,7 @@ class WaveformSelector extends Component {
                         <WaveformButton
                             controlName={controlName}
                             includePhaseIndicator={!!includePhaseIndicator}
-                            index={index}
                             key={waveform}
-                            module={module}
                             onChange={this.handleChange}
                             ref={includePhaseIndicator && selected === waveform ? (p => this.activeButton = p) : null}
                             selected={selected === waveform}
