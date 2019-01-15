@@ -1,17 +1,14 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {PureComponent} from "react";
+import PropTypes from "prop-types";
 
 import {keyboardConfigShape} from "../propdefs";
 
 
-class KeyboardInputView extends Component {
+class KeyboardInputView extends PureComponent {
 
     static propTypes = {
         "configuration": keyboardConfigShape.isRequired,
         "handlers": PropTypes.object.isRequired
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return (this.props.configuration !== nextProps.configuration);
     }
 
     render () {

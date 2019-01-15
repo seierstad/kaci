@@ -14,19 +14,15 @@ class MorseSvg extends Component {
 
     constructor (props) {
         super(props);
+        this.row = React.createRef();
+        this.phaseIndicator = React.createRef();
         this.width = 0;
         this.height = 0;
-        this.phaseIndicator = null;
         this.animation = null;
-        this.row = null;
         this.duration = 1000;
     }
 
     componentDidMount () {
-        /*
-        this.phaseIndicator.style.offsetPath = this.pathData;
-        this.phaseIndicator.style.offsetDistance = 4;
-        */
         this.setPhaseAnimation();
 
     }
@@ -37,7 +33,7 @@ class MorseSvg extends Component {
 
     @autobind
     setPhaseAnimation () {
-        this.row.animate([
+        this.row.current.animate([
             {transform: "translateY(0)" },
             {transform: "translateY(" + this.height + "px)" }
         ], {
@@ -47,7 +43,7 @@ class MorseSvg extends Component {
             duration: this.duration
         });
 
-        this.phaseIndicator.animate([
+        this.phaseIndicator.current.animate([
             {transform: "translateX(0)"},
             {transform: "translateX(" + this.width + "px)"}
         ], {
@@ -175,7 +171,7 @@ class MorseSvg extends Component {
                 />
                 {paths}
                 {guidePaths}
-                <g className="row" ref={row => this.row = row}>
+                <g className="row" ref={this.row}>
                     <rect
                         fill="blue"
                         height={strokeWidth}
@@ -188,7 +184,7 @@ class MorseSvg extends Component {
                         cy={strokeWidth / -2}
                         fill="pink"
                         r={strokeWidth / 2}
-                        ref={c => this.phaseIndicator = c}
+                        ref={this.phaseIndicator}
                     />
                 </g>
             </svg>

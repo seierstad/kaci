@@ -1,3 +1,13 @@
+@keyframes phase-indicator {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 50px 0;
+    }
+}
+
 .waveform {
     &-selector {
         .flex-wrapper {
@@ -58,7 +68,7 @@
                 }
 
                 .phase-indicator {
-                    background: $waveform-selector-phase-indicator-color;
+                    background-image: linear-gradient(to right, rgba(30, 249, 255, 1) 2px, transparent 1px);
                     display: block;
                     height: 50px;
                     left: $button-content-margin;
@@ -76,7 +86,7 @@
                 &:focus,
                 &:hover {
                     .phase-indicator {
-                        will-change: opacity, clip-path;
+                        will-change: opacity, background-position;
                     }
                 }
 
@@ -92,13 +102,13 @@
 
                 :checked {
                     ~ canvas {
-                        background: rgba(30, 249, 255, 0.9);
+                        background: rgba(30, 249, 255, 1);
                     }
 
                     ~ .phase-indicator {
-                        animation: phase-indicator 1000ms steps(48, start) infinite;
+                        animation: phase-indicator 1000ms linear infinite;
                         opacity: 1;
-                        will-change: clip-path;
+                        will-change: background-position;
                     }
                 }
             }

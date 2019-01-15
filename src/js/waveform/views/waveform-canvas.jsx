@@ -12,8 +12,13 @@ class WaveformCanvas extends Component {
         "waveFunction": PropTypes.func.isRequired
     }
 
+    constructor (props) {
+        super(props);
+        this.animationFrame = null;
+    }
+
     componentDidMount () {
-        this.updateWaveform();
+        this.animationFrame = requestAnimationFrame(this.updateWaveform);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -21,11 +26,16 @@ class WaveformCanvas extends Component {
     }
 
     componentDidUpdate () {
-        this.updateWaveform();
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
+        this.animationFrame = requestAnimationFrame(this.updateWaveform);
     }
 
     @autobind
     updateWaveform () {
+        this.animationFrame = null;
         drawWaveform(this.props.waveFunction, this.waveform);
     }
 

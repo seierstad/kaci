@@ -97,16 +97,6 @@ fieldset {
     stroke-width: 3;
 }
 
-@keyframes phase-indicator {
-    0% {
-        clip-path: inset(0 46px 0 0);
-    }
-
-    100% {
-        clip-path: inset(0 0 0 46px);
-    }
-}
-
 .flex-wrapper {
     display: flex;
     position: relative;

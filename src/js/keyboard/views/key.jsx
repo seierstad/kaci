@@ -24,19 +24,24 @@ class Key extends Component {
         "wrap": PropTypes.bool
     }
 
+    constructor (props) {
+        super(props);
+        this.element = React.createRef();
+    }
+
     @autobind
     handleKeyDown (event) {
         if (event) {
             event.stopPropagation();
             event.preventDefault();
         }
-        this.element.addEventListener("mouseout", this.handleKeyUp);
+        this.element.current.addEventListener("mouseout", this.handleKeyUp);
         this.props.handlers.down(this.props.number);
     }
 
     @autobind
     handleKeyUp () {
-        this.element.removeEventListener("mouseout", this.handleKeyUp);
+        this.element.current.removeEventListener("mouseout", this.handleKeyUp);
         this.props.handlers.up(this.props.number);
     }
 
@@ -48,7 +53,18 @@ class Key extends Component {
     }
 
     render () {
-        const {name, inChordShiftChords, state, wrap, chordShiftActiveKey, chordShiftChordCount, lowChordIndex, highChordIndex, chordRatio} = this.props;
+        const {
+            name,
+            inChordShiftChords = [],
+            state,
+            wrap,
+            chordShiftActiveKey,
+            chordShiftChordCount,
+            lowChordIndex,
+            highChordIndex,
+            chordRatio
+        } = this.props;
+
         const classNames = ["key", name];
         if (state && state.down) {
             classNames.push("down");
@@ -60,23 +76,20 @@ class Key extends Component {
                 onMouseDown={this.handleKeyDown}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseUp={this.handleKeyUp}
-                ref={k => this.element = k}
+                ref={this.element}
             >
-                {inChordShiftChords ?
-                    inChordShiftChords.map(
-                        chordIndex => {
-                            const grow = chordIndex === lowChordIndex ? chordRatio : chordIndex === highChordIndex ? 100 - chordRatio : null;
-                            return (
-                                <div
-                                    className={"in-chord chord-" + chordIndex}
-                                    key={chordIndex}
-                                    style={grow ? {flexBasis: grow} : null}
-                                />
-                            );
-                        }
-                    )
-                    : null
-                }
+                {inChordShiftChords && inChordShiftChords.map(
+                    chordIndex => {
+                        const grow = chordIndex === lowChordIndex ? chordRatio : chordIndex === highChordIndex ? 100 - chordRatio : null;
+                        return (
+                            <div
+                                className={"in-chord chord-" + chordIndex}
+                                key={chordIndex}
+                                style={grow ? {flexBasis: grow} : null}
+                            />
+                        );
+                    }
+                )}
                 {chordShiftActiveKey ? <div className={"active-key chord-" + chordShiftChordCount} /> : null}
             </button>
         );

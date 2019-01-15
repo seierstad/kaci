@@ -25,6 +25,7 @@ class WaveformButton extends PureComponent {
     componentDidMount () {
         drawWaveform(this.props.waveform, this.canvas.current);
 
+        /*
         if (this.props.includePhaseIndicator) {
             const propNames = ["maskImage", "webkitMaskImage"];
             const s = this.phaseIndicator.current.style;
@@ -37,6 +38,7 @@ class WaveformButton extends PureComponent {
                 this.phaseIndicator.classList.add("no-mask");
             }
         }
+        */
     }
 
     @autobind

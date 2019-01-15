@@ -46,7 +46,6 @@ class SustainEnvelope extends Component {
     }
 
     render () {
-        console.log(this.props);
         const {envelopeViewObject = {}, index} = this.props;
         const {attack, release, sustain} = envelopeViewObject;
 

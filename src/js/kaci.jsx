@@ -31,6 +31,7 @@ import "../styles/styles.scss";
 const middleware = [];
 
 if (window.AudioContext) {
+
     const ctx = new window.AudioContext();
 
     const composeEnhancers = composeWithDevTools({
