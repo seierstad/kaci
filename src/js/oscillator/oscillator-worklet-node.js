@@ -1,4 +1,6 @@
-export default class OscillatorWorkletNode extends AudioWorkletNode {
+const audioWorkletNode = (typeof AudioWorkletNode === "undefined" ? Object : AudioWorkletNode);
+
+export default class OscillatorWorkletNode extends audioWorkletNode {
     constructor (context) {
         super(context, "oscillator-worklet-processor");
     }
