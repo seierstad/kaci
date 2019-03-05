@@ -1,24 +1,23 @@
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 
 import {stepsConfigShape, stepsPatchShape} from "../propdefs";
 import StepSequencer from "./step-sequencer-view.jsx";
 
-class StepSequencersView extends Component {
+class StepSequencersView extends PureComponent {
 
     static propTypes = {
         "configuration": stepsConfigShape.isRequired,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
-        "patch": PropTypes.arrayOf(stepsPatchShape).isRequired
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return this.props.patch !== nextProps.patch
-                || this.props.viewState !== nextProps.viewState;
+        "patch": PropTypes.arrayOf(stepsPatchShape).isRequired,
+        "viewState": PropTypes.object.isRequired
     }
 
     render () {
-        const {patch, configuration, handlers, viewState = []} = this.props;
+        const {patch, configuration, handlers, viewState = {}} = this.props;
+        const {
+            instances: viewstateInstances = []
+        } = viewState;
         let generators = [];
 
         for (let i = 0; i < configuration.count; i += 1) {
@@ -32,7 +31,7 @@ class StepSequencersView extends Component {
                     module="steps"
                     patch={patch[i] || configuration["default"]}
                     syncHandlers={handlers.sync}
-                    viewState={viewState[i]}
+                    viewState={viewstateInstances[i]}
                 />
             );
         }

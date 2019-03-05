@@ -1,10 +1,10 @@
 /*global document, module, require, CustomEvent */
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 
-class Step extends Component {
+class Step extends PureComponent {
 
     static propTypes = {
         "glide": PropTypes.bool,
@@ -61,7 +61,6 @@ class Step extends Component {
     render () {
         const {
             glide = false,
-            handlers = {},
             levels,
             stepIndex,
             sequencerIndex,
@@ -91,7 +90,12 @@ class Step extends Component {
             <fieldset className="step">
                 <legend>Step {stepIndex}</legend>
                 <div className="flex-wrapper">
-                    <button onClick={this.handleStepDelete} title="delete">x</button>
+                    <button
+                        className="step-delete"
+                        onClick={this.handleStepDelete}
+                        title={"delete step " + stepIndex}
+                        type="button"
+                    >x</button>
                     {inputs}
                     <label
                         key={[stepIndex, "glide"].join("-")}

@@ -142,7 +142,12 @@
       "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx e839032daf2d11c48a69b801c9a54a37": 80,
       "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx bad1eeb7bbb62cdc079c1ec7b6918476": 80,
       "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js": 80,
-      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 47bc4da50dc9d441f08f0b2de17de4db": 81
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 47bc4da50dc9d441f08f0b2de17de4db": 81,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx a6cb79009580635789323390e9cfc3a2": 81,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/range-input.jsx": 81,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx fe9d7ed11a625f6b8557b840fda5c28a": 82,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 874c61133cacda0eda62349c7a441fdf": 82,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx d92b035a0793cba6bcc1e3799f329d29": 82
     },
     "usedIds": {
       "0": 0,
@@ -226,7 +231,8 @@
       "78": 78,
       "79": 79,
       "80": 80,
-      "81": 81
+      "81": 81,
+      "82": 82
     }
   },
   "chunks": {
@@ -345,7 +351,8 @@
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js acbecfa5b03fbf64cb22caeb7e7ab348": 24,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js d7c8eb02e4b18c8d2272d5d9e1ac355a": 24,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js fa71a1b365cd369c37b01dfb78834859": 24,
-          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 5e58b31eb4730c77b72a5eaae62fd8c4": 24
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 5e58b31eb4730c77b72a5eaae62fd8c4": 24,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js ce728043ab55ec7ce9c1515b1b750a87": 24
         },
         "usedIds": {
           "0": 0,

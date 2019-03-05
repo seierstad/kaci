@@ -1,8 +1,8 @@
 import {shape, number, bool, arrayOf} from "prop-types";
 
 import {
-    periodicConfigProperties,
-    periodicPatchProperties
+    discretePeriodicModulatorPatchProperties,
+    discretePeriodicModulatorConfigProperties
 } from "../periodic/propdefs";
 
 import {
@@ -18,13 +18,13 @@ const stepPatchShape = shape({
 
 export const stepsPatchShape = shape({
     ...modulatorPatchProperties,
-    ...periodicPatchProperties,
-    "levels": number.isRequired,
-    "steps": arrayOf(stepPatchShape).isRequired
+    "speed": shape(discretePeriodicModulatorPatchProperties),
+    "maxValue": number.isRequired,
+    "sequence": arrayOf(stepPatchShape).isRequired
 });
 
 export const stepsConfigShape = shape({
     ...modulatorConfigProperties,
-    ...periodicConfigProperties,
+    ...discretePeriodicModulatorConfigProperties,
     "default": stepsPatchShape
 });

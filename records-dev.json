@@ -5,7 +5,9 @@
   },
   "chunks": {
     "byName": {},
-    "bySource": {},
+    "bySource": {
+      "0 node_modules/babel-loader/lib/index.js??ref--5-0!src/js/noise/noise-generator.js ./noise.worklet.js": 0
+    },
     "usedIds": []
   },
   "html-webpack-plugin for \"index.html\"": [
@@ -18,7 +20,7 @@
         "byName": {},
         "bySource": {},
         "usedIds": [
-          1
+          0
         ]
       }
     }

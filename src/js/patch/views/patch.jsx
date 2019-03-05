@@ -8,9 +8,9 @@ import ModulationMatrix from "../../modulation/views/matrix.jsx";
 import Envelopes from "../../envelope/view/envelopes.jsx";
 import envelopeHandlers from "../../envelope/dispatchers";
 import morseHandlers from "../../morse/dispatchers";
+import stepsHandlers from "../../steps/dispatchers";
 
 import MorseGenerators from "../../morse/views/morse-generators.jsx";
-import * as STEPS from "../../steps/actions";
 import * as SYNC from "../../sync/actions";
 import * as OUTPUT from "../../output-stage/actions";
 import * as LFO from "../../lfo/actions";
@@ -92,6 +92,7 @@ class PatchPresentation extends Component {
                         ...handlers.steps
                     }}
                     patch={patch.steps}
+                    viewState={viewState.steps}
                 />
                 <MorseGenerators
                     configuration={source.morse}
@@ -122,27 +123,7 @@ const mapDispatchToProps = (dispatch) => ({
                 dispatch({"type": LFO.WAVEFORM_CHANGE, module, index, value});
             }
         },
-        "steps": {
-            "addStep": (index) => {
-                dispatch({"type": STEPS.STEP_ADD, index});
-            },
-            "deleteStep": (index, step) => {
-                dispatch({"type": STEPS.STEP_DELETE, index, step});
-            },
-            "stepValueChange": (index, step, value) => {
-                dispatch({"type": STEPS.STEP_VALUE_CHANGE, index, step, value});
-            },
-            "stepGlideToggle": (index, step) => {
-                dispatch({"type": STEPS.STEP_GLIDE_TOGGLE, index, step});
-            },
-            "increaseLevelCount": (index) => {
-                dispatch({"type": STEPS.LEVELS_COUNT_INCREASE, index});
-            },
-            "decreaseLevelCount": (index) => {
-                dispatch({"type": STEPS.LEVELS_COUNT_DECREASE, index});
-            },
-            "changeGlide": (index, value) => dispatch({"type": STEPS.GLIDE_TIME_CHANGE, index, value})
-        },
+        "steps": stepsHandlers(dispatch),
         "morse": morseHandlers(dispatch),
         "periodic": {
             "frequencyChange": (value, module, index) => {

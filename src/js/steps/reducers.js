@@ -2,13 +2,98 @@ import * as MODULATOR from "../modulator/actions";
 import modulatorReducer from "../modulator/reducers";
 import * as SYNC from "../sync/actions";
 import syncReducer from "../sync/reducers";
-import * as STEPS from "./actions";
+import {generatorFunctions} from "./sequence-generator-functions";
+import {
+    GENERATE_SEQUENCE,
+    GLIDE_AT_CHANGE,
+    GLIDE_AT_EVERY,
+    GLIDE_AT_FALLING,
+    GLIDE_AT_RISING,
+    GLIDE_INVERT,
+    GLIDE_NONE,
+    GLIDE_SHIFT,
+    GLIDE_TIME_CHANGE,
+    GLIDE_MODE_CHANGE,
+    GLIDE_SLOPE_CHANGE,
+    INVERT_VALUES,
+    LEVELS_COUNT_DECREASE,
+    LEVELS_COUNT_INCREASE,
+    REVERSE,
+    SEQUENCE_SHIFT,
+    STEP_ADD,
+    STEP_DELETE,
+    STEP_GLIDE_TOGGLE,
+    STEP_VALUE_CHANGE
+} from "./actions";
 import {defaultStepsParameters} from "./defaults";
+
+
+function glidesByStepChange (state, compareFn, interval = 1) {
+    let previousValue = state.steps[state.steps.length - 1].value;
+    let changeIndex = -1;
+
+    return {
+        ...state,
+        steps: [
+            ...state.steps.map(step => {
+                const changed = compareFn(step.value, previousValue);
+                if (changed) {
+                    changeIndex += 1;
+                }
+                previousValue = step.value;
+                return {
+                    ...step,
+                    glide: changed && (changeIndex % interval === 0)
+                };
+            })
+        ]
+    };
+}
 
 
 const stepSequencer = (state = {...defaultStepsParameters}, action) => {
     switch (action.type) {
-        case STEPS.STEP_ADD:
+        case GENERATE_SEQUENCE: {
+            const {
+                generatorName,
+                generatorParameters,
+                normalize
+            } = action;
+
+            const {
+                [generatorName]: generator
+            } = generatorFunctions;
+
+            if (typeof generator === "function") {
+                const values = generator(generatorParameters);
+                const minMax = values.reduce((acc, curr) => ({
+                    min: Math.min(curr, acc.min),
+                    max: Math.max(curr, acc.max)
+                }), {
+                    min: Number.MAX_SAFE_INTEGER,
+                    max: Number.MIN_SAFE_INTEGER
+                });
+
+
+                if (normalize) {
+                    return {
+                        ...state,
+                        levels: minMax.max - minMax.min + 1,
+                        steps: values.map(value => ({value: value - minMax.min}))
+                    };
+                }
+
+                return {
+                    ...state,
+                    levels: minMax.max + 1,
+                    steps: values.map(value => ({value}))
+                };
+            }
+
+            break;
+        }
+
+        case STEP_ADD:
             return {
                 ...state,
                 steps: [
@@ -17,7 +102,7 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
                 ]
             };
 
-        case STEPS.STEP_DELETE:
+        case STEP_DELETE:
             return {
                 ...state,
                 steps: [
@@ -26,7 +111,7 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
                 ]
             };
 
-        case STEPS.STEP_VALUE_CHANGE: {
+        case STEP_VALUE_CHANGE: {
             const result = {
                 ...state,
                 steps: [
@@ -43,7 +128,7 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             break;
         }
 
-        case STEPS.STEP_GLIDE_TOGGLE: {
+        case STEP_GLIDE_TOGGLE: {
             const result = {
                 ...state,
                 steps: [
@@ -59,13 +144,13 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             return result;
         }
 
-        case STEPS.LEVELS_COUNT_INCREASE:
+        case LEVELS_COUNT_INCREASE:
             return {
                 ...state,
                 levels: state.levels + 1
             };
 
-        case STEPS.LEVELS_COUNT_DECREASE: {
+        case LEVELS_COUNT_DECREASE: {
             let stepsChanged = false;
 
             const result = {
@@ -91,41 +176,122 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             return result;
         }
 
-        case STEPS.GLIDE_TIME_CHANGE:
+        case GLIDE_TIME_MODE_CHANGE:
+            return {
+                ...state,
+                glide: {
+                    ...state.glide,
+                    mode: action.mode
+                }
+            };
+        case GLIDE_TIME_CHANGE:
             return {
                 ...state,
                 glide: action.value
             };
 
-        case MODULATOR.FREQUENCY_CHANGE:
-        case MODULATOR.AMOUNT_CHANGE:
-        case MODULATOR.MODE_CHANGE:
-        case MODULATOR.RESET:
-            return modulatorReducer(state, action);
+        case GLIDE_AT_CHANGE:
+            return glidesByStepChange (state, (curr, prev) => (curr !== prev), action.interval);
 
-        case SYNC.NUMERATOR_CHANGE:
-        case SYNC.DENOMINATOR_CHANGE:
-        case SYNC.TOGGLE:
+        case GLIDE_AT_FALLING:
+            return glidesByStepChange (state, (curr, prev) => (curr < prev), action.interval);
+
+        case GLIDE_AT_RISING:
+            return glidesByStepChange (state, (curr, prev) => (curr > prev), action.interval);
+
+        case GLIDE_AT_EVERY:
             return {
                 ...state,
-                "sync": syncReducer(state.sync, action)
+                steps: [
+                    ...state.steps.map((step, i) => ({...step, glide: i % action.interval === 0}))
+                ]
+            };
+
+        case GLIDE_NONE:
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.map(step => ({...step, glide: false}))
+                ]
+            };
+
+        case GLIDE_INVERT:
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.map(step => ({...step, glide: !step.glide}))
+                ]
+            };
+
+        case GLIDE_SHIFT: {
+            const {
+                shift = 0
+            } = action;
+            const length = state.steps.length;
+
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.map((step, i) => {
+                        return {
+                            ...step,
+                            glide: !!state.steps[(length + i - shift) % length].glide
+                        };
+                    })
+                ]
+            };
+        }
+
+        case SEQUENCE_SHIFT:
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.slice(-action.shift),
+                    ...state.steps.slice(0, -action.shift)
+                ]
+            };
+
+        case INVERT_VALUES:
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.map(step => ({...step, value: state.levels - 1 - step.value}))
+                ]
+            };
+
+        case REVERSE:
+            return {
+                ...state,
+                steps: [
+                    ...state.steps.slice().reverse().map(step => ({...step}))
+                ]
             };
     }
 
     return state;
 };
 
-const steps = (state = [], action) => {
+const stepSequencers = (state = [], action) => {
 
     switch (action.type) {
-
-        case STEPS.GLIDE_TIME_CHANGE:
-        case STEPS.STEP_ADD:
-        case STEPS.STEP_DELETE:
-        case STEPS.STEP_VALUE_CHANGE:
-        case STEPS.STEP_GLIDE_TOGGLE:
-        case STEPS.LEVELS_COUNT_DECREASE:
-        case STEPS.LEVELS_COUNT_INCREASE: {
+        case GENERATE_SEQUENCE:
+        case GLIDE_AT_CHANGE:
+        case GLIDE_AT_EVERY:
+        case GLIDE_AT_FALLING:
+        case GLIDE_AT_RISING:
+        case GLIDE_INVERT:
+        case GLIDE_NONE:
+        case GLIDE_SHIFT:
+        case GLIDE_TIME_CHANGE:
+        case INVERT_VALUES:
+        case LEVELS_COUNT_DECREASE:
+        case LEVELS_COUNT_INCREASE:
+        case REVERSE:
+        case SEQUENCE_SHIFT:
+        case STEP_ADD:
+        case STEP_DELETE:
+        case STEP_GLIDE_TOGGLE:
+        case STEP_VALUE_CHANGE: {
             const result = [
                 ...state
             ];
@@ -145,17 +311,29 @@ const steps = (state = [], action) => {
             case MODULATOR.AMOUNT_CHANGE:
             case MODULATOR.FREQUENCY_CHANGE:
             case MODULATOR.MODE_CHANGE:
-            case MODULATOR.RESET:
+            case MODULATOR.RESET: {
+                const result = [
+                    ...state
+                ];
+                result[action.index] = modulatorReducer(state[action.index], action);
+
+                return result;
+            }
+
             case SYNC.DENOMINATOR_CHANGE:
             case SYNC.NUMERATOR_CHANGE:
-            case SYNC.TOGGLE:
+            case SYNC.TOGGLE: {
 
                 const result = [
                     ...state
                 ];
-                result[action.index] = stepSequencer(state[action.index], action);
+                result[action.index] = {
+                    ...state[action.index],
+                    "sync": syncReducer(state.sync, action)
+                };
 
                 return result;
+            }
         }
     }
 
@@ -163,4 +341,4 @@ const steps = (state = [], action) => {
 };
 
 
-export default steps;
+export default stepSequencers;

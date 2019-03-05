@@ -5,7 +5,12 @@
         margin: 0;
         padding: 0;
         text-align: center;
-        width: 2rem;
+        width: auto;
+
+        &-delete {
+            cursor: pointer;
+            padding: 0;
+        }
 
         .flex-wrapper {
             flex-direction: column;

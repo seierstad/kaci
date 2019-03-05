@@ -10,11 +10,26 @@ class StepOscillator extends KaciNode {
 
         const [context, store, patch = {}] = args;
         const {
-            steps = [0],
-            levels = 1,
-            glide = 0,
-            frequency = 1,
-            speedUnit = steps.length || 1
+            sequence = [{value: 0, glide: false}],
+            maxValue = 1,
+            glide: {
+                mode = "symmetric",
+                time = 0,
+                slope = "linear",
+                falling: {
+                    time: fallingTime = 0,
+                    slope: fallingSlope = "linear"
+                } = {}
+            } = 0,
+            speed: {
+                frequency = 1,
+                speedUnit = sequence.length || 1,
+                sync: {
+                    enabled: syncEnabled = false,
+                    nominator: syncNominator = 1,
+                    denominator: syncDenominator = 1
+                } = {}
+            } = {}
         } = patch;
 
         this.state = {};
@@ -24,13 +39,18 @@ class StepOscillator extends KaciNode {
         this.waveShaperNode.curve = Float32Array.of(-1, -1, 1);
         this.generator.connect(this.waveShaperNode);
 
-        this.steps = steps;
+        this.sequence = sequence;
 
         this.frequency = frequency;
         this.speedUnit = speedUnit;
 
-        this.levels = levels;
-        this.glide = glide;
+        this.maxValue = maxValue;
+
+        this.glideSymmetric = (mode === "symmetric");
+        this.glideTime = time;
+        this.glideSlope = slope;
+        this.fallingTime = fallingTime;
+        this.fallingSlope = fallingSlope;
 
         this.interval = null;
         this.stepFunction = () => null;
@@ -50,28 +70,28 @@ class StepOscillator extends KaciNode {
         }
     }
 
-    set steps (steps) {
-        this.updateState("steps", steps);
+    set sequence (sequence) {
+        this.updateState("sequence", sequence);
     }
 
-    get steps () {
-        return this.state.steps;
+    get sequence () {
+        return this.state.sequence;
     }
 
-    set levels (levels) {
-        this.updateState("levels", levels);
+    set maxValue (maxValue) {
+        this.updateState("maxValue", maxValue);
     }
 
-    get levels () {
-        return this.state.levels;
+    get maxValue () {
+        return this.state.maxValue;
     }
 
-    set glide (glide) {
-        this.updateState("glide", glide);
+    set glideTime (glideTime) {
+        this.updateState("glideTime", glideTime);
     }
 
-    get glide () {
-        return this.state.glide;
+    get glideTime () {
+        return this.state.glideTime;
     }
 
     set frequency (frequency) {
@@ -114,20 +134,33 @@ class StepOscillator extends KaciNode {
         return () => {
             const now = this.context.currentTime;
 
-            this.steps.forEach((step, index) => {
+            this.sequence.forEach((step, index) => {
                 const {
                     value,
                     glide = false
                 } = step;
 
                 const time = now + (this.stepDuration * index);
-                const scaledValue = value / (this.levels - 1);
+                const scaledValue = value / (this.maxValue);
 
-                if (!glide || this.glide === 0) {
+                if (!glide || (this.glideTime === 0 && this.fallingTime === 0)) {
                     this.generator.gain.setValueAtTime(scaledValue, time);
                 } else {
                     this.generator.gain.setValueAtTime(this.previousScheduledValue, time);
-                    this.generator.gain.linearRampToValueAtTime(scaledValue, time + (this.stepDuration * this.glide));
+                    if (this.glideSymmetric || (scaledValue >= this.previousScheduledValue)) {
+                        if (this.glideSlope === "linear") {
+                            this.generator.gain.linearRampToValueAtTime(scaledValue, time + (this.stepDuration * this.glideTime));
+                        } else {
+                            this.generator.gain.exponentialRampToValueAtTime(scaledValue, time + (this.stepDuration * this.glideTime));
+                        }
+                    } else {
+                        if (this.fallingSlope === "linear") {
+                            this.generator.gain.linearRampToValueAtTime(scaledValue, time + (this.stepDuration * this.fallingTime));
+                        } else {
+                            this.generator.gain.exponentialRampToValueAtTime(scaledValue, time + (this.stepDuration * this.fallingTime));
+                        }
+
+                    }
                 }
                 this.previousScheduledValue = scaledValue;
 
@@ -138,7 +171,7 @@ class StepOscillator extends KaciNode {
 
     start () {
         // this.generator.gain.setValueAtTime(this.steps[0], this.context.currentTime);
-        this.previousScheduledValue = this.steps[0].value;
+        this.previousScheduledValue = this.sequence[0].value;
 
         this.stepFunction = this.getStepFunction();
         this.stepFunction();

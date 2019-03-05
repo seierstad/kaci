@@ -137,37 +137,60 @@ const patch = {
     "steps": [{
         "active": true,
         "amount": 1.0,
-        "frequency": 2.0,
-        "levels": 13,
-        "glide": 0.25,
-        "steps": [
+        "maxValue": 13,
+        "glide": {
+            "mode": "symmetric",
+            "time": 0.25,
+            "slope": "linear",
+            "falling": {
+                "time": 0.5,
+                "slope": "linear"
+            }
+        },
+        "sequence": [
             {"value": 0, "glide": true},
             {"value": 12, "glide": false},
             {"value": 4, "glide": true},
             {"value": 2}
         ],
-        "sync": {
-            "enabled": false,
-            "numerator": 1,
-            "denominator": 1
+        "speed": {
+            "frequency": 2.0,
+            "speedUnit": 4,
+
+            "sync": {
+                "enabled": false,
+                "numerator": 1,
+                "denominator": 1
+            }
         },
         "mode": "global"
     }, {
         "active": true,
         "amount": 1.0,
-        "frequency": 1.0,
-        "levels": 13,
-        "glide": 0.25,
-        "steps": [
+        "maxValue": 13,
+        "glide": {
+            "mode": "symmetric",
+            "time": 0.25,
+            "slope": "linear",
+            "falling": {
+                "time": 0.5,
+                "slope": "linear"
+            }
+        },
+        "sequence": [
             {"value": 0, "glide": true},
             {"value": 12, "glide": true},
             {"value": 4, "glide": true},
             {"value": 2, "glide": true}
         ],
-        "sync": {
-            "enabled": false,
-            "numerator": 1,
-            "denominator": 1
+        "speed": {
+            "frequency": 1.0,
+            "speedUnit": 4,
+            "sync": {
+                "enabled": false,
+                "numerator": 1,
+                "denominator": 1
+            }
         },
         "mode": "global"
     }],

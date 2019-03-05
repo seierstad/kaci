@@ -6,6 +6,7 @@ import {connect} from "react-redux";
 import {getSustainEnvelopeByIndex} from "../selectors";
 import Envelope from "./envelope.jsx";
 import Sustain from "./sustain.jsx";
+import RangeInput from "./range-input.jsx";
 
 
 class SustainEnvelope extends Component {
@@ -84,22 +85,18 @@ class SustainEnvelope extends Component {
                         x={attackWidth + "%"}
                     />
                 </svg>
-                <label htmlFor={"env-" + index + "-attack-duration"}>attack duration</label>
-                <input
+                <RangeInput
                     id={"env-" + index + "-attack-duration"}
+                    label="attack duration"
                     min={0}
                     onChange={this.handleAttackDurationChange}
-                    onInput={this.handleAttackDurationChange}
-                    type="number"
                     value={attack.duration}
                 />
-                <label htmlFor={"env-" + index + "-release-duration"}>release duration</label>
-                <input
+                <RangeInput
                     id={"env-" + index + "-release-duration"}
+                    label="release duration"
                     min={0}
                     onChange={this.handleReleaseDurationChange}
-                    onInput={this.handleReleaseDurationChange}
-                    type="number"
                     value={release.duration}
                 />
             </section>

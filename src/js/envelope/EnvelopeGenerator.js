@@ -1,5 +1,3 @@
-import {boundMethod} from "autobind-decorator";
-
 class EnvelopeGenerator {
     constructor (...args) {
 

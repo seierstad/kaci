@@ -6,9 +6,18 @@ export const defaultStepsParameters = {
     "sync": {
         ...defaultSyncParameters
     },
+    "glide": {
+        "mode": "symmetric",
+        "time": 0.25,
+        "slope": "linear",
+        "falling": {
+            "time": 0.25,
+            "slope": "exponential"
+        }
+    },
     "active": true,
-    "levels": 4,
-    "steps": [
+    "maxValue": 4,
+    "sequence": [
         {"value": 0},
         {"value": 0},
         {"value": 0},

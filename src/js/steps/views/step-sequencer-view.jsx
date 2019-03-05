@@ -1,54 +1,32 @@
 /*global document, module, require, CustomEvent */
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
-import autobind from "autobind-decorator";
-
-import RangeInput from "../../static-source/views/range-input.jsx";
+import {boundMethod} from "autobind-decorator";
 
 import Modulator from "../../modulator/views/modulator.jsx";
 import Periodic from "../../periodic/views/periodic.jsx";
 import {stepsPatchShape} from "../propdefs";
 import Step from "./step.jsx";
+import SequenceGenerator from "./sequence-generator.jsx";
+import Glide from "./glide-view.jsx";
 
-
-class StepSequencerView extends Component {
+class StepSequencerView extends PureComponent {
 
     static propTypes = {
+        "children": PropTypes.any,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "index": PropTypes.number.isRequired,
-        "patch": stepsPatchShape.isRequired
+        "patch": stepsPatchShape.isRequired,
+        "viewState": PropTypes.object
     }
 
     constructor (props) {
         super(props);
-        this.grid = null;
+        //this.grid = null;
         this.module = "steps";
     }
 
-    /*
-    componentDidMount () {
-        this.phaseIndicator = this.waveformSelector.phaseIndicator;
-        this.updatePhaseIndicator(true);
-    }
-    */
-
-    shouldComponentUpdate (nextProps) {
-        return this.props.patch !== nextProps.patch;
-    }
-
-    /*
-    componentDidUpdate (prevProps, prevState) {
-        this.phaseIndicator = this.grid.phaseIndicator;
-        this.updatePhaseIndicator(true);
-    }
-    */
-
-    @autobind
-    updatePhaseIndicator (time, phase) {
-        this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
-    }
-
-    @autobind
+    @boundMethod
     handleAddStep (event) {
         const {
             index,
@@ -60,7 +38,7 @@ class StepSequencerView extends Component {
         addStep(index);
     }
 
-    @autobind
+    @boundMethod
     handleIncreaseLevelCount (event) {
         const {
             index,
@@ -72,7 +50,7 @@ class StepSequencerView extends Component {
         increaseLevelCount(index);
     }
 
-    @autobind
+    @boundMethod
     handleDecreaseLevelCount (event) {
         const {
             index,
@@ -84,51 +62,158 @@ class StepSequencerView extends Component {
         decreaseLevelCount(index);
     }
 
-    @autobind
-    handleGlideChange (value) {
+    @boundMethod
+    handleGenerateSequence (generatorFunctionName, generatorFunctionParameters = {}, normalize) {
         const {
             index,
             handlers: {
-                changeGlide
+                generateSequence
             } = {}
         } = this.props;
 
-        changeGlide(index, value);
+        generateSequence(index, generatorFunctionName, generatorFunctionParameters, normalize);
+    }
+
+    @boundMethod
+    handleSelectGenerator (generatorName) {
+        const {
+            index,
+            handlers: {
+                selectGenerator
+            } = {}
+        } = this.props;
+
+        selectGenerator(index, generatorName);
+    }
+
+    @boundMethod
+    handleReverse (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const {
+            index,
+            handlers: {
+                reverse
+            } = {}
+        } = this.props;
+
+        reverse(index);
+    }
+
+    @boundMethod
+    handleInvertValues (event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const {
+            index,
+            handlers: {
+                invertValues
+            } = {}
+        } = this.props;
+
+        invertValues(index);
+    }
+
+    @boundMethod
+    shiftSequence (shift) {
+        const {
+            index,
+            handlers: {
+                sequenceShift
+            } = {}
+        } = this.props;
+
+        sequenceShift(index, shift);
+    }
+
+    @boundMethod
+    handleShiftLeft () {
+        this.shiftSequence(-1);
+    }
+
+    @boundMethod
+    handleShiftRight () {
+        this.shiftSequence(1);
     }
 
     render () {
-        const {index, patch, handlers, syncHandlers, configuration} = this.props;
-        const syncPossible = patch.sync;
-        const steps = [];
-
-        for (let s = 0; s < patch.steps.length; s += 1) {
-            steps.push(
-                <Step
-                    glide={patch.steps[s].glide}
-                    handlers={handlers}
-                    key={["steps", index, s].join("-")}
-                    levels={patch.levels}
-                    sequencerIndex={index}
-                    stepIndex={s}
-                    value={patch.steps[s].value}
-                />
-            );
-        }
+        const {index, patch, handlers, syncHandlers, configuration, viewState = {}} = this.props;
+        const {
+            maxValue,
+            sequence = [],
+            sync: syncPossible
+        }= patch;
 
         return (
             <section className="steps" id={"steps-" + index + "-view"}>
                 <h2>Steps {index + 1}</h2>
+                <SequenceGenerator
+                    onSelect={this.handleSelectGenerator}
+                    onSubmit={this.handleGenerateSequence}
+                    viewState={viewState}
+                />
                 <div className="steps-grid">
-                    {steps}
-                    <button className="step-add" onClick={this.handleAddStep} title="add step" type="button">add</button>
-                    <button className="levels-increase" onClick={this.handleIncreaseLevelCount} title="increase level count" type="button">+</button>
-                    <button className="levels-decrease" onClick={this.handleDecreaseLevelCount} title="decrease level count" type="button">-</button>
+                    {sequence.map((step, stepIndex) => (
+                        <Step
+                            glide={step.glide}
+                            handlers={handlers}
+                            key={[stepIndex, step.glide, step.value].join("-")}
+                            maxValue={maxValue}
+                            sequencerIndex={index}
+                            stepIndex={stepIndex}
+                            value={step.value}
+                        />
+                    ))}
+                    <button
+                        className="steps-sequence-button step-add"
+                        onClick={this.handleAddStep}
+                        title="add step"
+                        type="button"
+                    >add</button>
+                    <button
+                        className="steps-sequence-button levels-increase"
+                        onClick={this.handleIncreaseLevelCount}
+                        title="increase level count"
+                        type="button"
+                    >+</button>
+                    <button
+                        className="steps-sequence-button levels-decrease"
+                        onClick={this.handleDecreaseLevelCount}
+                        title="decrease level count"
+                        type="button"
+                    >-</button>
+                    <button
+                        className="steps-sequence-button invert-values"
+                        onClick={this.handleInvertValues}
+                        title="invert values"
+                        type="button"
+                    >inv</button>
+                    <button
+                        className="steps-sequence-button reverse"
+                        onClick={this.handleReverse}
+                        title="reverse sequence"
+                        type="button"
+                    >rev</button>
+                    <button
+                        className="steps-sequence-button shift left"
+                        onClick={this.handleShiftLeft}
+                        title="shift sequence left"
+                        type="button"
+                    >◀</button>
+                    <button
+                        className="steps-sequence-button shift right"
+                        onClick={this.handleShiftRight}
+                        title="shift sequence right"
+                        type="button"
+                    >▶</button>
                 </div>
-                <RangeInput
-                    changeHandler={this.handleGlideChange}
+                <Glide
                     configuration={configuration.glide}
-                    label="glide"
-                    value={patch.glide}
+                    handlers={handlers.glide}
+                    index={index}
+                    patch={patch.glide}
                 />
                 {this.props.children}
             </section>
