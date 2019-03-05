@@ -1,6 +1,6 @@
 const audioWorkletNode = (typeof AudioWorkletNode === "undefined" ? Object : AudioWorkletNode);
 
-export default class OscillatorWorkletNode extends audioWorkletNode {
+class OscillatorWorkletNode extends audioWorkletNode {
     constructor (context) {
         super(context, "oscillator-worklet-processor");
     }
@@ -29,6 +29,10 @@ export default class OscillatorWorkletNode extends audioWorkletNode {
         this.port.postMessage(JSON.stringify({"command": "start"}));
     }
 
+    pause () {
+        this.port.postMessage(JSON.stringify({"command": "pause"}));
+    }
+
     stop () {
         this.port.postMessage(JSON.stringify({"command": "stop"}));
     }
@@ -37,3 +41,5 @@ export default class OscillatorWorkletNode extends audioWorkletNode {
         this.port.postMessage(JSON.stringify({"command": "destroy"}));
     }
 }
+
+export default OscillatorWorkletNode;

@@ -1,3 +1,5 @@
+/*global currentTime */
+
 import {boundMethod} from "autobind-decorator";
 import {waveforms} from "../waveform/waveforms";
 
@@ -7,13 +9,22 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
     static get parameterDescriptors () {
         return [{
             name: "frequency",
-            defaultValue: .4
+            defaultValue: .4,
+            minValue: 0,
+            maxValue: 100000,
+            automationRate: "a-rate"
         }, {
             name: "detune",
-            defaultValue: 0
+            defaultValue: 0,
+            minValue: -1000000,
+            maxValue: 100000,
+            automationRate: "a-rate"
         }, {
             name: "waveformParameter",
-            defaultValue: 4
+            defaultValue: 4,
+            minValue: 0,
+            maxValue: 100,
+            automationRate: "a-rate"
         }];
     }
 
@@ -25,6 +36,7 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
         this.destroyed = false;
         this.scaleBase = 2;
         this.sampleRate = 44100;
+        this.zeroPhaseRequested = false;
 
         this.previous = {
             "frequency": 0,
@@ -41,9 +53,10 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
     @boundMethod
     messageHandler (event) {
         const {
+            command = "",
+            message,
             sampleRate,
-            waveform,
-            command = ""
+            waveform
         } = JSON.parse(event.data);
 
         if (command === "start") {
@@ -52,6 +65,10 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
             } else {
                 this.phase = 0;
             }
+        }
+
+        if (command === "resetPhase") {
+            this.phase = 0;
         }
 
         if (command === "destroy") {
@@ -65,6 +82,15 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
         if (waveform && typeof waveforms[waveform] === "function") {
             this.selectedWaveform = waveforms[waveform];
         }
+
+        if (command === "requestZeroPhaseResponse") {
+            this.zeroPhaseMessages.push(message);
+        }
+    }
+
+    sendZeroPhaseMessage (timestamp, phase) {
+        this.port.postMessage(String.toJSON({timestamp, phase}));
+        this.zeroPhaseRequested = false;
     }
 
     getComputedFrequency (scaleBase, frequency, detune) {
@@ -77,7 +103,9 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
 
         if (this.phase > 1) {
             this.phase %= 1;
-            //this.zeroPhaseActions();
+            if (this.zeroPhaseRequested) {
+                this.sendZeroPhaseMessage(currentTime, this.phase);
+            }
         }
     }
 
@@ -109,15 +137,20 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
     }
 
     process (inputs, outputs, parameters) {
-        const outputChannel = outputs[0][0];
+        const audioOutputChannel = outputs[0][0];
+        const syncOutput = outputs[1];
+        const syncFrequencyChannel = syncOutput[0];
+        const syncPhaseChannel = syncOutput[1];
         const {frequency, detune, waveformParameter} = parameters;
 
-        outputChannel.forEach((val, index, arr) => {
+        audioOutputChannel.forEach((val, index, arr) => {
             const {[index]: f = frequency[0]} = frequency;
             const {[index]: d = detune[0]} = detune;
             const {[index]: p = waveformParameter[0]} = waveformParameter;
 
+            syncPhaseChannel[index] = this.phase;
             arr[index] = this.generatorFunction(f, d, p);
+            syncFrequencyChannel[index] = this.previous.calculatedFrequency;
         });
 
         return !this.destroyed;
