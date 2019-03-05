@@ -44,14 +44,16 @@ const configuration = {
                     "max": 1,
                     "step": 1 / 12
                 },
-                "frequency": {
-                    "min": 0.001,
-                    "max": 50,
-                    "step": 0.01,
-                    "exponential": true
-                },
-                "sync": {
-                    ...defaultSyncConfiguration
+                "speed": {
+                    "frequency": {
+                        "min": 0.001,
+                        "max": 50,
+                        "step": 0.01,
+                        "exponential": true
+                    },
+                    "sync": {
+                        ...defaultSyncConfiguration
+                    }
                 },
                 "default": {
                     ...defaultLfoParameters
@@ -69,19 +71,21 @@ const configuration = {
                     "max": 1,
                     "step": 1 / 12
                 },
-                "frequency": {
-                    "min": 0.001,
-                    "max": 5,
-                    "step": 0.01,
-                    "exponential": true
+                "speed": {
+                    "frequency": {
+                        "min": 0.001,
+                        "max": 5,
+                        "step": 0.01,
+                        "exponential": true
+                    },
+                    "sync": {
+                        ...defaultSyncConfiguration
+                    }
                 },
                 "glide": {
                     "min": 0,
                     "max": 1,
                     "step": 0.01
-                },
-                "sync": {
-                    ...defaultSyncConfiguration
                 },
                 "default": {
                     ...defaultStepsParameters
@@ -94,14 +98,16 @@ const configuration = {
                     "max": 1,
                     "step": 1 / 12
                 },
-                "frequency": {
-                    "min": 0.001,
-                    "max": 5,
-                    "step": 0.01,
-                    "exponential": true
-                },
-                "sync": {
-                    ...defaultSyncConfiguration
+                "speed": {
+                    "frequency": {
+                        "min": 0.001,
+                        "max": 5,
+                        "step": 0.01,
+                        "exponential": true
+                    },
+                    "sync": {
+                        ...defaultSyncConfiguration
+                    }
                 },
                 "default": {
                     ...defaultMorseParameters

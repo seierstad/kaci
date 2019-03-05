@@ -1,6 +1,6 @@
 import autobind from "autobind-decorator";
 // import WavyJones from "../../lib/wavy-jones";
-import Modulator from "../modulator/modulator";
+import PeriodicModulator from "../periodic/periodic-modulator";
 import Oscillator from "../oscillator/ideal-oscillator";
 import OscillatorWorkletNode from "../oscillator/oscillator-worklet-node";
 
@@ -9,13 +9,22 @@ import worklet from "../oscillator/oscillator.worklet.js";
 /* eslint-enable */
 
 /**
-    LFO: three outputs
+    INPUTS:
+        planned (TODO):
+        - LFO.syncFrequencyIn
+        - LFO.syncPhaseIn
+
+    OUTPUTS:
         - LFO.output (connected by LFO.connect(...)): full range (-1 to 1)
         - LFO.outputs.positive (connected by LFO.)
+        - LFO.outputs.negative
+        planned (TODO):
+        - LFO.frequencyOut
+        - LFO.phaseOut
 
 */
 
-class LFO extends Modulator {
+class LFO extends PeriodicModulator {
 
     constructor (...args) {
         super(...args);

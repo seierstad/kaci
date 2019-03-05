@@ -6,7 +6,7 @@ import {
     string
 } from "prop-types";
 
-import {periodicConfigProperties} from "../periodic/propdefs";
+import {discretePeriodicModulatorConfigProperties} from "../periodic/propdefs";
 import {modulatorConfigProperties} from "../modulator/propdefs";
 
 
@@ -27,6 +27,6 @@ export const morseGeneratorViewStateShape = shape({
 
 export const morseConfigShape = shape({
     ...modulatorConfigProperties,
-    ...periodicConfigProperties,
+    ...discretePeriodicModulatorConfigProperties,
     "default": morseGeneratorPatchShape
 });

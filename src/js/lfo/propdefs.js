@@ -5,8 +5,8 @@ import {
 } from "prop-types";
 
 import {
-    periodicConfigProperties,
-    periodicPatchProperties
+    periodicModulatorConfigProperties,
+    periodicModulatorPatchProperties
 } from "../periodic/propdefs";
 
 import {
@@ -17,7 +17,7 @@ import {
 
 export const lfoPatchShape = shape({
     ...modulatorPatchProperties,
-    ...periodicPatchProperties,
+    ...periodicModulatorPatchProperties,
     "waveform": string.isRequired
 });
 
@@ -25,6 +25,6 @@ export const lfosPatchShape = arrayOf(lfoPatchShape);
 
 export const lfoConfigShape = shape({
     ...modulatorConfigProperties,
-    ...periodicConfigProperties,
+    ...periodicModulatorConfigProperties,
     "default": lfoPatchShape
 });

@@ -39,11 +39,7 @@ const Modulator = Sup => class Modulator extends Sup {
     render () {
         const {
             patch,
-            configuration,
-            index,
-            frequencyHandler,
-            syncHandlers,
-            includeSync
+            configuration
         } = this.props;
 
         return (

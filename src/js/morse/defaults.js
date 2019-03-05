@@ -8,15 +8,18 @@ import {
 
 const defaultMorseParameters = {
     ...defaultModulatorParameters,
-    "sync": {
-        ...defaultSyncParameters
+    "speed": {
+        "frequency": 1.0,
+        "sync": {
+            ...defaultSyncParameters
+        },
+        "speedUnit": 4
     },
     "text": "MORSE",
     "active": true,
     "fillToFit": true,
     "padding": 0,
     "shift": 0,
-    "speedUnit": 4,
     "texts": [
         "KACI O5",
         "What hath God wrought?",

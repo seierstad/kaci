@@ -1,7 +1,6 @@
 //import WavyJones from "../../lib/wavy-jones";
-import autobind from "autobind-decorator";
 import Oscillator from "../oscillator/oscillator";
-import Modulator from "../modulator/modulator";
+import DiscretePeriodicModulator from "../periodic/discrete-periodic-modulator";
 
 import {
     morseEncode,
@@ -43,7 +42,7 @@ class MorseOscillator extends Oscillator {
 }
 
 
-class MorseGenerator extends Modulator {
+class MorseGenerator extends DiscretePeriodicModulator {
 
     constructor (...args) {
         super(...args);
@@ -64,11 +63,11 @@ class MorseGenerator extends Modulator {
 
 
         this.pattern = patch;
-        this.frequency = this.state.frequency;
+        this.frequency = this.speedState.frequency;
     }
 
     set frequency (frequency) {
-        this.oscillator.frequency = frequency * (this.state.speedUnit / this.oscillator.pattern.length);
+        this.oscillator.frequency = frequency * (this.speedState.speedUnit / this.oscillator.pattern.length);
     }
 
     set pattern ({text, speedUnit, shift, padding, fillToFit}) {

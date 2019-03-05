@@ -6,14 +6,14 @@ import SyncControls from "../../sync/views/sync-controls.jsx";
 import RangeInput from "../../static-source/views/range-input.jsx";
 
 import {
-    periodicModulatorsConfigShape,
+    periodicModulatorConfigShape,
     periodicModulatorPatchShape
 } from "../propdefs";
 
 const Periodic = Sup => class Periodic extends Sup {
 
     static propTypes = {
-        "configuration": periodicModulatorsConfigShape.isRequired,
+        "configuration": periodicModulatorConfigShape.isRequired,
         "handlers": PropTypes.shape({
             "frequencyChange": PropTypes.func.isRequired,
             "sync": PropTypes.objectOf(PropTypes.func).isRequired
@@ -40,13 +40,12 @@ const Periodic = Sup => class Periodic extends Sup {
 
     @autobind
     handleReset (event) {
-        const {index, module, handlers} = this.props;
+        const {index, handlers} = this.props;
         handlers.reset(event, this.module, index);
     }
 
     render () {
-        const {patch, configuration, index, handlers, syncHandlers, includeSync} = this.props;
-        const {frequencyChange} = handlers;
+        const {patch, configuration, index, handlers, includeSync} = this.props;
 
         return (
             <Sup
