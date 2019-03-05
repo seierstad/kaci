@@ -24,25 +24,30 @@ const noise = {
     },
 
     "pink": (resolution = 8) => {
+        const factor = 2 / resolution;
         const values = new Float32Array(Math.floor(resolution));
-        values.forEach((v, index, arr) => arr[index] = Math.random() * 2);
+        values.forEach((v, index, arr) => arr[index] = Math.random() * factor);
 
         const getIndex = trailingZeros(resolution);
 
         let sum = values.reduce((acc, current) => acc + current);
-        let maxPosition = (1 << resolution) - 1;
+        const maxPosition = (1 << resolution) - 1;
         let position = 1;
 
         const pinkSum = (v, i, output) => {
             const index = getIndex(position);
             const prev = values[index];
-            const curr = Math.random() * 2;
+            const curr = Math.random() * factor;
             values[index] = curr;
             sum += (curr - prev);
 
-            position = (position % maxPosition) + 1;
+            if (position < maxPosition) {
+                position += 1;
+            } else {
+                position = 1;
+            }
 
-            output[i] = (sum / resolution) - 1;
+            output[i] = sum - 1;
         };
 
         return (buffer) => {
