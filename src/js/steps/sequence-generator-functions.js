@@ -1,3 +1,7 @@
+import hilbertTurns, {description as hilbertTurnsDescription} from "./hilbert-turns";
+import lindenmayer, {description as lindenmayerSystemsDescription} from "./lindenmayer";
+
+
 const golombSequence = ({stepCount = 15}) => {
     const sequence = Array(stepCount + 1).fill(0);
     sequence[1] = 1;
@@ -271,6 +275,10 @@ const sallySequence = ({length = 8, noInitialZero = false}) => {
 };
 
 export const generatorDescriptors = [{
+    ...hilbertTurnsDescription
+}, {
+    ...lindenmayerSystemsDescription
+}, {
     label: "Golomb sequence",
     name: "golombSequence",
     parameters: [{
@@ -352,6 +360,8 @@ export const generatorDescriptors = [{
 }];
 
 export const generatorFunctions = {
+    hilbertTurns,
+    lindenmayer,
     barkerCode,
     golombRuler,
     golombSequence,
