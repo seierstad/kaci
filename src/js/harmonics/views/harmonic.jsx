@@ -16,6 +16,8 @@ class Harmonic extends Component {
 
     static propTypes = {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+        "index": PropTypes.number,
+        "module": PropTypes.string,
         "patch": harmonicShape.isRequired
     }
 
@@ -37,7 +39,6 @@ class Harmonic extends Component {
 
     render () {
         const {
-            configuration,
             patch,
             handlers
         } = this.props;
@@ -50,16 +51,15 @@ class Harmonic extends Component {
 
         const {
             [numerator]: {
-                [denominator]: fraction
+                [denominator]: fraction = (<Fraction denominator={denominator} numerator={numerator} />)
             } = {}
         } = UNICODE_FRACTION;
 
-        const legend = <Fraction denominator={denominator} numerator={numerator} />;
         const toggleId = [numerator, denominator, "harmonic", "toggle"].join("-");
 
         return (
             <fieldset className="harmonic">
-                <legend>{legend}</legend>
+                <legend>{fraction}</legend>
                 <div className="flex-wrapper">
                     {!(denominator === 1 && numerator === 1) ? (
                         <button

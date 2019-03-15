@@ -9,15 +9,17 @@ export const getTemperedScale = function (fromKey, toKey, referenceKey, referenc
     return scale;
 };
 
-export const scaleRatios = function (base, teller, nevner) {
+/*
+export const scaleRatios = function (base, numerator, denominator) {
     return noteNumber => {
-        let t = Math.pow(teller, noteNumber);
-        let n = Math.pow(nevner, noteNumber);
-        const r = Math.pow(teller / nevner, noteNumber);
+
+        let t = Math.pow(numerator, noteNumber);
+        let n = Math.pow(denominator, noteNumber);
+
+        const r = Math.pow(numerator / denominator, noteNumber);
 
         if (r > base || r < 1) {
             const f = Math.log(r) / Math.log(base);
-            // console.log("f: ", f, "t: ", t, "n: ", n, "r: ", r);
 
             if (r < 1) {
                 t *= Math.pow(base, -Math.trunc(f));
@@ -28,6 +30,7 @@ export const scaleRatios = function (base, teller, nevner) {
         // console.log("t:", t, "n: ", n, "r: ", t/n);
     };
 };
+*/
 
 export const getRationalScale = function (intervals) {
     let base = intervals.pop();

@@ -56,18 +56,18 @@ const Periodic = Sup => class Periodic extends Sup {
                     <legend>speed</legend>
                     <RangeInput
                         changeHandler={this.frequencyChange}
-                        configuration={configuration.frequency}
-                        disabled={includeSync && patch.sync.enabled}
+                        configuration={configuration.speed.frequency}
+                        disabled={includeSync && patch.speed.sync.enabled}
                         label="frequency"
-                        value={patch.frequency}
+                        value={patch.speed.frequency}
                     />
                     {includeSync ?
                         <SyncControls
-                            configuration={configuration.sync}
+                            configuration={configuration.speed.sync}
                             handlers={handlers.sync}
                             index={index}
                             module={this.module}
-                            patch={patch.sync}
+                            patch={patch.speed.sync}
                         />
                         :
                         null

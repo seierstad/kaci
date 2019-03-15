@@ -69,30 +69,36 @@ const patch = {
     },
     "lfos": [{
         "waveform": "sinus",
-        "frequency": 0.034,
         "amount": 1,
         "active": true,
-        "mode": "global"
+        "mode": "global",
+        "speed": {
+            "frequency": 0.034
+        }
     }, {
         "waveform": "additiveSaw",
-        "frequency": 6.4,
         "amount": 0.5,
         "active": true,
-        "sync": {
-            "enabled": false,
-            "numerator": 32,
-            "denominator": 1
+        "speed": {
+            "frequency": 6.4,
+            "sync": {
+                "enabled": false,
+                "numerator": 32,
+                "denominator": 1
+            }
         },
         "mode": "global"
     }, {
         "waveform": "square",
-        "frequency": 1.34,
         "amount": 1.0,
         "active": true,
-        "sync": {
-            "enabled": false,
-            "numerator": 1,
-            "denominator": 4
+        "speed": {
+            "frequency": 1.34,
+            "sync": {
+                "enabled": false,
+                "numerator": 1,
+                "denominator": 4
+            }
         },
         "mode": "global"
     }],
@@ -196,18 +202,20 @@ const patch = {
     }],
     "morse": [{
         "text": "H2O",
-        "frequency": 1,
-        "speedUnit": 14,
         "shift": 0,
         "padding": 0,
         "fillToFit": true,
         "amount": 1,
         "active": true,
         "mode": "global",
-        "sync": {
-            "enabled": false,
-            "numerator": 1,
-            "denominator": 4
+        "speed": {
+            "frequency": 1,
+            "speedUnit": 14,
+            "sync": {
+                "enabled": false,
+                "numerator": 1,
+                "denominator": 4
+            }
         }
     }],
     "modulation": {
@@ -237,7 +245,7 @@ const patch = {
                 "polarity": "full",
                 "enabled": true,
                 "source": {
-                    "type": "lfo",
+                    "type": "steps",
                     "index": 0
                 }
             }],

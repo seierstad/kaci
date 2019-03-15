@@ -102,9 +102,11 @@ class MidiInput {
             this.midiAccessRequest = navigator.requestMIDIAccess({
                 "sysex": true
             }).then(this.midiAccessSuccess, this.midiAccessFailure);
-        } else {
+        }
+        /*else {
             console.log("TODO: disconnect MIDI access");
         }
+        */
     }
 
     @autobind
@@ -156,9 +158,10 @@ class MidiInput {
 
     @autobind
     midiAccessFailure (exception) {
-        console.log("MIDI failure: " + exception);
+        //console.log("MIDI failure: " + exception);
         this.store.dispatch({
-            type: MIDI.UNAVAILABLE
+            type: MIDI.UNAVAILABLE,
+            exception
         });
     }
 
@@ -288,13 +291,14 @@ class MidiInput {
                 this.updatePair(p.EFFECT_CONTROL, null, data);
                 break;
             default:
-                console.log("unimplemented MIDI control change message received: " + type);
+                //console.log("unimplemented MIDI control change message received: " + type);
         }
     }
 
     @autobind
     timeCodeHandler (data) {
-        console.log("TODO: implement timecode");
+        return data;
+        //console.log("TODO: implement timecode");
     }
 
     @autobind
@@ -388,7 +392,7 @@ class MidiInput {
                 break;
             case c.MESSAGE_TYPE.PITCH_BEND: // pitch bend
 
-            // TODO: scale values above 0x2000 so that coarse=127, fine=127 => value=1
+                // TODO: scale values above 0x2000 so that coarse=127, fine=127 => value=1
                 this.runningStatusBuffer = type;
                 const value = data[index + 2] << 7 | data[index + 1];
 

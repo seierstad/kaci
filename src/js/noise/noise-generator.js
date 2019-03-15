@@ -13,7 +13,7 @@ class Noise extends KaciAudioNode {
 
     constructor (...args) {
         super(...args);
-        const [context, store, patch] = args;
+        const [context, , patch] = args;
 
         this.generator = null;
         this.parameters = {...this.outputStage.parameters};
@@ -54,7 +54,7 @@ class Noise extends KaciAudioNode {
             });
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             resolve(this);
         });
     }

@@ -21,13 +21,13 @@ class SubOscillator extends KaciAudioNode {
 
     constructor (...args) {
         super(...args);
-        const [context, store, patch, scaleBaseNumber = 2] = args;
+        const [context, , patch, scaleBaseNumber = 2] = args;
 
         /* start common constructor code */
         this.state = {
             ...patch,
-            beat_sync: {
-                ...patch.beat_sync
+            sync: {
+                ...patch.sync
             }
         };
 
@@ -117,7 +117,7 @@ class SubOscillator extends KaciAudioNode {
 
     @autobind
     init () {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             resolve(this);
         });
     }

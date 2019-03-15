@@ -30,7 +30,6 @@ class NoiseView extends Component {
     render () {
         const {patch, configuration, handlers} = this.props;
         const {outputHandlers} = handlers;
-        const {color} = patch;
 
         return (
             <section className="noise-view">

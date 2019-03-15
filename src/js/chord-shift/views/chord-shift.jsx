@@ -23,6 +23,7 @@ class ChordShiftView extends Component {
             "handleChordShiftToggle": PropTypes.func.isRequired,
             "modeChangeHandler": PropTypes.func.isRequired
         }).isRequired,
+        "keyHandlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "patch": chordShiftPatchShape,
         "playState": chordShiftPlayStateShape.isRequired
     }

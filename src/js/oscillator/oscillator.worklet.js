@@ -138,9 +138,11 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
 
     process (inputs, outputs, parameters) {
         const audioOutputChannel = outputs[0][0];
+        /*
         const syncOutput = outputs[1];
         const syncFrequencyChannel = syncOutput[0];
         const syncPhaseChannel = syncOutput[1];
+        */
         const {frequency, detune, waveformParameter} = parameters;
 
         audioOutputChannel.forEach((val, index, arr) => {
@@ -148,9 +150,9 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
             const {[index]: d = detune[0]} = detune;
             const {[index]: p = waveformParameter[0]} = waveformParameter;
 
-            syncPhaseChannel[index] = this.phase;
+            //syncPhaseChannel[index] = this.phase;
             arr[index] = this.generatorFunction(f, d, p);
-            syncFrequencyChannel[index] = this.previous.calculatedFrequency;
+            //syncFrequencyChannel[index] = this.previous.calculatedFrequency;
         });
 
         return !this.destroyed;

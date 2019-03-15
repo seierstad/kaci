@@ -44,8 +44,12 @@ const commonConfig = merge([
         template: "./src/markup/index.html"
     }),
     parts.lintJS({
-        formatter: "checkstyle",
-        filePath: path.join(PATHS.reports, "checkstyle-eslint-report.xml")
+        exclude: /(node_modules|worklet.js)/,
+        include: PATHS.app,
+        options: {
+            formatter: "checkstyle",
+            filePath: path.join(PATHS.reports, "checkstyle-eslint-report.xml")
+        }
     }),
     /*,
     parts.loadSVG(),

@@ -12,6 +12,7 @@ class FractionInput extends Component {
         "configuration": syncConfigShape.isRequired,
         "denominatorRef": PropTypes.func,
         "disabled": PropTypes.bool,
+        "eventParams": PropTypes.object,
         "handlers": PropTypes.object.isRequired,
         "index": PropTypes.number,
         "legend": PropTypes.string,

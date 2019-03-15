@@ -144,7 +144,7 @@ export const waveforms = {
         let add_term = true;
         let sum_terms = 0.0;
 
-        for (let t = phase - a0 ; ; ) {
+        for (let t = phase - a0;;) {
             const tInverse = 1.0 / t;
 
             let a = Math.trunc(tInverse);
@@ -184,7 +184,7 @@ export const waveforms = {
     }
 };
 
-
+/*
 const sineSum = (min, max, weightFn = () => 1) => {
     const numberOfPartials = Math.ceil(Math.log(max - min) / Math.log(2));
     // make [weight, phaseOffset] pairs
@@ -197,4 +197,4 @@ const sineSum = (min, max, weightFn = () => 1) => {
         return partials.reduce((acc, partial, index) => (acc + Math.sin((phase * (1 << index)) + partial[1]) * partial[0]), 0) / sumOfWeights;
     };
 };
-
+*/

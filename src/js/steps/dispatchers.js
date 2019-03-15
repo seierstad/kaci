@@ -6,12 +6,14 @@ import {
     GLIDE_AT_FALLING,
     GLIDE_AT_RISING,
     GLIDE_INVERT,
+    GLIDE_MODE_CHANGE,
     GLIDE_NONE,
     GLIDE_SHIFT,
+    GLIDE_SLOPE_CHANGE,
     GLIDE_TIME_CHANGE,
     INVERT_VALUES,
-    LEVELS_COUNT_DECREASE,
-    LEVELS_COUNT_INCREASE,
+    MAX_VALUE_DECREASE,
+    MAX_VALUE_INCREASE,
     REVERSE,
     SEQUENCE_SHIFT,
     STEP_ADD,
@@ -34,14 +36,16 @@ const dispatchHandlers = (dispatch) => ({
         dispatch({"type": STEP_GLIDE_TOGGLE, index, step});
     },
     "increaseLevelCount": index => {
-        dispatch({"type": LEVELS_COUNT_INCREASE, index});
+        dispatch({"type": MAX_VALUE_INCREASE, index});
     },
     "decreaseLevelCount": index => {
-        dispatch({"type": LEVELS_COUNT_DECREASE, index});
+        dispatch({"type": MAX_VALUE_DECREASE, index});
     },
     "sequenceShift": (index, shift) => dispatch({"type": SEQUENCE_SHIFT, index, shift}),
     "glide": {
         "changeGlideTime": (index, value, direction = "both") => dispatch({"type": GLIDE_TIME_CHANGE, index, value, direction}),
+        "changeGlideSlope": (index, value, direction = "both") => dispatch({"type": GLIDE_SLOPE_CHANGE, index, value, direction}),
+        "changeGlideMode": (index, value) => dispatch({"type": GLIDE_MODE_CHANGE, value}),
         "glideNoSteps": index => dispatch({"type": GLIDE_NONE, index}),
         "glideAtEvery": (index, interval = 1) => dispatch({"type": GLIDE_AT_EVERY, index, interval}),
         "glideAtRising": (index, interval = 1, enable = true) => dispatch({"type": GLIDE_AT_RISING, index, enable, interval}),

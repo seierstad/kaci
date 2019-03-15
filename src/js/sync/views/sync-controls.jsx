@@ -11,6 +11,7 @@ class SyncControls extends Component {
         "className": PropTypes.string,
         "configuration": syncConfigShape.isRequired,
         "disabled": PropTypes.bool,
+        "eventParams": PropTypes.object,
         "handlers": PropTypes.object.isRequired,
         "index": PropTypes.number,
         "legend": PropTypes.string,

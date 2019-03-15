@@ -1,5 +1,3 @@
-import autobind from "autobind-decorator";
-// import WavyJones from "../../lib/wavy-jones";
 import PeriodicModulator from "../periodic/periodic-modulator";
 import Oscillator from "../oscillator/ideal-oscillator";
 import OscillatorWorkletNode from "../oscillator/oscillator-worklet-node";
@@ -28,7 +26,7 @@ class LFO extends PeriodicModulator {
 
     constructor (...args) {
         super(...args);
-        const [context, store, patch, index] = args;
+        const [, , , index] = args;
 
         this.stateSelector = ["patch", "lfos", index];
         this.changeHandler = this.stateChangeHandler.bind(this);

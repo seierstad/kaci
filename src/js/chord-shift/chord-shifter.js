@@ -1,7 +1,7 @@
 import autobind from "autobind-decorator";
 
 import KaciNode from "../kaci-node";
-import {inputNode, outputNode} from "../shared-functions";
+import {inputNode} from "../shared-functions";
 import {BUFFER_LENGTH} from "../constants";
 import {sortKeysByNumber} from "../VoiceRegister";
 
@@ -76,7 +76,6 @@ class ChordShifter extends KaciNode {
             outputs.push(event.outputBuffer.getChannelData(channelIndex));
         }
 
-        let rise = false;
         const bufferLength = outputs[0].length;
 
         for (let i = 0; i < bufferLength; i += 1) {

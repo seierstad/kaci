@@ -14,7 +14,7 @@
         "byName": {},
         "bySource": {},
         "usedIds": [
-          1
+          0
         ]
       }
     }
@@ -147,7 +147,18 @@
       "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/range-input.jsx": 81,
       "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx fe9d7ed11a625f6b8557b840fda5c28a": 82,
       "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 874c61133cacda0eda62349c7a441fdf": 82,
-      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx d92b035a0793cba6bcc1e3799f329d29": 82
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx d92b035a0793cba6bcc1e3799f329d29": 82,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/envelope/view/shared-functions.js": 44,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/views/ViewUtils.js": 71,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/envelope/view/envelope.jsx 42d4bdc8cb24477c63af636e9f582da4": 72,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/envelope/selectors.js": 73,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/envelope/view/range-input.jsx": 74,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/envelope/view/sustain-envelope.jsx": 76,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/envelope/view/sustain.jsx": 77,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js": 78,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js": 80,
+      "node_modules/mini-css-extract-plugin/dist/loader.js??ref--8-0!node_modules/css-loader/index.js??ref--8-1!node_modules/postcss-loader/src/index.js??postcss!node_modules/sass-loader/lib/loader.js??ref--8-3!src/styles/styles.scss": 81,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/kaci.jsx d700148bf31a1c039ab4e48c153b97bc": 82
     },
     "usedIds": {
       "0": 0,
@@ -352,7 +363,8 @@
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/worklets/oscillator.worklet.js d7c8eb02e4b18c8d2272d5d9e1ac355a": 24,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js fa71a1b365cd369c37b01dfb78834859": 24,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 5e58b31eb4730c77b72a5eaae62fd8c4": 24,
-          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js ce728043ab55ec7ce9c1515b1b750a87": 24
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js ce728043ab55ec7ce9c1515b1b750a87": 24,
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js b557ba672b5aafd8b7e0e809fe699c9f": 24
         },
         "usedIds": {
           "0": 0,
@@ -465,7 +477,8 @@
           "node_modules/core-js/modules/_object-gpo.js": 44,
           "node_modules/core-js/modules/_to-object.js": 45,
           "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 5e58b31eb4730c77b72a5eaae62fd8c4": 46,
-          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js fa71a1b365cd369c37b01dfb78834859": 46
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js fa71a1b365cd369c37b01dfb78834859": 46,
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 52f9838a95d9cb45ab3308da0586715e": 46
         },
         "usedIds": {
           "0": 0,
@@ -520,6 +533,29 @@
       "chunks": {
         "byName": {
           "main": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/index.js??ref--8-1!node_modules/postcss-loader/src/index.js??postcss!node_modules/sass-loader/lib/loader.js??ref--8-3!src/styles/styles.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/index.js??ref--8-1!node_modules/postcss-loader/src/index.js??postcss!node_modules/sass-loader/lib/loader.js??ref--8-3!src/styles/styles.scss": 0,
+          "node_modules/css-loader/lib/css-base.js": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
         },
         "bySource": {},
         "usedIds": [

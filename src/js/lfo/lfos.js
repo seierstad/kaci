@@ -7,7 +7,7 @@ class LFOs extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, store, configuration] = args;
+        const [, store, configuration] = args;
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);

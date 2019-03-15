@@ -1,7 +1,7 @@
 class EnvelopeGenerator {
     constructor (...args) {
 
-        const [context, store, patch, index] = args;
+        const [context, store, , index] = args;
         this.outputs = {};
         this.triggerTime = null;
         this.releaseTime = null;

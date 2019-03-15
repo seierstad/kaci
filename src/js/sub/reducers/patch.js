@@ -40,7 +40,7 @@ const sub = (state = {}, action) => {
             if (action.module === "sub") {
                 return {
                     ...state,
-                    beat_sync: syncReducer(state.beat_sync, action)
+                    sync: syncReducer(state.beat_sync, action)
                 };
             }
             break;

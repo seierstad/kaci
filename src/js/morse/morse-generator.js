@@ -46,7 +46,7 @@ class MorseGenerator extends DiscretePeriodicModulator {
 
     constructor (...args) {
         super(...args);
-        const [context, store, patch, index] = args;
+        const [, , patch, index] = args;
 
         this.stateSelector = ["patch", "morse", index];
         this.changeHandler = this.stateChangeHandler.bind(this);

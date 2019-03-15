@@ -13,6 +13,7 @@ import {lfoPatchShape} from "../propdefs";
 class LFO extends Component {
 
     static propTypes = {
+        "children": PropTypes.any,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "index": PropTypes.number.isRequired,
         "patch": lfoPatchShape.isRequired
@@ -62,8 +63,7 @@ class LFO extends Component {
     }
 
     render () {
-        const {index, patch, handlers, syncHandlers} = this.props;
-        const syncPossible = patch.sync;
+        const {index, patch} = this.props;
 
         return (
             <section className="lfo" id={"lfo-" + index + "-view"}>

@@ -1,4 +1,4 @@
-import {shape, number, bool, arrayOf} from "prop-types";
+import {shape, number, bool, string, arrayOf, oneOf} from "prop-types";
 
 import {
     discretePeriodicModulatorPatchProperties,
@@ -16,8 +16,20 @@ const stepPatchShape = shape({
     "value": number.isRequired
 });
 
+export const slopes = ["linear", "exponential"];
+
+
 export const stepsPatchShape = shape({
     ...modulatorPatchProperties,
+    "glide": {
+        "symmetric": bool.isRequired,
+        "time": number.isRequired,
+        "slope": oneOf(slopes).isRequired,
+        "falling": shape({
+            "time": number.isRequired,
+            "slope": string.isRequired
+        }).isRequired
+    },
     "speed": shape(discretePeriodicModulatorPatchProperties),
     "maxValue": number.isRequired,
     "sequence": arrayOf(stepPatchShape).isRequired

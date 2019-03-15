@@ -71,7 +71,7 @@ class Voice extends KaciNode {
         this.oscillator = new PDOscillator(this.context, this.store, this.state.oscillator);
         this.noise = new NoiseGenerator(this.context, this.store, this.state.noise);
 
-        const voiceLFOs =  this.lfos.filter(l => typeof l === "object");
+        const voiceLFOs = this.lfos.filter(l => typeof l === "object");
 
 
         return Promise.all([
@@ -79,7 +79,7 @@ class Voice extends KaciNode {
             this.oscillator.init(),
             this.noise.init(),
             ...voiceLFOs.map(l => l.init())
-        ]).then((elements) => {
+        ]).then(() => {
             this.frequency.connect(this.oscillator.targets.frequency);
             this.frequency.connect(this.sub.frequencyNode);
 
@@ -176,7 +176,7 @@ class Voice extends KaciNode {
                 }
 
                 if (bs !== bsNew) {
-                    console.log("TODO: implement sub beat sync");
+                    //console.log("TODO: implement sub beat sync");
                 }
 
             }

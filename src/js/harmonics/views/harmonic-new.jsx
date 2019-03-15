@@ -12,8 +12,8 @@ class NewHarmonic extends Component {
 
     static propTypes = {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
-        "patch": PropTypes.arrayOf(harmonicShape).isRequired,
-        "validRatio": PropTypes.bool.isRequired
+        "validRatio": PropTypes.bool.isRequired,
+        "viewState": PropTypes.object
     }
 
     constructor (props) {

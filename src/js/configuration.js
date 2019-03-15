@@ -78,6 +78,11 @@ const configuration = {
                         "step": 0.01,
                         "exponential": true
                     },
+                    "speedUnit": {
+                        "min": 0,
+                        "max": Number.MAX_SAFE_INTEGER,
+                        "step": 1
+                    },
                     "sync": {
                         ...defaultSyncConfiguration
                     }
@@ -104,6 +109,11 @@ const configuration = {
                         "max": 5,
                         "step": 0.01,
                         "exponential": true
+                    },
+                    "speedUnit": {
+                        "min": 0,
+                        "max": Number.MAX_SAFE_INTEGER,
+                        "step": 1
                     },
                     "sync": {
                         ...defaultSyncConfiguration

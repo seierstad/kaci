@@ -34,11 +34,10 @@ const harmonics = (state = {}, action) => {
                 };
 
             case HARMONIC.ADD:
-                const {newHarmonic, ...rest} = state;
+                const result = {...state};
+                delete result.newHarmonic;
 
-                return {
-                    ...rest
-                };
+                return result;
         }
     }
 

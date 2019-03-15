@@ -13,7 +13,7 @@ class KaciAudioNode extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, store, patch] = args;
+        const [, , patch] = args;
 
         // used in generator functions to stop signal generation in the middle
         // of an audioprocess event

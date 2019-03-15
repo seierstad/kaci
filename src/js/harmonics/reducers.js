@@ -38,7 +38,7 @@ const harmonics = (state = [...defaultHarmonics], action) => {
         case HARMONIC.LEVELS_NORMALIZE:
             let sum = state.reduce((acc, h) => acc + Math.abs(h.level), 0);
 
-            return state.map((h, i) => harmonic(h, {type, value: (h.level / sum)}));
+            return state.map(h => harmonic(h, {type, value: (h.level / sum)}));
 
         case HARMONIC.LEVEL_CHANGE:
         case HARMONIC.PHASE_CHANGE:

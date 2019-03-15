@@ -14,6 +14,7 @@ class StepSequencerView extends PureComponent {
 
     static propTypes = {
         "children": PropTypes.any,
+        "configuration": PropTypes.object.isRequired,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "index": PropTypes.number.isRequired,
         "patch": stepsPatchShape.isRequired,
@@ -27,7 +28,7 @@ class StepSequencerView extends PureComponent {
     }
 
     @boundMethod
-    handleAddStep (event) {
+    handleAddStep () {
         const {
             index,
             handlers: {
@@ -39,7 +40,7 @@ class StepSequencerView extends PureComponent {
     }
 
     @boundMethod
-    handleIncreaseLevelCount (event) {
+    handleIncreaseLevelCount () {
         const {
             index,
             handlers: {
@@ -51,7 +52,7 @@ class StepSequencerView extends PureComponent {
     }
 
     @boundMethod
-    handleDecreaseLevelCount (event) {
+    handleDecreaseLevelCount () {
         const {
             index,
             handlers: {
@@ -139,11 +140,10 @@ class StepSequencerView extends PureComponent {
     }
 
     render () {
-        const {index, patch, handlers, syncHandlers, configuration, viewState = {}} = this.props;
+        const {index, patch, handlers, configuration, viewState = {}} = this.props;
         const {
             maxValue,
-            sequence = [],
-            sync: syncPossible
+            sequence = []
         }= patch;
 
         return (

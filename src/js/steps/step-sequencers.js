@@ -8,7 +8,7 @@ class StepSequencers extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [context, store, configuration] = args;
+        const [, store, configuration] = args;
 
         this.store = store;
         this.state = store.getState();

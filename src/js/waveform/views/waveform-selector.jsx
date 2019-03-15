@@ -27,14 +27,14 @@ class WaveformSelector extends Component {
         this.activeButton = null;
     }
 
-    shouldComponentUpdate (nextProps) {
-        return nextProps.selected !== this.props.selected;
-    }
-
     componentDidMount () {
         if (this.props.includePhaseIndicator) {
             this.phaseIndicator = this.activeButton.phaseIndicator;
         }
+    }
+
+    shouldComponentUpdate (nextProps) {
+        return nextProps.selected !== this.props.selected;
     }
 
     componentDidUpdate () {

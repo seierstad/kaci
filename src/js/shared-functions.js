@@ -120,7 +120,7 @@ export const factors = (number, min = 2) => {
     return [number];
 };
 
-export const divisors = (number, limit) => {
+export const divisors = (number) => {
     const sqr = Math.sqrt(number);
     const result = [];
 

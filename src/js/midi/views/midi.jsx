@@ -27,7 +27,7 @@ class MidiViewPresentation extends Component {
     }
 
     @autobind
-    onToggle (event) {
+    onToggle () {
         this.props.handlers.toggle();
     }
 

@@ -5,6 +5,7 @@ import * as CHORD_SHIFT from "../chord-shift/actions";
 import * as KEYBOARD from "../keyboard/actions";
 import chord from "./chord-reducer";
 
+/*
 const key = (state = {down: false}, action) => {
     switch (action.type) {
         case MIDI.KEY_DOWN:
@@ -21,6 +22,7 @@ const key = (state = {down: false}, action) => {
             };
     }
 };
+*/
 
 const pitchShift = (state = 0, action) => {
     switch (action.type) {
@@ -31,6 +33,7 @@ const pitchShift = (state = 0, action) => {
     return state;
 };
 
+/*
 const hold = (state = false, action) => {
     switch (action.type) {
         case "TODO":
@@ -38,6 +41,7 @@ const hold = (state = false, action) => {
     }
     return state;
 };
+*/
 
 const defaultPlayState = {
     keys: {},
@@ -47,10 +51,6 @@ const defaultPlayState = {
     pitchShift: 0
 };
 
-const keyReducer = (arr, key) => {
-    arr[key.number] = {down: true};
-    return arr;
-};
 
 const playState = (state = defaultPlayState, action) => {
 

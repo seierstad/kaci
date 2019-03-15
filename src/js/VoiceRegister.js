@@ -108,7 +108,7 @@ class VoiceRegister extends KaciNode {
     }
 
     set tuning (tuning) {
-        const {scale, scales, baseFrequency, keys} = tuning;
+        const {scale, baseFrequency, keys} = tuning;
         if (this.tuningState.scale !== scale || this.tuningState.baseFrequency !== baseFrequency) {
             const {min, max} = keys;
             const {value: frequency} = baseFrequency;
@@ -170,9 +170,8 @@ class VoiceRegister extends KaciNode {
 
     @autobind
     deleteVoice (voice) {
-        const notVoice = (v) => v === null;
         let [stoppedVoiceKey = null] = Object.entries(this.stoppedVoices)
-            .filter(([key, stoppedVoice]) => voice === stoppedVoice)
+            .filter(([, stoppedVoice]) => voice === stoppedVoice)
             .map(([key]) => key);
 
         if (stoppedVoiceKey !== null) {
@@ -182,7 +181,7 @@ class VoiceRegister extends KaciNode {
         } else {
 
             let [activeVoiceKey = null] = Object.entries(this.activeVoices)
-                .filter(([key, activeVoice]) => voice === activeVoice)
+                .filter(([, activeVoice]) => voice === activeVoice)
                 .map(([key]) => key);
 
             if (activeVoiceKey !== null) {
@@ -225,7 +224,7 @@ class VoiceRegister extends KaciNode {
             if (this.activeKeys !== newKeyState) {
 
                 const downs = Object.entries(newKeyState)
-                    .filter(([keyNumber, keyState]) => !this.activeKeys.has(keyNumber));
+                    .filter(([keyNumber]) => !this.activeKeys.has(keyNumber));
 
                 const ups = [];
 

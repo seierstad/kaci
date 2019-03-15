@@ -28,7 +28,8 @@
   },
   "plugins": [
     "import",
-    "react"
+    "react",
+    "json"
   ],
   "rules": {
     "accessor-pairs": 0,
@@ -48,7 +49,7 @@
     "computed-property-spacing": [0, "never"],
     "consistent-return": 0,
     "consistent-this": [0, "that"],
-    "constructor-super": 0,
+    "constructor-super": 1,
     "curly": [1, "all"],
     "default-case": 0,
     "dot-location": 0,
@@ -160,7 +161,7 @@
     "no-new-wrappers": 0,
     "no-new": 0,
     "no-obj-calls": 2,
-    "no-octal-escape": 0,
+    "no-octal-escape": 2,
     "no-octal": 2,
     "no-param-reassign": 2,
     "no-path-concat": 0,
@@ -182,7 +183,7 @@
     "no-sparse-arrays": 2,
     "no-sync": 0,
     "no-ternary": 0,
-    "no-this-before-super": 0,
+    "no-this-before-super": 2,
     "no-throw-literal": 0,
     "no-trailing-spaces": 2,
     "no-undef-init": 0,
@@ -265,7 +266,7 @@
     "react/no-is-mounted": 1,
     "react/no-multi-comp": 1,
     "react/no-set-state": 1,
-    "react/no-string-refs": 0,
+    "react/no-string-refs": 1,
     "react/no-unknown-property": 1,
     "react/prefer-es6-class": 1,
     "react/prop-types": 1,

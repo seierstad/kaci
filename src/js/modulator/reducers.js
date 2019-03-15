@@ -12,7 +12,10 @@ const modulatorReducer = (state = {...defaultModulatorParameters}, action) => {
         case FREQUENCY_CHANGE:
             return {
                 ...state,
-                "frequency": action.value
+                "speed": {
+                    ...state.speed,
+                    "frequency": action.value
+                }
             };
 
         case AMOUNT_CHANGE:

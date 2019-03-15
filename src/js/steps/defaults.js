@@ -7,7 +7,7 @@ export const defaultStepsParameters = {
         ...defaultSyncParameters
     },
     "glide": {
-        "mode": "symmetric",
+        "symmetric": true,
         "time": 0.25,
         "slope": "linear",
         "falling": {

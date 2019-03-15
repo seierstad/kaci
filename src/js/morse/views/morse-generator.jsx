@@ -78,9 +78,17 @@ class MorseGenerator extends Component {
     render () {
         const MAX_GUIDE_DIVISOR = 12;
 
-        const {index, patch, handlers, viewState = {}} = this.props;
+        const {index, patch, viewState = {}} = this.props;
         const {guides = []} = viewState;
-        const {padding = 0, shift = 0, text = "", fillToFit = false, speedUnit} = patch;
+        const {
+            padding = 0,
+            shift = 0,
+            text = "",
+            fillToFit = false,
+            speed: {
+                speedUnit
+            } = {}
+        } = patch;
         const pattern = morseEncode(text);
         const remainder = (pattern.length + padding) % speedUnit;
         const fitPadding = (speedUnit && fillToFit && remainder !== 0) ? (speedUnit - remainder) : 0;

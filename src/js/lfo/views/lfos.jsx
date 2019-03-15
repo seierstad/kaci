@@ -18,7 +18,7 @@ class LFOs extends Component {
     }
 
     render () {
-        const {patch, configuration, handlers, syncHandlers} = this.props;
+        const {patch, configuration, handlers} = this.props;
         let lfos = [];
 
         for (let i = 0; i < configuration.count; i += 1) {

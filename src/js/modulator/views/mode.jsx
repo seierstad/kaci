@@ -25,7 +25,7 @@ class ModulatorMode extends Component {
     }
 
     render () {
-        const {patch, configuration} = this.props;
+        const {patch} = this.props;
 
         return (
             <fieldset className="modulator mode">

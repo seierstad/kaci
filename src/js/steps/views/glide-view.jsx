@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import {boundMethod} from "autobind-decorator";
 
 import RangeInput from "../../static-source/views/range-input.jsx";
+import {slopes} from "../propdefs";
 
 
 class GlideView extends PureComponent {
@@ -25,7 +26,7 @@ class GlideView extends PureComponent {
     }
 
     @boundMethod
-    onGlideTimeChange (value) {
+    onGlideTimeChange (value, direction) {
         const {
             index,
             handlers: {
@@ -33,7 +34,17 @@ class GlideView extends PureComponent {
             } = {}
         } = this.props;
 
-        changeGlideTime(index, value);
+        changeGlideTime(index, value, direction);
+    }
+
+    @boundMethod
+    onRisingGlideTimeChange (value) {
+        this.onGlideTimeChange(value, "up");
+    }
+
+    @boundMethod
+    onFallingGlideTimeChange (value) {
+        this.onGlideTimeChange(value, "down");
     }
 
     @boundMethod
@@ -84,18 +95,98 @@ class GlideView extends PureComponent {
         this.shiftHandler(1);
     }
 
+    @boundMethod
+    handleGlideSlope (event, direction) {
+        const {value} = event.target;
+
+        const {
+            index,
+            handlers: {
+                changeGlideSlope
+            } = {}
+        } = this.props;
+
+        changeGlideSlope(index, value, direction);
+    }
+
+    @boundMethod
+    handleBothGlideSlope (event) {
+        this.handleGlideSlope(event, "both");
+    }
+
+    @boundMethod
+    handleRisingGlideSlope (event) {
+        this.handleGlideSlope(event, "up");
+    }
+
+    @boundMethod
+    handleFallingGlideSlope (event) {
+        this.handleGlideSlope(event, "down");
+    }
+
     render () {
         const {configuration, patch} = this.props;
 
         return (
             <fieldset>
                 <legend>glide</legend>
-                <RangeInput
-                    changeHandler={this.onGlideTimeChange}
-                    configuration={configuration}
-                    label="time"
-                    value={patch}
-                />
+                <label><input type="checkbox" value={!patch.symmetric} /><span className="label-text">rise = fall</span></label>
+
+                {patch.symmetric ? (
+                    <React.Fragment>
+                        <RangeInput
+                            changeHandler={this.onGlideTimeChange}
+                            configuration={configuration}
+                            label="time"
+                            value={patch.time}
+                        />
+                        <label>
+                            <span className="label-text">slope</span>
+                            <select onChange={this.handleBothGlideSlope} value={patch.slope}>
+                                {slopes.map(slope => (
+                                    <option key={slope} value={slope}>{slope}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </React.Fragment>
+                ) : (
+                    <React.Fragment>
+                        <fieldset>
+                            <legend>rising</legend>
+                            <RangeInput
+                                changeHandler={this.onRisingGlideTimeChange}
+                                configuration={configuration}
+                                label="rising time"
+                                value={patch.time}
+                            />
+                            <label>
+                                <span className="label-text">slope</span>
+                                <select onChange={this.handleRisingGlideSlope} value={patch.slope}>
+                                    {slopes.map(slope => (
+                                        <option key={slope} value={slope}>{slope}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </fieldset>
+                        <fieldset>
+                            <legend>falling</legend>
+                            <RangeInput
+                                changeHandler={this.onFallingGlideTimeChange}
+                                configuration={configuration}
+                                label="falling time"
+                                value={patch.falling.time}
+                            />
+                            <label>
+                                <span className="label-text">slope</span>
+                                <select onChange={this.handleFallingGlideSlope} value={patch.falling.slope}>
+                                    {slopes.map(slope => (
+                                        <option key={slope} value={slope}>{slope}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </fieldset>
+                    </React.Fragment>
+                )}
                 <button
                     className="glide-pattern-button none"
                     onClick={this.handleGlideNone}

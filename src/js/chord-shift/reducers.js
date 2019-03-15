@@ -16,7 +16,7 @@ const containsKey = (chord = {}, key) => {
     return chord.hasOwnProperty(key.number);
 };
 
-const keySort = (a, b) => a.number > b.number ? -1 : 1;
+//const keySort = (a, b) => a.number > b.number ? -1 : 1;
 
 
 const chordShift = (state = defaultChordShift, action = {}, keys) => {

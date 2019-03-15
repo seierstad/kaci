@@ -19,7 +19,7 @@ class PeriodicModulator extends Modulator {
     constructor (...args) {
         super(...args);
 
-        const [context, store, patch, index] = args;
+        const [, , patch] = args;
         const {
             speed: {
                 frequency

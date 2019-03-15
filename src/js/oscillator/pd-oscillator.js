@@ -5,7 +5,6 @@ import {
     mixValues,
     phaseDistortionFunction,
     inputNode,
-    lcmReducer,
     fractionsLcm
 } from "../shared-functions";
 import {waveforms, wrappers} from "../waveform/waveforms";
@@ -23,7 +22,7 @@ class PDOscillator extends KaciAudioNode {
     constructor (...args) {
         super(...args);
 
-        const [context, store, patch] = args;
+        const [context, , patch] = args;
         this.state = patch;
 
         this.parameters = {...this.outputStage.parameters};
@@ -112,7 +111,7 @@ class PDOscillator extends KaciAudioNode {
 
     @autobind
     init () {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             resolve(this);
         });
     }
@@ -173,7 +172,7 @@ class PDOscillator extends KaciAudioNode {
                 const counterPhase = distortedPhaseMix + this.counter;
                 const sum = this.state.harmonics.reduce((acc, h) => acc + Math.abs(h.level), 0);
 
-                return this.state.harmonics.reduce((result, harmonic, index) => {
+                return this.state.harmonics.reduce((result, harmonic) => {
                     if (harmonic.enabled && harmonic.level > 0) {
                         const harmonicPdPhase = ((counterPhase % harmonic.denominator) * harmonic.numerator / harmonic.denominator);
                         const phaseSum = (harmonicPdPhase + (harmonic.phase || 0)) % 1;

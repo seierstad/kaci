@@ -9,7 +9,7 @@ class Step extends PureComponent {
     static propTypes = {
         "glide": PropTypes.bool,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
-        "levels": PropTypes.number.isRequired,
+        "maxValue": PropTypes.number.isRequired,
         "sequencerIndex": PropTypes.number.isRequired,
         "stepIndex": PropTypes.number.isRequired,
         "value": PropTypes.number.isRequired
@@ -61,7 +61,7 @@ class Step extends PureComponent {
     render () {
         const {
             glide = false,
-            levels,
+            maxValue,
             stepIndex,
             sequencerIndex,
             value = 0
@@ -69,7 +69,7 @@ class Step extends PureComponent {
 
         const inputs = [];
 
-        for (let l = levels - 1; l >= 0; l -= 1) {
+        for (let l = maxValue; l >= 0; l -= 1) {
             inputs.push(
                 <label
                     key={[stepIndex, l].join("-")}

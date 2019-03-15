@@ -5,7 +5,7 @@ class DiscretePeriodicModulator extends PeriodicModulator {
     constructor (...args) {
         super(...args);
 
-        const [context, store, patch, index] = args;
+        const [, , patch] = args;
         const {
             speed: {
                 speedUnit

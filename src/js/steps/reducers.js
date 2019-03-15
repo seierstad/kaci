@@ -10,14 +10,14 @@ import {
     GLIDE_AT_FALLING,
     GLIDE_AT_RISING,
     GLIDE_INVERT,
+    GLIDE_MODE_CHANGE,
     GLIDE_NONE,
     GLIDE_SHIFT,
-    GLIDE_TIME_CHANGE,
-    GLIDE_MODE_CHANGE,
     GLIDE_SLOPE_CHANGE,
+    GLIDE_TIME_CHANGE,
     INVERT_VALUES,
-    LEVELS_COUNT_DECREASE,
-    LEVELS_COUNT_INCREASE,
+    MAX_VALUE_DECREASE,
+    MAX_VALUE_INCREASE,
     REVERSE,
     SEQUENCE_SHIFT,
     STEP_ADD,
@@ -29,13 +29,13 @@ import {defaultStepsParameters} from "./defaults";
 
 
 function glidesByStepChange (state, compareFn, interval = 1) {
-    let previousValue = state.steps[state.steps.length - 1].value;
+    let previousValue = state.sequence[state.sequence.length - 1].value;
     let changeIndex = -1;
 
     return {
         ...state,
-        steps: [
-            ...state.steps.map(step => {
+        sequence: [
+            ...state.sequence.map(step => {
                 const changed = compareFn(step.value, previousValue);
                 if (changed) {
                     changeIndex += 1;
@@ -78,15 +78,15 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
                 if (normalize) {
                     return {
                         ...state,
-                        levels: minMax.max - minMax.min + 1,
-                        steps: values.map(value => ({value: value - minMax.min}))
+                        maxValue: minMax.max - minMax.min,
+                        sequence: values.map(value => ({value: value - minMax.min}))
                     };
                 }
 
                 return {
                     ...state,
-                    levels: minMax.max + 1,
-                    steps: values.map(value => ({value}))
+                    maxValue: minMax.max,
+                    sequence: values.map(value => ({value}))
                 };
             }
 
@@ -96,8 +96,8 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
         case STEP_ADD:
             return {
                 ...state,
-                steps: [
-                    ...state.steps,
+                sequence: [
+                    ...state.sequence,
                     {"value": 0}
                 ]
             };
@@ -105,22 +105,22 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
         case STEP_DELETE:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.slice(0, action.step),
-                    ...state.steps.slice(action.step + 1)
+                sequence: [
+                    ...state.sequence.slice(0, action.step),
+                    ...state.sequence.slice(action.step + 1)
                 ]
             };
 
         case STEP_VALUE_CHANGE: {
             const result = {
                 ...state,
-                steps: [
-                    ...state.steps
+                sequence: [
+                    ...state.sequence
                 ]
             };
-            if (action.value !== result.steps[action.step]["value"]) {
-                result.steps[action.step] = {
-                    ...result.steps[action.step],
+            if (action.value !== result.sequence[action.step]["value"]) {
+                result.sequence[action.step] = {
+                    ...result.sequence[action.step],
                     "value": action.value
                 };
                 return result;
@@ -131,52 +131,52 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
         case STEP_GLIDE_TOGGLE: {
             const result = {
                 ...state,
-                steps: [
-                    ...state.steps
+                sequence: [
+                    ...state.sequence
                 ]
             };
 
-            result.steps[action.step] = {
-                ...result.steps[action.step],
-                "glide": !result.steps[action.step].glide
+            result.sequence[action.step] = {
+                ...result.sequence[action.step],
+                "glide": !result.sequence[action.step].glide
             };
 
             return result;
         }
 
-        case LEVELS_COUNT_INCREASE:
+        case MAX_VALUE_INCREASE:
             return {
                 ...state,
-                levels: state.levels + 1
+                maxValue: state.maxValue + 1
             };
 
-        case LEVELS_COUNT_DECREASE: {
-            let stepsChanged = false;
+        case MAX_VALUE_DECREASE: {
+            let sequenceChanged = false;
 
             const result = {
                 ...state,
-                levels: state.levels - 1
+                maxValue: state.maxValue - 1
             };
 
-            const newSteps = state.steps.map(step => {
-                if (step.value >= result.levels) {
-                    stepsChanged = true;
+            const newSteps = state.sequence.map(step => {
+                if (step.value >= result.maxValue) {
+                    sequenceChanged = true;
                     return {
                         ...step,
-                        value: result.levels - 1
+                        value: result.maxValue - 1
                     };
                 }
                 return step;
             });
 
-            if (stepsChanged) {
-                result.steps = newSteps;
+            if (sequenceChanged) {
+                result.sequence = newSteps;
             }
 
             return result;
         }
 
-        case GLIDE_TIME_MODE_CHANGE:
+        case GLIDE_MODE_CHANGE:
             return {
                 ...state,
                 glide: {
@@ -184,11 +184,81 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
                     mode: action.mode
                 }
             };
+
         case GLIDE_TIME_CHANGE:
+            switch (action.direction) {
+                case "up":
+                    return {
+                        ...state,
+                        glide: {
+                            ...state.glide,
+                            time: action.value
+                        }
+                    };
+
+                case "down":
+                    return {
+                        ...state,
+                        glide: {
+                            ...state.glide,
+                            falling: {
+                                ...state.glide.falling,
+                                time: action.value
+                            }
+                        }
+                    };
+
+                default:
+                    return {
+                        ...state,
+                        glide: {
+                            ...state.glide,
+                            time: action.value,
+                            falling: {
+                                ...state.glide.falling,
+                                time: action.value
+                            }
+                        }
+                    };
+            }
+
+        case GLIDE_SLOPE_CHANGE: {
+            switch (action.direction) {
+                case "up":
+                    return {
+                        ...state,
+                        glide: {
+                            ...state.glide,
+                            slope: action.value
+                        }
+                    };
+
+                case "down":
+                    return {
+                        ...state,
+                        glide: {
+                            ...state.glide,
+                            falling: {
+                                ...state.glide.falling,
+                                slope: action.value
+                            }
+                        }
+                    };
+            }
+
             return {
                 ...state,
-                glide: action.value
+                glide: {
+                    ...state.glide,
+                    slope: action.value,
+                    falling: {
+                        ...state.glide.falling,
+                        slope: action.value
+                    }
+                }
             };
+        }
+
 
         case GLIDE_AT_CHANGE:
             return glidesByStepChange (state, (curr, prev) => (curr !== prev), action.interval);
@@ -202,24 +272,24 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
         case GLIDE_AT_EVERY:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.map((step, i) => ({...step, glide: i % action.interval === 0}))
+                sequence: [
+                    ...state.sequence.map((step, i) => ({...step, glide: i % action.interval === 0}))
                 ]
             };
 
         case GLIDE_NONE:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.map(step => ({...step, glide: false}))
+                sequence: [
+                    ...state.sequence.map(step => ({...step, glide: false}))
                 ]
             };
 
         case GLIDE_INVERT:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.map(step => ({...step, glide: !step.glide}))
+                sequence: [
+                    ...state.sequence.map(step => ({...step, glide: !step.glide}))
                 ]
             };
 
@@ -227,15 +297,15 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             const {
                 shift = 0
             } = action;
-            const length = state.steps.length;
+            const length = state.sequence.length;
 
             return {
                 ...state,
-                steps: [
-                    ...state.steps.map((step, i) => {
+                sequence: [
+                    ...state.sequence.map((step, i) => {
                         return {
                             ...step,
-                            glide: !!state.steps[(length + i - shift) % length].glide
+                            glide: !!state.sequence[(length + i - shift) % length].glide
                         };
                     })
                 ]
@@ -245,25 +315,25 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
         case SEQUENCE_SHIFT:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.slice(-action.shift),
-                    ...state.steps.slice(0, -action.shift)
+                sequence: [
+                    ...state.sequence.slice(-action.shift),
+                    ...state.sequence.slice(0, -action.shift)
                 ]
             };
 
         case INVERT_VALUES:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.map(step => ({...step, value: state.levels - 1 - step.value}))
+                sequence: [
+                    ...state.sequence.map(step => ({...step, value: state.maxValue - step.value}))
                 ]
             };
 
         case REVERSE:
             return {
                 ...state,
-                steps: [
-                    ...state.steps.slice().reverse().map(step => ({...step}))
+                sequence: [
+                    ...state.sequence.slice().reverse().map(step => ({...step}))
                 ]
             };
     }
@@ -283,9 +353,11 @@ const stepSequencers = (state = [], action) => {
         case GLIDE_NONE:
         case GLIDE_SHIFT:
         case GLIDE_TIME_CHANGE:
+        case GLIDE_SLOPE_CHANGE:
+        case GLIDE_MODE_CHANGE:
         case INVERT_VALUES:
-        case LEVELS_COUNT_DECREASE:
-        case LEVELS_COUNT_INCREASE:
+        case MAX_VALUE_DECREASE:
+        case MAX_VALUE_INCREASE:
         case REVERSE:
         case SEQUENCE_SHIFT:
         case STEP_ADD:
@@ -329,7 +401,10 @@ const stepSequencers = (state = [], action) => {
                 ];
                 result[action.index] = {
                     ...state[action.index],
-                    "sync": syncReducer(state.sync, action)
+                    "speed": {
+                        ...state[action.index].speed,
+                        "sync": syncReducer(state[action.index].speed.sync, action)
+                    }
                 };
 
                 return result;
