@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import {harmonicShape} from "../propdefs";
-import {fractionsLcm} from "../../shared-functions";
+import {fractionsLeastCommonIntegerMultiple, flipFraction} from "../../shared-functions";
 
 import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import Harmonic from "./harmonic.jsx";
@@ -50,7 +50,7 @@ class Harmonics extends Component {
     @autobind
     setWaveFunction (props) {
         const {patch, mixFunction} = props;
-        const counter = fractionsLcm(patch);
+        const counter = fractionsLeastCommonIntegerMultiple(patch.map(flipFraction));
         this.waveFunction = (phase) => patch.reduce((acc, harmonic) => {
             if (harmonic.enabled && harmonic.level > 0) {
                 const p = ((phase * counter * harmonic.numerator / harmonic.denominator) + (harmonic.phase || 0)) % 1;

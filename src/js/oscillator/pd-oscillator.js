@@ -5,7 +5,8 @@ import {
     mixValues,
     phaseDistortionFunction,
     inputNode,
-    fractionsLcm
+    fractionsLeastCommonIntegerMultiple,
+    flipFraction
 } from "../shared-functions";
 import {waveforms, wrappers} from "../waveform/waveforms";
 import {OSCILLATOR_MODE} from "./constants";
@@ -52,7 +53,7 @@ class PDOscillator extends KaciAudioNode {
         this.counter = 0;
         const {harmonics = []} = this.state;
 
-        this.counterMax = fractionsLcm(harmonics);
+        this.counterMax = fractionsLeastCommonIntegerMultiple(harmonics.map(flipFraction));
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);
@@ -93,6 +94,7 @@ class PDOscillator extends KaciAudioNode {
     }
 
     set harmonics (harmonics) {
+        this.counterMax = fractionsLeastCommonIntegerMultiple(harmonics.map(flipFraction));
         this.state.harmonics = harmonics;
     }
 

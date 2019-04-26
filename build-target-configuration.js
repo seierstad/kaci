@@ -1,6 +1,7 @@
 const browsers = [
-    "last 2 versions",
-    "not ie 5-11"
+    "> 3%",
+    "not ie 5-11",
+    "not dead"
 ];
 
 export default browsers;

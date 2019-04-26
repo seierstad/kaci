@@ -31,9 +31,10 @@
     ],
     "presets": [
         ["@babel/preset-env", {
-            "useBuiltIns": "usage",
+            "corejs": 3,
             "debug": false,
-            "modules": false
+            "modules": false,
+            "useBuiltIns": "usage"
         }],
         "@babel/preset-react"
     ],

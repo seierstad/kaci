@@ -93,20 +93,28 @@ export const splicedArrayCopy = (arr, index, deleteCount, ...newContent) => {
 
 
 export const gcd = (a, b) => !b ? a : gcd(b, a % b);
+export const gcdReducer = (accumulator, current) => gcd(current, accumulator);
 export const lcm = (a, b) => (a * b) / gcd(a, b);
 export const lcmReducer = (accumulator, current) => lcm(current, accumulator);
 
+
+export const simplifyFraction = (fraction = {}) => {
+    const {numerator, denominator} = fraction;
+    const greatestCommonDivisor = gcd(numerator, denominator);
+    return (greatestCommonDivisor === 1) ? fraction : {numerator: numerator / greatestCommonDivisor, denominator: denominator / greatestCommonDivisor};
+};
+
+export const flipFraction = fraction => ({numerator: fraction.denominator, denominator: fraction.numerator});
+
 // find the least integer divisible by all fractions
-export const fractionsLcm = (fractions) => fractions.map(f => {
-    const max = Math.max(f.numerator, f.denominator);
-    if (f.denominator === 1) {
-        return 1;
-    }
-    if (f.numerator === 1) {
-        return max;
-    }
-    return max / gcd(f.numerator, f.denominator);
-}).reduce(lcmReducer, 1);
+export const fractionsLeastCommonIntegerMultiple = (fractions) => {
+    const simplified = fractions.map(f => simplifyFraction(f));
+    const numeratorsLcm = simplified.map(f => f.numerator).reduce(lcmReducer);
+    const numeratorsGcd = simplified.map(f => f.numerator).reduce(gcdReducer);
+
+    return numeratorsLcm / numeratorsGcd;
+};
+
 
 export const factors = (number, min = 2) => {
     const half = number / 2;
