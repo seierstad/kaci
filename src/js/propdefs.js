@@ -22,8 +22,9 @@ export const viewStateShape = shape({
 
 export const configurationShape = shape({
     "keyboard": keyboardConfigShape.isRequired,
-    "midi": midiShape.isRequired,
+    "midi": midiShape.isRequired /*,
     "modulation": modulationConfigShape.isRequired,
     "tuning": tuningShape.isRequired
+    */
 });
 

@@ -45,14 +45,16 @@ const patch = {
         "depth": 0,
         "mode": "beat",
         "detune": 0,
-        "beat": 0.2,
-        "sync": {
-            "enabled": false,
-            "numerator": 16,
-            "denominator": 3,
-            "source": {
-                "type": "lfo", // "morse", "tempo", "midi_tempo",
-                "index": 0
+        "beat": {
+            "frequency": 0.2,
+            "sync": {
+                "enabled": false,
+                "numerator": 16,
+                "denominator": 3,
+                "source": {
+                    "type": "lfo", // "morse", "tempo", "midi_tempo",
+                    "index": 0
+                }
             }
         },
         "active": false,
@@ -143,7 +145,7 @@ const patch = {
     "steps": [{
         "active": true,
         "amount": 1.0,
-        "maxValue": 13,
+        "maxValue": 12,
         "glide": {
             "mode": "symmetric",
             "time": 0.25,
@@ -173,7 +175,7 @@ const patch = {
     }, {
         "active": true,
         "amount": 1.0,
-        "maxValue": 13,
+        "maxValue": 12,
         "glide": {
             "mode": "symmetric",
             "time": 0.25,

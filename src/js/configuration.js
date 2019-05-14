@@ -6,7 +6,7 @@ import {defaultTuning} from "./tuning/defaults";
 import {keyboard} from "./keyboard/configuration";
 import {defaultStepsParameters} from "./steps/defaults";
 import {defaultLfoParameters} from "./lfo/defaults";
-import {defaultSyncConfiguration} from "./sync/defaults";
+import {defaultSyncConfiguration} from "./speed/sync/defaults";
 
 
 export const outputStageTargets = {
@@ -154,7 +154,8 @@ const configuration = {
                 "beat": {
                     "min": 0,
                     "max": 20,
-                    "exponential": true
+                    "exponential": true,
+                    "patchPath": ["beat", "frequency"]
                 },
                 ...outputStageTargets
             },

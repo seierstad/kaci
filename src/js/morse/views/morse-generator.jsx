@@ -32,6 +32,8 @@ class MorseGenerator extends Component {
         super(props);
         this.module = "morse";
         const {index} = this.props;
+        this.index = index;
+
         this.handleTextChange = this.handleTextChange.bind(this, this.module, index);
         this.handleSpeedUnitChange = this.handleSpeedUnitChange.bind(this, this.module, index);
         this.handleGuideToggle = this.handleGuideToggle.bind(this, this.module, index);
@@ -146,20 +148,6 @@ class MorseGenerator extends Component {
                     />
                 </label>
 
-
-                <label htmlFor={"morse-speed-unit-" + index}>
-                    <span className="label-text">Speed unit</span>
-                    <input
-                        className="speed-reference"
-                        id={"morse-speed-unit-" + index}
-                        max={pattern.length}
-                        min={4}
-                        onChange={this.handleSpeedUnitChange}
-                        step={1}
-                        type="number"
-                        value={speedUnit || pattern.length}
-                    />
-                </label>
                 {(patternDivisors && patternDivisors.length > 0) ? (
                     <fieldset className="morse-pattern-divisor-toggles">
                         <legend>show guides</legend>

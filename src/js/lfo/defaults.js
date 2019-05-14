@@ -1,4 +1,4 @@
-import {defaultSyncParameters} from "../sync/defaults";
+import {defaultSyncParameters} from "../speed/sync/defaults";
 import {defaultModulatorParameters} from "../modulator/defaults";
 
 

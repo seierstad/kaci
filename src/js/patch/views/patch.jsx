@@ -2,19 +2,18 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 
-import {FREQUENCY_CHANGE as MODULATOR_FREQUENCY_CHANGE} from "../../modulator/actions";
 import modulatorHandlers from "../../modulator/dispatchers";
 import ModulationMatrix from "../../modulation/views/matrix.jsx";
 import Envelopes from "../../envelope/view/envelopes.jsx";
 import envelopeHandlers from "../../envelope/dispatchers";
+import lfoHandlers from "../../lfo/dispatchers";
 import morseHandlers from "../../morse/dispatchers";
 import stepsHandlers from "../../steps/dispatchers";
+import subHandlers from "../../sub/dispatchers";
+import noiseHanders from "../../noise/dispatchers";
 
 import MorseGenerators from "../../morse/views/morse-generators.jsx";
-import * as SYNC from "../../sync/actions";
 import * as OUTPUT from "../../output-stage/actions";
-import * as LFO from "../../lfo/actions";
-import * as NOISE from "../../noise/actions";
 
 import {
     viewStateShape,
@@ -70,37 +69,24 @@ class PatchPresentation extends Component {
                     configuration={target.sub}
                     handlers={handlers.sub}
                     patch={patch.sub}
-                    syncHandlers={handlers.periodic.sync}
                 />
                 <Envelopes
                     configuration={source.envelope}
                 />
                 <LFOs
                     configuration={source.lfo}
-                    handlers={{
-                        ...handlers.modulator,
-                        ...handlers.periodic,
-                        ...handlers.lfo
-                    }}
+                    handlers={handlers.lfo}
                     patch={patch.lfos}
                 />
                 <StepSequencers
                     configuration={source.steps}
-                    handlers={{
-                        ...handlers.modulator,
-                        ...handlers.periodic,
-                        ...handlers.steps
-                    }}
+                    handlers={handlers.steps}
                     patch={patch.steps}
                     viewState={viewState.steps}
                 />
                 <MorseGenerators
                     configuration={source.morse}
-                    handlers={{
-                        ...handlers.modulator,
-                        ...handlers.periodic,
-                        ...handlers.morse
-                    }}
+                    handlers={handlers.morse}
                     patch={patch.morse}
                     viewState={viewState.morse}
                 />
@@ -118,45 +104,11 @@ const mapDispatchToProps = (dispatch) => ({
     "handlers": {
         "envelope": envelopeHandlers(dispatch),
         "modulator": modulatorHandlers(dispatch),
-        "lfo": {
-            "changeWaveform": (module, index, value) => {
-                dispatch({"type": LFO.WAVEFORM_CHANGE, module, index, value});
-            }
-        },
+        "lfo": lfoHandlers(dispatch),
         "steps": stepsHandlers(dispatch),
         "morse": morseHandlers(dispatch),
-        "periodic": {
-            "frequencyChange": (value, module, index) => {
-                dispatch({"type": MODULATOR_FREQUENCY_CHANGE, index, module, value});
-            },
-            "sync": {
-                "denominatorChange": (value, module, index) => {
-                    dispatch({"type": SYNC.DENOMINATOR_CHANGE, module, index, value});
-                },
-                "numeratorChange": (value, module, index) => {
-                    dispatch({"type": SYNC.NUMERATOR_CHANGE, module, index, value});
-                },
-                "toggle": (module, index) => {
-                    dispatch({"type": SYNC.TOGGLE, module, index});
-                }
-            }
-        },
-        "noise": {
-            "outputHandlers": {
-                "handleToggle": () => {
-                    dispatch({type: OUTPUT.TOGGLE, module: "noise"});
-                },
-                "handlePanInput": (value) => {
-                    dispatch({type: OUTPUT.PAN_CHANGE, value, module: "noise"});
-                },
-                "handleGainInput": (value) => {
-                    dispatch({type: OUTPUT.GAIN_CHANGE, value, module: "noise"});
-                }
-            },
-            "colorChange": (value) => {
-                dispatch({type: NOISE.COLOR_CHANGE, value});
-            }
-        },
+        "sub": subHandlers(dispatch),
+        "noise": noiseHanders(dispatch),
         "main": {
             "outputHandlers": {
                 "handleToggle": () => {

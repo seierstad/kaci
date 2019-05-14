@@ -34,6 +34,7 @@ class PeriodicModulator extends Modulator {
 
     set frequency (frequency) {
         this.speedState.frequency = frequency;
+        this.oscillator.frequency = frequency;
     }
 
     start (time) {

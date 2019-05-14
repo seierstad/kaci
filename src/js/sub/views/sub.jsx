@@ -4,13 +4,13 @@ import {connect} from "react-redux";
 import autobind from "autobind-decorator";
 
 import {modulationTargetShape} from "../../modulation/propdefs";
-import * as OUTPUT from "../../output-stage/actions";
-import {defaultSyncConfiguration} from "../../sync/defaults";
+//import * as OUTPUT from "../../output-stage/actions";
+import {defaultSyncConfiguration} from "../../speed/sync/defaults";
 import OutputStage from "../../output-stage/views/output-stage.jsx";
-import SyncControls from "../../sync/views/sync-controls.jsx";
+import SyncControls from "../../speed/sync/views/sync-controls.jsx";
 import RangeInput from "../../static-source/views/range-input.jsx";
 import {subPatchShape} from "../propdefs";
-import * as SUB from "../actions";
+//import * as SUB from "../actions";
 
 
 class SubViewPresentation extends Component {
@@ -18,8 +18,7 @@ class SubViewPresentation extends Component {
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
         "handlers": PropTypes.object,
-        "patch": subPatchShape.isRequired,
-        "syncHandlers": PropTypes.objectOf(PropTypes.func).isRequired
+        "patch": subPatchShape.isRequired
     }
 
     @autobind
@@ -31,12 +30,18 @@ class SubViewPresentation extends Component {
     @autobind
     handleDetuneModeChange (event) {
         event.stopPropagation();
-        this.props.handlers.detuneMode(event.target.value);
+        this.props.handlers.detuneModeChange(event.target.value);
+    }
+
+    @autobind
+    handleDetuneSemitoneChange (event) {
+        event.stopPropagation();
+        this.props.handlers.detuneChange(parseFloat(event.target.value));
     }
 
     render () {
-        const {patch, configuration, handlers, syncHandlers} = this.props;
-        const {outputStageHandlers, beatChange, detuneChange} = handlers;
+        const {patch, configuration, handlers} = this.props;
+        const {outputStageHandlers, detuneChange} = handlers;
 
         return (
             <section className="sub-view">
@@ -96,16 +101,16 @@ class SubViewPresentation extends Component {
                     {patch.mode === "beat" ?
                         <div className="sub-beat-settings">
                             <RangeInput
-                                changeHandler={beatChange}
+                                changeHandler={handlers.beat.frequencyChange}
                                 configuration={configuration.beat}
                                 label="freq."
-                                value={patch.beat}
+                                value={patch.beat.frequency}
                             />
                             <SyncControls
                                 configuration={defaultSyncConfiguration}
-                                handlers={syncHandlers}
+                                handlers={handlers.beat.sync}
                                 module="sub"
-                                patch={patch.sync}
+                                patch={patch.beat.sync}
                             />
                         </div>
                         :
@@ -128,21 +133,7 @@ const mapState = (state) => ({
     "patch": state.patch.sub
 });
 
-const mapDispatch = (dispatch) => ({
-    "handlers": {
-        "depthChange": (value) => {dispatch({type: SUB.DEPTH_CHANGE, value});},
-        "detuneChange": (value) => {dispatch({type: SUB.DETUNE_CHANGE, value});},
-        "beatChange": (value) => {dispatch({type: SUB.BEAT_FREQUENCY_CHANGE, value});},
-        "detuneMode": (value) => {dispatch({type: SUB.DETUNE_MODE_CHANGE, value});},
-        "outputStageHandlers": {
-            "handleToggle": () => {dispatch({type: OUTPUT.TOGGLE, module: "sub"});},
-            "handlePanInput": (value) => {dispatch({type: OUTPUT.PAN_CHANGE, value, module: "sub"});},
-            "handleGainInput": (value) => {dispatch({type: OUTPUT.GAIN_CHANGE, value, module: "sub"});}
-        }
-    }
-});
-
-const SubView = connect(mapState, mapDispatch)(SubViewPresentation);
+const SubView = connect(mapState, null)(SubViewPresentation);
 
 
 export default SubView;

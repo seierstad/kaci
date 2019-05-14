@@ -1,16 +1,19 @@
+import {getSpeedDispatcherForModule} from "../speed/dispatchers";
+import modulatorHandlers from "../modulator/dispatchers";
+
 import {
     FILL_TOGGLE,
     GUIDE_TOGGLE,
     PADDING_CHANGE,
     SHIFT_CHANGE,
-    SPEED_UNIT_CHANGE,
     TEXT_CHANGE
 } from "./actions";
 
+const speedDispatcher = getSpeedDispatcherForModule("morse");
+
 const dispatchHandlers = (dispatch) => ({
-    "speedUnitChange": (module, index, value) => {
-        dispatch({"type": SPEED_UNIT_CHANGE, module, index, value});
-    },
+    ...(modulatorHandlers(dispatch)),
+    "speed": speedDispatcher(dispatch),
     "paddingChange": (module, index, value) => {
         dispatch({"type": PADDING_CHANGE, module, index, value});
     },

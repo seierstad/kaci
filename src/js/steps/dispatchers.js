@@ -1,3 +1,6 @@
+import {getSpeedDispatcherForModule} from "../speed/dispatchers";
+import modulatorHandlers from "../modulator/dispatchers";
+
 import {
     GENERATE_SEQUENCE,
     GENERATOR_SELECT,
@@ -22,7 +25,12 @@ import {
     STEP_VALUE_CHANGE
 } from "./actions";
 
+const stepsSpeedDispatchers = getSpeedDispatcherForModule("steps");
+
+
 const dispatchHandlers = (dispatch) => ({
+    ...(modulatorHandlers(dispatch)),
+    "speed": stepsSpeedDispatchers(dispatch),
     "addStep": index => {
         dispatch({"type": STEP_ADD, index});
     },

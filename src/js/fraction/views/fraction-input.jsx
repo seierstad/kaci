@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
-import {syncConfigShape, syncPatchShape} from "../../sync/propdefs";
+import {syncConfigShape, syncPatchShape} from "../../speed/sync/propdefs";
 
 class FractionInput extends Component {
 

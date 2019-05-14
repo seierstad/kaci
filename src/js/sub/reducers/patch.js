@@ -1,7 +1,5 @@
-import * as SYNC from "../../sync/actions";
-import syncReducer from "../../sync/reducers";
+import speedReducer from "../../speed/reducer";
 import {
-    BEAT_FREQUENCY_CHANGE,
     DEPTH_CHANGE,
     DETUNE_CHANGE,
     DETUNE_MODE_CHANGE
@@ -27,23 +25,18 @@ const sub = (state = {}, action) => {
                 ...state,
                 mode: action.value
             };
+    }
 
-        case BEAT_FREQUENCY_CHANGE:
+    if (action.module === "sub") {
+        const currentSpeed = state.beat;
+        const newSpeed = speedReducer(currentSpeed, action);
+
+        if (newSpeed !== currentSpeed) {
             return {
                 ...state,
-                beat: action.value
+                beat: newSpeed
             };
-
-        case SYNC.NUMERATOR_CHANGE:
-        case SYNC.DENOMINATOR_CHANGE:
-        case SYNC.TOGGLE:
-            if (action.module === "sub") {
-                return {
-                    ...state,
-                    sync: syncReducer(state.beat_sync, action)
-                };
-            }
-            break;
+        }
     }
 
     return state;

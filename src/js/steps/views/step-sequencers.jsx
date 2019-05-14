@@ -7,9 +7,13 @@ import StepSequencer from "./step-sequencer-view.jsx";
 class StepSequencersView extends PureComponent {
 
     static propTypes = {
+        /*
         "configuration": stepsConfigShape.isRequired,
+        */
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
+        /*
         "patch": PropTypes.arrayOf(stepsPatchShape).isRequired,
+        */
         "viewState": PropTypes.object.isRequired
     }
 

@@ -1,9 +1,5 @@
 import {shape, number, bool, string, arrayOf, oneOf} from "prop-types";
-
-import {
-    discretePeriodicModulatorPatchProperties,
-    discretePeriodicModulatorConfigProperties
-} from "../periodic/propdefs";
+import {speedPatchShape} from "../speed/propdefs";
 
 import {
     modulatorConfigProperties,
@@ -24,19 +20,18 @@ export const stepsPatchShape = shape({
     "glide": {
         "symmetric": bool.isRequired,
         "time": number.isRequired,
-        "slope": oneOf(slopes).isRequired,
+        "slope": oneOf(["linear", "exponential"]).isRequired,
         "falling": shape({
             "time": number.isRequired,
             "slope": string.isRequired
         }).isRequired
     },
-    "speed": shape(discretePeriodicModulatorPatchProperties),
+    "speed": speedPatchShape.isRequired,
     "maxValue": number.isRequired,
     "sequence": arrayOf(stepPatchShape).isRequired
 });
 
 export const stepsConfigShape = shape({
     ...modulatorConfigProperties,
-    ...discretePeriodicModulatorConfigProperties,
     "default": stepsPatchShape
 });

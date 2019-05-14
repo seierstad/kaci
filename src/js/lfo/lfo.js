@@ -41,7 +41,7 @@ class LFO extends PeriodicModulator {
             this.oscillator = new Oscillator(this.context);
             this.oscillator.connect(this.postGain);
             this.parameters = {...this.oscillator.parameters};
-            this.frequency = this.state.frequency;
+            //this.frequency = this.state.frequency;
             this.waveform = this.state.waveform;
 
 
@@ -62,7 +62,7 @@ class LFO extends PeriodicModulator {
                     this.oscillator.connect(that.outputs[name]);
                 }
                 this.waveform = this.state.waveform;
-                this.frequency = this.state.frequency;
+                //this.frequency = this.state.frequency;
                 return that;
             });
         }

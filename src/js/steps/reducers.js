@@ -1,8 +1,10 @@
 import * as MODULATOR from "../modulator/actions";
 import modulatorReducer from "../modulator/reducers";
-import * as SYNC from "../sync/actions";
-import syncReducer from "../sync/reducers";
+import * as SYNC from "../speed/sync/actions";
+import * as SPEED from "../speed/actions";
+import speedReducer from "../speed/reducer";
 import {generatorFunctions} from "./sequence-generator-functions";
+
 import {
     GENERATE_SEQUENCE,
     GLIDE_AT_CHANGE,
@@ -364,14 +366,16 @@ const stepSequencers = (state = [], action) => {
         case STEP_DELETE:
         case STEP_GLIDE_TOGGLE:
         case STEP_VALUE_CHANGE: {
-            const result = [
-                ...state
-            ];
-            const step = stepSequencer(state[action.index], action);
+            const oldStateAtIndex = state[action.index];
+            const result = stepSequencer(oldStateAtIndex, action);
 
-            if (step !== result[action.index]) {
-                result[action.index] = step;
-                return result;
+            if (result !== oldStateAtIndex) {
+                const newState = [
+                    ...state
+                ];
+                newState[action.index] = result;
+
+                return newState;
             }
             break;
         }
@@ -384,30 +388,43 @@ const stepSequencers = (state = [], action) => {
             case MODULATOR.FREQUENCY_CHANGE:
             case MODULATOR.MODE_CHANGE:
             case MODULATOR.RESET: {
-                const result = [
-                    ...state
-                ];
-                result[action.index] = modulatorReducer(state[action.index], action);
+                const oldStateAtIndex = state[action.index];
+                const result = modulatorReducer(oldStateAtIndex, action);
 
-                return result;
+                if (result !== oldStateAtIndex) {
+                    const newState = [
+                        ...state
+                    ];
+                    newState[action.index] = result;
+
+                    return newState;
+                }
+
+                break;
             }
 
             case SYNC.DENOMINATOR_CHANGE:
             case SYNC.NUMERATOR_CHANGE:
-            case SYNC.TOGGLE: {
+            case SYNC.TOGGLE:
+            case SPEED.SPEED_UNIT_CHANGE:
+            case SPEED.FREQUENCY_CHANGE: {
+                const currentStateAtIndex = state[action.index];
+                const currentSpeed = currentStateAtIndex.speed;
+                const result = speedReducer(currentSpeed, action);
 
-                const result = [
-                    ...state
-                ];
-                result[action.index] = {
-                    ...state[action.index],
-                    "speed": {
-                        ...state[action.index].speed,
-                        "sync": syncReducer(state[action.index].speed.sync, action)
-                    }
-                };
+                if (currentSpeed !== result) {
+                    const newState = [
+                        ...state
+                    ];
+                    newState[action.index] = {
+                        ...currentStateAtIndex,
+                        "speed": result
+                    };
 
-                return result;
+                    return newState;
+                }
+
+                break;
             }
         }
     }

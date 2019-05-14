@@ -3,7 +3,7 @@ import {
 } from "../modulator/defaults";
 import {
     defaultSyncParameters
-} from "../sync/defaults";
+} from "../speed/sync/defaults";
 
 
 const defaultMorseParameters = {

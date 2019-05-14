@@ -1,5 +1,5 @@
 import autobind from "autobind-decorator";
-import Modulator from "../modulator/modulator";
+import Periodic from "../periodic/periodic-modulator";
 import {outputNode} from "../shared-functions";
 //import LoggerNode from "../logger";
 import KaciNode from "../kaci-node";
@@ -225,7 +225,7 @@ class StepOscillator extends KaciNode {
 }
 
 
-class StepSequencer extends Modulator {
+class StepSequencer extends Periodic {
 
 
     constructor (...args) {

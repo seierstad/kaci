@@ -3,9 +3,7 @@ import autobind from "autobind-decorator";
 import KaciNode from "../kaci-node";
 
 /*
-    handles common functions for periodic modulators:
-    - frequency
-    - sync
+    handles common functions for modulators:
     - amount
     - active
     - multiple outputs (positive/negative/full)
@@ -48,22 +46,6 @@ class Modulator extends KaciNode {
         setTimeout(this.updateOutputRanges(value), 1);
     }
 
-    set frequency (frequency) {
-        this.oscillator.frequency = frequency;
-    }
-
-    start (time) {
-        this.oscillator.start(time);
-    }
-
-    stop () {
-        this.oscillator.stop();
-    }
-
-    reset () {
-        this.oscillator.resetPhase();
-    }
-
     /*
     "lfo.change.sync.ratio",
     "lfo.change.sync.enable",
@@ -92,11 +74,6 @@ class Modulator extends KaciNode {
 
         if (this.state.amount !== newState.amount) {
             this.amount = newState.amount;
-        }
-        if (this.state.frequency !== newState.frequency) {
-            if (!newState.sync || !newState.sync.enabled) {
-                this.frequency = newState.frequency;
-            }
         }
     }
 

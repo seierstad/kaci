@@ -98,7 +98,7 @@ class SubOscillator extends KaciAudioNode {
 
     set mode (mode) {
         if (mode === "beat") {
-            this.beatNode.gain.setValueAtTime(this.state.beat, this.context.currentTime);
+            this.beatNode.gain.setValueAtTime(this.state.beat.frequency, this.context.currentTime);
             this.parameters.beat.connect(this.beatNode.gain);
 
             this.parameters.detune.disconnect(this.detuneNode.gain);

@@ -1,5 +1,4 @@
-import * as SYNC from "../sync/actions";
-import syncReducer from "../sync/reducers";
+import speedReducer from "../speed/reducer";
 import * as MODULATOR from "../modulator/actions";
 import modulatorReducer from "../modulator/reducers";
 
@@ -8,18 +7,16 @@ import * as MORSE from "./actions";
 
 
 const morseGenerator = (state = {...defaultMorseParameters}, action) => {
+
     switch (action.type) {
         case MORSE.TEXT_CHANGE:
-            return {
-                ...state,
-                "text": action.value
-            };
-
-        case MORSE.SPEED_UNIT_CHANGE:
-            return {
-                ...state,
-                "speedUnit": action.value
-            };
+            if (action.value !== state.text) {
+                return {
+                    ...state,
+                    "text": action.value
+                };
+            }
+            break;
 
         case MORSE.PADDING_CHANGE:
             return {
@@ -38,6 +35,19 @@ const morseGenerator = (state = {...defaultMorseParameters}, action) => {
                 ...state,
                 "shift": action.value
             };
+
+        case MODULATOR.AMOUNT_CHANGE:
+        case MODULATOR.MODE_CHANGE:
+        case MODULATOR.RESET:
+            return modulatorReducer(state, action);
+    }
+
+    const newSpeed = speedReducer(state.speed, action);
+    if (newSpeed !== state.speed) {
+        return {
+            ...state,
+            speed: newSpeed
+        };
     }
 
     return state;
@@ -46,37 +56,17 @@ const morseGenerator = (state = {...defaultMorseParameters}, action) => {
 const morse = (state = [], action) => {
 
     if (action.module === "morse") {
-        const result = [
-            ...state
-        ];
+        const currentState = state[action.index];
+        let result = morseGenerator(currentState, action);
 
-        switch (action.type) {
-            case MODULATOR.AMOUNT_CHANGE:
-            case MODULATOR.FREQUENCY_CHANGE:
-            case MODULATOR.MODE_CHANGE:
-            case MODULATOR.RESET:
-                result[action.index] = modulatorReducer(state[action.index], action);
-                break;
+        if (result !== currentState) {
+            const newState = [
+                ...state
+            ];
+            newState[action.index] = result;
 
-            case SYNC.DENOMINATOR_CHANGE:
-            case SYNC.NUMERATOR_CHANGE:
-            case SYNC.TOGGLE:
-                result[action.index] = {
-                    ...result[action.index],
-                    "sync": syncReducer(result[action.index].sync, action)
-                };
-                break;
-
-            case MORSE.FILL_TOGGLE:
-            case MORSE.PADDING_CHANGE:
-            case MORSE.SHIFT_CHANGE:
-            case MORSE.SPEED_UNIT_CHANGE:
-            case MORSE.TEXT_CHANGE:
-                result[action.index] = morseGenerator(state[action.index], action);
-                break;
+            return newState;
         }
-
-        return result;
     }
 
     return state;
