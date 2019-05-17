@@ -49,23 +49,35 @@ export const waveforms = {
 
     square: () => (phase) => ((phase % 1) > 0.5) ? -1 : 1,
 
-    additiveSquare: ({maxHarmonic = 8} = {}) => (phase) => {
+    additiveSquare: ({maxHarmonic = 8} = {}) => (phase, param1 = maxHarmonic) => {
         let value = 0;
 
-        for (let i = 1; i < maxHarmonic; i += 2) {
+        for (let i = 1; i < param1; i += 2) {
             value += Math.sin(phase * DOUBLE_PI * i) / i;
         }
+
+        const decimalPart = param1 % 1;
+        if (decimalPart !== 0) {
+            const harmonic = Math.floor(param1) + 2;
+            value += Math.sin(phase * DOUBLE_PI * harmonic) / harmonic * decimalPart;
+        }
+
 
         return value * (4 / Math.PI);
     },
 
     saw: () => (phase) => ((phase % 1) - 0.5) * 2,
 
-    additiveSaw: ({maxHarmonic = 8} = {}) => (phase) => {
+    additiveSaw: ({maxHarmonic = 8} = {}) => (phase, param1 = maxHarmonic) => {
         let value = 0;
 
-        for (let i = 1; i < maxHarmonic; i += 1) {
+        for (let i = 1; i < param1; i += 1) {
             value += Math.sin(phase * DOUBLE_PI * i) / i;
+        }
+        const decimalPart = param1 % 1;
+        if (decimalPart !== 0) {
+            const harmonic = Math.floor(param1) + 1;
+            value += Math.sin(phase * DOUBLE_PI * harmonic) / harmonic * decimalPart;
         }
 
         return value * (2 / Math.PI);
@@ -84,42 +96,49 @@ export const waveforms = {
         return (p - 1) * 4;
     },
 
-    additiveTriangle: ({maxHarmonic = 5} = {}) => (phase) => {
+    additiveTriangle: ({maxHarmonic = 5} = {}) => (phase, param1 = maxHarmonic) => {
         let odd = true,
             value = 0;
 
-        for (let i = 1; i < maxHarmonic; i += 2) {
-            if (odd) {
-                value += Math.sin(phase * DOUBLE_PI * i) / (i * i);
-            } else {
-                value -= Math.sin(phase * DOUBLE_PI * i) / (i * i);
-            }
+        for (let i = 1; i < param1; i += 2) {
+            const partial = Math.sin(phase * DOUBLE_PI * i) / (i * i);
+            value += odd ? partial : -partial;
             odd = !odd;
         }
+
+        const decimalPart = param1 % 1;
+        if (decimalPart !== 0) {
+            const harmonic = Math.floor(param1) + 1;
+            const partial = Math.sin(phase * DOUBLE_PI * harmonic) / (harmonic * harmonic) * decimalPart;
+            value += odd ? partial : -partial;
+        }
+
         return value * (8 / Math.pow(Math.PI, 2));
     },
 
     cantorSet: (params = {}) => {
         const {
-            depth = 4,
+            depth = 1.5,
             pattern = [1, 0, 1]
         } = params;
 
-        return (phase) => {
+        return (phase, param1 = depth) => {
             let steps = pattern.length;
 
-            for (let level = 0; level < depth; level += 1) {
+            for (let level = 1; level < param1 + 1; level += 1) {
                 const step = Math.floor(phase * steps) % pattern.length;
 
                 if (pattern[step] === 0) {
+                    if (level > param1) {
+                        return -1 + (param1 % 1) * 2;
+                    }
+
                     return -1;
                 }
                 steps *= pattern.length;
             }
             return 1;
         };
-
-
     },
 
     cantorFunction: () => (phase) => {
