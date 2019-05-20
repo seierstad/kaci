@@ -1,8 +1,8 @@
 const patch = {
     "oscillator": {
         "waveform": {
-            "name": "triangle",
-            "parameter": 0.75
+            "name": "additiveSaw",
+            "parameter": 0.768
         },
         "pd": [{
             "steps": [
@@ -31,7 +31,7 @@ const patch = {
                 "sig": 0.2
             }
         },
-        "mix": 0,
+        "mix": 0.594,
         "mode": "harmonics", //"resonant",
         "detune": 0,
         "active": true,
@@ -120,19 +120,19 @@ const patch = {
         "attack": {
             "steps": [
                 [0, 0],
-                [0.1, 1],
-                [0.3, 0.5],
-                [1, 0.5]
+                [0.27658872776974897, 0.7095833333333333],
+                [0.43463942935246264, 0.5429166666666667],
+                [1, 0.73625]
             ],
-            "duration": 0.2
+            "duration": 0.4
         },
         "release": {
             "steps": [
-                [0, 0.5],
-                [0.2, 0.1],
+                [0, 0.73625],
+                [0.23323451739680895, 0.17625],
                 [1, 0]
             ],
-            "duration": 0.2
+            "duration": 0.5
         },
         "mode": "global"
     }, {
@@ -267,7 +267,7 @@ const patch = {
             "detune": [{
                 "amount": 1,
                 "polarity": "positive",
-                "enabled": true,
+                "enabled": false,
                 "source": {
                     "type": "steps",
                     "index": 0
@@ -280,6 +280,15 @@ const patch = {
                 "source": {
                     "type": "lfo",
                     "index": 1
+                }
+            }],
+            "mix": [{
+                "enabled": true,
+                "polarity": "full",
+                "amount": 1,
+                "source": {
+                    "type": "env",
+                    "index": 0
                 }
             }]
         },
