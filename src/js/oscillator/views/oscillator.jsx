@@ -5,14 +5,12 @@ import {connect} from "react-redux";
 import {modulationTargetShape} from "../../modulation/propdefs";
 import {getDistortedPhase, mixValues} from "../../shared-functions";
 import Harmonics from "../../harmonics/views/harmonics.jsx";
-import harmonicDispatchers from "../../harmonics/dispatchers";
+
 import OutputStage from "../../output-stage/views/output-stage.jsx";
 import RangeInput from "../../static-source/views/range-input.jsx";
-import * as OUTPUT from "../../output-stage/actions";
 import {waveforms} from "../../waveform/waveforms";
 import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
 
-import * as OSCILLATOR from "../actions";
 import {OSCILLATOR_MODE} from "../constants";
 import {oscillatorPatchShape} from "../propdefs";
 
@@ -22,7 +20,7 @@ import Resonance from "./resonance.jsx";
 import Mode from "./mode.jsx";
 
 
-class OscillatorPresentation extends Component {
+class Oscillator extends Component {
 
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
@@ -40,7 +38,7 @@ class OscillatorPresentation extends Component {
         const {pd, waveform, mix} = this.props.patch;
 
         for (const w in waveforms) {
-            this.waveforms[w] = waveforms[w]();
+            this.waveforms[w] = waveforms[w];
         }
 
         this.setPdFunction0(pd[0].steps, waveform);
@@ -52,7 +50,7 @@ class OscillatorPresentation extends Component {
         const {pd, waveform, mix} = nextProps.patch;
 
 
-        if (this.props.patch.waveform !== waveform) {
+        if (this.props.patch.waveform !== nextProps.patch.waveform) {
             this.setPdFunction0(pd[0].steps, waveform);
             this.setPdFunction1(pd[1].steps, waveform);
             this.setMixFunction(mix);
@@ -74,13 +72,15 @@ class OscillatorPresentation extends Component {
     }
 
     setPdFunction0 (steps, waveform) {
-        const waveFunction = this.waveforms[waveform];
+        const {name: waveformFn, parameter} = waveform;
+        const waveFunction = this.waveforms[waveformFn](parameter);
 
         this.pdFunction0 = (phase) => waveFunction(getDistortedPhase(phase, steps));
     }
 
     setPdFunction1 (steps, waveform) {
-        const waveFunction = this.waveforms[waveform];
+        const {name: waveformFn, parameter} = waveform;
+        const waveFunction = this.waveforms[waveformFn](parameter);
 
         this.pdFunction1 = (phase) => waveFunction(getDistortedPhase(phase, steps));
     }
@@ -95,13 +95,13 @@ class OscillatorPresentation extends Component {
 
 
         const pd0Props = {
-            waveform: patch.waveform,
+            waveform: patch.waveform.name,
             pd0steps: patch.pd[0].steps,
             pd0viewState: viewState.pd[0]
         };
 
         const pd1Props = {
-            waveform: patch.waveform,
+            waveform: patch.waveform.name,
             pd1steps: patch.pd[1].steps,
             pd1viewState: viewState.pd[1]
         };
@@ -123,9 +123,9 @@ class OscillatorPresentation extends Component {
                     patch={patch}
                 />
                 <WaveformSelector
-                    changeHandler={handlers.waveformChange}
+                    handlers={handlers.waveform}
                     module="oscillator"
-                    selected={patch.waveform}
+                    patch={patch.waveform}
                     waveforms={this.waveforms}
                 />
                 <div className="pd-and-mix-wrapper">
@@ -135,7 +135,7 @@ class OscillatorPresentation extends Component {
                         subIndex={0}
                         viewState={viewState.pd[0]}
                         waveFunction={this.pdFunction0}
-                        waveformName={patch.waveform}
+                        waveform={patch.waveform}
                     />
                     <PhaseDistortion
                         key="pdEnvelope1"
@@ -143,7 +143,7 @@ class OscillatorPresentation extends Component {
                         subIndex={1}
                         viewState={viewState.pd[1]}
                         waveFunction={this.pdFunction1}
-                        waveformName={patch.waveform}
+                        waveform={patch.waveform}
                     />
                     <Mix
                         changeHandler={handlers.mix}
@@ -187,29 +187,5 @@ class OscillatorPresentation extends Component {
         );
     }
 }
-
-
-const mapDispatch = (dispatch) => ({
-    "handlers": {
-        "resonance": {
-            "factorChange": (value) => dispatch({type: OSCILLATOR.RESONANCE_FACTOR_CHANGE, value}),
-            "toggle": () => dispatch({"type": OSCILLATOR.RESONANCE_TOGGLE}),
-            "wrapperChange": (waveform) => dispatch({"type": OSCILLATOR.WRAPPER_CHANGE, "value": waveform})
-        },
-        "harmonics": harmonicDispatchers(dispatch),
-        "outputStageHandlers": {
-            "handleToggle": () => dispatch({type: OUTPUT.TOGGLE, module: "oscillator"}),
-            "handleGainInput": (value) => dispatch({type: OUTPUT.GAIN_CHANGE, value, module: "oscillator"}),
-            "handlePanInput": (value) => dispatch({type: OUTPUT.PAN_CHANGE, value, module: "oscillator"})
-        },
-        "mode": (mode) => dispatch({type: OSCILLATOR.MODE_CHANGE, mode}),
-        "waveformChange": (waveform) => dispatch({"type": OSCILLATOR.WAVEFORM_CHANGE, "value": waveform}),
-        "mix": (value) => dispatch({"type": OSCILLATOR.MIX_CHANGE, value}),
-        "detune": (value) => dispatch({"type": OSCILLATOR.DETUNE_CHANGE, value})
-    }
-});
-
-const Oscillator = connect(null, mapDispatch)(OscillatorPresentation);
-
 
 export default Oscillator;

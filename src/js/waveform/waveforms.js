@@ -41,74 +41,57 @@ export const waveforms = {
 
     sinus: () => (phase) => Math.sin(phase * DOUBLE_PI),
 
-
-    cycloid: () => (phase) => {
-        const radPhase = phase * Math.PI / 2;
-        return Math.acos(1 - radPhase) - Math.sqrt(2 * radPhase - Math.pow(radPhase, 2)) * 2 - 0.5;
-    },
-
-    square: () => (phase) => ((phase % 1) > 0.5) ? -1 : 1,
-
-    additiveSquare: ({maxHarmonic = 8} = {}) => (phase, param1 = maxHarmonic) => {
-        let value = 0;
-
-        for (let i = 1; i < param1; i += 2) {
-            value += Math.sin(phase * DOUBLE_PI * i) / i;
-        }
-
-        const decimalPart = param1 % 1;
-        if (decimalPart !== 0) {
-            const harmonic = Math.floor(param1) + 2;
-            value += Math.sin(phase * DOUBLE_PI * harmonic) / harmonic * decimalPart;
-        }
-
-
-        return value * (4 / Math.PI);
-    },
-
-    saw: () => (phase) => ((phase % 1) - 0.5) * 2,
-
-    additiveSaw: ({maxHarmonic = 8} = {}) => (phase, param1 = maxHarmonic) => {
-        let value = 0;
-
-        for (let i = 1; i < param1; i += 1) {
-            value += Math.sin(phase * DOUBLE_PI * i) / i;
-        }
-        const decimalPart = param1 % 1;
-        if (decimalPart !== 0) {
-            const harmonic = Math.floor(param1) + 1;
-            value += Math.sin(phase * DOUBLE_PI * harmonic) / harmonic * decimalPart;
-        }
-
-        return value * (2 / Math.PI);
-    },
-
-    saw_inverse: () => (phase) => 1 - ((phase % 1) * 2),
-
-    triangle: () => (phase) => {
+    triangle: (shape = 0.5) => (phase, param1 = shape) => {
         const p = phase % 1;
+        const halfShape = param1 / 2;
+        const riseFactor = 1 / halfShape;
+        const fallFactor = 1 / (0.5 - halfShape);
 
-        if (p < 0.25) {
-            return p * 4;
-        } else if (p < 0.75) {
-            return (p - 0.5) * -4;
+        if (p < halfShape) {
+            return p * riseFactor;
+        } else if (p < 1 - halfShape) {
+            return (p - 0.5) * -fallFactor;
         }
-        return (p - 1) * 4;
+        return (p - 1) * riseFactor;
     },
 
-    additiveTriangle: ({maxHarmonic = 5} = {}) => (phase, param1 = maxHarmonic) => {
+    square: (pulseWidth = 0.2) => (phase, param1 = pulseWidth) => ((phase % 1) > (param1 % 1)) ? -1 : 1,
+
+    sampleAndHold: ({steps = 2} = {}) => {
+        const buffer = {};
+        const fraction = 1 / steps;
+
+        return (phase) => {
+
+            if (!buffer.hasOwnProperty("value") || buffer.value === null) {
+                buffer.value = (Math.random() - 0.5) * 2;
+            }
+
+            if (Math.ceil(phase / fraction) > Math.ceil(buffer.phase / fraction)) {
+                buffer.value = (Math.random() - 0.5) * 2;
+            }
+
+            buffer.phase = phase % 1;
+
+            return buffer.value;
+        };
+    },
+
+    additiveTriangle: (defaultParam = 1) => (phase, param1 = defaultParam) => {
         let odd = true,
             value = 0;
 
-        for (let i = 1; i < param1; i += 2) {
+        const maxHarmonic = 2 + param1 * 20;
+
+        for (let i = 1; i < maxHarmonic; i += 2) {
             const partial = Math.sin(phase * DOUBLE_PI * i) / (i * i);
             value += odd ? partial : -partial;
             odd = !odd;
         }
 
-        const decimalPart = param1 % 1;
+        const decimalPart = maxHarmonic % 1;
         if (decimalPart !== 0) {
-            const harmonic = Math.floor(param1) + 1;
+            const harmonic = Math.floor(maxHarmonic) + 1;
             const partial = Math.sin(phase * DOUBLE_PI * harmonic) / (harmonic * harmonic) * decimalPart;
             value += odd ? partial : -partial;
         }
@@ -116,21 +99,55 @@ export const waveforms = {
         return value * (8 / Math.pow(Math.PI, 2));
     },
 
-    cantorSet: (params = {}) => {
-        const {
-            depth = 1.5,
-            pattern = [1, 0, 1]
-        } = params;
+    additiveSaw: (defaultParam = 0.5) => (phase, param1 = defaultParam) => {
+        let value = 0;
+
+        const maxHarmonic = 1 + 20 * param1;
+
+        let i;
+        for (i = 1; i <= maxHarmonic; i += 1) {
+            value += Math.sin(phase * DOUBLE_PI * i) / i;
+        }
+        const decimalPart = maxHarmonic % 1;
+        if (decimalPart !== 0) {
+            const harmonic = Math.floor(maxHarmonic) + 1;
+            value += Math.sin(phase * DOUBLE_PI * harmonic) / harmonic * decimalPart;
+        }
+
+        return value * (2 / Math.PI);
+    },
+
+    additiveSquare: (defaultParam = 0.5) => (phase, param1 = defaultParam) => {
+        let value = 0;
+        const maxHarmonic = 2 + param1 * 20;
+
+        for (let i = 1; i < maxHarmonic; i += 2) {
+            value += Math.sin(phase * DOUBLE_PI * i) / i;
+        }
+
+        const decimalPart = (maxHarmonic + 1) % 2;
+        if (decimalPart !== 0) {
+            const harmonic = maxHarmonic - decimalPart + 2;
+            value += Math.sin(phase * DOUBLE_PI * harmonic) / harmonic * decimalPart / 2;
+        }
+
+
+        return value * (4 / Math.PI);
+    },
+
+    cantorSet: (depth = 1, pattern = [1, 0, 1]) => {
+        const maxIterations = 5;
 
         return (phase, param1 = depth) => {
+            const iterationCount = maxIterations * param1;
             let steps = pattern.length;
 
-            for (let level = 1; level < param1 + 1; level += 1) {
+            for (let level = 1; level < iterationCount + 1; level += 1) {
                 const step = Math.floor(phase * steps) % pattern.length;
 
                 if (pattern[step] === 0) {
-                    if (level > param1) {
-                        return -1 + (param1 % 1) * 2;
+                    if (level > iterationCount) {
+                        return 1 - (iterationCount % 1) * 2;
                     }
 
                     return -1;
@@ -182,24 +199,9 @@ export const waveforms = {
         return (a0 + sum_terms - phase) * 5;
     },
 
-    sampleAndHold: ({steps = 2} = {}) => {
-        const buffer = {};
-        const fraction = 1 / steps;
-
-        return (phase) => {
-
-            if (!buffer.hasOwnProperty("value") || buffer.value === null) {
-                buffer.value = (Math.random() - 0.5) * 2;
-            }
-
-            if (Math.ceil(phase / fraction) > Math.ceil(buffer.phase / fraction)) {
-                buffer.value = (Math.random() - 0.5) * 2;
-            }
-
-            buffer.phase = phase % 1;
-
-            return buffer.value;
-        };
+    cycloid: () => (phase) => {
+        const radPhase = phase * Math.PI / 2;
+        return Math.acos(1 - radPhase) - Math.sqrt(2 * radPhase - Math.pow(radPhase, 2)) * 2 - 0.5;
     }
 };
 

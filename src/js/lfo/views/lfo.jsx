@@ -28,13 +28,13 @@ class LFO extends Component {
 
     componentWillMount () {
         for (const w in waveforms) {
-            this.waveforms[w] = waveforms[w]();
+            this.waveforms[w] = waveforms[w];
         }
     }
 
     componentDidMount () {
-        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        this.updatePhaseIndicator(true);
+        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
+        //this.updatePhaseIndicator(true);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -42,19 +42,8 @@ class LFO extends Component {
     }
 
     componentDidUpdate () {
-        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        this.updatePhaseIndicator(true);
-    }
-
-    @boundMethod
-    onWaveformChange (waveformName) {
-        const {
-            handlers: {
-                changeWaveform
-            },
-            index
-        } = this.props;
-        changeWaveform("lfos", index, waveformName);
+        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
+        //this.updatePhaseIndicator(true);
     }
 
     @boundMethod
@@ -63,19 +52,19 @@ class LFO extends Component {
     }
 
     render () {
-        const {index, patch} = this.props;
+        const {index, patch, handlers} = this.props;
 
         return (
             <section className="lfo" id={"lfo-" + index + "-view"}>
                 <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
                 <WaveformSelector
-                    changeHandler={this.onWaveformChange}
+                    handlers={handlers.waveform}
                     includePhaseIndicator
                     index={index}
                     module={this.module}
                     parameter="waveform"
+                    patch={patch.waveform}
                     ref={this.waveformSelector}
-                    selected={patch.waveform}
                     waveforms={this.waveforms}
                 />
                 {this.props.children}

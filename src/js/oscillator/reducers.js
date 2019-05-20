@@ -1,43 +1,37 @@
-import * as HARMONIC from "../harmonics/actions";
 import harmonics from "../harmonics/reducers";
-import * as OSCILLATOR from "../oscillator/actions";
 import {steps} from "../envelope/reducers";
 import * as ENVELOPE from "../envelope/actions";
+import waveform from "../waveform/reducer";
+
+import {
+    DETUNE_CHANGE,
+    MIX_CHANGE,
+    MODE_CHANGE,
+    RESONANCE_FACTOR_CHANGE
+} from "./actions";
 
 
 const oscillator = (state = {}, action) => {
     switch (action.type) {
-        case OSCILLATOR.RESONANCE_FACTOR_CHANGE:
+        case RESONANCE_FACTOR_CHANGE:
             return {
                 ...state,
                 resonance: action.value
             };
 
-        case OSCILLATOR.MODE_CHANGE:
+        case MODE_CHANGE:
             return {
                 ...state,
                 mode: action.mode
             };
 
-        case OSCILLATOR.WRAPPER_CHANGE:
-            return {
-                ...state,
-                wrapper: action.value
-            };
-
-        case OSCILLATOR.WAVEFORM_CHANGE:
-            return {
-                ...state,
-                waveform: action.value
-            };
-
-        case OSCILLATOR.MIX_CHANGE:
+        case MIX_CHANGE:
             return {
                 ...state,
                 mix: action.value
             };
 
-        case OSCILLATOR.DETUNE_CHANGE:
+        case DETUNE_CHANGE:
             return {
                 ...state,
                 detune: action.value
@@ -47,33 +41,56 @@ const oscillator = (state = {}, action) => {
     if (action.module === "oscillator") {
         // generic actions targeting oscillator parameters
 
+        if (action.submodule === "waveform") {
+            const newWaveform = waveform(state.waveform, action);
+            if (newWaveform !== state.waveform) {
+                return {
+                    ...state,
+                    waveform: newWaveform
+                };
+            }
+        }
+
+        if (action.submodule === "wrapper") {
+            const newWrapper = waveform(state.wrapper, action);
+            if (newWrapper !== state.wrapper) {
+                return {
+                    ...state,
+                    wrapper: newWrapper
+                };
+            }
+        }
+
+        const newHarmonics = harmonics(state.harmonics, action);
+        if (newHarmonics !== state.harmonics) {
+            return {
+                ...state,
+                harmonics: newHarmonics
+            };
+        }
+
         switch (action.type) {
             case ENVELOPE.POINT_DELETE:
             case ENVELOPE.POINT_ADD:
             case ENVELOPE.POINT_CHANGE:
-                const pd = [
-                    ...state.pd
-                ];
+                const newPdEnvelopeSteps = steps(state.pd[action.envelopeIndex].steps, action);
+                if (newPdEnvelopeSteps !== state.pd[action.envelopeIndex].steps) {
 
-                pd[action.envelopeIndex] = {
-                    steps: steps(state.pd[action.envelopeIndex].steps, action)
-                };
 
-                return {
-                    ...state,
-                    "pd": pd
-                };
+                    const pd = [
+                        ...state.pd
+                    ];
 
-            case HARMONIC.LEVEL_CHANGE:
-            case HARMONIC.LEVELS_NORMALIZE:
-            case HARMONIC.PHASE_CHANGE:
-            case HARMONIC.TOGGLE:
-            case HARMONIC.ADD:
-            case HARMONIC.REMOVE:
-                return {
-                    ...state,
-                    harmonics: harmonics(state.harmonics, action)
-                };
+                    pd[action.envelopeIndex] = {
+                        steps: newPdEnvelopeSteps
+                    };
+
+                    return {
+                        ...state,
+                        "pd": pd
+                    };
+                }
+                break;
         }
     }
 

@@ -17,15 +17,15 @@ export const slopes = ["linear", "exponential"];
 
 export const stepsPatchShape = shape({
     ...modulatorPatchProperties,
-    "glide": {
-        "symmetric": bool.isRequired,
+    "glide": shape({
+        "mode": oneOf(["symmetric"]).isRequired,
         "time": number.isRequired,
         "slope": oneOf(["linear", "exponential"]).isRequired,
         "falling": shape({
             "time": number.isRequired,
             "slope": string.isRequired
         }).isRequired
-    },
+    }),
     "speed": speedPatchShape.isRequired,
     "maxValue": number.isRequired,
     "sequence": arrayOf(stepPatchShape).isRequired

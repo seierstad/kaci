@@ -143,6 +143,12 @@ const configuration = {
                     "mid": 0,
                     "max": 1200
                 },
+                "waveform": {
+                    "min": 0,
+                    "mid": 0.5,
+                    "max": 1,
+                    "patchPath": ["waveform", "parameter"]
+                },
                 ...outputStageTargets
             },
             "sub": {

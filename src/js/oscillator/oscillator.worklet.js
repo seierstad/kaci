@@ -79,8 +79,8 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
             this.sampleRate = sampleRate;
         }
 
-        if (waveform && typeof waveforms[waveform] === "function") {
-            this.selectedWaveform = waveforms[waveform];
+        if (waveform && typeof waveforms[waveform.name] === "function") {
+            this.selectedWaveform = waveforms[waveform.name](waveform.parameter);
         }
 
         if (command === "requestZeroPhaseResponse") {
@@ -109,7 +109,7 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
         }
     }
 
-    generatorFunction (frequency, detune, parameter = null) {
+    generatorFunction (frequency, detune) {
         let calculatedFrequency;
 
         if (frequency === this.previous.frequency
@@ -126,7 +126,7 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
                 calculatedFrequency
             };
         }
-        const result = (parameter === null) ? this.selectedWaveform()(this.phase) : this.selectedWaveform(parameter)(this.phase);
+        const result = this.selectedWaveform(this.phase);
 
         if (!this.paused) {
             this.incrementPhase(calculatedFrequency);

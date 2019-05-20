@@ -73,8 +73,8 @@ class LFO extends PeriodicModulator {
         });
     }
 
-    set waveform (waveformName) {
-        this.oscillator.waveform = waveformName;
+    set waveform (waveform) {
+        this.oscillator.waveform = waveform;
     }
 
     updateState (newState) {

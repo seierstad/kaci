@@ -10,7 +10,9 @@ import lfoHandlers from "../../lfo/dispatchers";
 import morseHandlers from "../../morse/dispatchers";
 import stepsHandlers from "../../steps/dispatchers";
 import subHandlers from "../../sub/dispatchers";
-import noiseHanders from "../../noise/dispatchers";
+import noiseHandlers from "../../noise/dispatchers";
+import oscillatorHandlers from "../../oscillator/dispatchers";
+
 
 import MorseGenerators from "../../morse/views/morse-generators.jsx";
 import * as OUTPUT from "../../output-stage/actions";
@@ -56,7 +58,7 @@ class PatchPresentation extends Component {
                 />
                 <Oscillator
                     configuration={target.oscillator}
-                    envelopeHandlers={handlers.envelope}
+                    handlers={handlers.oscillator}
                     patch={patch.oscillator}
                     viewState={viewState.oscillator}
                 />
@@ -102,13 +104,14 @@ class PatchPresentation extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
     "handlers": {
+        "oscillator": oscillatorHandlers(dispatch),
         "envelope": envelopeHandlers(dispatch),
         "modulator": modulatorHandlers(dispatch),
         "lfo": lfoHandlers(dispatch),
         "steps": stepsHandlers(dispatch),
         "morse": morseHandlers(dispatch),
         "sub": subHandlers(dispatch),
-        "noise": noiseHanders(dispatch),
+        "noise": noiseHandlers(dispatch),
         "main": {
             "outputHandlers": {
                 "handleToggle": () => {

@@ -1,15 +1,14 @@
 import {getSpeedDispatcherForModule} from "../speed/dispatchers";
 import modulatorHandlers from "../modulator/dispatchers";
-import {WAVEFORM_CHANGE} from "./actions";
+import {getWaveformDispatcherForModule} from "../waveform/dispatchers";
 
 const lfoSpeedDispatchers = getSpeedDispatcherForModule("lfos");
+const lfoWaveformDispatchers = getWaveformDispatcherForModule("lfos");
 
 const lfoDispatcher = (dispatch) => ({
     ...(modulatorHandlers(dispatch)),
     "speed": lfoSpeedDispatchers(dispatch),
-    "changeWaveform": (module, index, value) => {
-        dispatch({"type": WAVEFORM_CHANGE, module, index, value});
-    }
+    "waveform": lfoWaveformDispatchers(dispatch)
 });
 
 

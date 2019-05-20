@@ -5,6 +5,10 @@ import {
 } from "prop-types";
 
 import {
+    waveformShape
+} from "../waveform/propdefs";
+
+import {
     modulatorConfigProperties,
     modulatorPatchProperties
 } from "../modulator/propdefs";
@@ -12,7 +16,7 @@ import {
 
 export const lfoPatchShape = shape({
     ...modulatorPatchProperties,
-    "waveform": string.isRequired
+    "waveform": waveformShape.isRequired
 });
 
 export const lfosPatchShape = arrayOf(lfoPatchShape);

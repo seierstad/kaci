@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import autobind from "autobind-decorator";
+import {boundMethod} from "autobind-decorator";
+
+import Range from "../../static-source/views/range-input.jsx";
 
 import WaveformButton from "./waveform-button.jsx";
 
@@ -10,15 +12,11 @@ let waveformSelectorCounter = 0;
 class WaveformSelector extends Component {
 
     static propTypes = {
-        "changeHandler": PropTypes.func.isRequired,
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "includePhaseIndicator": PropTypes.bool,
-        "selected": PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.shape({
-                "name": PropTypes.string.isRequired,
-                "parameters": PropTypes.object.isRequired
-            })
-        ]),
+        "index": PropTypes.number,
+        "module": PropTypes.string.isRequired,
+        "patch": PropTypes.object.isRequired,
         "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
     }
 
@@ -34,7 +32,9 @@ class WaveformSelector extends Component {
     }
 
     shouldComponentUpdate (nextProps) {
-        return nextProps.selected !== this.props.selected;
+        return (
+            nextProps.patch !== this.props.patch
+        );
     }
 
     componentDidUpdate () {
@@ -43,14 +43,39 @@ class WaveformSelector extends Component {
         }
     }
 
-    @autobind
-    handleChange (waveformName) {
-        const {changeHandler} = this.props;
-        changeHandler(waveformName);
+    @boundMethod
+    handleFunctionChange (waveformName) {
+        const {
+            handlers: {
+                functionChange
+            } = {},
+            index
+        } = this.props;
+
+        functionChange(waveformName, index);
+    }
+
+    @boundMethod
+    waveformParameterChangeHandler (value) {
+        const {
+            handlers: {
+                parameterChange
+            } = {},
+            index
+        } = this.props;
+
+        parameterChange(value, index);
     }
 
     render () {
-        const {waveforms, selected, includePhaseIndicator} = this.props;
+        const {
+            waveforms,
+            includePhaseIndicator,
+            patch: {
+                "name": selected,
+                parameter
+            } = {}
+        } = this.props;
         const controlName = "waveform-" + waveformSelectorCounter;
         waveformSelectorCounter += 1;
 
@@ -60,23 +85,34 @@ class WaveformSelector extends Component {
         };
 
         return (
-            <fieldset className="waveform-selector" onChange={this.handleChange}>
-                <legend>waveform</legend>
-                <div className="flex-wrapper">
-                    {Object.keys(waveforms).map(waveform => (
-                        <WaveformButton
-                            controlName={controlName}
-                            includePhaseIndicator={!!includePhaseIndicator}
-                            key={waveform}
-                            onChange={this.handleChange}
-                            ref={includePhaseIndicator && selected === waveform ? (p => this.activeButton = p) : null}
-                            selected={selected === waveform}
-                            waveform={waveform === "sampleAndHold" ? (phase) => waveforms[waveform](phase, sampleAndHoldBuffer, 4) : waveforms[waveform]}
-                            waveformName={waveform}
-                        />
-                    ))}
-                </div>
-            </fieldset>
+            <div className="waveform">
+                <fieldset className="waveform-selector" onChange={this.handleFunctionChange}>
+                    <legend>waveform</legend>
+                    <div className="flex-wrapper">
+                        {Object.keys(waveforms).map(waveform => (
+                            <WaveformButton
+                                controlName={controlName}
+                                includePhaseIndicator={!!includePhaseIndicator}
+                                key={waveform}
+                                onChange={this.handleFunctionChange}
+                                parameter={parameter}
+                                ref={includePhaseIndicator && selected === waveform ? (p => this.activeButton = p) : null}
+                                selected={selected === waveform}
+                                waveform={waveform === "sampleAndHold" ? (phase) => waveforms[waveform](phase, sampleAndHoldBuffer, 4) : waveforms[waveform](parameter)}
+                                waveformName={waveform}
+                            />
+                        ))}
+                    </div>
+                </fieldset>
+                <Range
+                    changeHandler={this.waveformParameterChangeHandler}
+                    configuration={{min: 0, max: 1, mid: 0.5}}
+                    label="waveform parameter"
+                    max={1}
+                    min={0}
+                    value={parameter}
+                />
+            </div>
         );
     }
 }

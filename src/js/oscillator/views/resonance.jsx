@@ -10,8 +10,9 @@ import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import {oscillatorPatchShape} from "../propdefs";
 
 
-const getWrapperFunction = (wrapper, waveform, resonance) => (phase) => {
-    return wrapper(phase) * waveform(phase * resonance);
+const getWrapperFunction = (wrapper, waveform, resonance) => (parameters) => {
+    const paramWrapper = wrapper(parameters);
+    return (phase) => paramWrapper(phase) * waveform(phase * resonance);
 };
 
 const wrapWaveform = (wrappers, waveform, resonance) => {
@@ -20,7 +21,7 @@ const wrapWaveform = (wrappers, waveform, resonance) => {
 
     for (wrapperName in wrappers) {
         if (wrappers.hasOwnProperty(wrapperName)) {
-            wrappedWaveforms[wrapperName] = getWrapperFunction(wrappers[wrapperName](), waveform, resonance);
+            wrappedWaveforms[wrapperName] = getWrapperFunction(wrappers[wrapperName], waveform, resonance);
         }
     }
     return wrappedWaveforms;
@@ -31,7 +32,7 @@ class Resonance extends Component {
 
     static propTypes = {
         "configuration": rangeShape.isRequired,
-        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
+        "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "mixFunction": PropTypes.func.isRequired,
         "patch": oscillatorPatchShape.isRequired
     }
@@ -83,9 +84,9 @@ class Resonance extends Component {
                     value={resonance}
                 />
                 <WaveformSelector
-                    changeHandler={handlers.wrapperChange}
+                    handlers={handlers.wrapper}
                     module="oscillator"
-                    selected={wrapper}
+                    patch={wrapper}
                     waveforms={this.wrappedWaveforms}
                 />
             </div>

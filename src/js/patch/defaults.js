@@ -1,6 +1,9 @@
 const patch = {
     "oscillator": {
-        "waveform": "triangle",
+        "waveform": {
+            "name": "triangle",
+            "parameter": 0.75
+        },
         "pd": [{
             "steps": [
                 [0, 0],
@@ -70,7 +73,10 @@ const patch = {
         "mode": "glissando"
     },
     "lfos": [{
-        "waveform": "sinus",
+        "waveform": {
+            "name": "sinus",
+            "parameter": 0
+        },
         "amount": 1,
         "active": true,
         "mode": "global",
@@ -78,7 +84,10 @@ const patch = {
             "frequency": 0.034
         }
     }, {
-        "waveform": "additiveSaw",
+        "waveform": {
+            "name": "additiveSaw",
+            "parameter": 1
+        },
         "amount": 0.5,
         "active": true,
         "speed": {
@@ -91,7 +100,10 @@ const patch = {
         },
         "mode": "global"
     }, {
-        "waveform": "square",
+        "waveform": {
+            "name": "square",
+            "parameter": 0.5
+        },
         "amount": 1.0,
         "active": true,
         "speed": {
@@ -157,8 +169,18 @@ const patch = {
         },
         "sequence": [
             {"value": 0, "glide": true},
-            {"value": 12, "glide": false},
+            {"value": 2, "glide": false},
             {"value": 4, "glide": true},
+            {"value": 5},
+            {"value": 7},
+            {"value": 9},
+            {"value": 11},
+            {"value": 12},
+            {"value": 11},
+            {"value": 9},
+            {"value": 7},
+            {"value": 5},
+            {"value": 4},
             {"value": 2}
         ],
         "speed": {
@@ -244,7 +266,7 @@ const patch = {
             }],
             "detune": [{
                 "amount": 1,
-                "polarity": "full",
+                "polarity": "positive",
                 "enabled": true,
                 "source": {
                     "type": "steps",

@@ -41,6 +41,10 @@ class WaveformButton extends PureComponent {
         */
     }
 
+    componentDidUpdate () {
+        drawWaveform(this.props.waveform, this.canvas.current);
+    }
+
     @autobind
     handleChange (event) {
         event.stopPropagation();

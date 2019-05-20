@@ -132,7 +132,7 @@ class GlideView extends PureComponent {
                 <legend>glide</legend>
                 <label><input type="checkbox" value={!patch.symmetric} /><span className="label-text">rise = fall</span></label>
 
-                {patch.symmetric ? (
+                {patch.mode === "symmetric" ? (
                     <React.Fragment>
                         <RangeInput
                             changeHandler={this.onGlideTimeChange}

@@ -5,6 +5,7 @@ import {connect} from "react-redux";
 import {EnvelopeConnected as Envelope} from "../../envelope/view/envelope.jsx";
 import dispatchers from "../../envelope/dispatchers";
 import drawWaveform from "../../waveform/views/draw-waveform";
+import {waveformShape} from "../../waveform/propdefs";
 
 
 class PhaseDistortion extends Component {
@@ -15,7 +16,7 @@ class PhaseDistortion extends Component {
         "subIndex": PropTypes.number.isRequired,
         "viewState": PropTypes.array,
         "waveFunction": PropTypes.func.isRequired,
-        "waveformName": PropTypes.string.isRequired
+        "waveform": waveformShape.isRequired
     }
 
     constructor (props) {
@@ -39,7 +40,8 @@ class PhaseDistortion extends Component {
 
     shouldComponentUpdate (nextProps) {
         return (
-            nextProps.waveformName !== this.props.waveformName
+            nextProps.waveFunction !== this.props.waveFunction
+            || nextProps.waveform !== this.props.waveform
             || nextProps.patch !== this.props.patch
             || nextProps.viewState !== this.props.viewState
         );

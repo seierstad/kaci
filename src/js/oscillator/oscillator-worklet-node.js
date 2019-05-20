@@ -21,8 +21,8 @@ class OscillatorWorkletNode extends audioWorkletNode {
         this.parameters.get("detune").value = cents;
     }
 
-    set waveform (waveformName) {
-        this.port.postMessage(JSON.stringify({"waveform": waveformName}));
+    set waveform (waveform) {
+        this.port.postMessage(JSON.stringify({waveform}));
     }
 
     start () {

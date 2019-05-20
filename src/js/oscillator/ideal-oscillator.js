@@ -13,9 +13,15 @@ class IdealOscillator extends Oscillator {
         };
     }
 
-    set waveform (waveformName) {
+    set waveform (waveform) {
+
+        const {
+            ["function"]: waveformName,
+            parameter
+        } = waveform;
+
         if (typeof waveforms[waveformName] === "function") {
-            this.selectedWaveform = waveforms[waveformName]();
+            this.selectedWaveform = waveforms[waveformName](parameter);
         }
     }
 

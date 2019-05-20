@@ -1,6 +1,6 @@
 /*global document, module, require, CustomEvent */
 import React, {PureComponent} from "react";
-import PropTypes from "prop-types";
+import {any, object, objectOf, oneOfType, func, number} from "prop-types";
 import {boundMethod} from "autobind-decorator";
 
 import Modulator from "../../modulator/views/modulator.jsx";
@@ -13,12 +13,12 @@ import Glide from "./glide-view.jsx";
 class StepSequencerView extends PureComponent {
 
     static propTypes = {
-        "children": PropTypes.any,
-        "configuration": PropTypes.object.isRequired,
-        "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
-        "index": PropTypes.number.isRequired,
+        "children": any,
+        "configuration": object.isRequired,
+        "handlers": objectOf(oneOfType([func, object])).isRequired,
+        "index": number.isRequired,
         "patch": stepsPatchShape.isRequired,
-        "viewState": PropTypes.object
+        "viewState": object
     }
 
     constructor (props) {
