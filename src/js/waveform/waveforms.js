@@ -135,6 +135,24 @@ export const waveforms = {
         return value * (4 / Math.PI);
     },
 
+    clausen: (defaultOrder = 0) => {
+        const minOrder = 1;
+        const maxOrder = 4;
+        const iterations = 20;
+
+        return (phase, param1 = defaultOrder) => {
+            const order = maxOrder - (maxOrder - minOrder) * param1;
+
+            let value = 0;
+            for (let i = 1; i < iterations; i += 1) {
+                value += Math.sin(phase * i * DOUBLE_PI) / Math.pow(i, order);
+            }
+            return value;
+        };
+
+
+    },
+
     cantorSet: (depth = 1, pattern = [1, 0, 1]) => {
         const maxIterations = 5;
 

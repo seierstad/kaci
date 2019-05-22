@@ -85,25 +85,23 @@ class WaveformSelector extends Component {
         };
 
         return (
-            <div className="waveform">
-                <fieldset className="waveform-selector" onChange={this.handleFunctionChange}>
-                    <legend>waveform</legend>
-                    <div className="flex-wrapper">
-                        {Object.keys(waveforms).map(waveform => (
-                            <WaveformButton
-                                controlName={controlName}
-                                includePhaseIndicator={!!includePhaseIndicator}
-                                key={waveform}
-                                onChange={this.handleFunctionChange}
-                                parameter={parameter}
-                                ref={includePhaseIndicator && selected === waveform ? (p => this.activeButton = p) : null}
-                                selected={selected === waveform}
-                                waveform={waveform === "sampleAndHold" ? (phase) => waveforms[waveform](phase, sampleAndHoldBuffer, 4) : waveforms[waveform](parameter)}
-                                waveformName={waveform}
-                            />
-                        ))}
-                    </div>
-                </fieldset>
+            <fieldset className="waveform-selector" onChange={this.handleFunctionChange}>
+                <legend>waveform</legend>
+                <div className="flex-wrapper">
+                    {Object.keys(waveforms).map(waveform => (
+                        <WaveformButton
+                            controlName={controlName}
+                            includePhaseIndicator={!!includePhaseIndicator}
+                            key={waveform}
+                            onChange={this.handleFunctionChange}
+                            parameter={parameter}
+                            ref={includePhaseIndicator && selected === waveform ? (p => this.activeButton = p) : null}
+                            selected={selected === waveform}
+                            waveform={waveform === "sampleAndHold" ? (phase) => waveforms[waveform](phase, sampleAndHoldBuffer, 4) : waveforms[waveform](parameter)}
+                            waveformName={waveform}
+                        />
+                    ))}
+                </div>
                 <Range
                     changeHandler={this.waveformParameterChangeHandler}
                     configuration={{min: 0, max: 1, mid: 0.5}}
@@ -112,7 +110,7 @@ class WaveformSelector extends Component {
                     min={0}
                     value={parameter}
                 />
-            </div>
+            </fieldset>
         );
     }
 }
