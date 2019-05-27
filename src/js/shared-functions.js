@@ -29,6 +29,39 @@ export const phaseDistortionFunction = (envelope) => {
 export const getDistortedPhase = (phase, envelope) => phaseDistortionFunction(envelope)(phase);
 
 
+const logBase = (x, base) => Math.log(x) / Math.log(base);
+
+export const getScale = (min, max, mid) => {
+
+    if (typeof mid === "number") {
+        const highSpan = max - mid;
+        const lowSpan = mid - min;
+
+        const down = (value) => {
+            if (value >= mid) {
+                return logBase(value - mid + 1, highSpan + 1) * highSpan + mid;
+            }
+            return logBase(mid - value + 1, lowSpan + 1) * -lowSpan - mid;
+        };
+
+        const up = (value) => {
+            if (value >= mid) {
+                return Math.pow(highSpan + 1, (value - mid) / highSpan) - 1 + mid;
+            }
+            return mid - (Math.pow(lowSpan + 1, (mid - value) / lowSpan) - 1);
+        };
+
+        return {up, down};
+    }
+
+    const span = max - min;
+    const down = (value) => logBase(value - min + 1, span + 1) * span + min;
+    const up = (value) => Math.pow(span + 1, (value - min) / span) + min - 1;
+
+    return {up, down};
+};
+
+
 export const inputNode = (context) => {
     const node = context.createGain();
     node.gain.setValueAtTime(1, context.currentTime);
