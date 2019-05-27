@@ -5,6 +5,7 @@ import {connect} from "react-redux";
 import {EnvelopeConnected as Envelope} from "../../envelope/view/envelope.jsx";
 import dispatchers from "../../envelope/dispatchers";
 import drawWaveform from "../../waveform/views/draw-waveform";
+import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import {waveformShape} from "../../waveform/propdefs";
 
 
@@ -34,9 +35,11 @@ class PhaseDistortion extends Component {
         }, {});
     }
 
+    /*
     componentDidMount () {
         this.updateWaveform();
     }
+    */
 
     shouldComponentUpdate (nextProps) {
         return (
@@ -46,7 +49,7 @@ class PhaseDistortion extends Component {
             || nextProps.viewState !== this.props.viewState
         );
     }
-
+    /*
     componentDidUpdate () {
         this.updateWaveform();
     }
@@ -54,14 +57,16 @@ class PhaseDistortion extends Component {
     updateWaveform () {
         drawWaveform(this.props.waveFunction, this.waveform.current);
     }
-
+    */
 
     render () {
         const {subIndex, patch} = this.props;
 
         return (
             <div className="oscillator-pd-view">
-                <canvas ref={this.waveform} />
+                <WaveformCanvas
+                    waveFunction={this.props.waveFunction}
+                />
                 <Envelope
                     data={patch.steps}
                     handlers={this.boundHandlers}

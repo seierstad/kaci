@@ -1,4 +1,4 @@
-import {oneOf, oneOfType, object, shape, arrayOf, number} from "prop-types";
+import {oneOf, oneOfType, shape, arrayOf, number} from "prop-types";
 import {harmonicShape} from "../harmonics/propdefs";
 import {envelopePatchShape} from "../envelope/propdefs";
 import {wrappers} from "../waveform/waveforms";
@@ -18,7 +18,7 @@ export const wrapperPatchShape = oneOfType([
     oneOf(Object.keys(wrappers)),
     shape({
         "name": oneOf(Object.keys(wrappers)).isRequired,
-        "parameters": object.isRequired
+        "parameter": number.isRequired
     })
 ]);
 

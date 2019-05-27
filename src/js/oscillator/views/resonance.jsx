@@ -10,9 +10,11 @@ import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import {oscillatorPatchShape} from "../propdefs";
 
 
-const getWrapperFunction = (wrapper, waveform, resonance) => (parameters) => {
-    const paramWrapper = wrapper(parameters);
-    return (phase) => paramWrapper(phase) * waveform(phase * resonance);
+const getWrapperFunction = (wrapper, waveform, resonance) => {
+    return (parameter) => {
+        const paramWrapper = wrapper(parameter);
+        return (phase) => paramWrapper(phase) * waveform(phase * resonance);
+    };
 };
 
 const wrapWaveform = (wrappers, waveform, resonance) => {
@@ -45,11 +47,11 @@ class Resonance extends Component {
     componentWillMount () {
         const {patch, mixFunction} = this.props;
         const {wrapper, resonance} = patch;
-        const {name, parameters} = wrapper;
-        const wrapperFunction = (name && parameters) ? wrappers[name](parameters) : wrappers[wrapper]();
-        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance);
+        const {name, parameter} = wrapper;
+        const wrapperFunction = wrappers[name];
+        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance)(parameter);
 
-        this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus(), 5);
+        this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus(), 20);
 
     }
 
@@ -63,9 +65,9 @@ class Resonance extends Component {
     componentWillUpdate (nextProps) {
         const {patch, mixFunction} = nextProps;
         const {wrapper, resonance} = patch;
-        const {name, parameters} = wrapper;
-        const wrapperFunction = (name && parameters) ? wrappers[name](parameters) : wrappers[wrapper]();
-        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance);
+        const {name, parameter} = wrapper;
+        const wrapperFunction = wrappers[name];
+        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance)(parameter);
     }
 
     render () {

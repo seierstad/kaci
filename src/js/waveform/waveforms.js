@@ -1,17 +1,31 @@
 import {DOUBLE_PI} from "../constants";
+//import {getScale} from "../shared-functions";
+
 
 export const wrappers = {
-    sync: () => () => 1,
+    sync: (length = 1) => (phase) => phase < length ? 1: 0,
 
-    saw: () => (phase) => 1 - (phase % 1),
+    saw: (expDefault = 1) => {
+        const expMin = 1/8;
+        const expMax = 4;
+        const expDiff = expMax - expMin;
+
+        return (phase, exp = expDefault) => Math.pow(1 - (phase % 1), expMin + (1 - exp) * expDiff);
+    },
 
     halfSinus: () => (phase) => Math.sin(phase * Math.PI),
 
-    gaussian: ({mu = 0.5, sig = 0.1} = {}) => {
-        const twoSigSquared = 2 * Math.pow(sig, 2);
+    gaussian: (sigDefault = 0.1, mu = 0.5) => {
         const muSquared = mu * mu;
+        const sigMax = 0.25;
+        const sigMin = 0.05;
 
-        return (phase) => Math.exp(-(muSquared - (2 * mu * phase) + (phase * phase)) / twoSigSquared);
+        return (phase, sig = sigDefault) => {
+            const scaledSig = (sigMax - sigMin) * sig + sigMin;
+            const twoSigSquared = 2 * scaledSig * scaledSig;
+
+            return Math.exp(-(muSquared - (2 * mu * phase) + (phase * phase)) / twoSigSquared);
+        };
     }
 };
 

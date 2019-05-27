@@ -26,10 +26,7 @@ const patch = {
         "resonance": 3,
         "wrapper": {
             "name": "gaussian",
-            "parameters": {
-                "mu": 0.5,
-                "sig": 0.2
-            }
+            "parameter": 0.2
         },
         "mix": 0.594,
         "mode": "harmonics", //"resonant",

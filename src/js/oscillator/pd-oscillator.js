@@ -78,12 +78,8 @@ class PDOscillator extends KaciAudioNode {
     }
 
     set wrapper (wrapper) {
-        if (typeof wrapper === "string") {
-            if (typeof wrappers[wrapper] === "function") {
-                this.selectedWrapper = wrappers[wrapper]();
-            }
-        } else if (wrapper.name && typeof wrappers[wrapper.name] === "function") {
-            this.selectedWrapper = wrappers[wrapper.name](wrapper.parameters);
+        if (wrapper.name && typeof wrappers[wrapper.name] === "function") {
+            this.selectedWrapper = wrappers[wrapper.name](wrapper.parameter);
         }
     }
 
