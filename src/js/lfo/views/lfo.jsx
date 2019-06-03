@@ -33,8 +33,8 @@ class LFO extends Component {
     }
 
     componentDidMount () {
-        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        //this.updatePhaseIndicator(true);
+        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
+        this.updatePhaseIndicator(true);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -42,13 +42,13 @@ class LFO extends Component {
     }
 
     componentDidUpdate () {
-        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        //this.updatePhaseIndicator(true);
+        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
+        this.updatePhaseIndicator(true);
     }
 
     @boundMethod
     updatePhaseIndicator () {
-        this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.frequency) + "ms";
+        this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.speed.frequency) + "ms";
     }
 
     render () {

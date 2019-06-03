@@ -18,7 +18,8 @@ class PDOscillator extends KaciAudioNode {
         "detune",
         "resonance",
         "mix",
-        "waveform"
+        "waveform",
+        "wrapper"
     ];
 
     constructor (...args) {
@@ -79,7 +80,7 @@ class PDOscillator extends KaciAudioNode {
 
     set wrapper (wrapper) {
         if (wrapper.name && typeof wrappers[wrapper.name] === "function") {
-            this.selectedWrapper = wrappers[wrapper.name](wrapper.parameter);
+            this.selectedWrapper = wrappers[wrapper.name]();
         }
     }
 
@@ -132,15 +133,16 @@ class PDOscillator extends KaciAudioNode {
         const detune = event.inputBuffer.getChannelData(1);
         const resonance = event.inputBuffer.getChannelData(2);
         const mix = event.inputBuffer.getChannelData(3);
-        const parameter = event.inputBuffer.getChannelData(4);
+        const waveformParameter = event.inputBuffer.getChannelData(4);
+        const wrapperParameter = event.inputBuffer.getChannelData(5);
         const output = event.outputBuffer.getChannelData(0);
 
         output.forEach((v, i, out) => {
-            out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], mix[i], parameter[i]);
+            out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], mix[i], waveformParameter[i], wrapperParameter[i]);
         });
     }
 
-    generatorFunction (frequency, detune, resonance, mix, parameter) {
+    generatorFunction (frequency, detune, resonance, mix, waveformParameter, wrapperParameter) {
 
         let calculatedFrequency,
             calculatedResonanceFrequency,
@@ -180,7 +182,7 @@ class PDOscillator extends KaciAudioNode {
                         const harmonicPhase = (phaseSum >= 0) ? phaseSum : (1 + phaseSum);
                         const normalizedLevel = harmonic.level / sum;
 
-                        return result + (this.selectedWaveform(harmonicPhase, parameter) * normalizedLevel);
+                        return result + (this.selectedWaveform(harmonicPhase, waveformParameter) * normalizedLevel);
                     }
 
                     return result;
@@ -193,7 +195,7 @@ class PDOscillator extends KaciAudioNode {
             case OSCILLATOR_MODE.RESONANT:
                 this.incrementResonancePhase(calculatedResonanceFrequency);
                 distortedPhaseMix = mixValues(this.pdFunctions[0](this.resonancePhase), this.pdFunctions[1](this.resonancePhase), mix);
-                return this.selectedWaveform(distortedPhaseMix, parameter) * this.selectedWrapper(this.phase);
+                return this.selectedWaveform(distortedPhaseMix, waveformParameter) * this.selectedWrapper(this.phase, wrapperParameter);
 
             default:
                 return 0;

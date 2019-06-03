@@ -1,5 +1,18 @@
 export const BUFFER_LENGTH = 1024; // 4096; //2048,
 export const DOUBLE_PI = Math.PI * 2;
+export const TRIPLE_PI = Math.PI * 3;
+
+// values where sinc(value) == cos(value) = local peaks (suitable loop points) for the sinc function
+export const SINC_EXTREMA = [
+    0,
+    4.493409457909063,
+    7.725251836937707,
+    10.904121659428899,
+    14.066193912831473,
+    17.220755271930768,
+    20.37130295928756
+];
+
 export const NOTE_NAMES = ["c", "db", "d", "eb", "e", "f", "gb", "g", "ab", "a", "bb", "b"];
 
 
