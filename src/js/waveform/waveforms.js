@@ -57,6 +57,21 @@ export const wrappers = {
         };
     },
 
+    blackman: (defaultLength = 0) => {
+        // Blackman window, variable between 1/4 and 1/1 width
+        const min = 0.25;
+        const max = 1;
+        const diff = max - min;
+        const QUADRUPLE_PI = DOUBLE_PI * 2;
+
+        return (phase, param = defaultLength) => {
+            const length = scale(param, min, max, diff);
+            const pl = phase / length;
+            return (phase >= length) ? 0 : 0.42 - 0.5 * Math.cos(DOUBLE_PI * pl) + 0.08 * Math.cos(QUADRUPLE_PI * pl);
+        };
+
+    },
+
     sinc: (defaultLength = 0) => {
         const min = Math.PI;
         const max = Math.PI * 5;
