@@ -47,9 +47,9 @@ class Noise extends KaciAudioNode {
         const that = this;
         if (this.isWorklet) {
             return this.context.audioWorklet.addModule(worklet).then(() => {
-                this.generator = new NoiseWorkletNode(this.context);
-                this.generator.connect(this.outputStage.input);
-                this.color = this.state.color;
+                that.generator = new NoiseWorkletNode(that.context);
+                that.generator.connect(that.outputStage.input);
+                that.color = that.state.color;
                 return that;
             });
         }

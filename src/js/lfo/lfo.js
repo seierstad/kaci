@@ -41,7 +41,7 @@ class LFO extends PeriodicModulator {
             this.oscillator = new Oscillator(this.context);
             this.oscillator.connect(this.postGain);
             this.parameters = {...this.oscillator.parameters};
-            //this.frequency = this.state.frequency;
+            this.frequency = this.state.speed.frequency;
             this.waveform = this.state.waveform;
 
 
@@ -56,13 +56,13 @@ class LFO extends PeriodicModulator {
         const that = this;
         if (this.isWorklet) {
             return this.context.audioWorklet.addModule(worklet).then(() => {
-                this.oscillator = new OscillatorWorkletNode(this.context);
-                this.oscillator.connect(this.postGain);
-                for (let name in this.outputs) {
-                    this.oscillator.connect(that.outputs[name]);
+                that.oscillator = new OscillatorWorkletNode(that.context);
+                that.oscillator.connect(this.postGain);
+                for (let name in that.outputs) {
+                    that.oscillator.connect(that.outputs[name]);
                 }
-                this.waveform = this.state.waveform;
-                //this.frequency = this.state.frequency;
+                that.waveform = that.state.waveform;
+                that.frequency = that.state.speed.frequency;
                 return that;
             });
         }
