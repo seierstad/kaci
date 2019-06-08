@@ -111,18 +111,17 @@ const playState = (state = defaultPlayState, action) => {
             break;
 
         case MIDI.MODULATION_WHEEL:
-        case KEYBOARD.CHORD_SHIFT:
-            if (state.chordShift.enabled) {
-                const newChordShiftState = chordShift(state.chordShift, action);
+        case KEYBOARD.CHORD_SHIFT: {
+            const newChordShiftState = chordShift(state.chordShift, action);
 
-                if (newChordShiftState !== state.chordShift) {
-                    return {
-                        ...state,
-                        chordShift: newChordShiftState
-                    };
-                }
+            if (newChordShiftState !== state.chordShift) {
+                return {
+                    ...state,
+                    chordShift: newChordShiftState
+                };
             }
             break;
+        }
 
         case CHORD_SHIFT.DISABLE:
             return disable();

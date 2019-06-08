@@ -13,7 +13,7 @@ export const chordShiftPatchShape = shape({
 });
 
 export const chordShiftPlayStateShape = shape({
-    "value": number.isRequired,
+    "amount": number.isRequired,
     "activeKeys": objectOf(keyStateShape).isRequired,
     "chords": arrayOf(chordShape)
 });

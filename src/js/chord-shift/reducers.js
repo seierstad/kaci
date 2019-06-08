@@ -3,14 +3,8 @@ import * as MIDI from "../midi/actions";
 import * as KEYBOARD from "../keyboard/actions";
 import chord from "../play-state/chord-reducer";
 
+import {playstateDefault} from "./defaults";
 
-const defaultChordShift = {
-    enabled: false,
-    mode: "portamento",
-    chords: [],
-    activeKeys: {},
-    value: 0
-};
 
 const containsKey = (chord = {}, key) => {
     return chord.hasOwnProperty(key.number);
@@ -19,7 +13,7 @@ const containsKey = (chord = {}, key) => {
 //const keySort = (a, b) => a.number > b.number ? -1 : 1;
 
 
-const chordShift = (state = defaultChordShift, action = {}, keys) => {
+const chordShift = (state = playstateDefault, action = {}, keys) => {
     const {
         keyNumber,
         type,
@@ -34,10 +28,10 @@ const chordShift = (state = defaultChordShift, action = {}, keys) => {
 
         case MIDI.MODULATION_WHEEL:
         case KEYBOARD.CHORD_SHIFT:
-            if (state.value !== value) {
+            if (state.amount !== value) {
                 return {
                     ...state,
-                    value
+                    amount: value
                 };
             }
             break;

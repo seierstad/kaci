@@ -36,7 +36,7 @@ const patch = {
         "pan": 0
     },
     "noise": {
-        "color": "pink", //white, pink, geometric, (blue, violet, brown, red)
+        "color": "pink", //white, pink, geometric, (todo: blue, violet, brown, red)
         "active": false,
         "gain": 0.25,
         "pan": 0
@@ -66,8 +66,8 @@ const patch = {
         "gain": 1,
         "pan": 0
     },
-    "chordshift": {
-        "mode": "glissando"
+    "chordShift": {
+        "mode": "glissando" // glissando | portamento
     },
     "lfos": [{
         "waveform": {
@@ -289,8 +289,8 @@ const patch = {
                 }
             }]
         },
-        "chordshift": {
-            "value": [{
+        "chordShift": {
+            "amount": [{
                 "amount": 1,
                 "polarity": "positive",
                 "enabled": true,

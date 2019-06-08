@@ -34,7 +34,7 @@ class ChordShiftView extends Component {
                 activeKeys = {},
                 chords = [],
                 enabled = false,
-                value = 0
+                amount = 0
             } = {},
             patch = {},
             handlers: {
@@ -52,7 +52,7 @@ class ChordShiftView extends Component {
                     className="chord-shift"
                     configuration={{max: 1, min: 0, step: 0.01}}
                     label="Chord shift"
-                    value={value}
+                    value={amount}
                 />
                 <input
                     checked={enabled}
@@ -80,7 +80,7 @@ const mapDispatch = (dispatch) => ({
 });
 
 const mapState = (state) => ({
-    "patch": state.patch.chordshift
+    "patch": state.patch.chordShift
 });
 
 const ChordShiftViewConnected = connect(mapState, mapDispatch)(ChordShiftView);

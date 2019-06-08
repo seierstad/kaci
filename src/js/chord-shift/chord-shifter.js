@@ -33,7 +33,7 @@ class ChordShifter extends KaciNode {
         const state = this.store.getState();
         const {
             patch: {
-                chordshift: patchState = {}
+                chordShift: patchState = {}
             },
             playState: {
                 chordShift: playState = {}
@@ -53,10 +53,10 @@ class ChordShifter extends KaciNode {
         this.outputNode = null;
 
         this.parameters = {
-            "value": inputNode(context)
+            "amount": inputNode(context)
         };
 
-        this.store.subscribe(this.stateChangeHandler);
+        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
         this.outputs = [];
         this.samples = 0;
         this.sortedChords = [];
@@ -156,7 +156,7 @@ class ChordShifter extends KaciNode {
             this.chords = chords;
             const numberOfVoices = Object.keys(chords[0]).length;
             this.processor = this.context.createScriptProcessor(BUFFER_LENGTH, 1, numberOfVoices);
-            this.parameters.value.connect(this.processor);
+            this.parameters.amount.connect(this.processor);
             this.processor.addEventListener("audioprocess", this.audioProcessHandler);
             this.outputNode = this.context.createChannelSplitter(numberOfVoices);
             this.processor.connect(this.outputNode);
@@ -169,7 +169,7 @@ class ChordShifter extends KaciNode {
         if (this.processor !== null) {
             this.processor.removeEventListener("audioprocess");
 
-            this.parameters.value.disconnect();
+            this.parameters.amount.disconnect();
             this.processor.disconnect();
             this.outputNode.disconnect();
 
@@ -217,10 +217,11 @@ class ChordShifter extends KaciNode {
             if (this.storedPlayState.mode !== newPlayState.mode) {
                 this.mode = newPlayState.mode;
             }
+
             this.storedPlayState = newPlayState;
         }
 
-        const newPatchState = newState.patch.chordshift;
+        const newPatchState = newState.patch.chordShift;
         if (this.storedPatchState !== newPatchState) {
             if (this.storedPatchState.mode !== newPatchState.mode) {
                 this.mode = newPatchState.mode;

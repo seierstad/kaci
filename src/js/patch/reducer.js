@@ -5,7 +5,7 @@ import defaultPatch from "../patch/defaults";
 import envelopes from "../envelope/reducers";
 import morse from "../morse/reducers";
 import modulation from "../modulation/reducers";
-import chordshift from "../chord-shift/reducer-patch";
+import chordShift from "../chord-shift/reducer-patch";
 import lfos from "../lfo/reducers";
 import steps from "../steps/reducers";
 import sub from "../sub/reducers/patch";
@@ -44,7 +44,7 @@ const patch = (state = {...defaultPatch}, action) => {
         envelopes,
         morse,
         modulation,
-        chordshift
+        chordShift
     })(state, action);
 };
 

@@ -64,7 +64,7 @@ class VoiceRegister extends KaciNode {
         this.store.subscribe(this.stateChangeHandler);
 
         this.parameters = {
-            ...(prefixKeys(this.chordShifter.targets, "chordshift."))
+            ...(prefixKeys(this.chordShifter.targets, "chordShift."))
         };
     }
 
