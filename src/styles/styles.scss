@@ -86,6 +86,12 @@ fieldset {
     margin-bottom: 20vh;
 }
 
+.sound-sources,
+.modulation-sources {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .blink {
     display: inline-block;
     height: 30px;

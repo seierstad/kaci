@@ -1,5 +1,7 @@
 .modulation-matrix {
-    tbody {
+    border-collapse: collapse;
+
+    > tbody {
         &:nth-of-type(odd) {
             background: rgba(255, 255, 0, 0.5);
         }
@@ -7,6 +9,31 @@
         &:nth-of-type(even) {
             background: rgba(255, 150, 0, 0.5);
         }
+    }
+
+    &-col {
+        &:nth-of-type(2n+2) {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        &:nth-of-type(2n+3) {
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+    }
+
+    input[title="amount"],
+    .connection-toggle {
+        cursor: pointer;
+    }
+
+    .polarity-selector {
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1.3rem;
+        line-height: 1rem;
+        margin: 0;
+        padding: 0;
     }
 
     th[scope="rowgroup"] {
@@ -22,24 +49,22 @@
         }
     }
 
-    col {
-        &:nth-of-type(2n+2) {
-            background-color: rgba(0, 0, 0, 0.3);
-        }
-
-        &:nth-of-type(2n+3) {
-            background-color: rgba(255, 0, 0, 0.3);
-        }
-    }
-
     label {
         color: transparent;
         font-size: 0;
         line-height: 0;
     }
 
+    tr:nth-of-type(even) {
+        background-color: rgba(0, 0, 255, 0.1);
+    }
+
     td {
         padding: 0.5em;
+
+        &.active {
+            box-shadow: 0 0 1em #ff0 inset;
+        }
     }
 
     [type="range"] {

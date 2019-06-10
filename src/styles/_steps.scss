@@ -1,4 +1,8 @@
 .steps {
+    &-generators {
+        display: flex;
+    }
+
     .step {
         border: none;
         display: inline-block;
