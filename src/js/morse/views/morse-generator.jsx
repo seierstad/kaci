@@ -106,7 +106,7 @@ class MorseGenerator extends Component {
 
         return (
             <section className="morse" id={"morse-" + index + "-view"}>
-                <h2>Morse {index + 1}</h2>
+                <h1>Morse {index + 1}</h1>
                 <label><span className="label-text">text</span><input id={id} onChange={this.handleTextChange} onInput={this.handleTextChange} type="text" value={text} /></label>
                 <MorseSvg data={shiftedPattern} guides={visibleGuides} wrap={speedUnit || pattern.length} />
                 <label htmlFor={id + "-length"}>pattern length</label>

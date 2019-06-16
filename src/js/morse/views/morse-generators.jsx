@@ -43,7 +43,7 @@ class MorseGenerators extends Component {
             );
         }
 
-        return <div>{generators}</div>;
+        return <div className={"morse-generators"}>{generators}</div>;
     }
 }
 
