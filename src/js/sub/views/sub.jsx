@@ -53,30 +53,39 @@ class SubViewPresentation extends Component {
                 />
                 <fieldset>
                     <legend>Sub depth</legend>
-                    <input
-                        checked={patch.depth === 0}
-                        id="sub-0"
-                        name="sub-depth-selector"
-                        onChange={this.handleChangeDepth}
-                        type="radio"
-                        value={0}
-                    />
-                    <input
-                        checked={patch.depth === -1}
-                        id="sub-1"
-                        name="sub-depth-selector"
-                        onChange={this.handleChangeDepth}
-                        type="radio"
-                        value={-1}
-                    />
-                    <input
-                        checked={patch.depth === -2}
-                        id="sub-2"
-                        name="sub-depth-selector"
-                        onChange={this.handleChangeDepth}
-                        type="radio"
-                        value={-2}
-                    />
+                    <label className="sub-depth">
+                        <input
+                            checked={patch.depth === 0}
+                            id="sub-0"
+                            name="sub-depth-selector"
+                            onChange={this.handleChangeDepth}
+                            type="radio"
+                            value={0}
+                        />
+                        <span className="label-text">0</span>
+                    </label>
+                    <label className="sub-depth">
+                        <input
+                            checked={patch.depth === -1}
+                            id="sub-1"
+                            name="sub-depth-selector"
+                            onChange={this.handleChangeDepth}
+                            type="radio"
+                            value={-1}
+                        />
+                        <span className="label-text">-1</span>
+                    </label>
+                    <label className="sub-depth">
+                        <input
+                            checked={patch.depth === -2}
+                            id="sub-2"
+                            name="sub-depth-selector"
+                            onChange={this.handleChangeDepth}
+                            type="radio"
+                            value={-2}
+                        />
+                        <span className="label-text">-2</span>
+                    </label>
                 </fieldset>
                 <fieldset>
                     <legend>detune</legend>
