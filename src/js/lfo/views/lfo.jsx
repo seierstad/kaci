@@ -7,7 +7,7 @@ import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
 import {waveforms} from "../../waveform/waveforms";
 import Modulator from "../../modulator/views/modulator.jsx";
 import Periodic from "../../periodic/views/periodic.jsx";
-import {lfoPatchShape} from "../propdefs";
+import {lfoPatchShape, lfoViewStateShape} from "../propdefs";
 
 
 class LFO extends Component {
@@ -16,7 +16,8 @@ class LFO extends Component {
         "children": PropTypes.any,
         "handlers": PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
         "index": PropTypes.number.isRequired,
-        "patch": lfoPatchShape.isRequired
+        "patch": lfoPatchShape.isRequired,
+        "viewState": lfoViewStateShape
     }
 
     constructor (props) {
@@ -52,11 +53,15 @@ class LFO extends Component {
     }
 
     render () {
-        const {index, patch, handlers} = this.props;
+        const {
+            index,
+            patch,
+            handlers
+        } = this.props;
 
         return (
             <section className="lfo" id={"lfo-" + index + "-view"}>
-                <h2><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h2>
+                <h1><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h1>
                 <WaveformSelector
                     handlers={handlers.waveform}
                     includePhaseIndicator

@@ -176,7 +176,7 @@ class PDOscillator extends KaciAudioNode {
                 const sum = this.state.harmonics.reduce((acc, h) => acc + Math.abs(h.level), 0);
 
                 return this.state.harmonics.reduce((result, harmonic) => {
-                    if (harmonic.enabled && harmonic.level > 0) {
+                    if (harmonic.enabled && harmonic.level !== 0) {
                         const harmonicPdPhase = ((counterPhase % harmonic.denominator) * harmonic.numerator / harmonic.denominator);
                         const phaseSum = (harmonicPdPhase + (harmonic.phase || 0)) % 1;
                         const harmonicPhase = (phaseSum >= 0) ? phaseSum : (1 + phaseSum);

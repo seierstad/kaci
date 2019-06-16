@@ -1,5 +1,6 @@
 import {
     arrayOf,
+    bool,
     shape,
     string
 } from "prop-types";
@@ -25,3 +26,8 @@ export const lfoConfigShape = shape({
     ...modulatorConfigProperties,
     "default": lfoPatchShape
 });
+
+export const lfoViewStateShape = shape({
+    "edit": bool
+});
+
