@@ -33,15 +33,16 @@ class NoiseView extends Component {
 
         return (
             <section className="noise-view">
-                <h2>noise</h2>
-                <select onChange={this.handleColorChange} value={patch.color}>
-                    {Object.keys(noise).map(color => <option key={color}>{color}</option>)}
-                </select>
+                <h1>noise</h1>
                 <OutputStage
                     configuration={configuration}
                     handlers={outputHandlers}
                     patch={patch}
                 />
+                <label htmlFor="noise-color">color</label>
+                <select id="noise-color" onChange={this.handleColorChange} value={patch.color}>
+                    {Object.keys(noise).map(color => <option key={color}>{color}</option>)}
+                </select>
             </section>
         );
     }
