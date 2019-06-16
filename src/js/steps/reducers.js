@@ -161,11 +161,11 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             };
 
             const newSteps = state.sequence.map(step => {
-                if (step.value >= result.maxValue) {
+                if (step.value > result.maxValue) {
                     sequenceChanged = true;
                     return {
                         ...step,
-                        value: result.maxValue - 1
+                        value: result.maxValue
                     };
                 }
                 return step;

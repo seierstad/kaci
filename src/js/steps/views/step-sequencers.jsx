@@ -41,7 +41,7 @@ class StepSequencersView extends PureComponent {
         }
 
         return (
-            <div>{generators}</div>
+            <div className="steps-generators">{generators}</div>
         );
     }
 }

@@ -148,7 +148,7 @@ class StepSequencerView extends PureComponent {
 
         return (
             <section className="steps" id={"steps-" + index + "-view"}>
-                <h2>Steps {index + 1}</h2>
+                <h1>Steps {index + 1}</h1>
                 <SequenceGenerator
                     onSelect={this.handleSelectGenerator}
                     onSubmit={this.handleGenerateSequence}
