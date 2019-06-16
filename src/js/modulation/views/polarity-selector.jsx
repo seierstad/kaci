@@ -27,8 +27,8 @@ class PolaritySelector extends Component {
     render () {
         const {prefix, patch} = this.props;
         return (
-            <div>
-                <select id={prefix + "-polarity"} onChange={this.handleChange} value={patch}>
+            <React.Fragment>
+                <select className="polarity-selector" id={prefix + "-polarity"} onChange={this.handleChange} value={patch}>
                     {
                         [
                             {value: "positive", label: "+", title: "positive"},
@@ -38,7 +38,7 @@ class PolaritySelector extends Component {
                     }
                 </select>
                 <label htmlFor={prefix + "-polarity"}>polarity</label>
-            </div>
+            </React.Fragment>
         );
     }
 }

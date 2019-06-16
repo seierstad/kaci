@@ -59,10 +59,11 @@ class Connection extends Component {
         const isEnv = (type === "env");
 
         return (
-            <td>
+            <td className={checked ? "active" : null}>
                 <label htmlFor={id}>connect {type + " " + index + " to " + module + " " + parameter}</label>
                 <input
                     checked={checked}
+                    className="connection-toggle"
                     id={id}
                     name={isEnv ? name : null}
                     onChange={this.handleToggle}
