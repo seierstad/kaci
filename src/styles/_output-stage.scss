@@ -1,0 +1,35 @@
+@import "mixins";
+
+.output {
+    display: inline-block;
+    text-align: center;
+    vertical-align: top;
+
+    &-gain > label,
+    &-pan > label,
+    .label-text {
+        @include squish-text;
+    }
+
+    &-gain {
+        height: 6rem;
+        width: 3em;
+
+        [type="range"] {
+            @include vertical-slider;
+        }
+    }
+
+    &-pan {
+        display: flex;
+        flex-direction: column-reverse;
+        width: 3em;
+
+        button {
+            appearance: none;
+            background: transparent;
+            border: none;
+            min-height: auto;
+        }
+    }
+}

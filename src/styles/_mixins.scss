@@ -1,0 +1,26 @@
+@mixin vertical-slider {
+    margin: 0;
+    transform: rotateZ(-90deg) scaleX(2) translateX(-1.25rem);
+    transform-origin: center center;
+    width: 3rem;
+
+    &::-webkit-slider-thumb {
+        transform: scaleY(2) rotateZ(90deg);
+    }
+}
+
+@mixin squish-text {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+@mixin unsquish-text {
+    clip: auto;
+    height: auto;
+    overflow: visible;
+    width: auto;
+}

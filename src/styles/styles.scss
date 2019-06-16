@@ -63,6 +63,11 @@ section {
     margin: 2em 1em;
     padding: $padding-section-top $padding-section-sides $padding-section-bottom;
     position: relative;
+
+    > h1 {
+        position: absolute;
+        top: -2em;
+    }
 }
 
 .oscilloscope {
@@ -117,3 +122,5 @@ fieldset {
 @import "morse";
 @import "steps";
 @import "lfos";
+@import "output-stage";
+@import "sub-view";
