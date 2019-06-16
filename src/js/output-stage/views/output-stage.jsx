@@ -25,7 +25,7 @@ class OutputStage extends Component {
 
 
         return (
-            <fieldset>
+            <fieldset className="output">
                 <legend>output</legend>
                 <ModuleToggle
                     active={active}
@@ -33,6 +33,7 @@ class OutputStage extends Component {
                 />
                 <RangeInput
                     changeHandler={handleGainInput}
+                    className="output-gain"
                     configuration={configuration.gain}
                     label="gain"
                     max={configuration.gain.max}
@@ -40,7 +41,10 @@ class OutputStage extends Component {
                     value={gain}
                 />
                 <RangeInput
+                    centerLabel="center"
+                    centerText="▶◀"
                     changeHandler={handlePanInput}
+                    className="output-pan"
                     configuration={configuration.pan}
                     label="pan"
                     value={pan}

@@ -10,6 +10,8 @@ let rangeInputId = 0;
 class RangeInput extends Component {
 
     static propTypes = {
+        "centerLabel": PropTypes.string,
+        "centerText": PropTypes.string,
         "changeHandler": PropTypes.func.isRequired,
         "className": PropTypes.string,
         "configuration": PropTypes.shape({
@@ -24,6 +26,13 @@ class RangeInput extends Component {
         "label": PropTypes.string.isRequired,
         "value": PropTypes.number.isRequired
     }
+
+    constructor (props) {
+        super(props);
+        this.input = React.createRef();
+        this.animationRequest = null;
+    }
+
 
     componentWillMount () {
         const {configuration} = this.props;
@@ -46,9 +55,17 @@ class RangeInput extends Component {
         event.preventDefault();
 
         const {eventParams, configuration: {exponential}} = this.props;
-        const value = parseFloat(this.input.value, 10);
+        const value = parseFloat(this.input.current.value, 10);
 
-        this.props.changeHandler(exponential ? this.scale.up(value) : value, eventParams);
+        if (this.animationRequest !== null) {
+            cancelAnimationFrame(this.animationRequest);
+        }
+
+        this.animationRequest = requestAnimationFrame(() => {
+            this.props.changeHandler(exponential ? this.scale.up(value) : value, eventParams);
+            this.animationRequest = null;
+        });
+
     }
 
     @autobind
@@ -58,30 +75,52 @@ class RangeInput extends Component {
     }
 
     render () {
-        const {className, configuration, value, disabled, label} = this.props;
+        const {centerText, centerLabel, className, configuration, value, disabled, label} = this.props;
         const {min, max, mid, step = 0.001, exponential} = configuration;
 
         const centerButton = (typeof mid === "number") ? (
-            <button onClick={this.handleReset} type="button">reset</button>
+            <button
+                label={centerLabel || null}
+                onClick={this.handleReset}
+                type="button"
+            >
+                {centerText || "reset"}
+            </button>
         ) : null;
 
+        const input = (
+            <input
+                disabled={disabled}
+                id={this.id}
+                max={max}
+                min={min}
+                onChange={this.handleChange}
+                ref={this.input}
+                step={step}
+                title={label}
+                type="range"
+                value={exponential ? this.scale.down(value) : value}
+            />
+        );
+
+        const labelElement = <label htmlFor={this.id}>{label}</label>;
+
+        if (className) {
+            return (
+                <div className={className}>
+                    {centerButton}
+                    {input}
+                    {labelElement}
+                </div>
+            );
+        }
+
         return (
-            <div className={className ? className : null}>
+            <React.Fragment>
                 {centerButton}
-                <input
-                    disabled={disabled}
-                    id={this.id}
-                    max={max}
-                    min={min}
-                    onChange={this.handleChange}
-                    ref={i => this.input = i}
-                    step={step}
-                    title={label}
-                    type="range"
-                    value={exponential ? this.scale.down(value) : value}
-                />
-                <label htmlFor={this.id}>{label}</label>
-            </div>
+                {input}
+                {labelElement}
+            </React.Fragment>
         );
     }
 }

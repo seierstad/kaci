@@ -7,7 +7,8 @@ import {
     NUMERATOR_CHANGE,
     PHASE_CHANGE,
     REMOVE,
-    TOGGLE
+    TOGGLE,
+    SERIES
 } from "./actions";
 
 const dispatchers = (dispatch) => ({
@@ -15,7 +16,8 @@ const dispatchers = (dispatch) => ({
         type: ADD,
         module: "oscillator",
         submodule: "harmonics",
-        numerator, denominator
+        numerator,
+        denominator
     }),
     "denominatorChange": (value) => dispatch({
         type: DENOMINATOR_CHANGE,
@@ -68,6 +70,13 @@ const dispatchers = (dispatch) => ({
         submodule: "harmonics",
         numerator,
         denominator
+    }),
+    "preset": (preset, partials) => dispatch({
+        type: SERIES,
+        module: "oscillator",
+        submodule: "harmonics",
+        preset,
+        partials
     })
 });
 

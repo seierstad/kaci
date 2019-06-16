@@ -8,6 +8,7 @@ import {fractionsLeastCommonIntegerMultiple, flipFraction} from "../../shared-fu
 import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import Harmonic from "./harmonic.jsx";
 import HarmonicNew from "./harmonic-new.jsx";
+import Presets from "./presets.jsx";
 
 
 class Harmonics extends Component {
@@ -52,7 +53,7 @@ class Harmonics extends Component {
         const {patch, mixFunction} = props;
         const counter = fractionsLeastCommonIntegerMultiple(patch.map(flipFraction));
         this.waveFunction = (phase) => patch.reduce((acc, harmonic) => {
-            if (harmonic.enabled && harmonic.level > 0) {
+            if (harmonic.enabled && harmonic.level !== 0) {
                 const p = ((phase * counter * harmonic.numerator / harmonic.denominator) + (harmonic.phase || 0)) % 1;
                 const harmonicPhase = (p >= 0) ? p : (1 + p);
                 return acc + mixFunction(harmonicPhase) * harmonic.level;
@@ -116,6 +117,7 @@ class Harmonics extends Component {
                         >normalize</button>
                     </div>
                 </fieldset>
+                <Presets handlers={handlers} />
             </div>
         );
     }

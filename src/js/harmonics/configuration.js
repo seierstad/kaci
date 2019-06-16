@@ -12,7 +12,8 @@ export const harmonicConfiguration = {
     "level": {
         "exponential": true,
         "max": 1,
-        "min": 0,
+        "mid": 0,
+        "min": -1,
         "step": 0.01
     },
     "phase": {

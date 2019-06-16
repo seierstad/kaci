@@ -50,53 +50,57 @@ class PatchPresentation extends Component {
         const {target, source} = configuration.modulation;
 
         return (
-            <div>
+            <React.Fragment>
                 <MainOutput
                     configuration={target.main}
                     handlers={handlers.main}
                     patch={patch.main}
                 />
-                <Oscillator
-                    configuration={target.oscillator}
-                    handlers={handlers.oscillator}
-                    patch={patch.oscillator}
-                    viewState={viewState.oscillator}
-                />
-                <NoiseView
-                    configuration={target.noise}
-                    handlers={handlers.noise}
-                    patch={patch.noise}
-                />
-                <SubView
-                    configuration={target.sub}
-                    handlers={handlers.sub}
-                    patch={patch.sub}
-                />
-                <Envelopes
-                    configuration={source.envelope}
-                />
-                <LFOs
-                    configuration={source.lfo}
-                    handlers={handlers.lfo}
-                    patch={patch.lfos}
-                />
-                <StepSequencers
-                    configuration={source.steps}
-                    handlers={handlers.steps}
-                    patch={patch.steps}
-                    viewState={viewState.steps}
-                />
-                <MorseGenerators
-                    configuration={source.morse}
-                    handlers={handlers.morse}
-                    patch={patch.morse}
-                    viewState={viewState.morse}
-                />
+                <div className="sound-sources">
+                    <Oscillator
+                        configuration={target.oscillator}
+                        handlers={handlers.oscillator}
+                        patch={patch.oscillator}
+                        viewState={viewState.oscillator}
+                    />
+                    <NoiseView
+                        configuration={target.noise}
+                        handlers={handlers.noise}
+                        patch={patch.noise}
+                    />
+                    <SubView
+                        configuration={target.sub}
+                        handlers={handlers.sub}
+                        patch={patch.sub}
+                    />
+                </div>
+                <div className="modulation-sources">
+                    <Envelopes
+                        configuration={source.envelope}
+                    />
+                    <LFOs
+                        configuration={source.lfo}
+                        handlers={handlers.lfo}
+                        patch={patch.lfos}
+                    />
+                    <StepSequencers
+                        configuration={source.steps}
+                        handlers={handlers.steps}
+                        patch={patch.steps}
+                        viewState={viewState.steps}
+                    />
+                    <MorseGenerators
+                        configuration={source.morse}
+                        handlers={handlers.morse}
+                        patch={patch.morse}
+                        viewState={viewState.morse}
+                    />
+                </div>
                 <ModulationMatrix
                     configuration={configuration.modulation}
                     patch={patch.modulation}
                 />
-            </div>
+            </React.Fragment>
         );
     }
 }

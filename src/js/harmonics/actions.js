@@ -9,3 +9,4 @@ export const PHASE_CHANGE = prefix + "PHASE_CHANGE";
 export const NEW = prefix + "NEW";
 export const ADD = prefix + "ADD";
 export const REMOVE = prefix + "REMOVE";
+export const SERIES = prefix + "SERIES";
