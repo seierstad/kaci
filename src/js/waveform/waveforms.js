@@ -6,6 +6,32 @@ const scale = (value, min, max, diff = max - min) => {
     return min + value * diff;
 };
 
+export const fourierSeries = {
+    saw: (partials = 8) => {
+        const result = Array(partials).fill(0);
+        for (let p = 1; p <= partials; p += 1) {
+            result[p] = 1 / p;
+        }
+        return result;
+    },
+
+    square: (partials = 8) => {
+        const result = Array(partials * 2).fill(0);
+        for (let p = 1, q = partials * 2; p <= q; p += 2) {
+            result[p] = 1 / p;
+        }
+        return result;
+    },
+
+    triangle: (partials = 8) => {
+        const result = Array(partials * 2).fill(0);
+        for (let odd = true, p = 1, q = partials * 2; p <= q; p += 2, odd = !odd) {
+            result[p] = (odd ? 1 : -1) / (p * p);
+        }
+        return result;
+    }
+};
+
 
 export const wrappers = {
     sync: (defaultLength = 1) => (phase, length = defaultLength) => phase < length ? 1: 0,
