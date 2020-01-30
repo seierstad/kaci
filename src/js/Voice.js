@@ -241,7 +241,7 @@ class Voice extends KaciNode {
     }
 
     connect (node) {
-        if (node.hasOwnProperty("input")) {
+        if (Object.prototype.hasOwnProperty.call(node, "input")) {
             this.mainOut.connect(node.input);
         } else {
             this.mainOut.connect(node);

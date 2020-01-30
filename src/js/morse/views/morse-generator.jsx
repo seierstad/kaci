@@ -1,4 +1,3 @@
-/*global document, module, require, CustomEvent */
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 

@@ -92,7 +92,7 @@ class Modulator extends KaciNode {
     }
 
     connect (node) {
-        if (node.hasOwnProperty("input")) {
+        if (Object.prototype.hasOwnProperty.call(node, "input")) {
             this.postGain.connect(node.input);
         } else {
             this.postGain.connect(node);

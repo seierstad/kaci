@@ -13,7 +13,7 @@
         "byName": {},
         "bySource": {},
         "usedIds": [
-          1
+          0
         ]
       }
     }
@@ -81,7 +81,34 @@
           "node_modules/core-js/internals/hidden-keys.js": 33,
           "node_modules/core-js/internals/well-known-symbol.js": 34,
           "node_modules/core-js/internals/native-symbol.js": 35,
-          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js b557ba672b5aafd8b7e0e809fe699c9f": 36
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js b557ba672b5aafd8b7e0e809fe699c9f": 36,
+          "node_modules/core-js/internals/create-non-enumerable-property.js": 2,
+          "node_modules/core-js/internals/to-indexed-object.js": 18,
+          "node_modules/core-js/internals/export.js": 37,
+          "node_modules/core-js/internals/object-get-own-property-descriptor.js": 38,
+          "node_modules/core-js/modules/es.array.reverse.js": 39,
+          "node_modules/webpack/buildin/global.js": 40,
+          "node_modules/core-js/internals/object-property-is-enumerable.js": 41,
+          "node_modules/core-js/internals/indexed-object.js": 42,
+          "node_modules/core-js/internals/shared-store.js": 43,
+          "node_modules/core-js/internals/copy-constructor-properties.js": 44,
+          "node_modules/core-js/internals/own-keys.js": 45,
+          "node_modules/core-js/internals/get-built-in.js": 46,
+          "node_modules/core-js/internals/path.js": 47,
+          "node_modules/core-js/internals/object-get-own-property-names.js": 48,
+          "node_modules/core-js/internals/object-keys-internal.js": 49,
+          "node_modules/core-js/internals/array-includes.js": 50,
+          "node_modules/core-js/internals/to-absolute-index.js": 51,
+          "node_modules/core-js/internals/enum-bug-keys.js": 52,
+          "node_modules/core-js/internals/object-get-own-property-symbols.js": 53,
+          "node_modules/core-js/internals/is-forced.js": 54,
+          "node_modules/core-js/internals/is-array.js": 55,
+          "node_modules/core-js/modules/web.url.to-json.js": 56,
+          "node_modules/core-js/internals/string-multibyte.js": 57,
+          "node_modules/core-js/internals/inspect-source.js": 12,
+          "node_modules/core-js/internals/use-symbol-as-uid.js": 36,
+          "node_modules/core-js/internals/regexp-sticky-helpers.js": 39,
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js 46803bbc0c963939cd919e028d06ed6d": 55
         },
         "usedIds": {
           "0": 0,
@@ -120,7 +147,28 @@
           "33": 33,
           "34": 34,
           "35": 35,
-          "36": 36
+          "36": 36,
+          "37": 37,
+          "38": 38,
+          "39": 39,
+          "40": 40,
+          "41": 41,
+          "42": 42,
+          "43": 43,
+          "44": 44,
+          "45": 45,
+          "46": 46,
+          "47": 47,
+          "48": 48,
+          "49": 49,
+          "50": 50,
+          "51": 51,
+          "52": 52,
+          "53": 53,
+          "54": 54,
+          "55": 55,
+          "56": 56,
+          "57": 57
         }
       },
       "chunks": {
@@ -214,7 +262,20 @@
           "node_modules/core-js/internals/set-species.js": 75,
           "node_modules/core-js/internals/get-built-in.js": 76,
           "node_modules/core-js/internals/path.js": 77,
-          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 52f9838a95d9cb45ab3308da0586715e": 78
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 52f9838a95d9cb45ab3308da0586715e": 78,
+          "node_modules/core-js/internals/create-non-enumerable-property.js": 8,
+          "node_modules/core-js/modules/es.array.reverse.js": 49,
+          "node_modules/webpack/buildin/global.js": 72,
+          "node_modules/core-js/internals/shared-store.js": 79,
+          "node_modules/core-js/internals/a-possible-prototype.js": 80,
+          "node_modules/core-js/internals/to-positive-integer.js": 81,
+          "node_modules/core-js/internals/array-iteration.js": 82,
+          "node_modules/core-js/internals/inspect-source.js": 32,
+          "node_modules/core-js/internals/use-symbol-as-uid.js": 43,
+          "node_modules/core-js/internals/to-string-tag-support.js": 49,
+          "node_modules/core-js/internals/ieee754.js": 54,
+          "node_modules/core-js/internals/inherit-if-required.js": 78,
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 385c6dac387e9fc27fa3179a2a2b2975": 83
         },
         "usedIds": {
           "0": 0,
@@ -295,7 +356,12 @@
           "75": 75,
           "76": 76,
           "77": 77,
-          "78": 78
+          "78": 78,
+          "79": 79,
+          "80": 80,
+          "81": 81,
+          "82": 82,
+          "83": 83
         }
       },
       "chunks": {
@@ -443,7 +509,37 @@
       "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/kaci.jsx 7c23efc4d547dba40f5b904f2d01bffe": 129,
       "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/output-stage/actions.js": 129,
       "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/output-stage/dispatchers.js": 130,
-      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/kaci.jsx 7ac6b8d9283a16a325a40ba12044dac0": 131
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/kaci.jsx 7ac6b8d9283a16a325a40ba12044dac0": 131,
+      "node_modules/core-js/modules/es.array.reverse.js": 4,
+      "node_modules/react-redux/es/index.js 5067082d6c09a622c86a5321f1261bfb": 8,
+      "node_modules/core-js/internals/create-non-enumerable-property.js": 97,
+      "node_modules/react-redux/node_modules/react-is/index.js": 108,
+      "node_modules/core-js/internals/shared-store.js": 121,
+      "node_modules/core-js/internals/a-possible-prototype.js": 131,
+      "node_modules/react-redux/node_modules/react-is/cjs/react-is.production.min.js": 132,
+      "node_modules/core-js/internals/string-multibyte.js": 133,
+      "node_modules/core-js/internals/to-positive-integer.js": 134,
+      "node_modules/core-js/internals/array-iteration.js": 135,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/kaci.jsx b722b7acb8c006b6a5e252deb1b258c9": 136,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/index.js!src/js/kaci.jsx e87559b324913522762ab3e2072ded8b": 136,
+      "node_modules/react-redux/es/index.js 17088f0fc3194d224a0f627f7622e499": 4,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/output-stage/actions.js": 8,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/view/shared-functions.js": 11,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/views/ViewUtils.js": 18,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/output-stage/dispatchers.js": 23,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/view/envelope.jsx f5ef70480b44a2cc60718ccaddaaa195": 32,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/selectors.js": 35,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/view/range-input.jsx": 56,
+      "node_modules/core-js/internals/inspect-source.js": 61,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/view/sustain-envelope.jsx": 76,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/view/sustain.jsx": 77,
+      "node_modules/core-js/internals/use-symbol-as-uid.js": 114,
+      "node_modules/core-js/internals/regexp-sticky-helpers.js": 128,
+      "node_modules/core-js/internals/to-string-tag-support.js": 129,
+      "node_modules/core-js/internals/ieee754.js": 130,
+      "node_modules/core-js/internals/inherit-if-required.js": 136,
+      "node_modules/mini-css-extract-plugin/dist/loader.js!node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/src/index.js??postcss!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/styles/styles.scss": 137,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/kaci.jsx 02ac465a52b522884b83f5a6efd84e9c": 138
     },
     "usedIds": {
       "0": 0,
@@ -577,7 +673,14 @@
       "128": 128,
       "129": 129,
       "130": 130,
-      "131": 131
+      "131": 131,
+      "132": 132,
+      "133": 133,
+      "134": 134,
+      "135": 135,
+      "136": 136,
+      "137": 137,
+      "138": 138
     }
   },
   "chunks": {
@@ -590,5 +693,28 @@
       0,
       1
     ]
-  }
+  },
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/src/index.js??postcss!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/styles/styles.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/src/index.js??postcss!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/styles/styles.scss": 0,
+          "node_modules/css-loader/dist/runtime/api.js": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ]
 }

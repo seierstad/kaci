@@ -7,7 +7,7 @@ import {playstateDefault} from "./defaults";
 
 
 const containsKey = (chord = {}, key) => {
-    return chord.hasOwnProperty(key.number);
+    return Object.prototype.hasOwnProperty.call(chord, key.number);
 };
 
 //const keySort = (a, b) => a.number > b.number ? -1 : 1;

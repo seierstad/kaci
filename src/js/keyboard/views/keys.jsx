@@ -29,6 +29,7 @@ class Keys extends Component {
             keys,
             chordShift = {}
         } = this.props;
+
         const {
             CSenabled = false,
             CSchords = [],

@@ -22,7 +22,7 @@ const wrapWaveform = (wrappers, waveform, resonance) => {
         wrapperName;
 
     for (wrapperName in wrappers) {
-        if (wrappers.hasOwnProperty(wrapperName)) {
+        if (Object.prototype.hasOwnProperty.call(wrappers, wrapperName)) {
             wrappedWaveforms[wrapperName] = getWrapperFunction(wrappers[wrapperName], waveform, resonance);
         }
     }

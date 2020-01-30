@@ -14,10 +14,7 @@ export const load = ({include, exclude, svgPath, sourceMap = false, dev = false}
             include,
             exclude,
             use: [{
-                loader: dev ? "style-loader" : MiniCssExtractPlugin.loader,
-                options: {
-                    sourceMap
-                }
+                loader: dev ? "style-loader" : MiniCssExtractPlugin.loader
             }, {
                 loader: "css-loader",
                 options: {
@@ -55,12 +52,12 @@ export const load = ({include, exclude, svgPath, sourceMap = false, dev = false}
                 loader: "sass-loader",
                 options: {
                     implementation: dartSass,
-                    fiber: Fiber,
-                    includePaths: [
-                        "node_modules/susy/sass",
-                        "node_modules/breakpoint-sass/stylesheets"
-                    ],
-                    sourceMap
+                    sassOptions: {
+                        includePaths: [
+                            "node_modules/susy/sass",
+                            "node_modules/breakpoint-sass/stylesheets"
+                        ]
+                    }
                 }
             }]
         }]

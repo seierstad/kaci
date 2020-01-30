@@ -8,7 +8,7 @@ import {envelope} from "../envelope/viewstate-reducers";
 const oscillator = (state = {"pd": [[], []]}, action) => {
     if (action.module === "oscillator") {
 
-        if (action.hasOwnProperty("envelopeIndex")) {
+        if (Object.prototype.hasOwnProperty.call(action, "envelopeIndex")) {
 
             switch (action.type) {
 

@@ -229,7 +229,7 @@ class VoiceRegister extends KaciNode {
                 const ups = [];
 
                 for (let keyNumber of this.activeKeys.values()) {
-                    if (!(newKeyState.hasOwnProperty(keyNumber)) || !newKeyState[keyNumber].down) {
+                    if (!(Object.prototype.hasOwnProperty.call(newKeyState, keyNumber)) || !newKeyState[keyNumber].down) {
                         ups.push(keyNumber);
                     }
                 }

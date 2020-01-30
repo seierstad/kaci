@@ -1,4 +1,3 @@
-/*global document, module, require, CustomEvent */
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {boundMethod} from "autobind-decorator";
@@ -34,8 +33,8 @@ class LFO extends Component {
     }
 
     componentDidMount () {
-        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        this.updatePhaseIndicator(true);
+        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
+        //this.updatePhaseIndicator(true);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -43,13 +42,13 @@ class LFO extends Component {
     }
 
     componentDidUpdate () {
-        this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        this.updatePhaseIndicator(true);
+        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
+        //this.updatePhaseIndicator(true);
     }
 
     @boundMethod
     updatePhaseIndicator () {
-        this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.speed.frequency) + "ms";
+        //this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.speed.frequency) + "ms";
     }
 
     render () {
@@ -64,7 +63,7 @@ class LFO extends Component {
                 <h1><abbr title="low frequency oscillator">LFO</abbr>{index + 1}</h1>
                 <WaveformSelector
                     handlers={handlers.waveform}
-                    includePhaseIndicator
+                    includePhaseIndicator={false}
                     index={index}
                     module={this.module}
                     parameter="waveform"

@@ -1,5 +1,6 @@
 import autobind from "autobind-decorator";
 import KaciNode from "../kaci-node";
+import configuration from "./configuration";
 import LFO from "./lfo";
 
 
@@ -7,12 +8,13 @@ class LFOs extends KaciNode {
 
     constructor (...args) {
         super(...args);
-        const [, store, configuration] = args;
+        const [, store] = args;
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+        console.log(configuration);
 
-        this.lfos = this.setupLFOs(configuration.source.lfo, this.state.patch.lfos);
+        this.lfos = this.setupLFOs(configuration, this.state.patch.lfos);
     }
 
     init () {

@@ -7,7 +7,7 @@ import {OSCILLATOR_MODE} from "../constants";
 
 const MODES = [];
 for (const m in OSCILLATOR_MODE) {
-    if (OSCILLATOR_MODE.hasOwnProperty(m)) {
+    if (Object.prototype.hasOwnProperty.call(OSCILLATOR_MODE, m)) {
         MODES.push(OSCILLATOR_MODE[m]);
     }
 }

@@ -1,4 +1,3 @@
-/*global document, module, require, CustomEvent */
 import React, {PureComponent} from "react";
 import PropTypes from "prop-types";
 import {boundMethod} from "autobind-decorator";

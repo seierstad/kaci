@@ -67,15 +67,15 @@ class MorseGenerator extends DiscretePeriodicModulator {
     }
 
     set frequency (frequency) {
-        this.oscillator.frequency = frequency * (this.speedState.speedUnit / this.oscillator.pattern.length);
+        this.oscillator.frequency = frequency * (this.oscillator.pattern.length / this.speedState.speedUnit);
     }
 
-    set pattern ({text, speedUnit, shift, padding, fillToFit}) {
+    set pattern ({text, padding, shift, speedUnit = 0, fillToFit}) {
         let pattern = morseEncode(text);
         if (padding) {
             pattern = padPattern(pattern, padding);
         }
-        if (fillToFit && speedUnit) {
+        if (fillToFit && speedUnit !== 0) {
             pattern = fillPatternToMultipleOf(pattern, speedUnit);
         }
         if (shift) {
@@ -91,7 +91,6 @@ class MorseGenerator extends DiscretePeriodicModulator {
     updateState (newState) {
         const patternChanged = (
             this.state.text !== newState.text
-            || this.state.speedUnit !== newState.speedUnit
             || this.state.shift !== newState.shift
             || this.state.padding !== newState.padding
             || this.state.fillToFit !== newState.fillToFit
@@ -101,12 +100,12 @@ class MorseGenerator extends DiscretePeriodicModulator {
             this.pattern = newState;
         }
 
-        if (patternChanged || this.state.frequency !== newState.frequency) {
-            this.frequency = newState.frequency;
-        }
-
         if (typeof super.updateState === "function") {
             super.updateState(newState);
+        }
+
+        if (patternChanged) {
+            this.pattern = newState;
         }
 
         this.state = newState;

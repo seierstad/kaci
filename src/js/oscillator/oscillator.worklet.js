@@ -16,7 +16,7 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
         }, {
             name: "detune",
             defaultValue: 0,
-            minValue: -1000000,
+            minValue: -100000,
             maxValue: 100000,
             automationRate: "a-rate"
         }, {

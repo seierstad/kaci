@@ -5,9 +5,8 @@ import {defaultModulationConnectionParameters} from "./modulation/defaults";
 import {defaultTuning} from "./tuning/defaults";
 import {keyboard} from "./keyboard/configuration";
 import {defaultStepsParameters} from "./steps/defaults";
-import {defaultLfoParameters} from "./lfo/defaults";
 import {defaultSyncConfiguration} from "./speed/sync/defaults";
-
+import lfoConfiguration from "./lfo/configuration";
 
 export const outputStageTargets = {
     "gain": {
@@ -38,26 +37,7 @@ const configuration = {
         },
         "source": {
             "lfo": {
-                "count": 3,
-                "amount": {
-                    "min": 0,
-                    "max": 1,
-                    "step": 1 / 12
-                },
-                "speed": {
-                    "frequency": {
-                        "min": 0.001,
-                        "max": 50,
-                        "step": 0.01,
-                        "exponential": true
-                    },
-                    "sync": {
-                        ...defaultSyncConfiguration
-                    }
-                },
-                "default": {
-                    ...defaultLfoParameters
-                }
+                ...lfoConfiguration
             },
             "envelope": {
                 "count": 2,

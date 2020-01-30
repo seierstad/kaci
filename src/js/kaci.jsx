@@ -23,6 +23,9 @@ import patch from "./patch/defaults";
 import MidiInput from "./midi/midi-input";
 import SystemSettings from "./settings/settings";
 import defaultSettings from "./configuration";
+import LFOs from "./lfo/lfos";
+//import LFOsWorkletNode from "./lfo/lfos-worklet-node";
+
 
 import "../styles/styles.scss";
 
@@ -44,12 +47,18 @@ if (window.AudioContext) {
         // other store enhancers if any
     ));
 
+    //    const lfos = ctx.audioWorklet ? new LFOsWorkletNode(ctx, store) : new LFOs(ctx, store);
+    const lfos = new LFOs(ctx, store);
+    const modulators = {
+        lfos
+    };
+
     new SystemSettings(ctx, store);
 
     new MidiInput(store);
     new KeyboardInput(store);
 
-    new ModulationMatrix(ctx, store).init().then((modulationMatrix) => {
+    new ModulationMatrix(ctx, store, modulators).init().then((modulationMatrix) => {
         const voiceRegister = new VoiceRegister(ctx, store, modulationMatrix);
         modulationMatrix.patchVoiceRegister(voiceRegister);
 

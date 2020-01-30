@@ -16,13 +16,16 @@ const connectionSourceFilter = (typeName, index) => c => c.source.type === typeN
 
 class ModulationMatrix {
 
-    constructor (context, store) {
+    constructor (context, store, modulators) {
         /*
         constructor:
             - initialize static parameters
             - initialize global modulators (lfos)
             - initial patch
         */
+        const {
+            lfos
+        } = modulators;
 
         this.context = context;
 
@@ -36,7 +39,7 @@ class ModulationMatrix {
         this.patch = state.patch.modulation;
 
 
-        this.lfos = new LFOs(context, store, this.configuration);
+        this.lfos = lfos;
         this.steps = new StepSequencers(context, store, this.configuration);
         this.morse = new MorseGenerators(context, store, this.configuration);
 

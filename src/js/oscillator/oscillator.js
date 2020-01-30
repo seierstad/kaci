@@ -115,7 +115,7 @@ class Oscillator extends KaciNode {
     }
 
     connect (node) {
-        if (node.hasOwnProperty("input")) {
+        if (Object.prototype.hasOwnProperty.call(node, "input")) {
             this.generator.connect(node.input);
         } else {
             this.generator.connect(node);

@@ -12,7 +12,7 @@ const chord = (state = {}, action = {}) => {
     switch (type) {
         case MIDI.KEY_DOWN:
         case KEYBOARD.KEY_DOWN:
-            if (!state.hasOwnProperty(keyNumber)) {
+            if (!Object.prototype.hasOwnProperty.call(state, keyNumber)) {
                 return {
                     ...state,
                     [keyNumber]: {
@@ -27,7 +27,7 @@ const chord = (state = {}, action = {}) => {
 
         case KEYBOARD.KEY_UP:
         case MIDI.KEY_UP:
-            if (state.hasOwnProperty(keyNumber)) {
+            if (Object.prototype.hasOwnProperty.call(state, keyNumber)) {
                 const result = {
                     ...state
                 };

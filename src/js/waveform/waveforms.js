@@ -158,7 +158,7 @@ export const waveforms = {
 
         return (phase) => {
 
-            if (!buffer.hasOwnProperty("value") || buffer.value === null) {
+            if (!Object.prototype.hasOwnProperty.call(buffer, "value") || buffer.value === null) {
                 buffer.value = (Math.random() - 0.5) * 2;
             }
 
