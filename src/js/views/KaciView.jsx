@@ -20,11 +20,10 @@ import ChordShift from "../chord-shift/views/chord-shift.jsx";
 class KaciReactViewPresentation extends Component {
 
     static propTypes = {
-        /*
         "configuration": configurationShape.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": patchShape.isRequired,
-
+        "patch": patchShape.isRequired
+        /*
         "playState": playStateShape.isRequired,
         "viewState": viewStateShape.isRequired
         */
@@ -38,6 +37,7 @@ class KaciReactViewPresentation extends Component {
             viewState = {},
             playState = {}
         } = this.props;
+
         return (
             <div>
                 <SystemSettingsView

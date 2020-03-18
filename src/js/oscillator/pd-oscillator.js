@@ -17,9 +17,10 @@ class PDOscillator extends KaciAudioNode {
         "frequency",
         "detune",
         "resonance",
-        "mix",
+        "pd_mix",
         "waveform",
-        "wrapper"
+        "wrapper",
+        "harm_mix"
     ];
 
     constructor (...args) {
@@ -53,9 +54,8 @@ class PDOscillator extends KaciAudioNode {
         this.pdFunctions = [];
 
         this.counter = 0;
-        const {harmonics = []} = this.state;
 
-        this.counterMax = fractionsLeastCommonIntegerMultiple(harmonics.map(flipFraction));
+        this.counterMax = fractionsLeastCommonIntegerMultiple(patch.harmonics[0].map(flipFraction));
 
         this.mergedInput.connect(this.generator);
         this.generator.connect(this.outputStage.input);
@@ -65,6 +65,7 @@ class PDOscillator extends KaciAudioNode {
         this.waveform = patch.waveform;
         this.mode = patch.mode;
         this.wrapper = patch.wrapper;
+        this.harmonics = patch.harmonics;
     }
 
     get targets () {
@@ -93,7 +94,7 @@ class PDOscillator extends KaciAudioNode {
     }
 
     set harmonics (harmonics) {
-        this.counterMax = fractionsLeastCommonIntegerMultiple(harmonics.map(flipFraction));
+        this.counterMax = fractionsLeastCommonIntegerMultiple(harmonics[0].map(flipFraction));
         this.state.harmonics = harmonics;
     }
 
@@ -132,17 +133,18 @@ class PDOscillator extends KaciAudioNode {
         const frequency = event.inputBuffer.getChannelData(0);
         const detune = event.inputBuffer.getChannelData(1);
         const resonance = event.inputBuffer.getChannelData(2);
-        const mix = event.inputBuffer.getChannelData(3);
+        const pdMix = event.inputBuffer.getChannelData(3);
         const waveformParameter = event.inputBuffer.getChannelData(4);
         const wrapperParameter = event.inputBuffer.getChannelData(5);
+        const harmMix = event.inputBuffer.getChannelData(6);
         const output = event.outputBuffer.getChannelData(0);
 
         output.forEach((v, i, out) => {
-            out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], mix[i], waveformParameter[i], wrapperParameter[i]);
+            out[i] = this.generatorFunction(frequency[i], detune[i], resonance[i], pdMix[i], waveformParameter[i], wrapperParameter[i], harmMix[i]);
         });
     }
 
-    generatorFunction (frequency, detune, resonance, mix, waveformParameter, wrapperParameter) {
+    generatorFunction (frequency, detune, resonance, pdMix, waveformParameter, wrapperParameter, harmMix) {
 
         let calculatedFrequency,
             calculatedResonanceFrequency,
@@ -169,18 +171,20 @@ class PDOscillator extends KaciAudioNode {
 
         switch (this.mode) {
             case OSCILLATOR_MODE.HARMONICS:
-                distortedPhaseMix = mixValues(this.pdFunctions[0](this.phase), this.pdFunctions[1](this.phase), mix);
+                distortedPhaseMix = mixValues(this.pdFunctions[0](this.phase), this.pdFunctions[1](this.phase), pdMix);
 
                 // sub octave, almost for free
                 const counterPhase = distortedPhaseMix + this.counter;
-                const sum = this.state.harmonics.reduce((acc, h) => acc + Math.abs(h.level), 0);
+                const h0 = this.state.harmonics[0];
+                const h1 = this.state.harmonics[1];
+                const sum = h0.reduce((acc, h, i) => acc + Math.abs(mixValues(h.level, h1[i].level, harmMix)), 0);
 
-                return this.state.harmonics.reduce((result, harmonic) => {
+                return h0.reduce((result, harmonic, index) => {
                     if (harmonic.enabled && harmonic.level !== 0) {
                         const harmonicPdPhase = ((counterPhase % harmonic.denominator) * harmonic.numerator / harmonic.denominator);
-                        const phaseSum = (harmonicPdPhase + (harmonic.phase || 0)) % 1;
+                        const phaseSum = (harmonicPdPhase + (mixValues(harmonic.phase, h1[index].phase, harmMix) || 0)) % 1;
                         const harmonicPhase = (phaseSum >= 0) ? phaseSum : (1 + phaseSum);
-                        const normalizedLevel = harmonic.level / sum;
+                        const normalizedLevel = mixValues(harmonic.level, h1[index].level, harmMix) / sum;
 
                         return result + (this.selectedWaveform(harmonicPhase, waveformParameter) * normalizedLevel);
                     }
@@ -194,7 +198,7 @@ class PDOscillator extends KaciAudioNode {
 
             case OSCILLATOR_MODE.RESONANT:
                 this.incrementResonancePhase(calculatedResonanceFrequency);
-                distortedPhaseMix = mixValues(this.pdFunctions[0](this.resonancePhase), this.pdFunctions[1](this.resonancePhase), mix);
+                distortedPhaseMix = mixValues(this.pdFunctions[0](this.resonancePhase), this.pdFunctions[1](this.resonancePhase), pdMix);
                 return this.selectedWaveform(distortedPhaseMix, waveformParameter) * this.selectedWrapper(this.phase, wrapperParameter);
 
             default:

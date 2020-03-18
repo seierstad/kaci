@@ -10,3 +10,4 @@ export const NEW = prefix + "NEW";
 export const ADD = prefix + "ADD";
 export const REMOVE = prefix + "REMOVE";
 export const SERIES = prefix + "SERIES";
+export const MIX_CHANGE = prefix + "MIX_CHANGE";

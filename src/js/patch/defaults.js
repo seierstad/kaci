@@ -17,18 +17,29 @@ const patch = {
                 [1, 1]
             ]
         }],
-        "harmonics": [{
-            "numerator": 1,
-            "denominator": 1,
-            "level": 0.5,
-            "enabled": true
-        }],
+        "harmonics": {
+            0: [{
+                "numerator": 1,
+                "denominator": 1,
+                "level": 0.5,
+                "phase": 0,
+                "enabled": true
+            }],
+            1: [{
+                "numerator": 1,
+                "denominator": 1,
+                "level": 0.5,
+                "phase": 0,
+                "enabled": true
+            }]
+        },
         "resonance": 3,
         "wrapper": {
             "name": "gaussian",
             "parameter": 0.2
         },
-        "mix": 0.594,
+        "harm_mix": 0.5,
+        "pd_mix": 0.594,
         "mode": "harmonics", //"resonant",
         "detune": 0,
         "active": true,
@@ -632,7 +643,7 @@ const rpatch = {
                 "amount": 1.0,
                 "type": "other modulation properties than amount might be useful..."
             },
-            "oscillator.mix": {
+            "oscillator.pd_mix": {
                 "amount": 0.3
             }
         }],

@@ -109,12 +109,28 @@ const configuration = {
                 ...outputStageTargets
             },
             "oscillator": {
+                "waveform": {
+                    "min": 0,
+                    "mid": 0.5,
+                    "max": 1,
+                    "patchPath": ["waveform", "parameter"]
+                },
+                "pd_mix": {
+                    "min": 0,
+                    "max": 1
+                },
                 "resonance": {
                     "min": 1,
                     "max": 16,
                     "exponential": true
                 },
-                "mix": {
+                "wrapper": {
+                    "min": 0,
+                    "mid": 0.5,
+                    "max": 1,
+                    "patchPath": ["wrapper", "parameter"]
+                },
+                "harm_mix": {
                     "min": 0,
                     "max": 1
                 },
@@ -122,18 +138,6 @@ const configuration = {
                     "min": -1200,
                     "mid": 0,
                     "max": 1200
-                },
-                "waveform": {
-                    "min": 0,
-                    "mid": 0.5,
-                    "max": 1,
-                    "patchPath": ["waveform", "parameter"]
-                },
-                "wrapper": {
-                    "min": 0,
-                    "mid": 0.5,
-                    "max": 1,
-                    "patchPath": ["wrapper", "parameter"]
                 },
                 ...outputStageTargets
             },

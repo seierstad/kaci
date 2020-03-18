@@ -35,7 +35,7 @@ class Oscillator extends Component {
     }
 
     componentWillMount () {
-        const {pd, waveform, mix} = this.props.patch;
+        const {pd, waveform, pd_mix} = this.props.patch;
 
         for (const w in waveforms) {
             this.waveforms[w] = waveforms[w];
@@ -43,21 +43,21 @@ class Oscillator extends Component {
 
         this.setPdFunction0(pd[0].steps, waveform);
         this.setPdFunction1(pd[1].steps, waveform);
-        this.setMixFunction(mix);
+        this.setMixFunction(pd_mix);
     }
 
     componentWillUpdate (nextProps) {
-        const {pd, waveform, mix} = nextProps.patch;
+        const {pd, waveform, pd_mix} = nextProps.patch;
 
 
         if (this.props.patch.waveform !== nextProps.patch.waveform) {
             this.setPdFunction0(pd[0].steps, waveform);
             this.setPdFunction1(pd[1].steps, waveform);
-            this.setMixFunction(mix);
+            this.setMixFunction(pd_mix);
         } else {
             const pd0Changed = this.props.patch.pd[0] !== pd[0];
             const pd1Changed = this.props.patch.pd[1] !== pd[1];
-            const mixChanged = this.props.patch.mix !== mix;
+            const mixChanged = this.props.patch.pd_mix !== pd_mix;
 
             if (pd0Changed) {
                 this.setPdFunction0(pd[0].steps, waveform);
@@ -66,7 +66,7 @@ class Oscillator extends Component {
                 this.setPdFunction1(pd[1].steps, waveform);
             }
             if (pd0Changed || pd1Changed || mixChanged) {
-                this.setMixFunction(mix);
+                this.setMixFunction(pd_mix);
             }
         }
     }
@@ -112,7 +112,7 @@ class Oscillator extends Component {
         };
         const resonanceDependencies = {
             ...mixDependencies,
-            mix: this.props.patch.mix
+            mix: this.props.patch.pd_mix
         };
 
         return (
@@ -128,7 +128,8 @@ class Oscillator extends Component {
                     patch={patch.waveform}
                     waveforms={this.waveforms}
                 />
-                <div className="pd-and-mix-wrapper">
+                <fieldset className="pd-and-mix-wrapper">
+                    <legend>Phase distortion</legend>
                     <PhaseDistortion
                         key="pdEnvelope0"
                         patch={patch.pd[0]}
@@ -147,12 +148,12 @@ class Oscillator extends Component {
                     />
                     <Mix
                         changeHandler={handlers.mix}
-                        configuration={configuration.mix}
+                        configuration={configuration.pd_mix}
                         dependencies={mixDependencies}
-                        patch={patch.mix}
+                        patch={patch.pd_mix}
                         waveFunction={this.mixFunction}
                     />
-                </div>
+                </fieldset>
                 <Mode
                     handler={handlers.mode}
                     patch={patch.mode}
@@ -168,9 +169,10 @@ class Oscillator extends Component {
                     )}
                     {(patch.mode === OSCILLATOR_MODE.HARMONICS) && (
                         <Harmonics
-                            configuration={configuration.harmonics}
+                            configuration={configuration}
                             dependencies={resonanceDependencies}
                             handlers={handlers.harmonics}
+                            mix={patch.harm_mix}
                             mixFunction={this.mixFunction}
                             patch={patch.harmonics}
                             viewState={viewState.harmonics}

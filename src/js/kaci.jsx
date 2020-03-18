@@ -41,7 +41,7 @@ if (window.AudioContext) {
         // options like actionSanitizer, stateSanitizer
     });
 
-    const initialState = {patch: {...patch}, settings: {...defaultSettings}};
+    const initialState = {patch: {...patch}, settings: {...(defaultSettings)}};
     const store = createStore(reducer, initialState, composeEnhancers(
         applyMiddleware(...middleware),
         // other store enhancers if any

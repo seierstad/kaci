@@ -1,4 +1,4 @@
-import {Plugin as ESlintLoaderCombinedReportPlugin} from "eslint-loader";
+//import {Plugin as ESlintLoaderCombinedReportPlugin} from "eslint-loader";
 import TerserWebpackPlugin from "terser-webpack-plugin";
 //import CheckstyleFormatter from "eslint/lib/formatters/checkstyle";
 

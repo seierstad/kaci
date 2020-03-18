@@ -1,4 +1,8 @@
 import {
+    HARMONICS_MIX_CHANGE
+} from "../oscillator/actions";
+
+import {
     ADD,
     DENOMINATOR_CHANGE,
     LEVEL_CHANGE,
@@ -11,72 +15,91 @@ import {
     SERIES
 } from "./actions";
 
+
 const dispatchers = (dispatch) => ({
-    "add": (numerator, denominator) => dispatch({
+    "add": groupIndex => (numerator, denominator) => dispatch({
         type: ADD,
         module: "oscillator",
         submodule: "harmonics",
         numerator,
-        denominator
+        denominator,
+        groupIndex
     }),
-    "denominatorChange": (value) => dispatch({
+    "denominatorChange": groupIndex => (value) => dispatch({
         type: DENOMINATOR_CHANGE,
         module: "oscillator",
         submodule: "harmonics",
+        groupIndex,
         value
     }),
-    "handleNormalize": () => dispatch({
+    "handleNormalize": groupIndex => () => dispatch({
         type: LEVELS_NORMALIZE,
         module: "oscillator",
-        submodule: "harmonics"
+        submodule: "harmonics",
+        groupIndex
     }),
-    "handleNew": () => dispatch({
+    "handleNew": groupIndex => () => dispatch({
         type: NEW,
         module: "oscillator",
-        submodule: "harmonics"
+        submodule: "harmonics",
+        groupIndex
     }),
-    "levelChange": (value, {numerator, denominator}) => dispatch({
+    "levelChange": groupIndex => (value, {numerator, denominator}) => dispatch({
         type: LEVEL_CHANGE,
         module: "oscillator",
         submodule: "harmonics",
         value,
         numerator,
-        denominator
+        denominator,
+        groupIndex
     }),
-    "numeratorChange": (value) => dispatch({
+    "numeratorChange": groupIndex => (value) => dispatch({
         type: NUMERATOR_CHANGE,
         module: "oscillator",
         submodule: "harmonics",
-        value
+        value,
+        groupIndex
     }),
-    "phaseChange": (value, {numerator, denominator}) => dispatch({
+    "phaseChange": groupIndex => (value, {numerator, denominator}) => dispatch({
         type: PHASE_CHANGE,
         module: "oscillator",
         submodule: "harmonics",
         value,
         numerator,
-        denominator
+        denominator,
+        groupIndex
     }),
-    "remove": (module, index, {numerator, denominator}) => dispatch({
+    "remove": groupIndex => (module, index, {numerator, denominator}) => dispatch({
         type: REMOVE,
         module: "oscillator",
         submodule: "harmonics",
         numerator,
-        denominator
+        denominator,
+        groupIndex,
+        index
     }),
-    "toggle": (module, index, {numerator, denominator}) => dispatch({
+    "toggle": groupIndex => (module, index, {numerator, denominator}) => dispatch({
         type: TOGGLE,
         module: "oscillator",
         submodule: "harmonics",
         numerator,
-        denominator
+        denominator,
+        groupIndex,
+        index
     }),
-    "preset": (preset, partials) => dispatch({
+    "mixChange": (value) => dispatch({
+        type: HARMONICS_MIX_CHANGE,
+        module: "oscillator",
+        submodule: "harmonics",
+        value
+    }),
+    "preset": groupIndex => (preset, partials) => dispatch({
         type: SERIES,
         module: "oscillator",
         submodule: "harmonics",
         preset,
-        partials
+        partials,
+        groupIndex
     })
 });
 

@@ -7,7 +7,8 @@ import {
     DETUNE_CHANGE,
     MIX_CHANGE,
     MODE_CHANGE,
-    RESONANCE_FACTOR_CHANGE
+    RESONANCE_FACTOR_CHANGE,
+    HARMONICS_MIX_CHANGE
 } from "./actions";
 
 
@@ -28,13 +29,19 @@ const oscillator = (state = {}, action) => {
         case MIX_CHANGE:
             return {
                 ...state,
-                mix: action.value
+                pd_mix: action.value
             };
 
         case DETUNE_CHANGE:
             return {
                 ...state,
                 detune: action.value
+            };
+
+        case HARMONICS_MIX_CHANGE:
+            return {
+                ...state,
+                harm_mix: action.value
             };
     }
 

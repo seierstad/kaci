@@ -1,13 +1,13 @@
 // This is "processor.js" file, evaluated in AudioWorkletGlobalScope upon
 // audioWorklet.addModule() call in the main global scope.
 class PDOscillatorWorkletProcessor extends AudioWorkletProcessor {
-  constructor () {
-    super();
-  }
+    constructor () {
+        super();
+    }
 
-  process (inputs, outputs, parameters) {
+    process (inputs, outputs, parameters) {
     // audio processing code here.
-  }
+    }
 }
 
 registerProcessor("pd-oscillator-worklet-processor", PDOscillatorWorkletProcessor);

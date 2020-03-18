@@ -12,8 +12,6 @@ class LFOs extends KaciNode {
         this.store = store;
         this.state = store.getState();
         this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
-        console.log(configuration);
-
         this.lfos = this.setupLFOs(configuration, this.state.patch.lfos);
     }
 

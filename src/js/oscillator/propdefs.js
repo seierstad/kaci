@@ -1,5 +1,5 @@
 import {oneOf, oneOfType, shape, arrayOf, number} from "prop-types";
-import {harmonicShape} from "../harmonics/propdefs";
+import {harmonicsShape} from "../harmonics/propdefs";
 import {envelopePatchShape} from "../envelope/propdefs";
 import {wrappers} from "../waveform/waveforms";
 import {waveformShape} from "../waveform/propdefs";
@@ -24,10 +24,11 @@ export const wrapperPatchShape = oneOfType([
 
 export const oscillatorPatchShape = shape({
     "detune": number.isRequired,
-    "harmonics": arrayOf(harmonicShape),
-    "mix": number.isRequired,
+    "harm_mix": number.isRequired,
+    "harmonics": harmonicsShape,
     "mode": oscillatorModeShape.isRequired,
     "pd": oscillatorPdPatchShape.isRequired,
+    "pd_mix": number.isRequired,
     "resonance": number.isRequired,
     "waveform": waveformShape,
     "wrapper": wrapperPatchShape.isRequired,
