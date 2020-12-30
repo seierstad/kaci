@@ -18,6 +18,13 @@ class DiscretePeriodicModulator extends PeriodicModulator {
 
     set speedUnit (speedUnit) {
         this.speedState.speedUnit = speedUnit;
+        if (this.oscillator) {
+            this.oscillator.speedUnit = speedUnit;
+        }
+    }
+
+    get speedUnit () {
+        return this.speedState.speedUnit;
     }
 
     updateState (newState) {
@@ -25,11 +32,14 @@ class DiscretePeriodicModulator extends PeriodicModulator {
             super.updateState(newState);
         }
 
-        if (this.speedState.speedUnit !== newState.speed.speedUnit) {
+        if (this.speedUnit !== newState.speed.speedUnit) {
             this.speedUnit = newState.speed.speedUnit;
         }
     }
 
+    init () {
+        this.oscillator.speedUnit = this.speedUnit;
+    }
 
     disconnect () {
         if (typeof super.disconnect === "function") {

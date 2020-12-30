@@ -1,8 +1,41 @@
 const audioWorkletNode = (typeof AudioWorkletNode === "undefined" ? Object : AudioWorkletNode);
 
+/*
+Options available:
+(https://developer.mozilla.org/en-US/docs/Web/API/AudioWorkletNodeOptions)
+
+numberOfInputs Optional
+    The value to initialize the numberOfInputs property to. Defaults to 1.
+numberOfOutputs Optional
+    The value to initialize the numberOfOutputs property to. Defaults to 1.
+outputChannelCount Optional
+    An array defining the number of channels for each output. For example, outputChannelCount: [n, m] specifies the number of channels in the first output to be n and the second output to be m. The array length must match numberOfOutputs.
+parameterData Optional
+    An object containing the initial values of custom AudioParam objects on this node (in its parameters property), with key being the name of a custom parameter and value being its initial value.
+processorOptions Optional
+    Any additional data that can be used for custom initialization of the underlying AudioWorkletProcessor.
+*/
+
+/*
+    no inputs
+    two outputs:
+        - signal
+            one channel
+        - sync
+            two channels:
+                - frequency
+                - phase
+*/
+
+const workletOptions = {
+    numberOfInputs: 1,
+    numberOfOutputs: 2,
+    outputChannelCount: [1, 2]
+};
+
 class OscillatorWorkletNode extends audioWorkletNode {
     constructor (context) {
-        super(context, "oscillator-worklet-processor");
+        super(context, "oscillator-worklet-processor", workletOptions);
     }
 
     get frequency () {
@@ -23,6 +56,10 @@ class OscillatorWorkletNode extends audioWorkletNode {
 
     set waveform (waveform) {
         this.port.postMessage(JSON.stringify({waveform}));
+    }
+
+    set sync (sync) {
+        this.port.postMessage(JSON.stringify({"command": "sync", "message": sync}));
     }
 
     start () {

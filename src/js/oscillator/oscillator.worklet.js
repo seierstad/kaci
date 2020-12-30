@@ -35,8 +35,12 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
         this.paused = true;
         this.destroyed = false;
         this.scaleBase = 2;
-        this.sampleRate = 44100;
         this.zeroPhaseRequested = false;
+        this.sync = {
+            enabled: false,
+            numerator: 1,
+            denominator: 1
+        };
 
         this.previous = {
             "frequency": 0,
@@ -55,7 +59,6 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
         const {
             command = "",
             message,
-            sampleRate,
             waveform
         } = JSON.parse(event.data);
 
@@ -75,16 +78,16 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
             this.destroyed = true;
         }
 
-        if (sampleRate) {
-            this.sampleRate = sampleRate;
-        }
-
         if (waveform && typeof waveforms[waveform.name] === "function") {
             this.selectedWaveform = waveforms[waveform.name](waveform.parameter);
         }
 
         if (command === "requestZeroPhaseResponse") {
             this.zeroPhaseMessages.push(message);
+        }
+
+        if (command === "sync") {
+            this.sync = message;
         }
     }
 
@@ -98,7 +101,7 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
     }
 
     incrementPhase (frequency) {
-        let increment = frequency / this.sampleRate;
+        let increment = frequency / sampleRate;
         this.phase += increment;
 
         if (this.phase > 1) {
@@ -137,22 +140,33 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
     }
 
     process (inputs, outputs, parameters) {
-        const audioOutputChannel = outputs[0][0];
-        /*
-        const syncOutput = outputs[1];
-        const syncFrequencyChannel = syncOutput[0];
-        const syncPhaseChannel = syncOutput[1];
-        */
-        const {frequency, detune, waveformParameter} = parameters;
+        const syncInputFrequency = inputs[0][0];
 
-        audioOutputChannel.forEach((val, index, arr) => {
-            const {[index]: f = frequency[0]} = frequency;
+        // future use: accurate phase sync
+        //const syncInputPhase = inputs[1];
+
+
+        const signalOutputChannel = outputs[0][0];
+
+        const syncOutput = outputs[1];
+        const syncOutputFrequencyChannel = syncOutput[0];
+        const syncOutputPhaseChannel = syncOutput[1];
+
+        const {frequency, detune, waveformParameter} = parameters;
+        const syncFraction = this.sync.numerator / this.sync.denominator;
+
+        signalOutputChannel.forEach((val, index, arr) => {
+            const {[index]: fParam = frequency[0]} = frequency;
+            const {[index]: fSync = syncInputFrequency[0]} = syncInputFrequency;
+
+            const f = this.sync.enabled ? (fSync * syncFraction) : fParam;
+
             const {[index]: d = detune[0]} = detune;
             const {[index]: p = waveformParameter[0]} = waveformParameter;
 
-            //syncPhaseChannel[index] = this.phase;
+            syncOutputPhaseChannel[index] = this.phase;
             arr[index] = this.generatorFunction(f, d, p);
-            //syncFrequencyChannel[index] = this.previous.calculatedFrequency;
+            syncOutputFrequencyChannel[index] = this.previous.calculatedFrequency;
         });
 
         return !this.destroyed;
@@ -161,4 +175,3 @@ class OscillatorWorkletProcessor extends AudioWorkletProcessor {
 
 
 registerProcessor("oscillator-worklet-processor", OscillatorWorkletProcessor);
-

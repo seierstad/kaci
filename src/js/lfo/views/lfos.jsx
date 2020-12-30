@@ -26,12 +26,10 @@ class LFOs extends Component {
                 <Lfo
                     configuration={configuration}
                     handlers={handlers}
-                    includeSync={i > 0 ? true : null}
+                    includeSync
                     index={i}
                     key={i}
-                    module="lfos"
                     patch={patch[i] || configuration["default"]}
-                    syncHandlers={handlers.sync}
                 />
             );
         }

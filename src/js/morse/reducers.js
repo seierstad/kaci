@@ -2,7 +2,7 @@ import speedReducer from "../speed/reducer";
 import * as MODULATOR from "../modulator/actions";
 import modulatorReducer from "../modulator/reducers";
 
-import defaultMorseParameters from "./defaults";
+import {defaultMorseParameters} from "./defaults";
 import * as MORSE from "./actions";
 
 

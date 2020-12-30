@@ -1,4 +1,6 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
+import {boundMethod} from "autobind-decorator";
 
 import {modulatorPatchShape} from "../propdefs";
 
@@ -9,19 +11,14 @@ class ModulatorMode extends Component {
             "modeChange": PropTypes.func.isRequired
         }).isRequired,
         "index": PropTypes.number,
-        "module": PropTypes.string.isRequired,
         "patch": modulatorPatchShape.isRequired
     }
 
-    constructor (props) {
-        super(props);
-        const {index, module} = this.props;
-        this.handleModeChange = this.handleModeChange.bind(this, module, index);
-    }
-
-    handleModeChange (module, index, event) {
+    @boundMethod
+    handleModeChange (event) {
+        const {handlers, index} = this.props;
         event.stopPropagation();
-        this.props.handlers.modeChange(event.target.value, module, index);
+        handlers.modeChange(event.target.value, index);
     }
 
     render () {

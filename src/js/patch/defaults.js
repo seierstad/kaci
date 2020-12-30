@@ -89,7 +89,12 @@ const patch = {
         "active": true,
         "mode": "global",
         "speed": {
-            "frequency": 0.034
+            "frequency": 0.034,
+            "sync": {
+                "enabled": false,
+                "numerator": 1,
+                "denominator": 8
+            }
         }
     }, {
         "waveform": {
@@ -168,9 +173,11 @@ const patch = {
         "maxValue": 12,
         "glide": {
             "mode": "symmetric",
-            "time": 0.25,
-            "slope": "linear",
-            "falling": {
+            "up": {
+                "time": 0.25,
+                "slope": "linear"
+            },
+            "down": {
                 "time": 0.5,
                 "slope": "linear"
             }
@@ -208,9 +215,11 @@ const patch = {
         "maxValue": 12,
         "glide": {
             "mode": "symmetric",
-            "time": 0.25,
-            "slope": "linear",
-            "falling": {
+            "up": {
+                "time": 0.25,
+                "slope": "linear"
+            },
+            "down": {
                 "time": 0.5,
                 "slope": "linear"
             }
@@ -248,7 +257,21 @@ const patch = {
                 "numerator": 1,
                 "denominator": 4
             }
-        }
+        },
+        "glide": {
+            "mode": "symmetric",
+            "up": {
+                "active": true,
+                "time": 0.5,
+                "slope": "linear"
+            },
+            "down": {
+                "active": true,
+                "time": 0.5,
+                "slope": "linear"
+            }
+        },
+        "maxValue": 1
     }],
     "modulation": {
         "main": {

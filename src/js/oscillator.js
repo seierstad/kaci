@@ -1,7 +1,6 @@
 import autobind from "autobind-decorator";
 
 import KaciNode from "./kaci-node";
-import {BUFFER_LENGTH} from "./constants";
 import {waveforms} from "./waveforms";
 import worklet from "./worklets/oscillator.worklet.js";
 import OscillatorWorkletNode from "./oscillator-worklet-node";

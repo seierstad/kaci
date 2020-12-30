@@ -1,26 +1,19 @@
 import * as SYNC from "./actions";
 
 const sync = (state = {}, action) => {
-    const newValue = parseInt(action.value, 10);
 
     switch (action.type) {
         case SYNC.NUMERATOR_CHANGE:
-            if (newValue !== state.numerator) {
-                return {
-                    ...state,
-                    "numerator": newValue
-                };
-            }
-            break;
+            return {
+                ...state,
+                "numerator": parseInt(action.value, 10)
+            };
 
         case SYNC.DENOMINATOR_CHANGE:
-            if (newValue !== state.numerator) {
-                return {
-                    ...state,
-                    "denominator": newValue
-                };
-            }
-            break;
+            return {
+                ...state,
+                "denominator": parseInt(action.value, 10)
+            };
 
         case SYNC.TOGGLE:
             return {

@@ -29,9 +29,13 @@ class KaciNode {
         const newState = this.getNewState();
 
         if (newState && (newState !== this.state)) {
-            console.log("forskjellig!", newState);
             this.updateState(newState);
         }
+    }
+
+    @autobind
+    disconnect () {
+        this.dc.disconnect();
     }
 
     @autobind

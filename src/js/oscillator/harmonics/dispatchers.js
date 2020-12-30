@@ -1,6 +1,6 @@
 import {
     HARMONICS_MIX_CHANGE
-} from "../oscillator/actions";
+} from "../actions";
 
 import {
     ADD,

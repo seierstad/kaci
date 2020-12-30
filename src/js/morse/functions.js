@@ -9,32 +9,53 @@ export const morseEncode = (text = "") => {
         .join("   ").split("").map(p => p === "1");
 };
 
-export const padPattern = (pattern, padding = 0) => {
+export const padSequence = (sequence, padding = 0) => {
     if (padding === 0) {
-        return pattern;
+        return sequence;
     }
     if (padding < 0) {
-        return pattern.slice(0, pattern.length + padding - 1);
+        return sequence.slice(0, sequence.length + padding - 1);
     }
 
     const pad = new Array(padding);
     pad.fill(false);
-    return [...pattern, ...pad];
+    return [...sequence, ...pad];
 };
 
-export const shiftPattern = (pattern, shift = 0) => {
+export const shiftSequence = (sequence, shift = 0) => {
     if (shift === 0) {
-        return pattern;
+        return sequence;
     }
     return [
-        ...pattern.slice(-shift),
-        ...pattern.slice(0, -shift)
+        ...sequence.slice(-shift),
+        ...sequence.slice(0, -shift)
     ];
 };
 
-export const fillPatternToMultipleOf = (pattern, number) => {
-    const remainder = pattern.length % number;
+export const fillSequenceToMultipleOf = (sequence, number) => {
+    const remainder = sequence.length % number;
     const count = (remainder === 0) ? 0 : number - remainder;
 
-    return padPattern(pattern, count);
+    return padSequence(sequence, count);
+};
+
+export const getSequence = (patch) => {
+    const {
+        text,
+        shift = 0,
+        padding = 0,
+        fillToFit = true,
+        speed: {
+            speedUnit = 0
+        }
+    } = patch;
+
+    const sequence = morseEncode(text);
+    const remainder = (sequence.length + padding) % speedUnit;
+    const fitPadding = (speedUnit && fillToFit && remainder !== 0) ? (speedUnit - remainder) : 0;
+    const paddedSequence = padSequence(sequence, padding + fitPadding);
+    const shiftedSequence = shiftSequence(paddedSequence, shift);
+
+    return shiftedSequence;
+
 };

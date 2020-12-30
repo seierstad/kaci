@@ -101,13 +101,14 @@ class Modulator extends KaciNode {
 
     disconnect () {
         this.postGain.disconnect();
+
+        if (typeof super.disconnect === "function") {
+            super.disconnect();
+        }
     }
 
     destroy () {
         this.index = null;
-        this.oscillator.disconnect();
-        this.oscillator.destroy();
-        this.oscillator = null;
 
         for (let name in this.outputs) {
             this.outputs[name].disconnect();
@@ -115,6 +116,10 @@ class Modulator extends KaciNode {
 
         this.postGain.disconnect();
         this.postGain = null;
+
+        if (typeof super.destroy === "function") {
+            super.destroy();
+        }
     }
 }
 

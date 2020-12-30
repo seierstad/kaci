@@ -32,25 +32,6 @@ class LFO extends Component {
         }
     }
 
-    componentDidMount () {
-        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        //this.updatePhaseIndicator(true);
-    }
-
-    shouldComponentUpdate (nextProps) {
-        return this.props.patch !== nextProps.patch;
-    }
-
-    componentDidUpdate () {
-        //this.phaseIndicator = this.waveformSelector.current.phaseIndicator.current;
-        //this.updatePhaseIndicator(true);
-    }
-
-    @boundMethod
-    updatePhaseIndicator () {
-        //this.phaseIndicator.style.animationDuration = (1000 / this.props.patch.speed.frequency) + "ms";
-    }
-
     render () {
         const {
             index,

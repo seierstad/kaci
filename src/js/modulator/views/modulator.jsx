@@ -16,7 +16,6 @@ const Modulator = Sup => class Modulator extends Sup {
             "reset": PropTypes.func.isRequired
         }).isRequired,
         "index": PropTypes.number,
-        "module": PropTypes.string.isRequired,
         "patch": modulatorPatchShape.isRequired
     }
 
@@ -33,7 +32,7 @@ const Modulator = Sup => class Modulator extends Sup {
     @autobind
     amountChange (value) {
         const {index, handlers} = this.props;
-        handlers.amountChange(value, this.module, index);
+        handlers.amountChange(value, index);
     }
 
     render () {

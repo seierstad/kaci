@@ -209,18 +209,10 @@ class Voice extends KaciNode {
         this.noise.start(time);
         this.oscillator.start(time);
 
-        this.lfos.forEach(lfo => {
-            lfo.init().then(l => l.start());
-        });
-
-        this.morse.forEach(morse => {
-            morse.start();
-        });
-
-        this.steps.forEach(steps => {
-            steps.start();
-        });
-
+        // initialize and start voice modulators
+        this.lfos.forEach(lfo => lfo.init().then(l => l.start()));
+        this.morse.forEach(morse => morse.init().then(m => m.start()));
+        this.steps.forEach(steps => steps.start());
         this.envelopes.forEach(envelope => envelope.trigger(time));
     }
 

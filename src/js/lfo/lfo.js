@@ -33,7 +33,6 @@ class LFO extends PeriodicModulator {
         this.unsubscribe = this.store.subscribe(this.changeHandler);
 
         this.parameters = null;
-
         this.isWorklet = true;
 
         if (!this.context.audioWorklet) {
@@ -57,12 +56,20 @@ class LFO extends PeriodicModulator {
         if (this.isWorklet) {
             return this.context.audioWorklet.addModule(worklet).then(() => {
                 that.oscillator = new OscillatorWorkletNode(that.context);
-                that.oscillator.connect(this.postGain);
+
+                // temporary constant value (awaiting sync connection matrix)
+                that.syncFreq = this.context.createConstantSource();
+                that.syncFreq.offset.setValueAtTime(1, that.context.currentTime);
+                that.syncFreq.connect(that.oscillator).connect(that.postGain);
+                that.syncFreq.start();
+                //
+
                 for (let name in that.outputs) {
                     that.oscillator.connect(that.outputs[name]);
                 }
                 that.waveform = that.state.waveform;
                 that.frequency = that.state.speed.frequency;
+                that.sync = that.state.speed.sync;
                 return that;
             });
         }
@@ -103,5 +110,4 @@ export {
     LFO
 };
 
-//export default SyncTarget(SyncSource(LFO));
 export default LFO;

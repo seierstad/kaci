@@ -4,9 +4,7 @@ import autobind from "autobind-decorator";
 
 import {MODULATOR_TYPE} from "../modulator/constants";
 
-import LFOs from "../lfo/lfos";
 import StaticSources from "../static-source/static-sources";
-import MorseGenerators from "../morse/morse-generators";
 import StepSequencers from "../steps/step-sequencers";
 import {RANGE} from "./constants";
 
@@ -24,7 +22,8 @@ class ModulationMatrix {
             - initial patch
         */
         const {
-            lfos
+            lfos,
+            morse
         } = modulators;
 
         this.context = context;
@@ -41,7 +40,7 @@ class ModulationMatrix {
 
         this.lfos = lfos;
         this.steps = new StepSequencers(context, store, this.configuration);
-        this.morse = new MorseGenerators(context, store, this.configuration);
+        this.morse = morse;
 
         const flatConfig = new StaticSources(context, store, this.configuration.target);
 
@@ -71,7 +70,9 @@ class ModulationMatrix {
 
     init () {
         return Promise.all([
-            this.lfos.init()
+            this.lfos.init(),
+            this.morse.init(),
+            this.steps.init()
         ]).then(() => {
             this.initPatch(this.connections, this.state);
             return this;

@@ -180,7 +180,7 @@ class PDOscillator extends KaciAudioNode {
                 const sum = h0.reduce((acc, h, i) => acc + Math.abs(mixValues(h.level, h1[i].level, harmMix)), 0);
 
                 return h0.reduce((result, harmonic, index) => {
-                    if (harmonic.enabled && harmonic.level !== 0) {
+                    if (harmonic.enabled) {
                         const harmonicPdPhase = ((counterPhase % harmonic.denominator) * harmonic.numerator / harmonic.denominator);
                         const phaseSum = (harmonicPdPhase + (mixValues(harmonic.phase, h1[index].phase, harmMix) || 0)) % 1;
                         const harmonicPhase = (phaseSum >= 0) ? phaseSum : (1 + phaseSum);
@@ -206,6 +206,7 @@ class PDOscillator extends KaciAudioNode {
         }
     }
 
+    @autobind
     incrementPhase (frequency) {
         this.phase += (frequency / this.context.sampleRate);
 
@@ -217,6 +218,7 @@ class PDOscillator extends KaciAudioNode {
         }
     }
 
+    @autobind
     incrementResonancePhase (frequency) {
         this.resonancePhase += (frequency / this.context.sampleRate);
         this.resonancePhase %= 1;

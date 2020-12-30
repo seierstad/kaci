@@ -1,0 +1,19 @@
+.wavetable-generator-parameter-range {
+    position: relative;
+}
+
+.wavetable-target-value {
+    left: 0;
+    position: absolute;
+    top: 0;
+}
+
+.wavetable-generator-result {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 0.1;
+
+    > .selected {
+        stroke: rgba(255, 255, 255, 1);
+    }
+}

@@ -2,11 +2,12 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
-import {harmonicsShape} from "../propdefs";
-import {fractionsLeastCommonIntegerMultiple, flipFraction, mixValues} from "../../shared-functions";
+import {fractionsLeastCommonIntegerMultiple, flipFraction, mixValues} from "../../../shared-functions";
+import WaveformCanvas from "../../../waveform/views/waveform-canvas.jsx";
+import Mix from "../../views/mix.jsx";
 
-import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
-import Mix from "../../oscillator/views/mix.jsx";
+import {harmonicsShape} from "../propdefs";
+
 import Harmonic from "./harmonic.jsx";
 import HarmonicNew from "./harmonic-new.jsx";
 import Presets from "./presets.jsx";

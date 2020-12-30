@@ -12,7 +12,8 @@ const Periodic = Sup => class Periodic extends Sup {
         "handlers": PropTypes.shape({
             "speed": PropTypes.shape({
                 "frequencyChange": PropTypes.func.isRequired,
-                "sync": PropTypes.objectOf(PropTypes.func).isRequired
+                "sync": PropTypes.objectOf(PropTypes.func).isRequired,
+                "speedUnit": PropTypes.number
             }).isRequired
         }),
         "includeSync": PropTypes.bool
@@ -26,6 +27,14 @@ const Periodic = Sup => class Periodic extends Sup {
     }
 
     componentDidUpdate () {
+    }
+
+    @autobind
+    handleSpeedUnitChange (event) {
+        event.stopPropagation();
+        const {index, handlers} = this.props;
+        const value = parseInt(event.target.value, 10);
+        handlers.speed.speedUnitChange(value, index, this.module);
     }
 
     @autobind
@@ -60,7 +69,7 @@ const Periodic = Sup => class Periodic extends Sup {
                     <RangeInput
                         changeHandler={this.frequencyChange}
                         configuration={configuration.speed.frequency}
-                        disabled={includeSync && patch.speed.sync.enabled}
+                        disabled={patch.speed.sync.enabled}
                         label="frequency"
                         value={patch.speed.frequency}
                     />
@@ -73,6 +82,7 @@ const Periodic = Sup => class Periodic extends Sup {
                                 max={this.pattern}
                                 min={0}
                                 onChange={this.handleSpeedUnitChange}
+                                onInput={this.handleSpeedUnitChange}
                                 step={1}
                                 type="number"
                                 value={patch.speed.speedUnit || 0}

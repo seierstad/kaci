@@ -6,10 +6,10 @@ import {harmonicShape} from "../propdefs";
 import {harmonicConfiguration} from "../configuration";
 import {
     UNICODE_FRACTION
-} from "../../fraction/constants";
+} from "../../../fraction/constants";
 
-import Fraction from "../../fraction/views/fraction.jsx";
-import RangeInput from "../../static-source/views/range-input.jsx";
+import Fraction from "../../../fraction/views/fraction.jsx";
+import RangeInput from "../../../static-source/views/range-input.jsx";
 
 
 class Harmonic extends Component {

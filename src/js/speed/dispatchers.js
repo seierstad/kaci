@@ -1,5 +1,5 @@
-import syncDispatcher, {
-    dispatcherForModule as getSyncDispatcherForModule
+import syncDispatchers, {
+    dispatchersForModule as getSyncDispatchersForModule
 } from "./sync/dispatchers";
 
 import {
@@ -15,11 +15,11 @@ const dispatchHandlers = dispatch => ({
     "speedUnitChange": (value, index, module) => {
         dispatch({"type": SPEED_UNIT_CHANGE, module, index, value});
     },
-    "sync": syncDispatcher(dispatch)
+    "sync": syncDispatchers(dispatch)
 });
 
 export const getSpeedDispatcherForModule = module => {
-    const syncDispatcher = getSyncDispatcherForModule(module);
+    const syncDispatchersForModule = getSyncDispatchersForModule(module);
 
     const dispatcher = dispatch => ({
         "frequencyChange": (value, index) => {
@@ -28,7 +28,7 @@ export const getSpeedDispatcherForModule = module => {
         "speedUnitChange": (value, index) => {
             dispatch({"type": SPEED_UNIT_CHANGE, module, index, value});
         },
-        "sync": syncDispatcher(dispatch)
+        "sync": syncDispatchersForModule(dispatch)
     });
 
     return dispatcher;

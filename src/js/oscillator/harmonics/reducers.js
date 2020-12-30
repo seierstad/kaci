@@ -1,4 +1,4 @@
-import {fourierSeries} from "../waveform/waveforms";
+import {fourierSeries} from "../../waveform/waveforms";
 
 import {
     ADD,

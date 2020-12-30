@@ -1,7 +1,7 @@
-import harmonics from "../harmonics/reducers";
 import {steps} from "../envelope/reducers";
 import * as ENVELOPE from "../envelope/actions";
 import waveform from "../waveform/reducer";
+import harmonics from "./harmonics/reducers";
 
 import {
     DETUNE_CHANGE,

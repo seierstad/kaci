@@ -40,7 +40,9 @@ class KaciAudioNode extends KaciNode {
         this.outputStage.destroy();
         this.outputStage = null;
 
-        super.destroy();
+        if (typeof super.destroy === "function") {
+            super.destroy();
+        }
     }
 }
 

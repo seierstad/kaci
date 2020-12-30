@@ -22,19 +22,26 @@ class PeriodicModulator extends Modulator {
         const [, , patch] = args;
         const {
             speed: {
-                frequency
+                frequency,
+                sync
             } = {}
         } = patch;
         this.speedState = {
             ...patch.speed
         };
         this.speedState.frequency = frequency;
+        this.speedState.sync = sync;
     }
 
 
     set frequency (frequency) {
         this.speedState.frequency = frequency;
         this.oscillator.frequency = frequency;
+    }
+
+    set sync (sync) {
+        this.speedState.sync = sync;
+        this.oscillator.sync = sync;
     }
 
     start (time) {
@@ -67,6 +74,10 @@ class PeriodicModulator extends Modulator {
 
         if (this.speedState.frequency !== newState.speed.frequency) {
             this.frequency = newState.speed.frequency;
+        }
+
+        if (this.speedState.sync !== newState.speed.sync) {
+            this.sync = newState.speed.sync;
         }
     }
 

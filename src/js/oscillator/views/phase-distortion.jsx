@@ -4,7 +4,6 @@ import {connect} from "react-redux";
 
 import {EnvelopeConnected as Envelope} from "../../envelope/view/envelope.jsx";
 import dispatchers from "../../envelope/dispatchers";
-import drawWaveform from "../../waveform/views/draw-waveform";
 import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 import {waveformShape} from "../../waveform/propdefs";
 
@@ -35,12 +34,6 @@ class PhaseDistortion extends Component {
         }, {});
     }
 
-    /*
-    componentDidMount () {
-        this.updateWaveform();
-    }
-    */
-
     shouldComponentUpdate (nextProps) {
         return (
             nextProps.waveFunction !== this.props.waveFunction
@@ -49,15 +42,6 @@ class PhaseDistortion extends Component {
             || nextProps.viewState !== this.props.viewState
         );
     }
-    /*
-    componentDidUpdate () {
-        this.updateWaveform();
-    }
-
-    updateWaveform () {
-        drawWaveform(this.props.waveFunction, this.waveform.current);
-    }
-    */
 
     render () {
         const {subIndex, patch} = this.props;

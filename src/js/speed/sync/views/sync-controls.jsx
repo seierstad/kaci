@@ -15,34 +15,36 @@ class SyncControls extends Component {
         "handlers": PropTypes.object.isRequired,
         "index": PropTypes.number,
         "legend": PropTypes.string,
-        "module": PropTypes.string.isRequired,
         "patch": syncPatchShape.isRequired
     }
 
     shouldComponentUpdate (nextProps) {
-        return (nextProps.patch !== this.props.patch) || (nextProps["disabled"] !== this.props["disabled"]);
+        return (
+            (nextProps.patch !== this.props.patch)
+            || (nextProps["disabled"] !== this.props["disabled"])
+        );
     }
 
     @autobind
     handleToggle () {
-        const {module, index, handlers, eventParams} = this.props;
-        handlers.toggle(module, index, eventParams);
+        const {index, handlers, eventParams} = this.props;
+        handlers.toggle(index, eventParams);
     }
 
     @autobind
     handleDenominatorChange (event) {
         event.preventDefault();
-        const {module, index, handlers, eventParams} = this.props;
+        const {index, handlers, eventParams} = this.props;
         const value = parseInt(event.target.value, 10);
-        handlers.denominatorChange(value, module, index, eventParams);
+        handlers.denominatorChange(value, index, eventParams);
     }
 
     @autobind
     handleNumeratorChange (event) {
         event.preventDefault();
-        const {module, index, handlers, eventParams} = this.props;
+        const {index, handlers, eventParams} = this.props;
         const value = parseInt(event.target.value, 10);
-        handlers.numeratorChange(value, module, index, eventParams);
+        handlers.numeratorChange(value, index, eventParams);
     }
 
     render () {
@@ -54,13 +56,15 @@ class SyncControls extends Component {
                 className={className}
                 disabled={disabled}
             >
-                <legend>{legend || "fraction"}</legend>
-                <div className={(className ? (className + "-") : "") + "flex-wrapper"}>
+                <legend>
+                    {(legend || "sync")}
                     <input
                         checked={!!enabled}
                         onChange={this.handleToggle}
                         type="checkbox"
                     />
+                </legend>
+                <div className={(className ? (className + "-") : "") + "flex-wrapper"}>
                     {children}
                     <input
                         disabled={!enabled}

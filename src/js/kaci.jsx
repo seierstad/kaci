@@ -24,7 +24,7 @@ import MidiInput from "./midi/midi-input";
 import SystemSettings from "./settings/settings";
 import defaultSettings from "./configuration";
 import LFOs from "./lfo/lfos";
-//import LFOsWorkletNode from "./lfo/lfos-worklet-node";
+import MorseGenerators from "./morse/morse-generators";
 
 
 import "../styles/styles.scss";
@@ -49,8 +49,10 @@ if (window.AudioContext) {
 
     //    const lfos = ctx.audioWorklet ? new LFOsWorkletNode(ctx, store) : new LFOs(ctx, store);
     const lfos = new LFOs(ctx, store);
+    const morse = new MorseGenerators(ctx, store);
     const modulators = {
-        lfos
+        lfos,
+        morse
     };
 
     new SystemSettings(ctx, store);

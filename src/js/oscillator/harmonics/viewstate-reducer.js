@@ -1,6 +1,6 @@
 import * as HARMONIC from "./actions";
 
-const harmonics = (state = {}, action) => {
+const harmonics = (state = {}, action = {}) => {
     if (action.submodule === "harmonics") {
         const {type} = action;
 

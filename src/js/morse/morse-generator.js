@@ -1,118 +1,59 @@
-//import WavyJones from "../../lib/wavy-jones";
-import Oscillator from "../oscillator/oscillator";
-import DiscretePeriodicModulator from "../periodic/discrete-periodic-modulator";
-
-import {
-    morseEncode,
-    padPattern,
-    shiftPattern,
-    fillPatternToMultipleOf
-} from "./functions";
+import Sequencer from "../sequencer/sequencer";
+import {getSequence} from "./functions";
 
 
-class MorseOscillator extends Oscillator {
-
-    generatorFunction (frequency, detune) {
-        let calculatedFrequency;
-
-        if (frequency === this.previous.frequency && detune === this.previous.detune) {
-            calculatedFrequency = this.previous.calculatedFrequency;
-        } else {
-            calculatedFrequency = this.getComputedFrequency(frequency, detune);
-            this.previous = {
-                frequency,
-                detune,
-                calculatedFrequency
-            };
-        }
-        this.incrementPhase(calculatedFrequency);
-
-        const index = Math.floor(this.phase * this.pattern.length);
-
-        return this.pattern[index] ? 1 : -1;
-    }
-
-    set pattern (pattern) {
-        this.morsePattern = pattern;
-    }
-
-    get pattern () {
-        return this.morsePattern;
-    }
-}
-
-
-class MorseGenerator extends DiscretePeriodicModulator {
+class MorseGenerator extends Sequencer {
 
     constructor (...args) {
         super(...args);
-        const [, , patch, index] = args;
+        const [, , , index] = args;
 
         this.stateSelector = ["patch", "morse", index];
         this.changeHandler = this.stateChangeHandler.bind(this);
         this.unsubscribe = this.store.subscribe(this.changeHandler);
-
-        this.oscillator = new MorseOscillator(this.context);
-        this.oscillator.connect(this.postGain);
-
-        for (let name in this.outputs) {
-            this.oscillator.connect(this.outputs[name]);
-        }
-
-        this.parameters = {...this.oscillator.targets};
-
-
-        this.pattern = patch;
-        this.frequency = this.speedState.frequency;
     }
 
-    set frequency (frequency) {
-        this.oscillator.frequency = frequency * (this.oscillator.pattern.length / this.speedState.speedUnit);
-    }
-
-    set pattern ({text, padding, shift, speedUnit = 0, fillToFit}) {
-        let pattern = morseEncode(text);
-        if (padding) {
-            pattern = padPattern(pattern, padding);
+    set sequence (patch) {
+        if (this.oscillator) {
+            this.oscillator.sequence = getSequence(patch).map(
+                (s, index, arr) => {
+                    const prev = (index === 0) ? arr[arr.length - 1] : arr[index - 1];
+                    if (
+                        (this.glide.up.active && s && !prev)
+                        || (this.glide.down.active && !s && prev)
+                    ) {
+                        return [(s ? 1 : 0), true];
+                    }
+                    return [(s ? 1 : 0), false];
+                }
+            );
         }
-        if (fillToFit && speedUnit !== 0) {
-            pattern = fillPatternToMultipleOf(pattern, speedUnit);
-        }
-        if (shift) {
-            pattern = shiftPattern(pattern, shift);
-        }
-
-        if (pattern.length === 0) {
-            pattern = [false];
-        }
-        this.oscillator.pattern = pattern;
     }
 
     updateState (newState) {
-        const patternChanged = (
+        const sequenceChanged = (
             this.state.text !== newState.text
+            || this.glide !== newState.glide
             || this.state.shift !== newState.shift
             || this.state.padding !== newState.padding
             || this.state.fillToFit !== newState.fillToFit
         );
 
-        if (patternChanged) {
-            this.pattern = newState;
-        }
-
         if (typeof super.updateState === "function") {
             super.updateState(newState);
         }
 
-        if (patternChanged) {
-            this.pattern = newState;
+        if (sequenceChanged) {
+            this.sequence = newState;
         }
 
         this.state = newState;
     }
 
     destroy () {
-        super.destroy();
+        if (typeof super.destroy === "function") {
+            super.destroy();
+        }
         this.unsubscribe();
 
         this.stateChangeHandler = null;

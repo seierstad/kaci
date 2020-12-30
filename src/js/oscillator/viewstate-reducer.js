@@ -1,11 +1,17 @@
-import * as HARMONIC from "../harmonics/actions";
-import harmonics from "../harmonics/viewstate-reducer";
 import * as ENVELOPE from "../envelope/actions";
-
 import {envelope} from "../envelope/viewstate-reducers";
 
+import * as HARMONIC from "./harmonics/actions";
+import harmonics from "./harmonics/viewstate-reducer";
 
-const oscillator = (state = {"pd": [[], []]}, action) => {
+import wavetableGenerator from "./wavetable-generator/viewstate-reducer";
+
+
+const oscillator = (state = {
+    "pd": [[], []],
+    "harmonics": harmonics(),
+    "wavetableGenerator": wavetableGenerator()
+}, action) => {
     if (action.module === "oscillator") {
 
         if (Object.prototype.hasOwnProperty.call(action, "envelopeIndex")) {
@@ -39,6 +45,11 @@ const oscillator = (state = {"pd": [[], []]}, action) => {
                         harmonics: harmonics(state.harmonics, action)
                     };
             }
+        } else if (action.submodule === "wavetable-generator") {
+            return {
+                ...state,
+                wavetableGenerator: wavetableGenerator(state.wavetableGenerator, action)
+            };
         }
     }
 

@@ -1,10 +1,6 @@
-import {shape, number, bool, string, arrayOf, oneOf} from "prop-types";
-import {speedPatchShape} from "../speed/propdefs";
-
-import {
-    modulatorConfigProperties,
-    modulatorPatchProperties
-} from "../modulator/propdefs";
+import {shape, number, bool, arrayOf} from "prop-types";
+import {sequencerPatchProperties} from "../sequencer/propdefs";
+import {modulatorConfigProperties} from "../modulator/propdefs";
 
 
 const stepPatchShape = shape({
@@ -12,22 +8,8 @@ const stepPatchShape = shape({
     "value": number.isRequired
 });
 
-export const slopes = ["linear", "exponential"];
-
-
 export const stepsPatchShape = shape({
-    ...modulatorPatchProperties,
-    "glide": shape({
-        "mode": oneOf(["symmetric"]).isRequired,
-        "time": number.isRequired,
-        "slope": oneOf(["linear", "exponential"]).isRequired,
-        "falling": shape({
-            "time": number.isRequired,
-            "slope": string.isRequired
-        }).isRequired
-    }),
-    "speed": speedPatchShape.isRequired,
-    "maxValue": number.isRequired,
+    ...sequencerPatchProperties,
     "sequence": arrayOf(stepPatchShape).isRequired
 });
 

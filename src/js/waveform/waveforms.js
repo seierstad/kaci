@@ -152,21 +152,36 @@ export const waveforms = {
 
     square: (pulseWidth = 0.2) => (phase, param1 = pulseWidth) => ((phase % 1) > (param1 % 1)) ? -1 : 1,
 
-    sampleAndHold: ({steps = 2} = {}) => {
-        const buffer = {};
-        const fraction = 1 / steps;
+    sampleAndHold: (resolutionParam = 1) => {
+        const minResolution = 1;
+        const maxResolution = 25;
+        const scaledResolution = Math.floor(scale(resolutionParam, minResolution, maxResolution + 1));
+        const divisor = (scaledResolution - 1) / 2;
+        const buffer = {
+            value: null,
+            previousIndex: null
+        };
+
+        const getRandom = () => {
+            if (scaledResolution <= maxResolution) {
+                return Math.floor(Math.random() * scaledResolution) / divisor - 1;
+            }
+            return Math.random() * 2 - 1;
+        };
 
         return (phase) => {
 
             if (!Object.prototype.hasOwnProperty.call(buffer, "value") || buffer.value === null) {
-                buffer.value = (Math.random() - 0.5) * 2;
+                buffer.value = getRandom();
             }
 
-            if (Math.ceil(phase / fraction) > Math.ceil(buffer.phase / fraction)) {
-                buffer.value = (Math.random() - 0.5) * 2;
+            const currentIndex = Math.floor(phase * 2);
+            if (currentIndex !== buffer.index) {
+                buffer.value = getRandom();
+                console.log({scaledResolution, value: buffer.value});
             }
 
-            buffer.phase = phase % 1;
+            buffer.index = currentIndex;
 
             return buffer.value;
         };

@@ -1,20 +1,18 @@
 import autobind from "autobind-decorator";
-import KaciNode from "../kaci-node";
 import {MODULATOR_MODE} from "../modulator/constants";
 import StepSequencer from "./step-sequencer";
+import configuration from "./configuration";
 
 
-class StepSequencers extends KaciNode {
+class StepSequencers {
 
-    constructor (...args) {
-        super(...args);
-        const [, store, configuration] = args;
-
+    constructor (context, store) {
+        this.context = context;
         this.store = store;
         this.state = store.getState();
-        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
 
-        this.sequencers = this.setupSequencers(configuration.source.steps, this.state.patch.steps);
+        this.unsubscribe = this.store.subscribe(this.stateChangeHandler);
+        this.sequencers = this.setupSequencers(this.state.patch.steps);
     }
 
     @autobind
@@ -26,14 +24,12 @@ class StepSequencers extends KaciNode {
         this.state = newState;
     }
 
-    setupSequencers (configuration, patch = {}) {
+    setupSequencers (patch = {}) {
         const result = [];
         const j = configuration.count;
 
         for (let i = 0; i < j; i += 1) {
-            const {
-                [i]: p = configuration.default
-            } = patch;
+            const p = patch[i] || configuration.default;
 
             if (p.mode === MODULATOR_MODE.GLOBAL || p.mode === MODULATOR_MODE.RETRIGGER) {
                 result[i] = new StepSequencer(this.context, this.store, p, i);
@@ -41,6 +37,10 @@ class StepSequencers extends KaciNode {
         }
 
         return result;
+    }
+
+    init () {
+        return Promise.all(this.sequencers.map(sequencer => sequencer.init()));
     }
 
     reset () {

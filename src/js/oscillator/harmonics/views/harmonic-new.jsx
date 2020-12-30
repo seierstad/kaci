@@ -5,7 +5,7 @@ import autobind from "autobind-decorator";
 import {harmonicShape} from "../propdefs";
 import {harmonicConfiguration} from "../configuration";
 
-import FractionInput from "../../fraction/views/fraction-input.jsx";
+import FractionInput from "../../../fraction/views/fraction-input.jsx";
 
 
 class NewHarmonic extends Component {

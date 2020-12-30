@@ -15,7 +15,6 @@ class WaveformSelector extends Component {
         "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "includePhaseIndicator": PropTypes.bool,
         "index": PropTypes.number,
-        "module": PropTypes.string.isRequired,
         "patch": PropTypes.object.isRequired,
         "waveforms": PropTypes.objectOf(PropTypes.func).isRequired
     }

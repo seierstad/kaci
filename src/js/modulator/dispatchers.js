@@ -16,4 +16,16 @@ const dispatchHandlers = (dispatch) => ({
     }
 });
 
+export const getModulatorDispatcherForModule = module => dispatch => ({
+    "reset": (event, index) => {
+        dispatch({"type": RESET, module, index});
+    },
+    "amountChange": (value, index) => {
+        dispatch({"type": AMOUNT_CHANGE, index, module, value});
+    },
+    "modeChange": (value, index) => {
+        dispatch({"type": MODE_CHANGE, value, module, index});
+    }
+});
+
 export default dispatchHandlers;

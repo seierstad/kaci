@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
+import {boundMethod} from "autobind-decorator";
 
 import {divisors} from "../../shared-functions";
 
@@ -10,8 +11,8 @@ import {
     morseGeneratorPatchShape,
     morseGeneratorViewStateShape
 } from "../propdefs";
-
-import {morseEncode, shiftPattern, padPattern} from "../functions";
+//import {presetQuotes} from "../defaults";
+import {morseEncode, getSequence} from "../functions";
 
 import MorseSvg from "./morse-svg.jsx";
 
@@ -29,16 +30,8 @@ class MorseGenerator extends Component {
 
     constructor (props) {
         super(props);
-        this.module = "morse";
         const {index} = this.props;
         this.index = index;
-
-        this.handleTextChange = this.handleTextChange.bind(this, this.module, index);
-        this.handleSpeedUnitChange = this.handleSpeedUnitChange.bind(this, this.module, index);
-        this.handleGuideToggle = this.handleGuideToggle.bind(this, this.module, index);
-        this.handlePaddingChange = this.handlePaddingChange.bind(this, this.module, index);
-        this.handleShiftChange = this.handleShiftChange.bind(this, this.module, index);
-        this.handleFitToggle = this.handleFitToggle.bind(this, this.module, index);
     }
 
     shouldComponentUpdate (nextProps) {
@@ -46,34 +39,70 @@ class MorseGenerator extends Component {
                 || this.props.viewState !== nextProps.viewState;
     }
 
-    handleTextChange (module, index, event) {
+    @boundMethod
+    handleTextChange (event) {
+        const {
+            index,
+            handlers
+        } = this.props;
+
         event.stopPropagation();
-        this.props.handlers.textChange(module, index, event.target.value);
+        handlers.textChange(event.target.value, index);
     }
 
-    handleSpeedUnitChange (module, index, event) {
+    @boundMethod
+    handleSpeedUnitChange (event) {
+        const {
+            index,
+            handlers
+        } = this.props;
+
         event.stopPropagation();
-        this.props.handlers.speedUnitChange(module, index, parseInt(event.target.value, 10));
+        handlers.speedUnitChange(parseInt(event.target.value, 10), index);
     }
 
-    handlePaddingChange (module, index, event) {
+    @boundMethod
+    handlePaddingChange (event) {
+        const {
+            index,
+            handlers
+        } = this.props;
+
         event.stopPropagation();
-        this.props.handlers.paddingChange(module, index, parseInt(event.target.value, 10));
+        handlers.paddingChange(parseInt(event.target.value, 10), index);
     }
 
-    handleShiftChange (module, index, event) {
+    @boundMethod
+    handleShiftChange (event) {
+        const {
+            index,
+            handlers
+        } = this.props;
+
         event.stopPropagation();
-        this.props.handlers.shiftChange(module, index, parseInt(event.target.value, 10));
+        handlers.shiftChange(parseInt(event.target.value, 10), index);
     }
 
-    handleFitToggle (module, index, event) {
+    @boundMethod
+    handleFitToggle (event) {
+        const {
+            index,
+            handlers
+        } = this.props;
+
         event.stopPropagation();
-        this.props.handlers.toggleFillToFit(module, index);
+        handlers.toggleFillToFit(module, index);
     }
 
-    handleGuideToggle (module, index, event) {
+    @boundMethod
+    handleGuideToggle (event) {
+        const {
+            index,
+            handlers
+        } = this.props;
+
         event.stopPropagation();
-        this.props.handlers.toggleGuide(module, index, parseInt(event.target.value, 10));
+        handlers.toggleGuide(parseInt(event.target.value, 10), index);
     }
 
     render () {
@@ -81,33 +110,39 @@ class MorseGenerator extends Component {
 
         const {index, patch, viewState = {}} = this.props;
         const {guides = []} = viewState;
-        const {
-            padding = 0,
-            shift = 0,
-            text = "",
-            fillToFit = false,
-            speed: {
-                speedUnit
-            } = {}
-        } = patch;
+        const {text = "", shift, speed: {speedUnit}, fillToFit, padding} = patch;
         const pattern = morseEncode(text);
-        const remainder = (pattern.length + padding) % speedUnit;
-        const fitPadding = (speedUnit && fillToFit && remainder !== 0) ? (speedUnit - remainder) : 0;
-        const paddedPattern = padPattern(pattern, padding + fitPadding);
-        const shiftedPattern = shiftPattern(paddedPattern, shift);
+        const shiftedPaddedPattern = getSequence(patch);
 
         const id = "morse-generator-text-" + index;
         const patternDivisors = divisors(speedUnit || pattern.length)
             .filter(f => f < MAX_GUIDE_DIVISOR && f !== 1 && f !== pattern.length)
             .sort((a, b) => a < b ? -1 : 1);
 
+        const quotesListId = `morse-${index}-quotes`;
         const visibleGuides = patternDivisors.filter(d => ~guides.indexOf(d));
 
         return (
             <section className="morse" id={"morse-" + index + "-view"}>
                 <h1>Morse {index + 1}</h1>
-                <label><span className="label-text">text</span><input id={id} onChange={this.handleTextChange} onInput={this.handleTextChange} type="text" value={text} /></label>
-                <MorseSvg data={shiftedPattern} guides={visibleGuides} wrap={speedUnit || pattern.length} />
+                <label>
+                    <span className="label-text">text</span>
+                    <input
+                        id={id}
+                        list={quotesListId}
+                        onChange={this.handleTextChange}
+                        onInput={this.handleTextChange}
+                        value={text}
+                    />
+                </label>
+                {/*
+                <datalist id={quotesListId}>
+                    {presetQuotes.map(q => (
+                        <option key={q} value={q} />
+                    ))}
+                </datalist>
+                */}
+                <MorseSvg data={shiftedPaddedPattern} guides={visibleGuides} wrap={speedUnit || pattern.length} />
                 <label htmlFor={id + "-length"}>pattern length</label>
                 <output className="morse-output-length" htmlFor={id} id={id + "-length"}>{pattern.length}</output>
                 <label htmlFor={"morse-padding-" + index}>

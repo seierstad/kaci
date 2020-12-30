@@ -1,18 +1,19 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {connect} from "react-redux";
 
 import {modulationTargetShape} from "../../modulation/propdefs";
-import {getDistortedPhase, mixValues} from "../../shared-functions";
-import Harmonics from "../../harmonics/views/harmonics.jsx";
 
 import OutputStage from "../../output-stage/views/output-stage.jsx";
 import RangeInput from "../../static-source/views/range-input.jsx";
 import {waveforms} from "../../waveform/waveforms";
 import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
 
+import Harmonics from "../harmonics/views/harmonics.jsx";
+import WavetableGenerator from "../wavetable-generator/views/wavetable-generator.jsx";
+
 import {OSCILLATOR_MODE} from "../constants";
 import {oscillatorPatchShape} from "../propdefs";
+import {getPdFunction, getMixFunction} from "../oscillator-shared-functions";
 
 import PhaseDistortion from "./phase-distortion.jsx";
 import Mix from "./mix.jsx";
@@ -72,21 +73,15 @@ class Oscillator extends Component {
     }
 
     setPdFunction0 (steps, waveform) {
-        const {name: waveformFn, parameter} = waveform;
-        const waveFunction = this.waveforms[waveformFn](parameter);
-
-        this.pdFunction0 = (phase) => waveFunction(getDistortedPhase(phase, steps));
+        this.pdFunction0 = getPdFunction(steps, waveform);
     }
 
     setPdFunction1 (steps, waveform) {
-        const {name: waveformFn, parameter} = waveform;
-        const waveFunction = this.waveforms[waveformFn](parameter);
-
-        this.pdFunction1 = (phase) => waveFunction(getDistortedPhase(phase, steps));
+        this.pdFunction1 = getPdFunction(steps, waveform);
     }
 
     setMixFunction (mix) {
-        this.mixFunction = (phase) => mixValues(this.pdFunction0(phase), this.pdFunction1(phase), mix);
+        this.mixFunction = getMixFunction(this.pdFunction0, this.pdFunction1, mix);
     }
 
     render () {
@@ -184,6 +179,12 @@ class Oscillator extends Component {
                     configuration={configuration.detune}
                     label="Detune"
                     value={patch.detune}
+                />
+                <WavetableGenerator
+                    configuration={configuration}
+                    handlers={handlers.wavetableGenerator}
+                    patch={patch}
+                    viewState={viewState.wavetableGenerator}
                 />
             </section>
         );

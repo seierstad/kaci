@@ -9,6 +9,7 @@ import {
 
 import MorseGenerator from "./morse-generator.jsx";
 
+
 class MorseGenerators extends Component {
 
     static propTypes = {
@@ -31,6 +32,7 @@ class MorseGenerators extends Component {
             generators.push(
                 <MorseGenerator
                     configuration={configuration}
+                    discreteTime
                     handlers={handlers}
                     includeSync
                     index={i}
@@ -43,7 +45,11 @@ class MorseGenerators extends Component {
             );
         }
 
-        return <div className={"morse-generators"}>{generators}</div>;
+        return (
+            <div className={"morse-generators"}>
+                {generators}
+            </div>
+        );
     }
 }
 

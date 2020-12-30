@@ -7,23 +7,17 @@ import {waveforms, wrappers} from "../../waveform/waveforms";
 import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
 import WaveformCanvas from "../../waveform/views/waveform-canvas.jsx";
 
+import {getWrapperFunction} from "../oscillator-shared-functions";
 import {oscillatorPatchShape} from "../propdefs";
 
 
-const getWrapperFunction = (wrapper, waveform, resonance) => {
-    return (parameter) => {
-        const paramWrapper = wrapper(parameter);
-        return (phase) => paramWrapper(phase) * waveform(phase * resonance);
-    };
-};
-
 const wrapWaveform = (wrappers, waveform, resonance) => {
-    let wrappedWaveforms = {},
-        wrapperName;
+    let name,
+        wrappedWaveforms = {};
 
-    for (wrapperName in wrappers) {
-        if (Object.prototype.hasOwnProperty.call(wrappers, wrapperName)) {
-            wrappedWaveforms[wrapperName] = getWrapperFunction(wrappers[wrapperName], waveform, resonance);
+    for (name in wrappers) {
+        if (Object.prototype.hasOwnProperty.call(wrappers, name)) {
+            wrappedWaveforms[name] = getWrapperFunction(name, waveform, resonance);
         }
     }
     return wrappedWaveforms;
@@ -47,9 +41,8 @@ class Resonance extends Component {
     componentWillMount () {
         const {patch, mixFunction} = this.props;
         const {wrapper, resonance} = patch;
-        const {name, parameter} = wrapper;
-        const wrapperFunction = wrappers[name];
-        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance)(parameter);
+        const {name: wrapperName, parameter} = wrapper;
+        this.waveFunction = getWrapperFunction(wrapperName, mixFunction, resonance)(parameter);
 
         this.wrappedWaveforms = wrapWaveform(wrappers, waveforms.sinus(), 20);
 
@@ -65,9 +58,8 @@ class Resonance extends Component {
     componentWillUpdate (nextProps) {
         const {patch, mixFunction} = nextProps;
         const {wrapper, resonance} = patch;
-        const {name, parameter} = wrapper;
-        const wrapperFunction = wrappers[name];
-        this.waveFunction = getWrapperFunction(wrapperFunction, mixFunction, resonance)(parameter);
+        const {name: wrapperName, parameter} = wrapper;
+        this.waveFunction = getWrapperFunction(wrapperName, mixFunction, resonance)(parameter);
     }
 
     render () {

@@ -1,5 +1,5 @@
 import {getSpeedDispatcherForModule} from "../speed/dispatchers";
-import modulatorHandlers from "../modulator/dispatchers";
+import {getModulatorDispatcherForModule} from "../modulator/dispatchers";
 
 import {
     FILL_TOGGLE,
@@ -9,25 +9,27 @@ import {
     TEXT_CHANGE
 } from "./actions";
 
+
+const modulatorDispatcher = getModulatorDispatcherForModule("morse");
 const speedDispatcher = getSpeedDispatcherForModule("morse");
 
 const dispatchHandlers = (dispatch) => ({
-    ...(modulatorHandlers(dispatch)),
+    ...(modulatorDispatcher(dispatch)),
     "speed": speedDispatcher(dispatch),
-    "paddingChange": (module, index, value) => {
-        dispatch({"type": PADDING_CHANGE, module, index, value});
+    "paddingChange": (value, index) => {
+        dispatch({"type": PADDING_CHANGE, "module": "morse", index, value});
     },
-    "shiftChange": (module, index, value) => {
-        dispatch({"type": SHIFT_CHANGE, module, index, value});
+    "shiftChange": (value, index) => {
+        dispatch({"type": SHIFT_CHANGE, "module": "morse", index, value});
     },
-    "toggleFillToFit": (module, index, value) => {
-        dispatch({"type": FILL_TOGGLE, module, index, value});
+    "toggleFillToFit": (value, index) => {
+        dispatch({"type": FILL_TOGGLE, "module": "morse", index, value});
     },
-    "textChange": (module, index, value) => {
-        dispatch({"type": TEXT_CHANGE, module, index, value});
+    "textChange": (value, index) => {
+        dispatch({"type": TEXT_CHANGE, "module": "morse", index, value});
     },
-    "toggleGuide": (module, index, value) => {
-        dispatch({"type": GUIDE_TOGGLE, module, index, value});
+    "toggleGuide": (value, index) => {
+        dispatch({"type": GUIDE_TOGGLE, "module": "morse", index, value});
     }
 });
 

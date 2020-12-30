@@ -17,7 +17,7 @@ const dispatchers = (dispatch) => ({
     }
 });
 
-export const dispatcherForModule = module => dispatch => ({
+export const dispatchersForModule = module => dispatch => ({
     "denominatorChange": (value, index) => {
         dispatch({"type": DENOMINATOR_CHANGE, module, index, value});
     },

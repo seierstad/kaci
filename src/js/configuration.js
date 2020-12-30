@@ -1,12 +1,11 @@
 import {defaultEnvParameters, defaultEnvViewState} from "./envelope/defaults";
 import defaultMidi from "./midi/defaults";
-import defaultMorseParameters from "./morse/defaults";
 import {defaultModulationConnectionParameters} from "./modulation/defaults";
 import {defaultTuning} from "./tuning/defaults";
 import {keyboard} from "./keyboard/configuration";
-import {defaultStepsParameters} from "./steps/defaults";
-import {defaultSyncConfiguration} from "./speed/sync/defaults";
 import lfoConfiguration from "./lfo/configuration";
+import morseConfiguration from "./morse/configuration";
+import stepsConfiguration from "./steps/configuration";
 
 export const outputStageTargets = {
     "gain": {
@@ -45,63 +44,10 @@ const configuration = {
                 "defaultState": defaultEnvViewState
             },
             "steps": {
-                "count": 2,
-                "amount": {
-                    "min": 0,
-                    "max": 1,
-                    "step": 1 / 12
-                },
-                "speed": {
-                    "frequency": {
-                        "min": 0.001,
-                        "max": 5,
-                        "step": 0.01,
-                        "exponential": true
-                    },
-                    "speedUnit": {
-                        "min": 0,
-                        "max": Number.MAX_SAFE_INTEGER,
-                        "step": 1
-                    },
-                    "sync": {
-                        ...defaultSyncConfiguration
-                    }
-                },
-                "glide": {
-                    "min": 0,
-                    "max": 1,
-                    "step": 0.01
-                },
-                "default": {
-                    ...defaultStepsParameters
-                }
+                ...stepsConfiguration
             },
             "morse": {
-                "count": 2,
-                "amount": {
-                    "min": 0,
-                    "max": 1,
-                    "step": 1 / 12
-                },
-                "speed": {
-                    "frequency": {
-                        "min": 0.001,
-                        "max": 5,
-                        "step": 0.01,
-                        "exponential": true
-                    },
-                    "speedUnit": {
-                        "min": 0,
-                        "max": Number.MAX_SAFE_INTEGER,
-                        "step": 1
-                    },
-                    "sync": {
-                        ...defaultSyncConfiguration
-                    }
-                },
-                "default": {
-                    ...defaultMorseParameters
-                }
+                ...morseConfiguration
             }
         },
         "target": {
@@ -113,26 +59,31 @@ const configuration = {
                     "min": 0,
                     "mid": 0.5,
                     "max": 1,
-                    "patchPath": ["waveform", "parameter"]
+                    "patchPath": ["waveform", "parameter"],
+                    "wavetableRelevant": true
                 },
                 "pd_mix": {
                     "min": 0,
-                    "max": 1
+                    "max": 1,
+                    "wavetableRelevant": true
                 },
                 "resonance": {
                     "min": 1,
                     "max": 16,
-                    "exponential": true
+                    "exponential": true,
+                    "wavetableRelevant": true
                 },
                 "wrapper": {
                     "min": 0,
                     "mid": 0.5,
                     "max": 1,
-                    "patchPath": ["wrapper", "parameter"]
+                    "patchPath": ["wrapper", "parameter"],
+                    "wavetableRelevant": true
                 },
                 "harm_mix": {
                     "min": 0,
-                    "max": 1
+                    "max": 1,
+                    "wavetableRelevant": true
                 },
                 "detune": {
                     "min": -1200,

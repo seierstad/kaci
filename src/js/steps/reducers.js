@@ -188,79 +188,28 @@ const stepSequencer = (state = {...defaultStepsParameters}, action) => {
             };
 
         case GLIDE_TIME_CHANGE:
-            switch (action.direction) {
-                case "up":
-                    return {
-                        ...state,
-                        glide: {
-                            ...state.glide,
-                            time: action.value
-                        }
-                    };
-
-                case "down":
-                    return {
-                        ...state,
-                        glide: {
-                            ...state.glide,
-                            falling: {
-                                ...state.glide.falling,
-                                time: action.value
-                            }
-                        }
-                    };
-
-                default:
-                    return {
-                        ...state,
-                        glide: {
-                            ...state.glide,
-                            time: action.value,
-                            falling: {
-                                ...state.glide.falling,
-                                time: action.value
-                            }
-                        }
-                    };
-            }
-
-        case GLIDE_SLOPE_CHANGE: {
-            switch (action.direction) {
-                case "up":
-                    return {
-                        ...state,
-                        glide: {
-                            ...state.glide,
-                            slope: action.value
-                        }
-                    };
-
-                case "down":
-                    return {
-                        ...state,
-                        glide: {
-                            ...state.glide,
-                            falling: {
-                                ...state.glide.falling,
-                                slope: action.value
-                            }
-                        }
-                    };
-            }
-
             return {
                 ...state,
                 glide: {
                     ...state.glide,
-                    slope: action.value,
-                    falling: {
-                        ...state.glide.falling,
+                    [action.direction]: {
+                        ...state.glide[action.direction],
+                        time: action.value
+                    }
+                }
+            };
+
+        case GLIDE_SLOPE_CHANGE:
+            return {
+                ...state,
+                glide: {
+                    ...state.glide,
+                    [action.direction]: {
+                        ...state.glide[action.direction],
                         slope: action.value
                     }
                 }
             };
-        }
-
 
         case GLIDE_AT_CHANGE:
             return glidesByStepChange (state, (curr, prev) => (curr !== prev), action.interval);
