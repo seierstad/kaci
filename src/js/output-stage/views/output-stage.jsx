@@ -10,7 +10,7 @@ class OutputStage extends Component {
 
     static propTypes = {
         "configuration": outputTargetShape.isRequired,
-        "handlers": PropTypes.object.isRequired,
+        "handlers": PropTypes.objectOf(PropTypes.func).isRequired,
         "patch": outputStagePatchShape.isRequired
     }
 

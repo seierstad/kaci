@@ -15,7 +15,7 @@ class Parameter extends Component {
     }
 
     @autobind
-    handleValueChange (value) {
+    onValueChange (value) {
         this.props.handlers.changeParameter(this.props.paramName, value, this.props.patch);
     }
 
@@ -37,7 +37,6 @@ class Parameter extends Component {
 
         const {
             patchPath = null,
-            mid,
             ...noResetConfig
         } = configuration;
 
@@ -60,7 +59,7 @@ class Parameter extends Component {
                             value={patchValue}
                         />
                         <RangeInput
-                            changeHandler={this.handleValueChange}
+                            changeHandler={this.onValueChange}
                             className="wavetable-target-value"
                             configuration={noResetConfig}
                             value={viewState.parameters[paramName].value}

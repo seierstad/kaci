@@ -12,12 +12,10 @@ import Tuning from "../tuning/views/tuning.jsx";
 class SystemSettingsView extends Component {
 
     static propTypes = {
-        /*
         "configuration": configurationShape,
         "keyboardHandlers": PropTypes.object,
         "playState": playStateShape,
         "resetHandler": PropTypes.func
-        */
     }
 
     shouldComponentUpdate (nextProps) {

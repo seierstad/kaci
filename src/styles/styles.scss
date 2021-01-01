@@ -1,41 +1,5 @@
-$border-color: rgba(127, 127, 255, 0.4);
-$bg-and-section-bg-color: #77b3d9;
-$padding-section-top: 1.2rem;
-$padding-section-bottom: 0.5rem;
-$padding-section-sides: 1rem;
-$keyboard-section-height: 20vh;
-
-$bg-color: #af0;
-$scope-color: #ff0;
-
-$envelope-circle-radius: 10;
-$envelope-circle-radius-active: 30;
-$envelope-circle-color: #000;
-$envelope-line-color: #000;
-
-$key-color-white: #fff;
-$key-color-black: #000;
-$key-color-down: #afe;
-$key-color-dropped: #888;
-$key-stroke-color: #000;
-
-$waveform-selector-phase-indicator-color: #fff;
-
-%squish-text {
-    clip: rect(1px, 1px, 1px, 1px);
-    height: 1px;
-    overflow: hidden;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
-}
-
-%unsquish-text {
-    clip: auto;
-    height: auto;
-    overflow: visible;
-    width: auto;
-}
+@import "colors";
+@import "measures";
 
 * {
     box-sizing: border-box;
@@ -113,12 +77,11 @@ fieldset {
     position: relative;
 }
 
+@import "extendables";
 @import "envelope";
 @import "waveform";
-@import "keyboard";
 @import "chord-shift";
 @import "oscillator";
-@import "modulation-matrix";
 @import "morse";
 @import "steps";
 @import "lfos";

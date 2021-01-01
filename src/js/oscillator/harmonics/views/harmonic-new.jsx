@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
-import {harmonicShape} from "../propdefs";
 import {harmonicConfiguration} from "../configuration";
 
 import FractionInput from "../../../fraction/views/fraction-input.jsx";

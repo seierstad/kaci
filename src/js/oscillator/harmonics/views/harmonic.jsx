@@ -39,8 +39,9 @@ class Harmonic extends Component {
 
     render () {
         const {
-            patch,
-            handlers
+            handlers,
+            index,
+            patch
         } = this.props;
 
         const {
@@ -55,7 +56,7 @@ class Harmonic extends Component {
             } = {}
         } = UNICODE_FRACTION;
 
-        const toggleId = [numerator, denominator, "harmonic", "toggle"].join("-");
+        const toggleId = [index, "harmonic-series", numerator, denominator, "toggle"].join("-");
 
         return (
             <fieldset className="harmonic">

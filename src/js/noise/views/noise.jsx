@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 import OutputStage from "../../output-stage/views/output-stage.jsx";
+//import {outputStagePatchShape} from "../../output-stage/propdefs";
 import {modulationTargetShape} from "../../modulation/propdefs";
 import {noisePatchShape} from "../propdefs";
 import noise from "../noise";
@@ -12,7 +13,8 @@ class NoiseView extends Component {
     static propTypes = {
         "configuration": modulationTargetShape.isRequired,
         "handlers": PropTypes.shape({
-            "colorChange": PropTypes.func.isRequired
+            "colorChange": PropTypes.func.isRequired,
+            "outputHandlers": PropTypes.object.isRequired
         }).isRequired,
         "patch": noisePatchShape.isRequired
     }

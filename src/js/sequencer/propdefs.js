@@ -1,4 +1,4 @@
-import {shape, number, bool, string, oneOf} from "prop-types";
+import {shape, number, bool, oneOf} from "prop-types";
 import {speedPatchShape} from "../speed/propdefs";
 
 import {
@@ -10,13 +10,12 @@ export const slopes = ["linear", "exponential"];
 const glideDirectionPatchShape = shape({
     "active": bool,
     "time": number.isRequired,
-    "slope": string.isRequired
+    "slope": oneOf(slopes).isRequired
 });
 
 export const sequencerPatchProperties = {
     ...modulatorPatchProperties,
     "glide": shape({
-        "mode": oneOf(["symmetric"]).isRequired,
         "down": glideDirectionPatchShape.isRequired,
         "up": glideDirectionPatchShape.isRequired
     }),

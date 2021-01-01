@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {boundMethod} from "autobind-decorator";
 
 import WaveformSelector from "../../waveform/views/waveform-selector.jsx";
 import {waveforms} from "../../waveform/waveforms";

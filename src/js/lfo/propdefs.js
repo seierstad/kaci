@@ -1,8 +1,7 @@
 import {
     arrayOf,
     bool,
-    shape,
-    string
+    shape
 } from "prop-types";
 
 import {

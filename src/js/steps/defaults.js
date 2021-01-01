@@ -1,16 +1,15 @@
-import {defaultSyncParameters} from "../speed/sync/defaults";
+import {defaultPeriodicParameters} from "../periodic/defaults";
 import {defaultModulatorParameters} from "../modulator/defaults";
 
 export const defaultStepsParameters = {
     ...defaultModulatorParameters,
-    "sync": {
-        ...defaultSyncParameters
-    },
+    ...defaultPeriodicParameters,
     "glide": {
-        "symmetric": true,
-        "time": 0.25,
-        "slope": "linear",
-        "falling": {
+        "up": {
+            "time": 0.25,
+            "slope": "exponential"
+        },
+        "down": {
             "time": 0.25,
             "slope": "exponential"
         }

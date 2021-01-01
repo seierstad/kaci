@@ -17,6 +17,8 @@ class MidiViewPresentation extends Component {
     static propTypes = {
         "configuration": midiShape,
         "handlers": PropTypes.shape({
+            "channelChange":  PropTypes.func.isRequired,
+            "portChange": PropTypes.func.isRequired,
             "toggle": PropTypes.func.isRequired
         }).isRequired,
         "playState": midiClockPlayStateShape.isRequired

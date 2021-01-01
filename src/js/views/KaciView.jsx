@@ -22,10 +22,10 @@ class KaciReactViewPresentation extends Component {
     static propTypes = {
         "configuration": configurationShape.isRequired,
         "handlers": PropTypes.object.isRequired,
-        "patch": patchShape.isRequired
-        /*
+        "patch": patchShape.isRequired,
         "playState": playStateShape.isRequired,
         "viewState": viewStateShape.isRequired
+        /*
         */
     }
 

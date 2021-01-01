@@ -2,7 +2,6 @@
 
 import {boundMethod} from "autobind-decorator";
 
-let counter = 0;
 
 class SequenceWorkletProcessor extends AudioWorkletProcessor {
 
@@ -61,6 +60,14 @@ class SequenceWorkletProcessor extends AudioWorkletProcessor {
     }
 
     @boundMethod
+    resetPhase () {
+        this.phase = 0;
+        this.glideState.previousValue = 0;
+        this.glideState.previousIndex = 0;
+        this.glideState.diff = 0;
+    }
+
+    @boundMethod
     messageHandler (event) {
         const {
             command = "",
@@ -71,12 +78,21 @@ class SequenceWorkletProcessor extends AudioWorkletProcessor {
             if (this.paused) {
                 this.paused = false;
             } else {
-                this.phase = 0;
+                this.resetPhase();
             }
         }
 
+        if (command === "stop") {
+            this.paused = true;
+            this.resetPhase();
+        }
+
+        if (command === "pause") {
+            this.paused = true;
+        }
+
         if (command === "resetPhase") {
-            this.phase = 0;
+            this.resetPhase();
         }
 
         if (command === "destroy") {
@@ -134,7 +150,7 @@ class SequenceWorkletProcessor extends AudioWorkletProcessor {
 
     generatorFunction (frequency) {
         const sequencePosition = this.phase * this.sequence.length;
-        const sequenceIndex = Math.floor(sequencePosition);
+        const sequenceIndex = (Math.floor(sequencePosition) < this.sequence.length) ? Math.floor(sequencePosition) : 0;
 
         const [stepValue, stepGlide] = this.sequence[sequenceIndex];
         let glideValue = 0;
@@ -142,7 +158,7 @@ class SequenceWorkletProcessor extends AudioWorkletProcessor {
         // check if new step
         if (sequenceIndex !== this.glideState.prevIndex) {
             // set glide variables
-            const prevValue = this.sequence[this.glideState.prevIndex][0];
+            const prevValue = (this.glideState.prevIndex < this.sequence.length) ? this.sequence[this.glideState.prevIndex][0] : this.sequence[this.sequence.length - 1][0];
             this.glideState.diff = stepValue - prevValue;
             this.glideState.prevIndex = sequenceIndex;
 
@@ -165,10 +181,6 @@ class SequenceWorkletProcessor extends AudioWorkletProcessor {
                 glideValue = 0;
                 this.glideState.diff = 0;
             }
-            if (counter % 100 === 0) {
-                console.log({sequencePosition, sequenceIndex, stepPosition, time, stepValue, stepGlide, glideValue, diff: this.glideState.diff, remainingGlideTime, glide: this.glide});
-            }
-            counter += 1;
         }
 
         const result = (stepValue - glideValue) * this.valueFactor - 1;

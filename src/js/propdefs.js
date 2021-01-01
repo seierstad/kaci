@@ -4,9 +4,9 @@ import {
     shape
 } from "prop-types";
 
-import {tuningShape} from "./tuning/propdefs";
+//import {tuningShape} from "./tuning/propdefs";
 import {keyboardConfigShape} from "./keyboard/propdefs";
-import {modulationConfigShape} from "./modulation/propdefs";
+//import {modulationConfigShape} from "./modulation/propdefs";
 import {sustainEnvelopeViewStateShape} from "./envelope/propdefs";
 import {midiShape} from "./midi/propdefs";
 import {morseGeneratorViewStateShape} from "./morse/propdefs";

@@ -8,9 +8,10 @@ import Mix from "../../views/mix.jsx";
 
 import {harmonicsShape} from "../propdefs";
 
-import Harmonic from "./harmonic.jsx";
+import HarmonicSeries from "./harmonic-series.jsx";
 import HarmonicNew from "./harmonic-new.jsx";
-import Presets from "./presets.jsx";
+
+import "./harmonics-view.scss";
 
 
 class Harmonics extends Component {
@@ -132,55 +133,27 @@ class Harmonics extends Component {
                     patch={mix}
                     waveFunction={this.waveMixFunction}
                 />
-                <fieldset className="oscillator-harmonics-view">
-                    <legend>harmonics</legend>
+                <HarmonicSeries
+                    handlers={this.handlers0}
+                    index="0"
+                    patch={this.props.patch[0]}
 
-                    <div className="flex-wrapper">
-                        {patch[0].map((harmonic, index) => (
-                            <Harmonic
-                                className={(index === identicalIndex) ? "same-as-new" : null}
-                                handlers={this.handlers0}
-                                key={harmonic.numerator + "_" + harmonic.denominator}
-                                patch={harmonic}
-                            />
-                        ))}
-                        {(typeof newHarmonic.numerator === "number") ? (
-                            <HarmonicNew
-                                handlers={this.handlers0}
-                                validRatio={newRatioIsUnique}
-                                viewState={newHarmonic}
-                            />
-                        ) : (
-                            <button className="harmonics-add" onClick={this.handlers0.handleNew} title="add harmonic" type="button">add</button>
-                        )}
-                        <button
-                            className="harmonics-normalize"
-                            onClick={this.handlers0.handleNormalize}
-                            type="button"
-                        >normalize</button>
-                    </div>
-                    <Presets handlers={this.handlers0} />
-                </fieldset>
-                <fieldset className="oscillator-harmonics-view">
-                    <legend>harmonics</legend>
+                />
+                <HarmonicSeries
+                    handlers={this.handlers1}
+                    index="1"
+                    patch={this.props.patch[1]}
 
-                    <div className="flex-wrapper">
-                        {patch[1].map((harmonic, index) => (
-                            <Harmonic
-                                className={(index === identicalIndex) ? "same-as-new" : null}
-                                handlers={this.handlers1}
-                                key={harmonic.numerator + "_" + harmonic.denominator}
-                                patch={harmonic}
-                            />
-                        ))}
-                        <button
-                            className="harmonics-normalize"
-                            onClick={this.handlers1.handleNormalize}
-                            type="button"
-                        >normalize</button>
-                    </div>
-                    <Presets handlers={this.handlers1} />
-                </fieldset>
+                />
+                {(typeof newHarmonic.numerator === "number") ? (
+                    <HarmonicNew
+                        handlers={this.handlers0}
+                        validRatio={newRatioIsUnique}
+                        viewState={newHarmonic}
+                    />
+                ) : (
+                    <button className="harmonics-add" onClick={this.handlers0.handleNew} title="add harmonic" type="button">add</button>
+                )}
             </div>
         );
     }

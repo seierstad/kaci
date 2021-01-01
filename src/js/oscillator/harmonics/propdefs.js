@@ -7,7 +7,9 @@ export const harmonicShape = shape({
     "phase": number.isRequired
 });
 
+export const harmonicSeriesShape = arrayOf(harmonicShape);
+
 export const harmonicsShape = shape({
-    0: arrayOf(harmonicShape).isRequired,
-    1: arrayOf(harmonicShape).isRequired
+    0: harmonicSeriesShape.isRequired,
+    1: harmonicSeriesShape.isRequired
 });

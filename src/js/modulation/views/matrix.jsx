@@ -11,15 +11,14 @@ import {
 } from "../actions";
 import TargetModule from "./module.jsx";
 
+import "./modulation-matrix.scss";
 
 class ModulationMatrixPresentation extends Component {
 
     static propTypes = {
-        /*
         "configuration": modulationConfigShape.isRequired,
         "handlers": PropTypes.object,
         "patch": modulationPatchShape.isRequired
-        */
     }
 
     render () {

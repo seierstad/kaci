@@ -1,3 +1,8 @@
+@import "../../../styles/colors";
+@import "../../../styles/measures";
+@import "../../../styles/extendables";
+
+$keyboard-section-height: 20vh;
 $key-width-white: 1rem;
 $key-width-black-ratio: 0.7;
 $key-width-black: $key-width-white * $key-width-black-ratio;

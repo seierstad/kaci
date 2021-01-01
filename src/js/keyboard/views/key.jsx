@@ -55,6 +55,7 @@ class Key extends Component {
     render () {
         const {
             name,
+            number,
             inChordShiftChords = [],
             state,
             wrap,
@@ -72,6 +73,7 @@ class Key extends Component {
 
         const button = (
             <button
+                aria-label={["key", number, name].join(" ")}
                 className={classNames.join(" ")}
                 onMouseDown={this.handleKeyDown}
                 onMouseEnter={this.handleMouseEnter}

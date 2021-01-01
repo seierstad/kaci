@@ -9,6 +9,7 @@ import * as KEYBOARD from "../actions";
 
 import Keys from "./keys.jsx";
 
+import "./keyboard.scss";
 
 class KeyboardView extends Component {
 

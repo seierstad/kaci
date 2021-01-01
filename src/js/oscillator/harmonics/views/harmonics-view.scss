@@ -1,0 +1,87 @@
+@import "../../../../styles/mixins";
+@import "../../../../styles/extendables";
+
+.oscillator-harmonic-series-view {
+    .harmonics {
+        > .flex-wrapper {
+            flex-flow: row nowrap;
+        }
+
+        &-normalize {
+            margin: 0 0.25rem;
+            overflow: hidden;
+            position: absolute;
+            text-overflow: ellipsis;
+            top: 8.5rem;
+            width: calc(100% - 3.75rem);
+        }
+
+        &-add {
+            margin: 0 0.25rem;
+            width: 3rem;
+        }
+
+        &-new {
+            margin: 0;
+            padding: 0;
+            width: 3rem;
+        }
+    }
+
+    .harmonic {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        text-align: center;
+
+        > .flex-wrapper {
+            flex-direction: column;
+            max-width: 3rem;
+        }
+
+        &-phase {
+            display: flex;
+            flex-direction: column;
+            max-width: 3rem;
+            text-align: center;
+
+            [type="range"] {
+                max-width: 100%;
+                order: 1;
+            }
+
+            [type="button"] {
+                margin: 0 0.25rem;
+                order: 2;
+            }
+        }
+
+        &-level {
+            height: 8rem;
+            padding-bottom: 2rem;
+            text-align: center;
+
+            [type="range"] {
+                @include vertical-slider;
+            }
+        }
+
+        &-remove {
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 1rem;
+        }
+
+        &-toggle {
+            align-self: center;
+        }
+
+        [for] {
+            @extend %squish-text;
+        }
+    }
+}

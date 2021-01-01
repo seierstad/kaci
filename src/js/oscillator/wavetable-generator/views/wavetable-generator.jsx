@@ -17,7 +17,7 @@ class WavetableGenerator extends Component {
     }
 
     @autobind
-    handleToggle (event) {
+    onToggle (event) {
         event.stopPropagation();
         const {
             waveform: {
@@ -102,7 +102,7 @@ class WavetableGenerator extends Component {
                 <legend>Wavetable generator</legend>
                 <ViewstateToggle
                     active={active}
-                    handler={this.handleToggle}
+                    handler={this.onToggle}
                 />
                 {active && (
                     <div className="wavetable-generator-settings">

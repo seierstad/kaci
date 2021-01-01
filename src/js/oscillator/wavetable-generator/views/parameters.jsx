@@ -28,7 +28,7 @@ class ParameterTable extends Component {
                 </thead>
                 <tbody>
                     {Object.entries(configuration).filter(
-                        ([key, value]) => (
+                        ([, value]) => (
                             Object.prototype.hasOwnProperty.call(value, "wavetableRelevant")
                             && value.wavetableRelevant === true
                         )
