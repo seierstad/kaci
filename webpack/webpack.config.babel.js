@@ -54,7 +54,7 @@ const commonConfig = merge([
     /*,
     parts.loadSVG(),
     parts.favicons({
-        logo: path.resolve("./src/images/svg/dib-logo.svg"),
+        logo: path.resolve("./src/images/svg/logo.svg"),
         prefix: "icon-[hash:6]/",
         emitStats: true,
         statsFilename: "iconstats-[hash:6].json",
@@ -120,12 +120,13 @@ const developmentConfig = merge([
         ...minifyCSSOptions,
         sourceMap: true
     }),
-    parts.generateSourceMaps({type: "source-map"}),
+    parts.generateSourceMaps({type: "source-map"})
+    /*,
     parts.devServer({
         contentBase: PATHS.build,
         host: process.env.HOST,
         port: process.env.PORT
-    })
+    })*/
 ]);
 
 const conf = (mode = "development") => {

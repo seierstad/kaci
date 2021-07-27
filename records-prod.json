@@ -368,7 +368,8 @@
       "node_modules/core-js/internals/engine-is-ie-or-edge.js": 94,
       "node_modules/core-js/internals/engine-webkit-version.js": 95,
       "node_modules/reselect/es/index.js": 96,
-      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/kaci.jsx 18fecfc13607fb570707684618e4b516": 97
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/kaci.jsx 18fecfc13607fb570707684618e4b516": 97,
+      "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/kaci.jsx ed6928ea42353b61f6c5f6630cd9521b": 97
     },
     "usedIds": {
       "0": 0,
@@ -481,5 +482,118 @@
       0,
       1
     ]
-  }
+  },
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/styles/styles.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/styles/styles.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/js/keyboard/views/keyboard.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/js/keyboard/views/keyboard.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/js/oscillator/harmonics/views/harmonics-view.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/js/oscillator/harmonics/views/harmonics-view.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/js/modulation/views/modulation-matrix.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--8-1!node_modules/postcss-loader/dist/cjs.js??ref--8-2!node_modules/sass-loader/dist/cjs.js??ref--8-3!src/js/modulation/views/modulation-matrix.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "HtmlWebpackCompiler": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/html-webpack-plugin/lib/loader.js!node_modules/html-loader/dist/cjs.js!src/markup/index.html": 0
+        },
+        "usedIds": {
+          "0": 0
+        }
+      },
+      "chunks": {
+        "byName": {
+          "HtmlWebpackPlugin_0": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ]
 }
