@@ -130,16 +130,16 @@ class Oscillator extends Component {
                         patch={patch.pd[0]}
                         subIndex={0}
                         viewState={viewState.pd[0]}
-                        waveform={patch.waveform}
                         waveFunction={this.pdFunction0}
+                        waveform={patch.waveform}
                     />
                     <PhaseDistortion
                         key="pdEnvelope1"
                         patch={patch.pd[1]}
                         subIndex={1}
                         viewState={viewState.pd[1]}
-                        waveform={patch.waveform}
                         waveFunction={this.pdFunction1}
+                        waveform={patch.waveform}
                     />
                     <Mix
                         changeHandler={handlers.mix}

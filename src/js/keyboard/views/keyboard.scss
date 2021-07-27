@@ -2,17 +2,20 @@
 @import "../../../styles/measures";
 @import "../../../styles/extendables";
 
+@use "sass:math";
+
+
 $keyboard-section-height: 20vh;
 $key-width-white: 1rem;
 $key-width-black-ratio: 0.7;
 $key-width-black: $key-width-white * $key-width-black-ratio;
-$black-margin-big: $key-width-white * (1 - ($key-width-black-ratio / 2));
-$black-margin-small: $key-width-white * ((1 - $key-width-black-ratio) / 2);
+$black-margin-big: $key-width-white * (1 - math.div($key-width-black-ratio, 2));
+$black-margin-small: $key-width-white * math.div((1 - $key-width-black-ratio), 2);
 
-$key-flex: #{$key-width-black / 1rem} 0 $key-width-black;
-$small-flex: #{$black-margin-small / 1rem} 0 $black-margin-small;
-$big-flex: #{$black-margin-big / 1rem} 0 $black-margin-big;
-$big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width-white + $black-margin-big};
+$key-flex: #{math.div($key-width-black, 1rem)} 0 $key-width-black;
+$small-flex: #{math.div($black-margin-small, 1rem)} 0 $black-margin-small;
+$big-flex: #{math.div($black-margin-big, 1rem)} 0 $black-margin-big;
+$big-white-flex: #{math.div(($key-width-white + $black-margin-big), 1rem)} 0 #{$key-width-white + $black-margin-big};
 
 
 .keyboard {
@@ -101,7 +104,7 @@ $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width
 
     .key-wrapper {
         display: flex;
-        flex-grow: $key-width-white / 1rem;
+        flex-grow: math.div($key-width-white, 1rem);
 
         &::before,
         &::after {
@@ -113,7 +116,7 @@ $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width
         &.db,
         &.gb,
         &:first-child {
-            flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+            flex-grow: math.div(($black-margin-big + $key-width-black + $black-margin-small), 1rem);
 
             &::before {
                 flex: $big-flex;
@@ -123,7 +126,7 @@ $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width
         &.bb,
         &.eb,
         &:last-child {
-            flex-grow: ($black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+            flex-grow: math.div(($black-margin-big + $key-width-black + $black-margin-small), 1rem);
 
             &::after {
                 flex: $big-flex;
@@ -145,7 +148,7 @@ $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width
         &.db,
         &.gb {
             &:first-child {
-                flex-grow: ($key-width-white + $black-margin-big + $key-width-black + $black-margin-small) / 1rem;
+                flex-grow: math.div(($key-width-white + $black-margin-big + $key-width-black + $black-margin-small), 1rem);
 
                 &::before {
                     flex: $big-white-flex;
@@ -161,7 +164,7 @@ $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width
         &.bb,
         &.eb {
             &:last-child {
-                flex-grow: ($black-margin-small + $key-width-black + $black-margin-big + $key-width-white) / 1rem;
+                flex-grow: math.div(($black-margin-small + $key-width-black + $black-margin-big + $key-width-white), 1rem);
 
                 &::after {
                     flex: $big-white-flex;
@@ -213,13 +216,8 @@ $big-white-flex: #{($key-width-white + $black-margin-big) / 1rem} 0 #{$key-width
 }
 
 .chord- {
-    &0 {
-        background-color: #f00;
-    }
-
-    &1 {
-        background-color: #0f0;
-    }
+    &0 { background-color: #f00; }
+    &1 { background-color: #0f0; }
 
     &2 {
         background-color: #00f;

@@ -4,8 +4,8 @@ import inlineSvg from "postcss-inline-svg";
 import flexbugsFixes from "postcss-flexbugs-fixes";
 import cssnano from "cssnano";
 import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
-import dartSass from "dart-sass";
-import Fiber from "fibers";
+import sass from "sass";
+// import Fiber from "fibers";
 
 export const load = ({include, exclude, svgPath, sourceMap = false, dev = false} = {}) => ({
     module: {
@@ -24,34 +24,36 @@ export const load = ({include, exclude, svgPath, sourceMap = false, dev = false}
             }, {
                 loader: "postcss-loader",
                 options: {
-                    ident: "postcss",
-                    plugins: [
-                        /*
-                        fontMagician({
-                            formats: "woff2 woff",
-                            variants: {
-                                "Roboto Condensed": {
-                                    "300": [],
-                                    "400": [],
-                                    "700": []
-                                }
-                            },
-                            hosted: ["./src/fonts", "/styles/fonts"],
-                            foundries: ["hosted", "google"]
-                        }),
-                        */
-                        inlineSvg({
-                            "path": svgPath
-                        }),
-                        flexbugsFixes,
-                        autoprefixer()
-                    ],
+                    postcssOptions: {
+                        plugins: [
+                            /*
+                            fontMagician({
+                                formats: "woff2 woff",
+                                variants: {
+                                    "Roboto Condensed": {
+                                        "300": [],
+                                        "400": [],
+                                        "700": []
+                                    }
+                                },
+                                hosted: ["./src/fonts", "/styles/fonts"],
+                                foundries: ["hosted", "google"]
+                            }),
+                            */
+                            inlineSvg({
+                                "path": svgPath
+                            }),
+                            flexbugsFixes,
+                            autoprefixer()
+
+                        ]
+                    },
                     sourceMap
                 }
             }, {
                 loader: "sass-loader",
                 options: {
-                    implementation: dartSass,
+                    implementation: sass,
                     sassOptions: {
                         includePaths: [
                             "node_modules/susy/sass",
