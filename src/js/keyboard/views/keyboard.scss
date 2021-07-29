@@ -1,8 +1,9 @@
+@use "sass:math";
+
+
 @import "../../../styles/colors";
 @import "../../../styles/measures";
 @import "../../../styles/extendables";
-
-@use "sass:math";
 
 
 $keyboard-section-height: 20vh;

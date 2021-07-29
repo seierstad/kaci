@@ -19,6 +19,7 @@
     "indentation": 4,
     "media-feature-name-no-vendor-prefix": true,
     "no-descending-specificity": [true, {"severity": "warning"}],
+    "no-invalid-position-at-import-rule": null,
     "selector-max-id": 0,
     "property-no-vendor-prefix": true,
     "selector-no-vendor-prefix": true,
