@@ -1,4 +1,4 @@
-/*global currentTime */
+/*global currentTime, sampleRate */
 
 import {boundMethod} from "autobind-decorator";
 import {waveforms} from "../waveform/waveforms";

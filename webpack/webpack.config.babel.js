@@ -33,7 +33,10 @@ const commonConfig = merge([
         },
         "plugins": [
             //new webpack.AutomaticPrefetchPlugin()
-        ]
+        ],
+        "stats": {
+            "children": true
+        }
     },
     //parts.clean(PATHS.build, PATHS.reports),
     //parts.getFonts({fonts, path: path.join(PATHS.build, "fonts")}),
@@ -47,8 +50,10 @@ const commonConfig = merge([
         exclude: /(node_modules|worklet.js)/,
         include: PATHS.app,
         options: {
-            formatter: "checkstyle",
-            filePath: path.join(PATHS.reports, "checkstyle-eslint-report.xml")
+            "outputReport": {
+                formatter: "checkstyle",
+                filePath: path.join(PATHS.reports, "checkstyle-eslint-report.xml")
+            }
         }
     }),
     /*,
@@ -133,11 +138,11 @@ const conf = (mode = "development") => {
     console.log("bygger ", mode);
     if (mode === "production") {
         return merge(commonConfig, productionConfig, {
-            mode
+            "mode": "production"
         });
     }
     return merge(commonConfig, developmentConfig, {
-        mode
+        "mode": "development"
     });
 };
 

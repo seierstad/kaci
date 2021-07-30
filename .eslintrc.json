@@ -10,10 +10,10 @@
   },
   "settings": {
     "react": {
-      "version": "16.8"
+      "version": "17.0"
     }
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 7,
     "sourceType": "module",
@@ -24,6 +24,10 @@
       "jsx": true,
       "spread": true,
       "experimentalObjectRestSpread": true
+    },
+    "requireConfigFile": "false",
+    "babelOptions": {
+      "configFile": "./src/.babelrc"
     }
   },
   "plugins": [

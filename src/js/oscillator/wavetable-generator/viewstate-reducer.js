@@ -54,7 +54,7 @@ const getResult = (state) => {
 
         const mixFunction = getMixFunction(pdFunction[0], pdFunction[1], mixParamFn(i));
 
-        const wave = [];
+        const wave = new Float32Array(wave_length);
         let useFunction = mixFunction;
 
         if (patch.mode === "resonant") {
