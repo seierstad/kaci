@@ -274,7 +274,77 @@ const sallySequence = ({length = 8, noInitialZero = false}) => {
     return sally;
 };
 
+const euclidReducer = (result, remainder) => {
+    if (remainder.length < 2) {
+        return (result.join("") + remainder.join("")).split("").map(c => parseInt(c, 10));
+    }
+    for (let i = 0; i < remainder.length; i += 1) {
+        let index = i % result.length;
+        result[index] = result[index] + remainder[i];
+    }
+    const splitPoint = result.findIndex((e, i, arr) => {
+        if (i > arr.length - 2) {return false;}
+        return e.length !== arr[i + 1].length;
+    });
+    if (result.length < 3 || splitPoint === -1) {
+        return result.join("").split("").map(c => parseInt(c, 10));
+    }
+
+    return euclidReducer(result.slice(0, splitPoint + 1), result.slice(splitPoint + 1));
+};
+
+const euclidean = ({length = 8, fill = 3, shift = 0}) => {
+    let result = euclidReducer(new Array(parseInt(fill, 10)).fill("1"), new Array(parseInt(length, 10) - parseInt(fill, 10)).fill("0"));
+    for (let i = 0; i < shift; i += 1) {
+        result.push(result.shift());
+    }
+    return result;
+};
+
+const fibonacciWord = ({index = 3}) => {
+    if (index === 0) {return [0];}
+    if (index === 1) {return [0, 1];}
+
+    let a = "0";
+    let b = "01";
+    let c = "";
+    for (let i = 1; i < index; i += 1) {
+        c = b + a;
+        a = b;
+        b = c;
+    }
+    return c.split("").map(c => parseInt(c, 10));
+};
+
 export const generatorDescriptors = [{
+    label: "Euclidean rhythm",
+    name: "euclidean",
+    parameters: [{
+        label: "length",
+        name: "length",
+        type: "number",
+        range: "positive",
+        minValue: 2,
+        maxValue: Number.MAX_SAFE_INTEGER,
+        defaultValue: 8
+    }, {
+        label: "fill",
+        name: "fill",
+        type: "number",
+        range: "positive",
+        minValue: 0,
+        maxValue: Number.MAX_SAFE_INTEGER,
+        defaultValue: 3
+    }, {
+        label: "shift",
+        name: "shift",
+        type: "number",
+        range: "positive",
+        minValue: 0,
+        maxValue: Number.MAX_SAFE_INTEGER,
+        defaultValue: 0
+    }]
+}, {
     ...hilbertTurnsDescription
 }, {
     ...lindenmayerSystemsDescription
@@ -357,9 +427,22 @@ export const generatorDescriptors = [{
         type: "checkbox",
         defaultValue: false
     }]
+}, {
+    label: "Fibonacci word",
+    name: "fibonacciWord",
+    parameters: [{
+        label: "index",
+        name: "index",
+        type: "number",
+        range: "positive",
+        minValue: 0,
+        maxValue: Number.MAX_SAFE_INTEGER,
+        defaultValue: 5
+    }]
 }];
 
 export const generatorFunctions = {
+    euclidean,
     hilbertTurns,
     lindenmayer,
     barkerCode,
@@ -367,5 +450,6 @@ export const generatorFunctions = {
     golombSequence,
     linusSequence,
     linusSequenceRunningSum,
-    sallySequence
+    sallySequence,
+    fibonacciWord
 };

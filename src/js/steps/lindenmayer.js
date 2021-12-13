@@ -1,4 +1,8 @@
+
 const hilbertCurve = {
+    name: "Hilbert curve",
+    description: "Representation of the Hilbert curve. -1 = turn right, 0 = move forward, 1 = turn left",
+    href: "https://en.wikipedia.org/wiki/Hilbert_curve",
     variables: ["A", "B"],
     constants: ["0", "F", "2"],
     axiom: "A",
@@ -12,6 +16,22 @@ const hilbertCurve = {
         .map(c => parseInt(c, 10) - 1)
 };
 
+const mooreCurve = {
+    name: "Moore curve",
+    description: "Representation of the Moore curve. -1 = turn left, 0 = move forward, 1 = turn right",
+    href: "https://en.wikipedia.org/wiki/Moore_curve",
+    variables: ["L", "R"],
+    constants: ["F", "+", "-"],
+    axiom: "LFL+F+LFL",
+    rules: {
+        "L": "-RF+LFL+FR-",
+        "R": "+LF-RFR-FL+"
+    },
+    finalFn: (variables, str) => str.split("")
+        .filter(t => variables.indexOf(t) === -1)
+        .map(c => ["-", "F", "+"].indexOf(c) - 1)
+};
+
 const thueMorseSequence = {
     variables: [0, 1],
     constants: [],
@@ -23,9 +43,43 @@ const thueMorseSequence = {
     finalFn: (variables, str) => str.split("").map(c => parseInt(c, 10))
 };
 
+const sierpinskiCurve = {
+    name: "Sierpiński curve",
+    description: "Representation of the 45° turns in a Sierpiński snowflake curve. -1 = a right turn, 1 = a left turn",
+    href: "https://en.wikipedia.org/wiki/Sierpi%C5%84ski_curve",
+    variables: ["F", "G", "X"],
+    constants: ["F", "G", "+", "-"],
+    axiom: "F--XF--F--XF",
+    rules: {
+        "X": "XF+G+XF--F--XF+G+X"
+    },
+    finalFn: (variables, str) => str.split("")
+        .filter(t => variables.indexOf(t) === -1)
+        .map(c => ["-", "F", "G", "+"].indexOf(c) - 1)
+};
+
+const sierpinskiArrow = {
+    name: "Sierpiński arrowhead curve",
+    description: "Representation of the 60° turns in a Sierpiński arrowhead curve. -1 = a right turn, 1 = a left turn",
+    href: "https://en.wikipedia.org/wiki/Sierpi%C5%84ski_curve",
+    variables: ["X", "Y"],
+    constants: ["F", "+", "−"],
+    axiom: "XF",
+    rules: {
+        "X": "YF+XF+Y",
+        "Y": "XF-YF-X"
+    },
+    finalFn: (variables, str) => str.split("")
+        .filter(t => variables.indexOf(t) === -1)
+        .map(c => ["-", "F", "+"].indexOf(c) - 1)
+};
+
 const systems = {
     hilbertCurve,
-    thueMorseSequence
+    mooreCurve,
+    thueMorseSequence,
+    sierpinskiCurve,
+    sierpinskiArrow
 };
 
 
@@ -54,15 +108,20 @@ export const description = {
         name: "iterations",
         type: "number",
         range: "positive",
-        minValue: 1,
+        minValue: 0,
         maxValue: Number.MAX_SAFE_INTEGER,
-        defaultValue: 4
+        defaultValue: 2
     }, {
         label: "system",
         name: "systemName",
         type: "enumeration",
         values: [...Object.keys(systems)],
         defaultValue: "hilbertCurve"
+    }, {
+        label: "running sum",
+        name: "runningSum",
+        type: "checkbox",
+        defaultValue: false
     }]
 };
 
