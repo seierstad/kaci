@@ -135,7 +135,7 @@ class Harmonics extends Component {
                 />
                 <HarmonicSeries
                     handlers={this.handlers0}
-                    index="0"
+                    index={0}
                     patch={this.props.patch[0]}
 
                 />
