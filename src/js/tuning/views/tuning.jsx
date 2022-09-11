@@ -13,6 +13,8 @@ import {
 } from "../actions";
 import {tuningShape} from "../propdefs";
 
+import Fraction from "../../fraction/views/fraction.jsx";
+
 
 class TuningPresentation extends Component {
 
@@ -131,7 +133,12 @@ class TuningPresentation extends Component {
                     <fieldset>
                         <legend>ratios</legend>
                         {scale.ratios.map(([numerator, denominator]) => (
-                            <span className="fraction" key={numerator + "-" + denominator}>{numerator}/{denominator} </span>
+                            <Fraction
+                                denominator={denominator}
+                                key={numerator + "-" + denominator}
+                                numerator={numerator}
+                                vulgar
+                            />
                         ))}
                     </fieldset>
                 ) : null}
