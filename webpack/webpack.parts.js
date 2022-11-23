@@ -4,7 +4,7 @@ import * as js from "./webpack.parts.scripts";
 import * as html from "./webpack.parts.html";
 import * as dev from "./webpack.parts.dev";
 import * as styles from "./webpack.parts.styles";
-
+import {favicons} from "./webpack.parts.favicons";
 
 const parts = {
     loadHTML: html.load,
@@ -18,7 +18,7 @@ const parts = {
     getFonts: () => {},
     loadFonts: () => {},
     generateServiceWorker: () => {},
-    favicons: () => {},
+    favicons,
     generateSourceMaps: ({type} = {}) => ({
         devtool: type
     }),

@@ -56,19 +56,17 @@ const commonConfig = merge([
             }
         }
     }),
-    /*,
-    parts.loadSVG(),
+    //parts.loadSVG(),
     parts.favicons({
-        logo: path.resolve("./src/images/svg/logo.svg"),
+        logo: path.resolve("./src/images/logo.svg"),
         prefix: "icon-[hash:6]/",
         emitStats: true,
         statsFilename: "iconstats-[hash:6].json",
         persistentCache: false,
         inject: true
-    })
+    }),
     //parts.generateServiceWorker()
     //metaParts.bundleTracker()
-    */
     metaParts.analyzeBundle({reportsPath: PATHS.reports})
 
 ]);
