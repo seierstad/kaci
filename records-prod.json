@@ -70,7 +70,8 @@
         "byIdentifier": {
           "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js c37f7fd584fa930b5f6ad2b337107131": 0,
           "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js 46803bbc0c963939cd919e028d06ed6d": 0,
-          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/sequencer/sequencer.worklet.js c8b1f41b3551ad7df074df6889cad93e": 0
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/sequencer/sequencer.worklet.js c8b1f41b3551ad7df074df6889cad93e": 0,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js 19ccbd3e7416424904da5152c4b39798": 0
         },
         "usedIds": {
           "0": 0
@@ -142,7 +143,8 @@
           "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 0a55d0682506f3aa7d883ff44af30b80": 50,
           "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 385c6dac387e9fc27fa3179a2a2b2975": 50,
           "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js 46803bbc0c963939cd919e028d06ed6d": 0,
-          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/sequencer/sequencer.worklet.js c8b1f41b3551ad7df074df6889cad93e": 0
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/sequencer/sequencer.worklet.js c8b1f41b3551ad7df074df6889cad93e": 0,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js 35d0d5c524a51dd6c190b5581bd743e2": 0
         },
         "usedIds": {
           "0": 0,
@@ -264,7 +266,8 @@
           "node_modules/core-js/internals/engine-is-ie-or-edge.js": 48,
           "node_modules/core-js/internals/engine-webkit-version.js": 49,
           "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/noise/noise.worklet.js 385c6dac387e9fc27fa3179a2a2b2975": 50,
-          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js 46803bbc0c963939cd919e028d06ed6d": 0
+          "node_modules/babel-loader/lib/index.js??ref--7-1!src/js/oscillator/oscillator.worklet.js 46803bbc0c963939cd919e028d06ed6d": 0,
+          "node_modules/babel-loader/lib/index.js??ref--6-1!src/js/sequencer/sequencer.worklet.js 5ca345e8d431e2b3443ce398f7054bca": 0
         },
         "usedIds": {
           "0": 0,
@@ -484,7 +487,34 @@
       "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/envelope/view/envelope.jsx f5ef70480b44a2cc60718ccaddaaa195": 22,
       "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/morse/functions.js 1dba59245c335a1478ada50a9a24e84a": 23,
       "node_modules/babel-loader/lib/index.js??ref--6-0!node_modules/eslint-loader/dist/cjs.js!src/js/kaci.jsx ff5fafdc97b9ac43333c6f366b010346": 97,
-      "node_modules/reselect/es/index.js 3e380ee83bfa6550141f22b43ac66718": 11
+      "node_modules/reselect/es/index.js 3e380ee83bfa6550141f22b43ac66718": 11,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/shared-functions.js": 3,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/static-source/views/range-input.jsx": 4,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/modulator/constants.js": 6,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/output-stage/actions.js": 7,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/modulator/propdefs.js": 8,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/static-source/propdefs.js": 9,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/morse/propdefs.js": 11,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/speed/sync/propdefs.js": 12,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/shared-functions.js": 13,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/views/ViewUtils.js": 14,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/output-stage/dispatchers.js": 15,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/periodic/views/periodic.jsx": 16,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/modulator/views/modulator.jsx 2a413a37219cb6d53d984a556138cd43": 17,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/envelope.jsx aa08c5ae2ab268c8187bd35160cd26ff": 18,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/morse/functions.js a4d7062854a8622c254da7679ed4bff5": 19,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/selectors.js": 20,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/speed/sync/views/sync-controls.jsx": 21,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/range-input.jsx": 22,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/sustain-envelope.jsx": 23,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/envelope/view/sustain.jsx": 25,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/morse/views/morse-generator.jsx": 26,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/morse/views/morse-svg.jsx": 27,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--6-1!src/js/noise/noise.worklet.js": 29,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--6-1!src/js/oscillator/oscillator.worklet.js": 30,
+      "node_modules/worklet-loader/dist/cjs.js!node_modules/babel-loader/lib/index.js??ref--6-1!src/js/sequencer/sequencer.worklet.js": 31,
+      "node_modules/babel-loader/lib/index.js??ref--5-0!src/js/kaci.jsx 6d40f54a2cbd19dba3c690e1928b0718": 32,
+      "node_modules/reselect/es/index.js 0b0eff2a5c9c1ae91aee716369f93d1b": 33
     },
     "usedIds": {
       "0": 0,
@@ -703,6 +733,119 @@
       "chunks": {
         "byName": {
           "HtmlWebpackPlugin_0": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "favicons-webpack-plugin": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/cache-loader/dist/cjs.js?{\"cacheDirectory\":\"/Volumes/Datadisk/erik/src/kaci/node_modules/.cache/favicons-webpack-plugin\"}!node_modules/favicons-webpack-plugin/src/loader.js?{\"prefix\":\"icon-[hash:6]/\",\"options\":{\"appName\":\"kaci\",\"appDescription\":\"phase distortion synthesizer\",\"version\":\"0.5.0\",\"developerName\":\"Erik E. Seierstad\"},\"path\":\"/\"}!src/images/logo.svg": 0
+        },
+        "usedIds": {
+          "0": 0
+        }
+      },
+      "chunks": {
+        "byName": {
+          "logo.svg": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/styles/styles.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/styles/styles.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/js/keyboard/views/keyboard.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/js/keyboard/views/keyboard.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/js/modulation/views/modulation-matrix.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/js/modulation/views/modulation-matrix.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
+        },
+        "bySource": {},
+        "usedIds": [
+          0
+        ]
+      }
+    }
+  ],
+  "mini-css-extract-plugin node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/js/oscillator/harmonics/views/harmonics-view.scss": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/dist/runtime/api.js": 0,
+          "node_modules/css-loader/dist/cjs.js??ref--7-1!node_modules/postcss-loader/dist/cjs.js??ref--7-2!node_modules/sass-loader/dist/cjs.js??ref--7-3!src/js/oscillator/harmonics/views/harmonics-view.scss": 1
+        },
+        "usedIds": {
+          "0": 0,
+          "1": 1
+        }
+      },
+      "chunks": {
+        "byName": {
+          "mini-css-extract-plugin": 0
         },
         "bySource": {},
         "usedIds": [

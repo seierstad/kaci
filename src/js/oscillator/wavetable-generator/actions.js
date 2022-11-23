@@ -5,4 +5,6 @@ export const PARAMETER_CHANGE = prefix + "PARAMETER_CHANGE";
 export const CHANGE_RATE = prefix + "CHANGE_RATE";
 export const WAVE_COUNT_CHANGE = prefix + "WAVE_COUNT_CHANGE";
 export const WAVE_LENGTH_CHANGE = prefix + "WAVE_LENGTH_CHANGE";
-
+export const NAME_CHANGE = prefix + "NAME_CHANGE";
+export const SLOT_CHANGE = prefix + "SLOT_CHANGE";
+export const DEVICE_ID_CHANGE = prefix + "DEVICE_ID_CHANGE";
