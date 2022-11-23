@@ -69,7 +69,7 @@
     "id-length": 0,
     "id-match": 0,
     "import/default": 2,
-    "import/extensions": [2, "never", {"jsx": "always"}],
+    "import/extensions": [1, "never", {"jsx": "always"}],
     "import/first": 2,
     "import/named": 2,
     "import/namespace": 2,

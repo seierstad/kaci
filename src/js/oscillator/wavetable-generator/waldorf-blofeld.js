@@ -33,7 +33,6 @@ const waldorfBlofeldWave = (output, input, name, slot = 80, waveNumber = 0, devi
 
     let result;
     let buffer;
-    console.log({input});
 
     if (!isValidName(name)) {
         throw new Error("'" + name + "' is not a valid wavetable name");
