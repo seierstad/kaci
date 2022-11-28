@@ -4,6 +4,9 @@ import {
     getWrapperFunction
 } from "../oscillator-shared-functions";
 
+import * as BLOFELD from "./waldorf/blofeld/defaults.js";
+import * as WALDORF_BLOFELD from "./waldorf/blofeld/actions.js";
+
 import * as WAVETABLE_GENERATOR from "./actions";
 import DEFAULTS from "./defaults";
 
@@ -89,7 +92,33 @@ const wavetableGenerator = (state = {...DEFAULTS}, action = {}) => {
                 altered = true;
                 break;
 
-            case WAVETABLE_GENERATOR.PARAMETER_CHANGE:
+            case WAVETABLE_GENERATOR.TYPE:
+                newState = {
+                    ...state,
+                    "type": action.value
+                };
+                switch (action.value) {
+                    case "waldorf-blofeld":
+                        newState.manufacturer = "waldorf";
+                        newState.model = "blofeld";
+                        newState.wave_count = BLOFELD.WAVE_COUNT;
+                        newState.wave_length = BLOFELD.WAVE_LENGTH;
+                        newState.wave_count_locked = true;
+                        newState.wave_length_locked = true;
+                        break;
+
+                    case "wav":
+                    default:
+                        newState.manufacturer = "audiofile";
+                        newState.model = "wav";
+                        newState.wave_count_locked = false;
+                        newState.wave_length_locked = false;
+                        break;
+                }
+                altered = true;
+                break;
+
+            case WAVETABLE_GENERATOR.PARAMETER:
                 newState = {
                     ...state,
                     "parameters": {
@@ -103,7 +132,7 @@ const wavetableGenerator = (state = {...DEFAULTS}, action = {}) => {
                 altered = true;
                 break;
 
-            case WAVETABLE_GENERATOR.CHANGE_RATE:
+            case WAVETABLE_GENERATOR.PARAMETER_CHANGE_RATE:
                 newState = {
                     ...state,
                     "parameters": {
@@ -117,7 +146,7 @@ const wavetableGenerator = (state = {...DEFAULTS}, action = {}) => {
                 altered = true;
                 break;
 
-            case WAVETABLE_GENERATOR.WAVE_COUNT_CHANGE:
+            case WAVETABLE_GENERATOR.WAVE_COUNT:
                 newState = {
                     ...state,
                     "wave_count": action.value
@@ -125,10 +154,34 @@ const wavetableGenerator = (state = {...DEFAULTS}, action = {}) => {
                 altered = true;
                 break;
 
-            case WAVETABLE_GENERATOR.WAVE_LENGTH_CHANGE:
+            case WAVETABLE_GENERATOR.WAVE_LENGTH:
                 newState = {
                     ...state,
                     "wave_length": action.value
+                };
+                altered = true;
+                break;
+
+            case WALDORF_BLOFELD.NAME_CHANGE:
+                newState = {
+                    ...state,
+                    "name": action.value
+                };
+                altered = true;
+                break;
+
+            case WALDORF_BLOFELD.SLOT_CHANGE:
+                newState = {
+                    ...state,
+                    "slot": action.value
+                };
+                altered = true;
+                break;
+
+            case WALDORF_BLOFELD.DEVICE_ID_CHANGE:
+                newState = {
+                    ...state,
+                    "deviceId": action.value
                 };
                 altered = true;
                 break;

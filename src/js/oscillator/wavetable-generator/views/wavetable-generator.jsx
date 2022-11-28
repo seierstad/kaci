@@ -3,9 +3,11 @@ import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
 
 //import RangeInput from "../../../static-source/views/range-input.jsx";
+import WaldorfSpecific from "../waldorf/views/waldorf-specific.jsx";
 import ViewstateToggle from "./viewstate-toggle.jsx";
 import Parameters from "./parameters.jsx";
 import Result from "./result.jsx";
+import AudioFileSpecific from "./audio-file-specific.jsx";
 
 class WavetableGenerator extends Component {
 
@@ -82,6 +84,12 @@ class WavetableGenerator extends Component {
     }
 
     @autobind
+    handleTypeChange (event) {
+        event.stopPropagation();
+        this.props.handlers.changeType(event.target.value, this.props.patch);
+    }
+
+    @autobind
     handleWaveCountChange (event) {
         event.stopPropagation();
         this.props.handlers.changeWaveCount(Number.parseInt(event.target.value, 10), this.props.patch);
@@ -95,7 +103,19 @@ class WavetableGenerator extends Component {
 
     render () {
         const {configuration, handlers, patch, viewState} = this.props;
-        const {active = false, result} = viewState;
+        const {active = false, manufacturer, model, result: wavetable, wave_count_locked = false, wave_length_locked = false} = viewState;
+
+        let ManufacturerSpecificComponent;
+
+        switch (manufacturer) {
+            case "waldorf":
+                ManufacturerSpecificComponent = WaldorfSpecific;
+                break;
+            case "audiofile":
+            default:
+                ManufacturerSpecificComponent = AudioFileSpecific;
+                break;
+        }
 
         return (
             <fieldset className="wavetable-generator-wrapper">
@@ -106,10 +126,23 @@ class WavetableGenerator extends Component {
                 />
                 {active && (
                     <div className="wavetable-generator-settings">
-                        <div className="table-settings">
+                        <label>
+                            <span className="label-text">type</span>
+                            <select onChange={this.handleTypeChange} value={viewState.type}>
+                                <optgroup label="Generic">
+                                    <option value="wav">audio (WAV)</option>
+                                </optgroup>
+                                <optgroup label="Waldorf">
+                                    <option value="waldorf-blofeld">Blofeld</option>
+                                </optgroup>
+                                <optgroup label="PPG" />
+                            </select>
+                        </label>
+                        <div className="table-size">
                             <label>
                                 <span className="label-text">wave count</span>
                                 <input
+                                    disabled={wave_count_locked}
                                     id="wavetable-wave-count"
                                     max="512"
                                     min="1"
@@ -121,6 +154,7 @@ class WavetableGenerator extends Component {
                             <label>
                                 <span className="label-text">wave length</span>
                                 <input
+                                    disabled={wave_length_locked}
                                     id="wavetable-wave-length"
                                     max="1024"
                                     min="32"
@@ -130,17 +164,20 @@ class WavetableGenerator extends Component {
                                 />
                             </label>
                         </div>
-                        <Parameters
-                            configuration={configuration}
-                            handlers={handlers}
-                            patch={patch}
-                            viewState={viewState}
-                        />
-                        <Result
-                            handlers={{}}
-                            selected={2}
-                            wavetable={result}
-                        />
+
+                        <ManufacturerSpecificComponent {...this.props}>
+                            <Parameters
+                                configuration={configuration}
+                                handlers={handlers}
+                                patch={patch}
+                                viewState={viewState}
+                            />
+                            <Result
+                                handlers={{}}
+                                selected={2}
+                                wavetable={wavetable}
+                            />
+                        </ManufacturerSpecificComponent>
                     </div>
                 )}
             </fieldset>

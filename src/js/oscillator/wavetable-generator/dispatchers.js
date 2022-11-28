@@ -1,33 +1,42 @@
 import {
-    CHANGE_RATE,
-    PARAMETER_CHANGE,
+    PARAMETER,
+    PARAMETER_CHANGE_RATE,
+    TYPE,
     TOGGLE,
-    WAVE_COUNT_CHANGE,
-    WAVE_LENGTH_CHANGE
+    WAVE_COUNT,
+    WAVE_LENGTH
 } from "./actions";
+
+import waldorfDispatchers from "./waldorf/dispatchers.js";
 
 const actionCommons = {
     "module": "oscillator",
     "submodule": "wavetable-generator"
 };
 
-const waveformGeneratorDispatcher = (dispatch) => ({
+const wavetableGeneratorDispatcher = (dispatch) => ({
     "toggle": (parameters, patch) => dispatch({
         ...actionCommons,
         "type": TOGGLE,
         parameters,
         patch
     }),
+    "changeType": (value, patch) => dispatch({
+        ...actionCommons,
+        "type": TYPE,
+        patch,
+        value
+    }),
     "changeParameter": (parameter, value, patch) => dispatch({
         ...actionCommons,
-        "type": PARAMETER_CHANGE,
+        "type": PARAMETER,
         parameter,
         patch,
         value
     }),
     "changeChangeRate": (parameter, value, patch) => dispatch({
         ...actionCommons,
-        "type": CHANGE_RATE,
+        "type": PARAMETER_CHANGE_RATE,
         parameter,
         patch,
         value
@@ -35,16 +44,17 @@ const waveformGeneratorDispatcher = (dispatch) => ({
     "changeWaveCount": (value, patch) => dispatch({
         ...actionCommons,
         patch,
-        "type": WAVE_COUNT_CHANGE,
+        "type": WAVE_COUNT,
         value
     }),
     "changeWaveLength": (value, patch) => dispatch({
         ...actionCommons,
         patch,
-        "type": WAVE_LENGTH_CHANGE,
+        "type": WAVE_LENGTH,
         value
-    })
+    }),
+    "waldorf": waldorfDispatchers(dispatch, actionCommons)
 });
 
 
-export default waveformGeneratorDispatcher;
+export default wavetableGeneratorDispatcher;

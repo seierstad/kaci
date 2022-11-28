@@ -1,15 +1,15 @@
 "use strict";
 
 import { floatToPCM } from "wav-recorder-node";
+import { MANUFACTURER_ID as WALDORF_ID } from "../defaults.js";
+import { BLOFELD_ID, DEVICE_ID_BROADCAST } from "./defaults.js";
+
 
 const SYSEX_START = 0xF0;
-const WALDORF_ID = 0x3E;
-const BLOFELD_ID = 0x13;
 const WAVETABLE_DUMP = 0x12;
 const FORMAT = 0x00;
 const RESERVED = 0x00;
 const SYSEX_END = 0xF7;
-const DEVICE_ID_BROADCAST = 0x7F;
 
 const mask7bits = 0x7F;
 
