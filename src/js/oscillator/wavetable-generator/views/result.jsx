@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import autobind from "autobind-decorator";
-import WavFileLink from "./wav-file-link.jsx";
-
 
 const shift = {
     x: 0.2,
@@ -51,8 +49,14 @@ class Result extends Component {
         );
     }
 
+    @autobind
+    handleSelect (event) {
+        event.stopPropagation();
+        this.props.handlers.selectWaveIndex(parseInt(event.target.value), this.props.patch);
+    }
+
     render () {
-        const {wavetable = []} = this.props;
+        const {wavetable = [], selected = 0} = this.props;
 
         return (
             <div>
@@ -64,6 +68,7 @@ class Result extends Component {
                 >
                     {wavetable.map(this.waveElement)}
                 </svg>
+                <input max={wavetable.length - 1} min={0} onInput={this.handleSelect} type="range" value={selected} />
             </div>
         );
     }

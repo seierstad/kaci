@@ -4,10 +4,12 @@ import autobind from "autobind-decorator";
 
 //import RangeInput from "../../../static-source/views/range-input.jsx";
 import WaldorfSpecific from "../waldorf/views/waldorf-specific.jsx";
+import AudioFileSpecific from "../audiofile/views/audio-file-specific.jsx";
+
 import ViewstateToggle from "./viewstate-toggle.jsx";
 import Parameters from "./parameters.jsx";
 import Result from "./result.jsx";
-import AudioFileSpecific from "./audio-file-specific.jsx";
+
 
 class WavetableGenerator extends Component {
 
@@ -103,7 +105,15 @@ class WavetableGenerator extends Component {
 
     render () {
         const {configuration, handlers, patch, viewState} = this.props;
-        const {active = false, manufacturer, model, result: wavetable, wave_count_locked = false, wave_length_locked = false} = viewState;
+        const {
+            active = false,
+            manufacturer,
+            model,
+            result: wavetable,
+            wave_count_locked = false,
+            wave_length_locked = false,
+            selected
+        } = viewState;
 
         let ManufacturerSpecificComponent;
 
@@ -130,10 +140,10 @@ class WavetableGenerator extends Component {
                             <span className="label-text">type</span>
                             <select onChange={this.handleTypeChange} value={viewState.type}>
                                 <optgroup label="Generic">
-                                    <option value="wav">audio (WAV)</option>
+                                    <option value="wav-audiofile">audio (WAV)</option>
                                 </optgroup>
                                 <optgroup label="Waldorf">
-                                    <option value="waldorf-blofeld">Blofeld</option>
+                                    <option value="blofeld-waldorf">Blofeld</option>
                                 </optgroup>
                                 <optgroup label="PPG" />
                             </select>
@@ -173,8 +183,9 @@ class WavetableGenerator extends Component {
                                 viewState={viewState}
                             />
                             <Result
-                                handlers={{}}
-                                selected={2}
+                                handlers={handlers}
+                                patch={patch}
+                                selected={selected}
                                 wavetable={wavetable}
                             />
                         </ManufacturerSpecificComponent>

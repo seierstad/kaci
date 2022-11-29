@@ -4,9 +4,11 @@ import {
     TYPE,
     TOGGLE,
     WAVE_COUNT,
-    WAVE_LENGTH
+    WAVE_LENGTH,
+    SELECT_WAVE_INDEX
 } from "./actions";
 
+import audiofileDispatchers from "./audiofile/dispatchers.js";
 import waldorfDispatchers from "./waldorf/dispatchers.js";
 
 const actionCommons = {
@@ -21,12 +23,17 @@ const wavetableGeneratorDispatcher = (dispatch) => ({
         parameters,
         patch
     }),
-    "changeType": (value, patch) => dispatch({
-        ...actionCommons,
-        "type": TYPE,
-        patch,
-        value
-    }),
+    "changeType": (value, patch) => {
+        const [model, manufacturer] = value.split("-");
+        dispatch({
+            ...actionCommons,
+            model,
+            manufacturer,
+            "type": TYPE,
+            patch,
+            value
+        });
+    },
     "changeParameter": (parameter, value, patch) => dispatch({
         ...actionCommons,
         "type": PARAMETER,
@@ -53,6 +60,13 @@ const wavetableGeneratorDispatcher = (dispatch) => ({
         "type": WAVE_LENGTH,
         value
     }),
+    "selectWaveIndex": (value, patch) => dispatch({
+        ...actionCommons,
+        "type": SELECT_WAVE_INDEX,
+        value,
+        patch
+    }),
+    "audiofile": audiofileDispatchers(dispatch, actionCommons),
     "waldorf": waldorfDispatchers(dispatch, actionCommons)
 });
 
