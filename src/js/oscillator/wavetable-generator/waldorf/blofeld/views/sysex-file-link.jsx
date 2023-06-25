@@ -1,18 +1,12 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import { encodeWAV } from "wav-recorder-node";
+import {SYSEX} from "wavetables";
 
-import * as DEFAULTS from "../defaults.js";
-import { waldorfBlofeldWavetable } from "../functions.js";
-import { flattenWavetable } from "../../../functions.js";
-
-
-const waldorfBlofeldSysexBlob = (wavetable, name, slot, deviceId) => URL.createObjectURL(
-    new Blob(
-        [waldorfBlofeldWavetable(null, flattenWavetable(wavetable), name, slot, deviceId)],
-        {type: "application/midi"}
-    )
-);
+const {
+    WALDORF: {
+        BLOFELD = {}
+    }
+} = SYSEX;
 
 
 class WaldorfBlofeldSysexLink extends Component {
@@ -26,14 +20,14 @@ class WaldorfBlofeldSysexLink extends Component {
 
     render () {
         const {
-            deviceId = DEFAULTS.DEVICE_ID,
-            name = DEFAULTS.NAME,
-            slot = DEFAULTS.SLOT,
+            deviceId = BLOFELD.DEFAULT.DEVICE_ID,
+            name = BLOFELD.DEFAULT.NAME,
+            slot = BLOFELD.DEFAULT.SLOT,
             wavetable
         } = this.props;
 
         return (
-            <a download={`${name}-${slot}.syx`} href={waldorfBlofeldSysexBlob(wavetable, name, slot, deviceId)}>Download Waldorf Blofeld sysex</a>
+            <a download={`${name}-${slot}.syx`} href={BLOFELD.waldorfBlofeldSysexBlob(wavetable, name, slot, deviceId)}>Download Waldorf Blofeld sysex</a>
         );
     }
 }

@@ -1,13 +1,20 @@
+import {SYSEX} from "wavetables";
+
 import {
     getPdFunction,
     getMixFunction,
     getWrapperFunction
 } from "../oscillator-shared-functions";
 
-import * as BLOFELD from "./waldorf/blofeld/defaults.js";
 
 import * as ACTION from "./actions";
 import DEFAULTS from "./defaults";
+
+const {
+    WALDORF: {
+        BLOFELD = {}
+    } = {}
+} = SYSEX;
 
 
 const getParamFunction = (parameter, patchValue, waveCount) => {
