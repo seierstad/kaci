@@ -1,4 +1,5 @@
-import React, {Component} from "react"; import PropTypes from "prop-types";
+import React, {Component} from "react";
+import PropTypes from "prop-types";
 
 import {
     UNICODE_FRACTION,
@@ -18,25 +19,27 @@ class Fraction extends Component {
 
     static propTypes = {
         "denominator": PropTypes.number.isRequired,
-        "numerator": PropTypes.number.isRequired
+        "numerator": PropTypes.number.isRequired,
+        "vulgar": PropTypes.bool
     }
 
     render () {
 
         const {
             denominator,
-            numerator
+            numerator,
+            vulgar = false
         } = this.props;
 
         const title = fractionString(numerator, denominator);
 
         const result = [];
 
-        if (numerator >= denominator) {
+        if (!vulgar && numerator >= denominator) {
             result.push(<span className="integer-part" key="integer">{Math.trunc(numerator / denominator)}</span>);
         }
 
-        const numeratorRest = numerator % denominator;
+        const numeratorRest = vulgar ? numerator : numerator % denominator;
 
         if (numeratorRest !== 0) {
             const {

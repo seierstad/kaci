@@ -12,7 +12,7 @@ class Result extends Component {
     static propTypes = {
         "handlers": PropTypes.object.isRequired,
         "selected": PropTypes.number,
-        "wavetable": PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
+        "wavetable": PropTypes.arrayOf(PropTypes.object).isRequired
     }
 
     scale (input) {
@@ -43,23 +43,33 @@ class Result extends Component {
             <path
                 className={(index === this.props.selected) ? "selected" : null}
                 d={wave.reduce(this.pathDataReducer(offset), "")}
+                key={`wave-${index}`}
                 transform={`translate(${index * shift.x}, ${index * -shift.y})`}
             />
         );
     }
 
+    @autobind
+    handleSelect (event) {
+        event.stopPropagation();
+        this.props.handlers.selectWaveIndex(parseInt(event.target.value), this.props.patch);
+    }
+
     render () {
-        const {wavetable = []} = this.props;
+        const {wavetable = [], selected = 0} = this.props;
 
         return (
-            <svg
-                className="wavetable-generator-result"
-                height="100%"
-                viewBox={`0 0 ${wavetable[0].length + Math.ceil(wavetable.length * shift.x)} ${100 + Math.ceil(shift.y * wavetable.length)}`}
-                width="100%"
-            >
-                {wavetable.map(this.waveElement)}
-            </svg>
+            <div>
+                <svg
+                    className="wavetable-generator-result"
+                    height="100%"
+                    viewBox={`0 0 ${wavetable[0].length + Math.ceil(wavetable.length * shift.x)} ${100 + Math.ceil(shift.y * wavetable.length)}`}
+                    width="100%"
+                >
+                    {wavetable.map(this.waveElement)}
+                </svg>
+                <input max={wavetable.length - 1} min={0} onInput={this.handleSelect} type="range" value={selected} />
+            </div>
         );
     }
 }

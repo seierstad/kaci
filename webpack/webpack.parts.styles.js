@@ -3,7 +3,8 @@ import autoprefixer from "autoprefixer";
 import inlineSvg from "postcss-inline-svg";
 import flexbugsFixes from "postcss-flexbugs-fixes";
 import cssnano from "cssnano";
-import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
+//import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import sass from "sass";
 // import Fiber from "fibers";
 
@@ -78,11 +79,14 @@ export const load = ({include, exclude, svgPath, sourceMap = false, dev = false}
 export const minify = (options = {}) => ({
     optimization: {
         minimizer: [
+            new CssMinimizerPlugin()
+            /*
             new OptimizeCSSAssetsPlugin({
                 cssProcessor: cssnano,
                 cssProcessorOptions: options,
                 canPrint: true
             })
+            */
         ]
     }
 });

@@ -1,8 +1,10 @@
 //import {Plugin as ESlintLoaderCombinedReportPlugin} from "eslint-loader";
+import ESLintPlugin from "eslint-webpack-plugin";
 import TerserWebpackPlugin from "terser-webpack-plugin";
 //import CheckstyleFormatter from "eslint/lib/formatters/checkstyle";
 
 export const lint = ({include, exclude, options = {}}) => ({
+    /*
     "module": {
         "rules": [{
             "test":  /(\.js|\.jsx)$/,
@@ -12,7 +14,9 @@ export const lint = ({include, exclude, options = {}}) => ({
             "loader": "eslint-loader"
         }]
     },
+    */
     "plugins": [
+        new ESLintPlugin(options)
         //new ESlintLoaderCombinedReportPlugin(options)
     ]
 });

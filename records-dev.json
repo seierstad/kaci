@@ -1,5 +1,5 @@
 {
-  "html-webpack-plugin for \"index.html\"": [
+  "HtmlWebpackCompiler": [
     {
       "modules": {
         "byIdentifier": {},
@@ -8,9 +8,7 @@
       "chunks": {
         "byName": {},
         "bySource": {},
-        "usedIds": [
-          0
-        ]
+        "usedIds": []
       }
     }
   ],
@@ -57,18 +55,5 @@
     "byName": {},
     "bySource": {},
     "usedIds": []
-  },
-  "HtmlWebpackCompiler": [
-    {
-      "modules": {
-        "byIdentifier": {},
-        "usedIds": {}
-      },
-      "chunks": {
-        "byName": {},
-        "bySource": {},
-        "usedIds": []
-      }
-    }
-  ]
+  }
 }

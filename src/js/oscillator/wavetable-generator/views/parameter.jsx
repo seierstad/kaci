@@ -53,6 +53,7 @@ class Parameter extends Component {
                 <td>
                     <div className="wavetable-generator-parameter-range">
                         <RangeInput
+                            changeHandler={() => null}
                             className="wavetable-start-value"
                             configuration={noResetConfig}
                             disabled

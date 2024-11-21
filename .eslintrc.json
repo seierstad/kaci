@@ -10,10 +10,10 @@
   },
   "settings": {
     "react": {
-      "version": "16.8"
+      "version": "17.0"
     }
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 7,
     "sourceType": "module",
@@ -24,6 +24,10 @@
       "jsx": true,
       "spread": true,
       "experimentalObjectRestSpread": true
+    },
+    "requireConfigFile": "false",
+    "babelOptions": {
+      "configFile": "./src/.babelrc"
     }
   },
   "plugins": [
@@ -65,7 +69,7 @@
     "id-length": 0,
     "id-match": 0,
     "import/default": 2,
-    "import/extensions": [2, "never", {"jsx": "always"}],
+    "import/extensions": [1, "never", {"jsx": "always"}],
     "import/first": 2,
     "import/named": 2,
     "import/namespace": 2,

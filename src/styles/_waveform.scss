@@ -26,10 +26,6 @@
                 text-align: center;
                 transition-property: transform;
 
-                &:nth-of-type(4) {
-                    grid-column: 4;
-                }
-
                 &,
                 &::before {
                     border-radius: 0.5rem;
@@ -48,6 +44,11 @@
                     right: 0;
                     top: 0;
                     transition-property: opacity;
+                }
+
+
+                &:nth-of-type(4) {
+                    grid-column: 4;
                 }
 
                 &:focus,

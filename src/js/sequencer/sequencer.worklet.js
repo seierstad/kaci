@@ -19,7 +19,7 @@ class SequenceWorkletProcessor extends AudioWorkletProcessor {
 
     constructor () {
         super();
-        this.sequence = [0];
+        this.sequence = [[0, true]];
         this.maxValue = 1;
         // minValue is always 0
         this.valueFactor = 2;
